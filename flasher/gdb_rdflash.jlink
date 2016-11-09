@@ -1,0 +1,16 @@
+# GDB Jlink read fullflash
+# Init
+source -v flasher/gdb_flasher.jlink
+InitJlink
+SystemInit
+SPI_Init
+FlashInfo
+# Read FullFlash
+printf "Read FullFlash:\n"
+set $dumpstartaddr = $SPI_FLASH_BASE
+set $dumpendaddr = $SPI_FLASH_BASE + 0x100000
+printf "Start addr of dumping = 0x%08x\n", $dumpstartaddr
+printf "End addr of dumping = 0x%08x\n", $dumpendaddr
+dump binary memory ./build/bin/fullflash.bin $dumpstartaddr $dumpendaddr
+printf "FullFlash saved in ./build/bin/fullflash.bin - OK.\n"
+quit
