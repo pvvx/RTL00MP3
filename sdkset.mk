@@ -10,8 +10,8 @@ LFLAGS += -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler -Wl,--no-enum-s
 # LIBS
 # -------------------------------------------------------------------
 LIBS =
-all: LIBS +=_platform_new _wlan _p2p _wps _mdns _rtlstd _websocket _xmodem m c nosys gcc
-mp: LIBS +=_platform_new _wlan_mp _p2p _wps _mdns _rtlstd _websocket _xmodem m c nosys gcc
+all: LIBS +=_platform_new _wlan _p2p _wps _rtlstd _websocket _xmodem m c nosys gcc
+mp: LIBS +=_platform_new _wlan_mp _p2p _wps _rtlstd _websocket _xmodem m c nosys gcc
 PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
 LDFILE = rlx8195A-symbol-v03-img2.ld
 BOOTS = sdk/component/soc/realtek/8195a/misc/bsp/image
