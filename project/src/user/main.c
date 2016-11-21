@@ -37,7 +37,6 @@
 #define DEBUG_MAIN_LEVEL 1
 
 //Priorities of the reader and the decoder thread. Higher = higher prio. (ESP8266!)
-//RTL87xx Higher = lower prio ?
 //#define PRIO_READER (configMAX_PRIORITIES - 2) // (tskIDLE_PRIORITY + PRIORITIE_OFFSET)
 //#define PRIO_MAD (PRIO_READER - 1) // PRIO_READER + n; (TCPIP_THREAD_PRIO = (configMAX_PRIORITIES - 2))
 #define PRIO_MAD (tskIDLE_PRIORITY + 1 + PRIORITIE_OFFSET)
@@ -455,7 +454,8 @@ void tskreader(void *pvParameters) {
 void connect_close(void) {
 	if (tskreader_enable == 1) {
 		tskreader_enable = 0;
-		while(tskreader_enable != -1) vTaskDelay(2);
+		while(tskreader_enable == 0) vTaskDelay(2);
+		tskreader_enable = 0;
 	}
 }
 
