@@ -178,9 +178,9 @@ typedef struct net_device
 extern struct net_device *rltk_wlan_info;
 void patch_rltk_wlan_deinit(void)
 {
-	struct net_device *v0; // r6@1
-  int v1; // r5@2
-  char *v4; // r7@3
+	struct net_device *v0;
+  int v1;
+  char *v4;
 
   v0 = rltk_wlan_info;
 
@@ -998,7 +998,7 @@ int wifi_rf_off(void)
 //----------------------------------------------------------------------------//
 int wifi_on(rtw_mode_t mode)
 {
-	int ret = 1;
+	int ret = 0;
 //pvvx	int timeout = 20; // 20 sec ??!!
 	int timeout = wifi_test_timeout_ms/wifi_test_timeout_step_ms;
 	int idx;
@@ -1007,7 +1007,7 @@ int wifi_on(rtw_mode_t mode)
 	
 	if(rltk_wlan_running(WLAN0_IDX)) {
 		printf("WIFI is already running\n");
-		return 1;
+		return 0;
 	}
 
 	if(event_init == 0){
@@ -1061,7 +1061,7 @@ int wifi_on(rtw_mode_t mode)
 
 int wifi_off(void)
 {
-	int ret = 0;
+//	int ret = 0;
 //pvvx	int timeout = 20; // 20 sec ??!!
 	int timeout = wifi_test_timeout_ms/10;
 
@@ -1105,7 +1105,7 @@ int wifi_off(void)
 	inic_stop();
 #endif
 
-	return ret;
+	return 1;
 }
 
 int wifi_set_power_mode(unsigned char ips_mode, unsigned char lps_mode)

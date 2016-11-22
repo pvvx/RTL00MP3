@@ -1,6 +1,6 @@
 /* 
- startup.o sdk-ameba-rtl8710af-v3.5a_without_NDA_GCC_V1.0.0
- pvvx 2016
+ * startup.o sdk-ameba-rtl8710af-v3.5a_without_NDA_GCC_V1.0.0
+ * pvvx 2016
  */
 
 #include "rtl8195a.h"
@@ -41,7 +41,7 @@ void StartupHalInitPlatformLogUart(void);
 void RtlBootToSram(void);
 int IsForceLoadDefaultImg2(void);
 void StartupHalSpicInit(int InitBaudRate);
-void PreProcessForVendor(u32 def_fuse, u32 Img2Addr, int a3);
+void PreProcessForVendor(void);
 void HalHardFaultHandler_Patch_c(u32 HardDefaultArg);
 void VectorTableOverrideRtl8195A(u32 StackP);
 void SYSPlatformInit(void);
@@ -220,7 +220,7 @@ void __attribute__((section(".hal.ram.text"))) SYSCpuClkConfig(int ChipID, int S
 		SpicWaitWipRtl8195A(); // extern u32 SpicWaitWipRtl8195A(VOID);
 		flg = 1;
 	}
-	if (ChipID == 0xFC && (!SysCpuClk)) SysCpuClk = 1;
+	if (ChipID == CHIP_ID_8710AF && (!SysCpuClk)) SysCpuClk = 1;
 	HalCpuClkConfig(SysCpuClk);
 	HalDelayUs(1000);
 	StartupHalInitPlatformLogUart();
@@ -283,13 +283,12 @@ void __attribute__((section(".hal.ram.text"))) StartupHalSpicInit(
 }
 
 //----- PreProcessForVendor
-void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(u32 def_fuse,
-		u32 Img2Addr, int a3) {
+void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(void) {
 	START_FUNC entry_func;
 	u32 run_image;
-	u32 Image2Addr = Img2Addr;
+	u32 Image2Addr;
 	u32 v16 = 0, v17;
-	u8 efuse0xD3_data = def_fuse >> 24;
+	u8 efuse0xD3_data;
 	HALEFUSEOneByteReadROM(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_CTRL), 0xD3,
 			&efuse0xD3_data, L25EOUTVOLTAGE);
 	if (efuse0xD3_data & 1)	v16 = HalPinCtrlRtl8195A(JTAG, 0, 1);
@@ -303,7 +302,7 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(u32 def_fuse,
 	} else {
 		memcpy(&Image2Addr, (const void *) 0x1006FFFC, 4); // ???
 		entry_func = Image2Addr;
-		if (chip_id != 0xFB) {
+		if (chip_id != CHIP_ID_8711AN) { // 0xFB
 			StartupHalSpicInit(1); // BaudRate 1
 			x_enable = 1;
 		}
@@ -319,7 +318,10 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(u32 def_fuse,
 		sdr_enable = 1;
 	}
 #else
-	SdrPowerOff();
+//	SdrPowerOff();
+    SDR_PIN_FCTRL(OFF);
+    LDO25M_CTRL(OFF);
+    HAL_WRITE32(PERI_ON_BASE, REG_SOC_FUNC_EN, HAL_READ32(PERI_ON_BASE, REG_SOC_FUNC_EN) | BIT(21));
 #endif
 	ConfigDebugErr = -1;
 	ConfigDebugWarn = 0;
@@ -331,7 +333,7 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(u32 def_fuse,
 	DBG_8195A("===== Enter Image 1 ====\n");
 	if (x_enable) {
 		SpicReadIDRtl8195A();
-		SpicFlashInitRtl8195A(1); // SpicBitMode 1
+		SpicFlashInitRtl8195A(SpicDualBitMode); // SpicBitMode 1
 	}
 //	if (sdr_enable)	SdrControllerInit();
 	if (flash_enable) {
@@ -362,10 +364,8 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(u32 def_fuse,
 					sign1 = *prdflash++;
 					sign2 = *prdflash;
 					if (sign2 == 0x31313738) {
-						if (sign1 == 0x35393138)
-							v16 = OTA_addr;
-						else if (sign1 == 0x35393130)
-							v17 = OTA_addr;
+						if (sign1 == 0x35393138) v16 = OTA_addr;
+						else if (sign1 == 0x35393130) v17 = OTA_addr;
 					}
 LABEL_41: 			if (IsForceLoadDefaultImg2()) {
 						if (v17 != -1) run_image = v17;
@@ -373,8 +373,7 @@ LABEL_41: 			if (IsForceLoadDefaultImg2()) {
 							run_image = v16;
 							if (run_image == -1) {
 								DiagPrintf("Fatal: no fw\n");
-								while (1)
-									RtlConsolRom(1000);
+								while (1) RtlConsolRom(1000);
 							}
 						}
 					} else {
@@ -383,8 +382,7 @@ LABEL_41: 			if (IsForceLoadDefaultImg2()) {
 							run_image = v17;
 							if (run_image == -1) {
 								DiagPrintf("Fatal: no fw\n");
-								while (1)
-									RtlConsolRom(1000);
+								while (1) RtlConsolRom(1000);
 							}
 						}
 					}

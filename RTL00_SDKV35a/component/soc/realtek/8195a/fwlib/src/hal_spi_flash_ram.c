@@ -933,11 +933,11 @@ VOID SpicNVMCalLoad(u8 BitMode, u8 CpuClk)
 	uint32_t spci_para; // [sp+Ch] [bp-2Ch]@4
 
 	v2 = CpuClk + 6 * BitMode;
-	v3 = 40006120;
-	v4 = 40006014;
+	v3 = 0x40006120;
+	v4 = 0x40006014;
 	v5 = BitMode;
 	v6 = CpuClk;
-	if (40006014 == 1) {
+	if (0x40006014 == 1) {
 		BitMode = HalGetCpuClk(BitMode, CpuClk);
 		if (BitMode == 166666666) {
 			40006120 |= 0x202u;
@@ -1012,39 +1012,38 @@ VOID HAL_FLASH_TEXT_SECTION SpicNVMCalStore(u8 BitMode, u8 CpuClk)
 			v4);
 	v5 = v4 + 6 * v3;
 	v6 = v5;
-	if (*(u32 *) (8 * v5 - 1744793472) == -1) {
+	if (*(u32 *) (8 * v5 + 0x98009080) == -1) {
 		LOBYTE (spci_para) = SpicInitParaAllClk[0][v5].BaudRate;
 		BYTE1 (spci_para) = SpicInitParaAllClk[0][v6].RdDummyCyle;
 		BYTE2 (spci_para) = SpicInitParaAllClk[0][v6].DelayLine;
 		BYTE3 (spci_para) = SpicInitParaAllClk[0][v6]._anon_0.Rsvd;
-		*(u32 *) (8 * v5 - 1744793472) = spci_para;
+		*(u32 *) (8 * v5 + 0x98009080) = spci_para;
 		if (SpicInitParaAllClk[0][v6].flashtype == 4)
 			SpicWaitOperationDoneRtl8195A(SpicInitPara, spci_para);
 		else
 			SpicWaitWipDoneRefinedRtl8195A(SpicInitPara, spci_para);
-		*(u32 *) (8 * v5 - 1744793468) = ~spci_para;
+		*(u32 *) (8 * v5 + 0x98009084) = ~spci_para;
 		v7 = SpicInitParaAllClk[0][v4 + 6 * v3].flashtype;
 		if (v7 == 4)
 			SpicWaitOperationDoneRtl8195A(SpicInitPara, 4);
 		else
 			SpicWaitWipDoneRefinedRtl8195A(SpicInitPara, v7);
-		DBG_SPIF_INFO("SpicNVMCalStore(BitMode %d, CPUClk %d): Calibration Stored: BaudRate=0x%x RdDummyCyle=0x%x DelayLine=0x%x\r\n",
+			DBG_SPIF_INFO("SpicNVMCalStore(BitMode %d, CPUClk %d): Calibration Stored: BaudRate=0x%x RdDummyCyle=0x%x DelayLine=0x%x\r\n",
 				v3, v4, SpicInitParaAllClk[0][v4 + 6 * v3].BaudRate,
 				SpicInitParaAllClk[0][v4 + 6 * v3].RdDummyCyle,
 				SpicInitParaAllClk[0][v4 + 6 * v3].DelayLine);
-		if (*(u32 *) (8 * v5 - 1744793472) != spci_para) {
-
-			v8 = *(u32 *) (8 * v5 - 1744793472);
+		if (*(u32 *) (8 * v5 + 0x98009080) != spci_para) {
+			v8 = *(u32 *) (8 * v5 + 0x98009080);
 			DBG_SPIF_ERR("SpicNVMCalStore Err(Offset=0x%x), Wr=0x%x Rd=0x%x \r\n",
 					8 * v5);
 		}
-		if (*(u32 *) (8 * v5 - 1744793468) != ~spci_para) {
-				v9 = *(u32 *) (8 * v5 - 1744793468);
+		if (*(u32 *) (8 * v5 + 0x98009084) != ~spci_para) {
+				v9 = *(u32 *) (8 * v5 + 0x98009084);
 				DBG_SPIF_ERR("SpicNVMCalStore Err(Offset=0x%x), Wr=0x%x Rd=0x%x \r\n",
 						v6 * 8 + 4);
 		}
 	} else DBG_SPIF_ERR("SpicNVMCalStore: The flash memory(@0x%x = 0x%x) is not able to be write, Erase it first!!\r\n",
-				v6 * 8 + 36992);
+				v6 * 8 + 0x9080);
 }
 
 //----- SpicCalibrationRtl8195A
@@ -1226,7 +1225,7 @@ extern BOOLEAN HAL_FLASH_TEXT_SECTION SpicFlashInitRtl8195A(u8 SpicBitMode)
 			DefRdDummyCycle = 8;
 		break;
 	default:
-		DBG_MISC_ERR("No Support SPI Mode!!!!!!!!\n");
+		DBG_MISC_ERR("No Support SPI Mode!\n");
 		SpicConfigAutoModeRtl8195A(SpicOneBitMode);
 		DefRdDummyCycle = 0;
 	}

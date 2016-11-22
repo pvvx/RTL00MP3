@@ -98,9 +98,9 @@ void *tcm_heap_allocmem(int size)
 			{
 				/* Just remove this chunk from the free list */
 				prev->next = chunk->next;
-				#ifdef _DEBUG
-					memset(chunk, ALLOC_FILL_CODE, size);
-				#endif
+#ifdef _DEBUG
+				memset(chunk, ALLOC_FILL_CODE, size);
+#endif
 				
 				rtw_exit_critical(&tcm_lock, &irqL);
 				//printf("----ALLOC1-----\n\r");
@@ -112,9 +112,9 @@ void *tcm_heap_allocmem(int size)
 			{
 				/* Allocate from the END of an existing chunk */
 				chunk->size -= size;
-				#ifdef _DEBUG
-					memset((uint8_t *)chunk + chunk->size, ALLOC_FILL_CODE, size);
-				#endif
+#ifdef _DEBUG
+				memset((uint8_t *)chunk + chunk->size, ALLOC_FILL_CODE, size);
+#endif
 				rtw_exit_critical(&tcm_lock, &irqL);
 				//printf("----ALLOC2-----\n\r");
 				// tcm_heap_dump();

@@ -38,6 +38,7 @@ int uvc_stream_init(void); //entry function to start uvc
 void uvc_stream_free(void); // free streaming resources
 int uvc_is_stream_ready(void); // return true if uvc device is initialized successfully
 int uvc_is_stream_on(void); //return true if uvc device is streaming now
+int uvc_is_stream_off(void); //return true if uvc device is free already
 int uvc_stream_on(void); //enable camera streaming
 void uvc_stream_off(void); //disable camera streaming
 int uvc_set_param(uvc_fmt_t fmt_type, int *width, int *height, int *frame_rate, int *compression_ratio);//set camera streaming video parameters:video format, resolution and frame rate.

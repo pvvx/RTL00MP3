@@ -335,10 +335,10 @@ static inline __u16 le16_to_cpup(const __le16 *p)
 #endif
 
 #ifndef copy_from_user
-#define copy_from_user(to, from, sz) RtlMemcpy((to), (from), (sz))
+#define copy_from_user(to, from, sz) _memcpy((to), (from), (sz))
 #endif
 #ifndef copy_to_user
-#define copy_to_user(to, from, sz)   RtlMemcpy((to), (from), (sz))
+#define copy_to_user(to, from, sz)   _memcpy((to), (from), (sz))
 #endif
 
 typedef u32             compat_caddr_t; //used for compatibility in uvc_v4l2.c
@@ -354,6 +354,7 @@ typedef u32             compat_caddr_t; //used for compatibility in uvc_v4l2.c
 * of course, the buffer size is zero). It does not pad
 * out the result like strncpy() does.
 */
+#ifndef __GNUC__
 static inline size_t strlcpy(char *dest, const char *src, size_t size)
 {
          size_t ret = _strlen(src);
@@ -365,6 +366,7 @@ static inline size_t strlcpy(char *dest, const char *src, size_t size)
          }
          return ret;
 }
+#endif
 
 /**
 * clamp - return a value clamped to a given range with strict typechecking
@@ -505,6 +507,7 @@ static inline size_t memweight(const void *ptr, size_t bytes)
 * @src: The string to append to it
 * @count: The size of the destination buffer.
 */
+#ifndef __GNUC__
 static inline size_t strlcat(char *dest, const char *src, size_t count)
 {
          size_t dsize = _strlen(dest);
@@ -522,7 +525,7 @@ static inline size_t strlcat(char *dest, const char *src, size_t count)
          dest[len] = 0;
          return res;
 }
-
+#endif
 
 /**
  * atomic_dec_and_test - decrement and test

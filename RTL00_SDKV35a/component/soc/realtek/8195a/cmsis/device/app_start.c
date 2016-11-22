@@ -102,21 +102,20 @@ VOID ShowRamBuildInfo(VOID)
 
 _WEAK int main(void)
 {
-    gpio_t gpio_led;
-    
-#ifndef CONFIG_WITHOUT_MONITOR
-    ReRegisterPlatformLogUart();
-#endif
+	HalPinCtrlRtl8195A(JTAG, 0, 1);
 
-    // Init LED control pin
-    gpio_init(&gpio_led, PC_5);
-    gpio_dir(&gpio_led, PIN_OUTPUT);    // Direction: Output
-    gpio_mode(&gpio_led, PullNone);     // No pull
-    while(1){
-        gpio_write(&gpio_led, !gpio_read(&gpio_led));
-        RtlMsleepOS(1000);
+	DiagPrintf("\r\nRTL Console ROM: Start - press key 'Up', Help '?'\r\n");
+	while(pUartLogCtl[5] != 1);
+	pUartLogCtl[3] = 0;
+	pUartLogCtl[6] = 1;
+    DiagPrintf("\r<RTL8710AF>");
+    while(1) {
+    	while(pUartLogCtl[4] != 1 );
+    	UartLogCmdExecute(pUartLogCtl);
+        DiagPrintf("\r<RTL8710AF>");
+        pUartLogCtl[4] = 0;
     }
-
+    
     return 0;
 }
 #else

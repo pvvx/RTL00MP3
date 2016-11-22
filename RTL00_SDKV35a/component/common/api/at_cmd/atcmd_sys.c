@@ -581,12 +581,11 @@ void fATSM(void *arg)
 }
 #endif
 
-extern u8 __HeapLimit, __StackTop;
 void fATSt(void *arg)
 {
 	AT_PRINTK("[ATS#]: _AT_SYSTEM_TEST_");
-	DBG_8195A("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nRAM stack\t%d bytes\nTCM heap\t%d bytes\n",
-			HalGetCpuClk(), xPortGetFreeHeapSize(), (int)&__StackTop - (int)&__HeapLimit, tcm_heap_freeSpace());
+	DBG_8195A("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
+			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 	dump_mem_block_list();
 	tcm_heap_dump();
 	DBG_8195A("\n");
@@ -1159,16 +1158,13 @@ void fATSX(void *arg)
 
 void fATST(void *arg){
 	extern void dump_mem_block_list(void); // heap_5.c
-	extern u8 __HeapLimit, __StackTop;
-	extern struct Heap g_tcm_heap;
 		//DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
 #if	DEBUG_AT_USER_LEVEL > 1
 		printf("ATST: Mem info:\n");
 #endif
 //		vPortFree(pvPortMalloc(4)); // Init RAM heap
-		printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nRAM free\t%d bytes\nTCM heap\t%d bytes\n",
-				HalGetCpuClk(), xPortGetFreeHeapSize(), (int)&__StackTop - (int)&__HeapLimit, tcm_heap_freeSpace());
-		printf("TCM ps_monitor\t%d bytes\n", 0x20000000 - (u32)&tcm_heap - tcm_heap_size);
+		printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
+				HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 		dump_mem_block_list();
 		u32 saved = ConfigDebugInfo;
 		DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM

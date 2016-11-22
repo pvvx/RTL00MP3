@@ -9,9 +9,9 @@ MEMORY
 {
   TCM (rwx) : ORIGIN = 0x1FFF0000, LENGTH = 65536
   ROM_USED_RAM (rwx)  : ORIGIN = 0x10000bc8, LENGTH = 21560
-  //RECY_RAM (rwx)  : ORIGIN = 0x10002100, LENGTH = 16128
+  RECY_RAM (rwx)  : ORIGIN = 0x10002100, LENGTH = 16128
   BD_RAM (rwx)  : ORIGIN = 0x10006000, LENGTH = 434176
-  RECY_RAM (rwx)  : ORIGIN = 0x10002100, LENGTH = 7936
+  // RECY_RAM (rwx)  : ORIGIN = 0x10002100, LENGTH = 7936
   //BD_RAM (rwx)  : ORIGIN = 0x10004000, LENGTH = 442368
   SDRAM_RAM (rwx)  : ORIGIN = 0x30000000, LENGTH = 2M
 }
@@ -165,14 +165,14 @@ SECTIONS
     __buffer_data_end__ = .;
     
   } > BD_RAM
-
+/*
   .bf_data2 : 
   {
     __buffer_data_start2__ = .;
     __buffer_data_end2__ = .;
     
   } > RECY_RAM
-
+*/  
   .sdr_text :
   {
     __sdram_data_start__ = .;

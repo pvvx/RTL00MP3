@@ -165,13 +165,13 @@ static size_t xBlockAllocatedBit = 0;
 
 /* Realtek test code start */
 //TODO: remove section when combine BD and BF
-#if ((defined CONFIG_PLATFORM_8195A) || (defined CONFIG_PLATFORM_8711B))
+#if (defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B))
 #include "section_config.h"
 SRAM_BF_DATA_SECTION
 #endif
-static unsigned char ucHeap[ configTOTAL_HEAP_SIZE ];
+static unsigned char ucHeap[configTOTAL_HEAP_SIZE];
 
-#if (defined CONFIG_PLATFORM_8195A)
+#if defined(CONFIG_PLATFORM_8195A)
 HeapRegion_t xHeapRegions[] =
 {
 	{ (uint8_t*)0x10002300, 0x3D00 }, 	// Image1 recycle heap  (15616 bytes)
@@ -179,7 +179,8 @@ HeapRegion_t xHeapRegions[] =
 #if 0
 	{ (uint8_t*)0x301b5000, 300*1024 },	// SDRAM heap
 #endif        
-	{ NULL, 0 }                             // Terminates the array.
+//	{ NULL, 0 },	// add SDRAM heap
+	{ NULL, 0 }     // Terminates the array.
 };
 #elif (defined CONFIG_PLATFORM_8711B)
 HeapRegion_t xHeapRegions[] =
@@ -220,6 +221,9 @@ void *pvReturn = NULL;
 	/* Realtek test code start */
 	if(pxEnd == NULL)
 	{
+#if defined(CONFIG_PLATFORM_8195A)
+		xHeapRegions[1].xSizeInBytes = (u32)0x10070000 - (u32)xHeapRegions[1].pucStartAddress;
+#endif
 		vPortDefineHeapRegions( xHeapRegions );
 	}
 	/* Realtek test code end */
@@ -649,3 +653,11 @@ void* pvPortReAlloc( void *pv,  size_t xWantedSize )
 	return NULL;
 }
 
+/*
+#ifdef  ARDUINO_SDK
+int vPortAddHeapRegion(uint8_t *addr, size_t size)
+{
+	return 0;
+}
+#endif
+*/
