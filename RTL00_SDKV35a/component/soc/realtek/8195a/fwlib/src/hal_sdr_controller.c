@@ -9,8 +9,12 @@
 #include "rtl8195a.h"
 #include "hal_sdr_controller.h"
 #include "rtl8195a_sdr.h"
+#include "flash_api.h"
 
 #ifdef CONFIG_SDR_EN 
+
+#define SDRAM_INIT_USE_TCM_HEAP
+
 
 #if 0
 #define HAL_SDR_WRITE32(addr, value32)  HAL_WRITE32(SDR_CTRL_BASE, addr, value32)
@@ -27,6 +31,9 @@
 #define HAL_SDRAM_READ16(addr)            HAL_READ16(SDR_SDRAM_BASE, addr)
 #define HAL_SDRAM_READ8(addr)             HAL_READ8(SDR_SDRAM_BASE, addr)
 #endif
+
+#define DEBUG_SDRAM 2
+//#define CONFIG_SDR_VERIFY
 
 extern SPIC_INIT_PARA SpicInitParaAllClk[3][CPU_CLK_TYPE_NO];
 
@@ -111,17 +118,24 @@ u32 SdrControllerInit(VOID);
 VOID DramInit(DRAM_DEVICE_INFO *);
 s32 MemTest(u32 loop_cnt);
 u32 SdrCalibration(VOID);
-u32 Sdr_Rand2(VOID);
+//u32 Sdr_Rand2(VOID);
+//#define Sdr_Rand2 Rand
 
+#ifndef SDRAM_INIT_USE_TCM_HEAP
 //3 Note: stack overfloat if the arrary is declared in the task
 HAL_CUT_B_RAM_DATA_SECTION
 u32  AvaWds[2][REC_NUM];
+#else
+typedef struct {
+	u32 m[2][REC_NUM];
+} sAvaWds, * pAvaWds;
+#endif
 
 #endif // CONFIG_SDR_EN
-
+/*
 HAL_CUT_B_RAM_DATA_SECTION
 unsigned int rand_x = 123456789;
-
+*/
 #ifdef CONFIG_SDR_EN
 
 #ifdef CONFIG_SDR_VERIFY
@@ -350,8 +364,9 @@ VOID
 SdrCtrlInit(
 VOID
 ){
-    HAL_WRITE32(0x40000000, 0x40,
-                ((HAL_READ32(0x40000000, 0x40)&0xfffff)|0xe00000));
+//	ConfigDebugErr |=  _DBG_MISC_;
+//    DBG_8195A("SDR Ctrl Init\n");
+    HAL_WRITE32(0x40000000, 0x40, ((HAL_READ32(0x40000000, 0x40)&0xfffff)|0xe00000));
     LDO25M_CTRL(ON);
 }
 
@@ -361,6 +376,7 @@ SdrControllerInit(
 VOID
 )
 {
+//	ConfigDebugErr |=  _DBG_MISC_;
     DBG_8195A("SDR Controller Init\n");
 
     HAL_WRITE32(0x40000000, 0x40,
@@ -424,7 +440,7 @@ DramInit (
 
     // In PHY, write latency == 3
     DramMaxWr= (DramInfo->Timing->WrMaxTck)/(DfiRate) +1;
-    DramWr = ((DramInfo->Timing->TwrPs) / DrmaPeriod)+1;
+    DramWr = ((DramInfo->Timing->TwrPs) / DrmaPeriod) +1;
     CrTwr = ((DramInfo->Timing->TwrPs) / DrmaPeriod) + 3;
 
     if (CrTwr < DramMaxWr) {
@@ -727,20 +743,28 @@ SdrCalibration(
 	SPIC_INIT_PARA SpicInitPara;	
 	u32 valid;
 	union { u8 b[4]; u32 l;} value;
+////
+	flash_turnon();
+	if(fspic_isinit == 0) flash_init(&flashobj);
+////
+
 	u32 CpuType = ((HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_CLK_CTRL1) & (0x70)) >> 4);
 	
 	valid = RdPipe = TapCnt = 0xFFFFFFFF;
 	value.l	= HAL_READ32(SPI_FLASH_BASE, FLASH_SDRC_PARA_BASE+8*CpuType);
 	if((value.b[0]^value.b[1])==0xFF)
 		valid = value.b[0];
-	//DiagPrintf("dump1 %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
+#if DEBUG_SDRAM > 1
+	DiagPrintf("dump1 %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
+#endif
 	value.l	= HAL_READ32(SPI_FLASH_BASE, FLASH_SDRC_PARA_BASE+8*CpuType+4);
 	if((value.b[0]^value.b[1])==0xFF)
 		RdPipe = value.b[0];
 	if((value.b[2]^value.b[3])==0xFF)
 		TapCnt = value.b[2];	
-	//DiagPrintf("dump2 %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
-		
+#if DEBUG_SDRAM > 1
+	DiagPrintf("dump2 %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
+#endif
 	if((valid==1)&&(RdPipe!=0xFFFFFFFF)&&(TapCnt!=0xFFFFFFFF)){
 		// wait DRAM settle down
 		HalDelayUs(10);
@@ -752,7 +776,11 @@ SdrCalibration(
 	}	
 #endif	
 
+#ifdef SDRAM_INIT_USE_TCM_HEAP
+	pAvaWds AvaWds = (pAvaWds) tcm_heap_calloc(sizeof(u32)*REC_NUM*2);
+#else
     _memset((u8*)AvaWds, 0, sizeof(u32)*REC_NUM*2);
+#endif
 
     volatile struct ms_rxi310_portmap *ms_ctrl_0_map;
     ms_ctrl_0_map = (struct ms_rxi310_portmap*) SDR_CTRL_BASE;
@@ -766,8 +794,10 @@ SdrCalibration(
 //        ms_ctrl_0_map->iocr = (ms_ctrl_0_map->iocr & 0xff) | (RdPipe << PCTL_IOCR_RD_PIPE_BFO);
         HAL_SDR_WRITE32(REG_SDR_IOCR, ((HAL_SDR_READ32(REG_SDR_IOCR) & 0xff) | (RdPipe << PCTL_IOCR_RD_PIPE_BFO)));
 
-        DBG_SDR_INFO("IOCR: 0x%x; Write: 0x%x\n",HAL_SDR_READ32(REG_SDR_IOCR), (RdPipe << PCTL_IOCR_RD_PIPE_BFO));        
-//        DBG_8195A("IOCR: 0x%x; Write: 0x%x\n",ms_ctrl_0_map->iocr, (RdPipe << PCTL_IOCR_RD_PIPE_BFO));
+        DBG_SDR_INFO("IOCR: 0x%x; Write: 0x%x\n", HAL_SDR_READ32(REG_SDR_IOCR), (RdPipe << PCTL_IOCR_RD_PIPE_BFO));
+#if DEBUG_SDRAM > 1
+        DBG_8195A("IOCR: 0x%x; Write: 0x%x\n",ms_ctrl_0_map->iocr, (RdPipe << PCTL_IOCR_RD_PIPE_BFO));
+#endif
 
         RdPipeFlag = _FALSE;
         PassFlag = _FALSE;
@@ -785,7 +815,7 @@ SdrCalibration(
             HAL_SDR_WRITE32(REG_SDR_DLY0, TapCnt);
 //            ms_ctrl_0_map->phy_dly0 = TapCnt;
 #endif
-            DBG_SDR_INFO("DLY: 0x%x; Write: 0x%x\n",HAL_PERI_ON_READ32(REG_PESOC_MEM_CTRL), TapCnt);
+            DBG_SDR_INFO("DLY: 0x%x; Write: 0x%x\n", HAL_PERI_ON_READ32(REG_PESOC_MEM_CTRL), TapCnt);
 #else
             SDR_DDL_FCTRL(TapCnt);
 //            Value32 = (RD_DATA(SDR_CLK_DLY_CTRL) & 0xFF00FFFF);
@@ -804,8 +834,11 @@ SdrCalibration(
                     RdPipeFlag = _TRUE;
                     RecRdPipe[RdPipeCounter - 1] = RdPipe;
                 }
-
+#ifdef SDRAM_INIT_USE_TCM_HEAP
+                AvaWds->m[RdPipeCounter-1][AvaWdsCnt] = TapCnt;
+#else
                 AvaWds[RdPipeCounter-1][AvaWdsCnt] = TapCnt;
+#endif
                 AvaWdsCnt++;
 
                 RecNum[RdPipeCounter-1] = AvaWdsCnt;
@@ -834,13 +867,13 @@ SdrCalibration(
                     }
 //                }
             }
-        }
+        } // for TapCnt
 
 
         if (RdPipeCounter > 2) {
             u8 BestRangeIndex, BestIndex;
             
-            #ifdef CONFIG_SDR_VERIFY //to reduce log
+#ifdef CONFIG_SDR_VERIFY //to reduce log
             u32 i;
             DBG_SDR_INFO("Avaliable RdPipe 0\n");                
             
@@ -851,7 +884,7 @@ SdrCalibration(
             for (i=0;i<256;i++) {
                 DBG_SDR_INFO("%d\n", AvaWds[1][i]);                
             }
-            #endif
+#endif
             
             DBG_SDR_INFO("Rec 0 => total counter %d; RdPipe:%d;\n", RecNum[0], RecRdPipe[0]);
             DBG_SDR_INFO("Rec 1 => total counter %d; RdPipe:%d;\n", RecNum[1], RecRdPipe[1]);
@@ -859,16 +892,22 @@ SdrCalibration(
             BestRangeIndex = (RecNum[0] > RecNum[1]) ? 0 : 1;
 
             BestIndex = RecNum[BestRangeIndex]>>1;
-            
+#ifdef SDRAM_INIT_USE_TCM_HEAP
+            DBG_SDR_INFO("The Finial RdPipe: %d; TpCnt: 0x%x\n", RecRdPipe[BestRangeIndex], AvaWds->m[BestRangeIndex][BestIndex]);
+#else
             DBG_SDR_INFO("The Finial RdPipe: %d; TpCnt: 0x%x\n", RecRdPipe[BestRangeIndex], AvaWds[BestRangeIndex][BestIndex]);
-
+#endif
             // set RdPipe and tap_dly
 //            ms_ctrl_0_map->iocr = (ms_ctrl_0_map->iocr & 0xff) | (RecRdPipe[BestRangeIndex] << PCTL_IOCR_RD_PIPE_BFO);
             HAL_SDR_WRITE32(REG_SDR_IOCR, ((HAL_SDR_READ32(REG_SDR_IOCR) & 0xff) | (RecRdPipe[BestRangeIndex] << PCTL_IOCR_RD_PIPE_BFO)));
             
 #ifdef FPGA
 #ifdef FPGA_TEMP
+#ifdef SDRAM_INIT_USE_TCM_HEAP
+            SDR_DDL_FCTRL(AvaWds->m[BestRangeIndex][BestIndex]);
+#else
             SDR_DDL_FCTRL(AvaWds[BestRangeIndex][BestIndex]);
+#endif
     
 //            Value32 = (RD_DATA(SDR_CLK_DLY_CTRL) & 0xFF00FFFF);
 //            Value32 = Value32 | (AvaWds[BestRangeIndex][BestIndex] << 16);
@@ -885,13 +924,19 @@ SdrCalibration(
 #endif            
 		#if DRAM_CALIBRATION_IN_NVM
 			RdPipe = RecRdPipe[BestRangeIndex];
+#ifdef SDRAM_INIT_USE_TCM_HEAP
+			TapCnt = AvaWds->m[BestRangeIndex][BestIndex];
+#else
 			TapCnt = AvaWds[BestRangeIndex][BestIndex];
+#endif
 			
 			value.b[0] = (u8)RdPipe;
 			value.b[1] = ~value.b[0];
 			value.b[2] = (u8)TapCnt;
 			value.b[3] = ~value.b[2];
-			//DiagPrintf("dump1w %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
+#if DEBUG_SDRAM > 1
+			DiagPrintf("dump1w %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
+#endif
 			if( HAL_READ32(SPI_FLASH_BASE, FLASH_SDRC_PARA_BASE+8*CpuType+4) == 0xFFFFFFFF)
 			{
 				HAL_WRITE32(SPI_FLASH_BASE, FLASH_SDRC_PARA_BASE+8*CpuType+4, value.l);
@@ -907,7 +952,9 @@ SdrCalibration(
 			value.b[1] = ~value.b[0];
 			value.b[2] = 0xFF;
 			value.b[3] = 0xFF;
-			//DiagPrintf("dump1w %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
+#if DEBUG_SDRAM > 1
+			DiagPrintf("dump1w %x, %x %x %x %x \n\r", value.l, value.b[0], value.b[1], value.b[2], value.b[3]);
+#endif
 			if( HAL_READ32(SPI_FLASH_BASE, FLASH_SDRC_PARA_BASE+8*CpuType) == 0xFFFFFFFF )
 			{
 				HAL_WRITE32(SPI_FLASH_BASE, FLASH_SDRC_PARA_BASE+8*CpuType, value.l);
@@ -928,11 +975,14 @@ SdrCalibration(
         }
     }
 
+#ifdef SDRAM_INIT_USE_TCM_HEAP
+    tcm_heap_free(AvaWds);
+#endif
     return Result;
 } // SdrCalibration
  
  
-
+/*
  
 HAL_SDRC_TEXT_SECTION 
 VOID
@@ -963,7 +1013,9 @@ Sdr_Rand2(
 
     return rand_x + y + z;
 }
- 
+
+*/
+
 HAL_SDRC_TEXT_SECTION 
 s32 
 MemTest(
@@ -973,8 +1025,10 @@ MemTest(
     u32 LoopIndex = 0;
     u32 Value32, Addr;
     for (LoopIndex = 0; LoopIndex<LoopCnt; LoopIndex++) {
-        Value32 = Sdr_Rand2();
-        Addr = Sdr_Rand2();
+//        Value32 = Sdr_Rand2();
+//        Addr = Sdr_Rand2();
+        Value32 = Rand();
+        Addr = Rand();
         Addr &= 0x1FFFFF;
         Addr &= (~0x3);
         

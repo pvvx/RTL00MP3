@@ -145,7 +145,7 @@ $(FLASH_IMAGE): $(RAM1P_IMAGE) $(RAM2P_IMAGE) $(RAM3_IMAGE)
 #	@echo "==========================================================="
 	@mkdir -p $(BIN_DIR)
 	@rm -f $(FLASH_IMAGE) 
-	@if [ -s $(RAM3_IMAGE) ]; then $(PICK) $(RAM3_START_ADDR) $(RAM3_END_ADDR) $(RAM3_IMAGE) $(RAM3P_IMAGE) body+reset_offset; fi 
+	@if [ -s $(RAM3_IMAGE) ]; then $(PICK) 0x$(RAM3_START_ADDR) 0x$(RAM3_END_ADDR) $(RAM3_IMAGE) $(RAM3P_IMAGE) body+reset_offset; fi 
 	@cat $(RAM1P_IMAGE) > $(FLASH_IMAGE)
 #	@chmod 777 $(FLASH_IMAGE)
 ifdef PADDINGSIZE
@@ -161,7 +161,7 @@ $(OTA_IMAGE): $(RAM2NS_IMAGE) $(RAM3_IMAGE)
 	@echo "==========================================================="
 	@echo "Make OTA image ($(OTA_IMAGE))"
 	@rm -f $(OTA_IMAGE) 
-	@if [ -s $(RAM3_IMAGE) ]; then $(PICK) $(RAM3_START_ADDR) $(RAM3_END_ADDR) $(RAM3_IMAGE) $(RAM3P_IMAGE) body+reset_offset; fi 
+	@if [ -s $(RAM3_IMAGE) ]; then $(PICK) 0x$(RAM3_START_ADDR) 0x$(RAM3_END_ADDR) $(RAM3_IMAGE) $(RAM3P_IMAGE) body+reset_offset; fi 
 	@cat $(RAM2NS_IMAGE) > $(OTA_IMAGE)
 	@if [ -s $(RAM3_IMAGE) ]; then cat $(RAM3P_IMAGE) >> $(OTA_IMAGE); fi
 #	@chmod 777 $(OTA_IMAGE)
@@ -232,11 +232,12 @@ $(RAM3_IMAGE): $(ELFFILE) $(NMAPFILE)
 #	@echo "==========================================================="
 	@mkdir -p $(BIN_DIR)
 	@rm -f $(RAM3_IMAGE) $(RAM3P_IMAGE)
-	@$(eval RAM3_START_ADDR = 0x$(shell grep __sdram_data_ $(NMAPFILE) | grep _start__ | awk '{print $$1}'))
-	@$(eval RAM3_END_ADDR = 0x$(shell grep __sdram_data_ $(NMAPFILE) | grep _end__ | awk '{print $$1}'))
+	@$(eval RAM3_START_ADDR = $(shell grep __sdram_data_ $(NMAPFILE) | grep _start__ | awk '{print $$1}'))
+	@$(eval RAM3_END_ADDR = $(shell grep __sdram_data_ $(NMAPFILE) | grep _end__ | awk '{print $$1}'))
 	$(if $(RAM3_START_ADDR),,$(error "Not found __sdram_data_start__!"))
 	$(if $(RAM3_END_ADDR),,$(error "Not found __sdram_data_end__!"))
 ifneq ($(RAM3_START_ADDR),$(RAM3_END_ADDR))
+	@echo	$(RAM3_START_ADDR) $(RAM3_END_ADDR)
 	@$(OBJCOPY) -j .image3 -j .sdr_text -j .sdr_rodata -j .sdr_data -Obinary $(ELFFILE) $(RAM3_IMAGE)
 else
 	@rm -f $(RAM3_IMAGE) $(RAM3P_IMAGE)

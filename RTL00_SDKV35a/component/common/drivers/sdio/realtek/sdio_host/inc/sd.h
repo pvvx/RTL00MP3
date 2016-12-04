@@ -9,17 +9,17 @@
 typedef enum
 {
 	SD_OK = 0,
+	SD_PROTECTED,
 	SD_NODISK,
 	SD_INITERR,
-	SD_PROTECTED,
 	SD_ERROR,
 }SD_RESULT;
 
 typedef enum{
-	SD_CLK_LOW,
-	SD_CLK_MID,
-	SD_CLK_HIGH,
-	SD_CLK_RSV,
+	SD_CLK_LOW,		// 10.4MHz
+	SD_CLK_MID,		// 20.8MHz
+	SD_CLK_HIGH,	// 41.6MHz
+	SD_CLK_RSV,		// 5.2MHz
 }SD_CLK;
 
 SD_RESULT SD_WaitReady(void);                        
