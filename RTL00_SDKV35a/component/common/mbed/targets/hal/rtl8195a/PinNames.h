@@ -173,7 +173,7 @@ typedef enum {
     D13         = PA_5,
     D14         = PB_9,
     D15         = PB_8,
-*/
+
 
     // Generic signals namings
     LED1        = PB_4,
@@ -192,7 +192,7 @@ typedef enum {
     SPI_SCK     = PC_1,
     SPI_CS      = PC_0,
     PWM_OUT     = PD_4,
-
+*/
     // Not connected
     NC = (uint32_t)0xFFFFFFFF
 } PinName;

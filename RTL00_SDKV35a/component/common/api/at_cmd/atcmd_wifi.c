@@ -1484,6 +1484,35 @@ void print_wlan_help(void *arg){
 
 #elif ATCMD_VER == ATVER_2 // UART module at command
 
+// wifi promisc
+// Usage: ATWM=DURATION_SECONDS[with_len]
+#ifdef CONFIG_PROMISC
+void fATWM(void *arg){
+        int argc, error_no = 0;
+        char *argv[MAX_ARGC] = {0};
+        argv[0] = "wifi_promisc";
+		printf("[ATWM]: _AT_WLAN_PROMISC_\n");
+        if(!arg){
+    		AT_DBG_MSG(AT_FLAG_WIFI, AT_DBG_ERROR,
+    			"[ATWM]Usage: ATWM=DURATION_MSECONDS[with_len]\n");
+#if CONFIG_INIC_CMD_RSP
+    		inic_c2h_msg("ATWM", RTW_BADARG, NULL, 0);
+#endif
+    		error_no = 1;
+    		goto exit;
+        }
+        if((argc = parse_param(arg, argv)) > 1){
+          cmd_promisc(argc, argv);
+        }
+exit:
+    	if(error_no==0)
+    		at_printf("\r\n[ATWM] OK");
+    	else
+    		at_printf("\r\n[ATWM] ERROR:%d",error_no);
+    	return;
+}
+#endif
+
 //ATPA=<ssid>,<pwd>,<chl>,<hidden>[,<max_conn>]
 void fATPA(void *arg)
 {
@@ -2470,6 +2499,86 @@ exit:
 	return;
 }
 
+//------------------------------------------------------------
+#if CONFIG_ENABLE_P2P
+void fATWG(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWG]: _AT_WLAN_P2P_START_\n");
+        argv[argc++] = "p2p_start";
+        cmd_wifi_p2p_start(argc, argv);
+}
+
+void fATWg(void *arg){
+	int argc = 0;
+	char *argv[4];
+	int ret =0;
+	printf("[ATWg]: _AT_WLAN_P2P_AUTO_GO_START_\n");
+	argv[argc++] = "p2p_auto_go_start";
+	ret = cmd_wifi_p2p_auto_go_start(argc, argv);
+	if(ret < 0)
+		printf("[ATWg]: Nothing to do. Please enter ATWG to initialize P2P.\n");
+}
+
+void fATWH(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWH]: _AT_WLAN_P2P_STOP_\n");
+        argv[argc++] = "p2p_stop";
+        cmd_wifi_p2p_stop(argc, argv);
+}
+void fATWJ(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWJ]: _AT_WLAN_P2P_CONNECT_\n");
+        argv[0] = "p2p_connect";
+        if(!arg){
+		printf("ATWc=[DEST_MAC,pbc/pin]\n");
+		return;
+        }
+        if((argc = parse_param(arg, argv)) > 1){
+        	cmd_p2p_connect(argc, argv);
+        }
+}
+void fATWK(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWK]: _AT_WLAN_P2P_DISCONNECT_\n");
+        argv[argc++] = "p2p_disconnect";
+        cmd_p2p_disconnect(argc, argv);
+}
+void fATWN(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWN]: _AT_WLAN_P2P_INFO_\n");
+        argv[argc++] = "p2p_info";
+        cmd_p2p_info(argc, argv);
+}
+void fATWF(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWF]: _AT_WLAN_P2P_FIND_\n");
+        argv[argc++] = "p2p_find";
+        cmd_p2p_find(argc, argv);
+}
+void fATWL(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWL]: _AT_WLAN_P2P_LISTEN_\n");
+        argv[argc++] = "p2p_listen";
+        cmd_p2p_listen(argc, argv);
+}
+void fATWP(void *arg){
+        int argc = 0;
+        char *argv[4];
+        printf("[ATWP]: _AT_WLAN_P2P_PEERS_\n");
+        argv[argc++] = "p2p_peers";
+        cmd_p2p_peers(argc, argv);
+}
+
+#endif // CONFIG_ENABLE_P2P
+//-----------------------------------------------------
+
 void print_wlan_help(void *arg){
 	at_printf("\r\nWLAN AT COMMAND SET:");
 	at_printf("\r\n==============================");
@@ -2693,9 +2802,23 @@ log_item_t at_wifi_items[ ] = {
 	{"ATPW", fATPW,}, // set Wifi mode
 	{"ATWD", fATWD,}, // WIFI disconnect
 	{"ATWS", fATWS,}, // WIFI scan
+#if CONFIG_ENABLE_P2P
+	{"ATWG", fATWG,},  //p2p start
+	{"ATWH", fATWH,},  //p2p stop
+	{"ATWJ", fATWJ,},  //p2p connect
+	{"ATWK", fATWK,},  //p2p disconnect
+	{"ATWN", fATWN,},  //p2p info
+	{"ATWF", fATWF,},  //p2p find
+	{"ATWg", fATWg,},  //p2p auto go start
+	{"ATWL", fATWL,},  //p2p listen
+	{"ATWP", fATWP,},  //p2p peers
+#endif
+#ifdef CONFIG_PROMISC
+	{"ATWM", fATWM,}, // WIFI promisc Usage: ATWM=DURATION_SECONDS[with_len]
+#endif
 	{"ATW?", fATWx,}, // WIFI Info
 #if (CONFIG_INCLUDE_SIMPLE_CONFIG)
-	{"ATWQ", fATWQ,}, // wifi simpleconfig
+	{"ATWQ", fATWQ } // wifi simpleconfig
 #endif // #if (CONFIG_INCLUDE_SIMPLE_CONFIG)
 #endif // #if CONFIG_WLAN
 #endif // end of #if ATCMD_VER == ATVER_1

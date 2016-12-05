@@ -346,7 +346,7 @@ typedef struct _SPDIO_AHB_DMA_CTRL {
 #else
 #if CONFIG_INIC_EN
 //TX BD setting
-#define SDIO_TX_BD_NUM								20	// Number of TX BD
+#define SDIO_TX_BD_NUM								16	// Number of TX BD
 #define SDIO_TX_BD_BUF_SIZE							1540    //1514+24
 //#define SDIO_TX_PKT_NUM								1	// not used
 
@@ -354,11 +354,11 @@ typedef struct _SPDIO_AHB_DMA_CTRL {
 #define RX_BD_FREE_TH								5   // trigger the interrupt when free RX BD over this threshold
 #define SDIO_RX_BD_BUF_SIZE							1540 //1514+24
 #define MAX_RX_BD_BUF_SIZE			                16380	// the Maximum size for a RX_BD point to, make it 4-bytes aligned
-#define SDIO_RX_BD_NUM								32	// Number of RX BD, to make 32K of bus aggregation, it needs 22 RX_BD at least
-#define SDIO_RX_PKT_NUM								128	// Number of RX packet handler
+#define SDIO_RX_PKT_NUM								16	// Number of RX packet handler
 #define MIN_RX_BD_SEND_PKT							2	/* the minum needed RX_BD to send a Packet to Host, we need 2: 
 											one for RX_Desc, the other for payload */
-
+#define SDIO_RX_BD_NUM								(SDIO_RX_PKT_NUM*MIN_RX_BD_SEND_PKT)	/*Number of RX BD, 
+											to make 32K of bus aggregation, it needs 22 RX_BD at least*/
 #else
 #define SDIO_TX_BD_NUM								24	// Number of TX BD
 #define SDIO_TX_BD_BUF_SIZE							(2048+32)    // the size of a TX BD pointed buffer, WLan header = 26 bytes

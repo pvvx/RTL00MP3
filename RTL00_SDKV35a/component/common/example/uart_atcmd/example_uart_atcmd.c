@@ -531,8 +531,7 @@ void uart_atcmd_main(void)
 	UART_LOG_CONF uartconf;
 
 	read_uart_atcmd_setting_from_system_data(&uartconf);
-
-	serial_init(&at_cmd_sobj,UART_TX,UART_RX);
+	serial_init(&at_cmd_sobj, UART_TX, UART_RX);
 	serial_baud(&at_cmd_sobj,uartconf.BaudRate);
 	serial_format(&at_cmd_sobj, uartconf.DataBits, (SerialParity)uartconf.Parity, uartconf.StopBits);
 	serial_rx_fifo_level(&at_cmd_sobj, FifoLvHalf);

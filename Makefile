@@ -28,7 +28,7 @@ ramdebug:
 
 .PHONY: flashburn runram reset test readfullflash
 flashburn: 
-	JLinkGDB-WrFlash.bat build/bin/ram_all.bin
+	JLinkGDB-WrFlash.bat
 	#@$(MAKE) -f flasher.mk flashburn
 
 runram: 
@@ -40,7 +40,8 @@ reset:
 	#@make -f flasher.mk reset 
 
 test: 
-	@make -f flasher.mk test 
+	JLink-RTL00ConsoleROM.bat
+	#@make -f flasher.mk test 
 
 readfullflash:
 	JLink-RdFullFlash.bat

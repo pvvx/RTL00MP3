@@ -54,7 +54,6 @@
 
 
 #ifdef CONFIG_TIMER_MODULE
-#include "hal_misc.h"
 #define __Delay(t)                  HalDelayUs(t)
 #else
 static __inline__ u32 __Delay(u32 us)
@@ -67,7 +66,7 @@ static __inline__ u32 __Delay(u32 us)
 #define Mdelay(t)					__Delay(t*1000)
 #define Udelay(t)					__Delay(t)
 
-#undef ASSERT
+
 #define ASSERT(_bool_)					do { } while (0)
 
 //#define panic_printk				DiagPrintf

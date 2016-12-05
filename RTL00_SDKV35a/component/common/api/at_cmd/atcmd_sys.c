@@ -49,34 +49,44 @@ struct _dev_id2name {
 	u8 id;
 	u8 *name;
 };
+
 struct _dev_id2name dev_id2name[] = {
-{0,  "UART0"}, {1,  "UART1"},{2,  "UART2"},
-{8,  "SPI0"}, {9,  "SPI1"}, {10, "SPI2"},
-{15, "SPI0_MCS"},
-{16, "I2C0"}, {17, "I2C1"}, {18, "I2C2"}, {19, "I2C3"},
-{24, "I2S0"}, {25, "I2S1"},
-{28, "PCM0"}, {29, "PCM1"},
-{32, "ADC0"},
-{36, "DAC0"}, {37, "DAC1"},
-{64, "SDIOD"}, {65, "SDIOH"},
-{66, "USBOTG"},
-{88, "MII"},
-{96, "WL_LED"},
-{104,"WL_ANT0"}, {105,"WL_ANT1"},
-{108,"WL_BTCOEX"}, {109,"WL_BTCMD"},
-{112,"NFC"},
-{160,"PWM0"}, {161,"PWM1"}, {162,"PWM2"}, {163,"PWM3"},
-{164,"ETE0"}, {165,"ETE1"}, {166,"ETE2"}, {167,"ETE3"},
-{168,"EGTIM"},
-{196,"SPI_FLASH"},
-{200,"SDR"},
-{216,"JTAG"},
-{217,"TRACE"},
-{220,"LOG_UART"}, {221,"LOG_UART_IR"},
-{224,"SIC"},
-{225,"EEPROM"},
-{226,"DEBUG"},
+{UART0,  "UART0"}, {UART1,  "UART1"}, {UART2,  "UART2"},
+{SPI0,  "SPI0"}, {SPI1,  "SPI1"}, {SPI2, "SPI2"},
+{SPI0_MCS, "SPI0_MCS"},
+{I2C0, "I2C0"}, {I2C1, "I2C1"}, {I2C2, "I2C2"}, {I2C3, "I2C3"},
+{I2S0, "I2S0"}, {I2S1, "I2S1"},
+{PCM0, "PCM0"}, {PCM1, "PCM1"},
+{ADC0, "ADC0"},
+{DAC0, "DAC0"}, {DAC1, "DAC1"},
+{SDIOD, "SDIOD"}, {SDIOH, "SDIOH"},
+{USBOTG, "USBOTG"},
+{MII, "MII"},
+{WL_LED, "WL_LED"},
+{WL_ANT0,"WL_ANT0"}, {WL_ANT1,"WL_ANT1"},
+{WL_BTCOEX,"WL_BTCOEX"}, {WL_BTCMD,"WL_BTCMD"},
+{NFC,"NFC"},
+{PWM0,"PWM0"}, {PWM1,"PWM1"}, {PWM2,"PWM2"}, {PWM3,"PWM3"},
+{ETE0,"ETE0"}, {ETE1,"ETE1"}, {ETE2,"ETE2"}, {ETE3,"ETE3"},
+{EGTIM,"EGTIM"},
+{SPI_FLASH,"SPI_FLASH"},
+{SDR,"SDR"},
+{JTAG,"JTAG"},
+{TRACE,"TRACE"},
+{LOG_UART,"LOG_UART"}, {LOG_UART_IR,"LOG_UART_IR"},
+{SIC,"SIC"},
+{EEPROM,"EEPROM"},
+{DEBUG,"DEBUG"},
 {255,""}};
+
+#include "rtl8195a.h"
+#include "rtl8195a_sdio_host.h"
+#include "hal_sdio_host.h"
+#include "sd.h"
+#include "sdio_host.h"
+extern HAL_SDIO_HOST_ADAPTER SdioHostAdapter;
+extern void  SdioHostSdBusPwrCtrl(uint8_t En);
+extern int  SdioHostSdClkCtrl(void *Data, int En, int Divisor);
 
 void fATXX(void *arg)
 {
@@ -105,14 +115,21 @@ void fATXX(void *arg)
 		}
 		printf("Dev %s, state = %s\n", dev_id2name[i].name, s);
 	}
+	for(i = 0; i < _PORT_MAX; i++)  printf("Port %c state: 0x%04x\n", i+'A', GPIOState[i]);
 }
-
+#ifdef CONFIG_SDR_EN
+extern s32 MemTest(u32 LoopCnt);
+void fATSM(void *arg)
+{
+	MemTest(1);
+}
+#endif
 //-------- AT SYS commands ---------------------------------------------------------------
 void fATSD(void *arg)
 {
 	int argc = 0;
 	char *argv[MAX_ARGC] = {0};
-	
+	SD_DeInit();
 	AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSD]: _AT_SYSTEM_DUMP_REGISTER_");
 	if(!arg){
 		AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSD] Usage: ATSD=REGISTER");
@@ -123,22 +140,24 @@ void fATSD(void *arg)
 		CmdDumpWord(argc-1, (unsigned char**)(argv+1));
 }
 
-#if ATCMD_VER == ATVER_1
-
-void fATSE(void *arg)
+#if ATCMD_VER == ATVER_2
+void fATXD(void *arg)
 {
 	int argc = 0;
 	char *argv[MAX_ARGC] = {0};
 	
-	AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS, "[ATSE]: _AT_SYSTEM_EDIT_REGISTER_");
+	AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS, "[ATXD]: _AT_SYSTEM_WRITE_REGISTER_");
 	if(!arg){
-		AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS, "[ATSE] Usage: ATSE=REGISTER[VALUE]");
+		AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS, "[ATXD] Usage: ATXD=REGISTER,VALUE");
 		return;
 	}
 	argc = parse_param(arg, argv);
 	if(argc == 3)
 		CmdWriteWord(argc-1, (unsigned char**)(argv+1));
 }
+#endif
+
+#if ATCMD_VER == ATVER_1
 
 void fATSC(void *arg)
 {	
@@ -1232,6 +1251,7 @@ log_item_t at_sys_items[] = {
 	{"ATSX", fATSX,},	// uart xmodem upgrade
 #endif
 	{"ATSD", fATSD,},	// Dump register
+	{"ATXD", fATXD,},	// Write register
 #endif // end of #if ATCMD_VER == ATVER_1
 
 // Following commands exist in two versions
@@ -1240,6 +1260,9 @@ log_item_t at_sys_items[] = {
 #endif
 	{"ATST", fATST},	// add pvvx: mem info
 	{"ATXX", fATXX},	// test
+#ifdef CONFIG_SDR_EN
+	{"ATSM", fATSM}		// memtest
+#endif
 };
 
 #if ATCMD_VER == ATVER_2

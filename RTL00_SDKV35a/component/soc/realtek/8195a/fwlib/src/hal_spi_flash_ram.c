@@ -286,7 +286,7 @@ VOID HAL_FLASH_TEXT_SECTION SpicInitRefinedRtl8195A(IN u8 InitBaudRate, IN u8 Sp
 	TmpSpicInitPara.id[0] = SpicBitMode;
 	u32 CpuClkMode = (HAL_PERI_ON_READ32(REG_SYS_CLK_CTRL1)
 			>> BIT_SHIFT_PESOC_OCP_CPU_CK_SEL) & BIT_MASK_PESOC_OCP_CPU_CK_SEL; // v4 = (40000014 >> 4) & 7;
-	PSPIC_INIT_PARA pspicp = &SpicInitParaAllClk[CpuClkMode];
+	pspicp = &SpicInitParaAllClk[CpuClkMode];
 	if (!pspicp->Rsvd) {
 		SpicLoadInitParaFromClockRtl8195A(CpuClkMode, 1, &TmpSpicInitPara);
 		pspicp = &TmpSpicInitPara;
@@ -313,14 +313,14 @@ VOID HAL_FLASH_TEXT_SECTION SpicInitRefinedRtl8195A(IN u8 InitBaudRate, IN u8 Sp
 }
 
 //----- SpicReadIDRtl8195A
-//VOID HAL_FLASH_TEXT_SECTION SpicReadIDRtl8195A(VOID)
-void  SpicReadIDRtl8195A(SPIC_INIT_PARA SpicInitPara)
+void HAL_FLASH_TEXT_SECTION SpicReadIDRtl8195A(VOID)
+//void  SpicReadIDRtl8195A(SPIC_INIT_PARA SpicInitPara)
 {
 	u16 flash_type;
 	u8 flashtype;
 	u32 flash_id;
 	u32 flash_density;
-	SPIC_INIT_PARA spic_para = SpicInitPara;
+	SPIC_INIT_PARA spic_para;// = SpicInitPara;
 //	memset(&spic_para, 0, sizeof(not_used));
 //	spic_para = SpicInitPara;
 	DBG_SPIF_INFO("%s(0x%x)\n", "SpicReadIDRtl8195A", *((u32 *)spic_para));
@@ -942,7 +942,7 @@ VOID SpicNVMCalLoad(u8 BitMode, u8 CpuClk)
 		if (BitMode == 166666666) {
 			40006120 |= 0x202u;
 			HAL_SPI_WRITE32(REG_SPIC_SSIENR, v4); // 40006008 = v4;
-			BitMode = SpicWaitBusyDoneRtl8195A(166666666);
+			SpicWaitBusyDoneRtl8195A();
 		}
 	}
 	v7 = *(u32 *) (8 * v2 - 0x67FF6F80);

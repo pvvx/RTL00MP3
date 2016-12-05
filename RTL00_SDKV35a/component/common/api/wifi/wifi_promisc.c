@@ -228,7 +228,7 @@ static void promisc_callback(unsigned char *buf, unsigned int len, void* userdat
 		frame->prev = NULL;
 		frame->next = NULL;
 		memcpy(frame->da, buf, 6);
-		memcpy(frame->sa, buf+6, 6);
+		memcpy(frame->sa, buf + 6, 6);
 		frame->len = len;
 		frame->rssi = ((ieee80211_frame_info_t *)userdata)->rssi;
 		taskENTER_CRITICAL();
@@ -291,7 +291,7 @@ static void promisc_test(int duration, unsigned char len_used)
 		while(1) {
 			unsigned int current_time = xTaskGetTickCount();
 
-			if((current_time - start_time) < (duration * configTICK_RATE_HZ)) {
+			if((current_time - start_time) < (duration)) { // duration * configTICK_RATE_HZ
 				frame = retrieve_frame();
 
 				if(frame) {
@@ -394,7 +394,7 @@ static void promisc_test_all(int duration, unsigned char len_used)
 		while(1) {
 			unsigned int current_time = xTaskGetTickCount();
 
-			if((current_time - start_time) < (duration * configTICK_RATE_HZ)) {
+			if((current_time - start_time) < (duration)) { // duration * configTICK_RATE_HZ
 				frame = retrieve_frame();
 
 				if(frame) {
@@ -455,16 +455,16 @@ void cmd_promisc(int argc, char **argv)
 		return;
 	}
 #endif
-	#ifdef CONFIG_PROMISC
+#ifdef CONFIG_PROMISC
 	wifi_init_packet_filter();
-	#endif
+#endif
 	if((argc == 2) && ((duration = atoi(argv[1])) > 0))
 		//promisc_test(duration, 0);
 		promisc_test_all(duration, 0);
 	else if((argc == 3) && ((duration = atoi(argv[1])) > 0) && (strcmp(argv[2], "with_len") == 0))
 		promisc_test(duration, 1);
 	else
-		printf("\n\rUsage: %s DURATION_SECONDS [with_len]", argv[0]);
+		printf("\n\rUsage: %s DURATION_MSECONDS [with_len]", argv[0]);
 #if CONFIG_INIC_CMD_RSP
 	if(inic_frame)
 		vPortFree(inic_frame);

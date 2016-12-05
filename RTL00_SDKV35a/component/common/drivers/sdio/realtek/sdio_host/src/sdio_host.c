@@ -150,7 +150,7 @@ s8 sdio_read_blocks(u32 sector, u8 *buffer, u32 count) {
 		SdioHostAdapter.AdmaDescTbl = gAdmaTbls;
 	}
 	HAL_Status result = HalSdioHostOp.HalSdioHostReadBlocksDma(&SdioHostAdapter,
-			(uint64) sector * SIZE_BLOCK_ADMA, count);
+			(unsigned long long) sector * SIZE_BLOCK_ADMA, count);
 	if (result) {
 		DBG_SDIO_ERR("sdio_read_blocks fail(0x%02x)\n", result);
 		return -1;
@@ -205,8 +205,8 @@ s8 sdio_write_blocks(uint32_t sector, const uint8_t *buffer, uint32_t count) {
 		}
 		SdioHostAdapter.AdmaDescTbl = gAdmaTbls;
 	}
-	HAL_Status result = HalSdioHostOp.HalSdioHostWriteBlocksDma(
-			&SdioHostAdapter, (uint64) sector * SIZE_BLOCK_ADMA, count);
+	HAL_Status result = HalSdioHostOp.HalSdioHostWriteBlocksDma(&SdioHostAdapter, 
+			(unsigned long long) sector * SIZE_BLOCK_ADMA, count);
 	if (result) {
 		DBG_SDIO_ERR("write fail(0x%02x)\n", result);
 		return -1;

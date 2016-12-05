@@ -171,14 +171,19 @@ SRAM_BF_DATA_SECTION
 #endif
 static unsigned char ucHeap[configTOTAL_HEAP_SIZE];
 
+extern void * __sdram_bss_end__; //, __ram_image1_text_end__, __ram_image2_text_start__;
+
 #if defined(CONFIG_PLATFORM_8195A)
 HeapRegion_t xHeapRegions[] =
 {
-	{ (uint8_t*)0x10002300, 0x3D00 }, 	// Image1 recycle heap  (15616 bytes)
+	{ (uint8_t*)0x10002300, 0x10006000 - 0x10002300 }, 	// Image1 recycle heap  (__ram_image2_text_start__ - __ram_image1_text_end__)
 	{ ucHeap, sizeof(ucHeap) },	        // Defines a block from ucHeap
 #if 0
 	{ (uint8_t*)0x301b5000, 300*1024 },	// SDRAM heap
 #endif        
+#ifdef CONFIG_SDR_EN
+	{ (uint8_t*)&__sdram_bss_end__, 0x80000 },
+#endif
 //	{ NULL, 0 },	// add SDRAM heap
 	{ NULL, 0 }     // Terminates the array.
 };
@@ -222,7 +227,12 @@ void *pvReturn = NULL;
 	if(pxEnd == NULL)
 	{
 #if defined(CONFIG_PLATFORM_8195A)
+//		xHeapRegions[0].pucStartAddress = __ram_image1_text_end__;
+//		xHeapRegions[0].xSizeInBytes = (u32)&__ram_image2_text_start__ - (u32)xHeapRegions[0].pucStartAddress;
 		xHeapRegions[1].xSizeInBytes = (u32)0x10070000 - (u32)xHeapRegions[1].pucStartAddress;
+#ifdef CONFIG_SDR_EN
+		xHeapRegions[2].xSizeInBytes = (u32)0x30200000 - (u32)xHeapRegions[2].pucStartAddress;
+#endif
 #endif
 		vPortDefineHeapRegions( xHeapRegions );
 	}

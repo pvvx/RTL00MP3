@@ -7,7 +7,7 @@
 
 
 
-#define TCM_HEAP_SIZE	(42*1024)
+#define TCM_HEAP_SIZE	(42*1024) // min size
 
 // MAX_BACKUP_SIZE in hal_soc_ps_monitor = 129*4, 0x1FFFFFFC - 129*4 = 0x1FFFFD18 !
 #define tcm_heap_size ((0x20000000 - (u32)&tcm_heap - 768 + sizeof(heap_buf_t) - 1)/sizeof(heap_buf_t))*sizeof(heap_buf_t)

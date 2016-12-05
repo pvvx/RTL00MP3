@@ -33,6 +33,7 @@ SD_RESULT SD_Init() {
 	if (sdio_sd_init() != 0) result = SD_INITERR;
 	else {
 		if (sdio_sd_getProtection() != 0) result = SD_PROTECTED;
+		RtlInitSema(&sdWSema, 0);
 		sdio_sd_hook_xfer_cmp_cb(sd_xfer_done_callback, 0);
 		sdio_sd_hook_xfer_err_cb(sd_xfer_err_callback, 0);
 	}
@@ -63,6 +64,7 @@ SD_RESULT SD_SetCLK(SD_CLK CLK) {
 		result = sdio_sd_setClock(SD_CLK_5_2MHZ);
 		break;
 	default:
+//		DBG_SDIO_INFO("clk = %d ?\n", CLK);
 		return SD_ERROR;
 	}
 	if(result) return SD_ERROR;
@@ -72,8 +74,7 @@ SD_RESULT SD_SetCLK(SD_CLK CLK) {
 //----- SD_Status
 SD_RESULT SD_Status() {
 	if (sdio_sd_isReady()) return SD_NODISK;
-	else if (sdio_sd_getProtection()) return SD_PROTECTED;
-	else return SD_OK;
+	else return sdio_sd_getProtection() != 0;
 }
 
 //----- SD_GetCID
@@ -121,7 +122,7 @@ SD_RESULT SD_ReadBlocks(u32 sector, u8 *data, u32 count) {
 		if (rd_count) return SD_ERROR;
 		return SD_OK;
 	} else {
-		if (sdio_read_blocks(sector, buf, count) == 0) {
+		if (sdio_read_blocks(sector, data, count) == 0) {
 		if (RtlDownSemaWithTimeout(&sdWSema, 1000) == 1) return SD_OK;
 			DBG_SDIO_ERR("SD_ReadBlocks timeout\n");
 		}
@@ -153,7 +154,7 @@ SD_RESULT SD_WriteBlocks(u32 sector, const u8 *data, u32 count) {
 		vPortFree(buf);
 		if (wr_count == 0)
 			return SD_OK;
-	} else if (sdio_write_blocks(sector, buf, count) == 0) {
+	} else if (sdio_write_blocks(sector, data, count) == 0) {
 		if (RtlDownSemaWithTimeout(&sdWSema, 1000) == 1)
 			return SD_OK;
 		DBG_SDIO_ERR("SD_WriteBlocks timeout\n");
