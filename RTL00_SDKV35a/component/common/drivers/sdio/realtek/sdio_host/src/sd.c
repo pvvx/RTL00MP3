@@ -10,7 +10,6 @@
 
 #define SIZE_BLOCK_ADMA 512
 
-
 SemaphoreHandle_t sdWSema;
 
 void sd_xfer_done_callback(void *obj) {
@@ -30,9 +29,11 @@ SD_RESULT SD_WaitReady() {
 SD_RESULT SD_Init() {
 	SD_RESULT result;
 
-	if (sdio_sd_init() != 0) result = SD_INITERR;
+	if (sdio_sd_init() != 0)
+		result = SD_INITERR;
 	else {
-		if (sdio_sd_getProtection() != 0) result = SD_PROTECTED;
+		if (sdio_sd_getProtection() != 0)
+			result = SD_PROTECTED;
 		RtlInitSema(&sdWSema, 0);
 		sdio_sd_hook_xfer_cmp_cb(sd_xfer_done_callback, 0);
 		sdio_sd_hook_xfer_err_cb(sd_xfer_err_callback, 0);
@@ -67,14 +68,17 @@ SD_RESULT SD_SetCLK(SD_CLK CLK) {
 //		DBG_SDIO_INFO("clk = %d ?\n", CLK);
 		return SD_ERROR;
 	}
-	if(result) return SD_ERROR;
+	if (result)
+		return SD_ERROR;
 	return SD_OK;
 }
 
 //----- SD_Status
 SD_RESULT SD_Status() {
-	if (sdio_sd_isReady()) return SD_NODISK;
-	else return sdio_sd_getProtection() != 0;
+	if (sdio_sd_isReady())
+		return SD_NODISK;
+	else
+		return sdio_sd_getProtection() != 0;
 }
 
 //----- SD_GetCID
@@ -84,8 +88,10 @@ SD_RESULT SD_GetCID(u8 *cid_data) {
 
 //----- SD_GetCSD
 SD_RESULT SD_GetCSD(u8 *csd_data) {
-	if (sdio_sd_getCSD(csd_data)) return SD_ERROR;
-	else return SD_OK;
+	if (sdio_sd_getCSD(csd_data))
+		return SD_ERROR;
+	else
+		return SD_OK;
 }
 
 //----- SD_GetCapacity
@@ -93,8 +99,10 @@ SD_RESULT SD_GetCapacity(uint32_t *sector_count) {
 
 	u32 sc = sdio_sd_getCapacity();
 	*sector_count = sc;
-	if (sc != 0) return SD_OK;
-	else return SD_ERROR;
+	if (sc != 0)
+		return SD_OK;
+	else
+		return SD_ERROR;
 }
 
 //----- SD_ReadBlocks
@@ -102,7 +110,7 @@ SD_RESULT SD_ReadBlocks(u32 sector, u8 *data, u32 count) {
 	int rd_count;
 	unsigned char * buf;
 
-	if ((u32)data & 3) {
+	if ((u32) data & 3) {
 		buf = pvPortMalloc(SIZE_BLOCK_ADMA);
 		if (buf == NULL)
 			DBG_SDIO_ERR("Fail to malloc cache for SDIO host!\n");
@@ -119,11 +127,13 @@ SD_RESULT SD_ReadBlocks(u32 sector, u8 *data, u32 count) {
 			data += SIZE_BLOCK_ADMA;
 		}
 		vPortFree(buf);
-		if (rd_count) return SD_ERROR;
+		if (rd_count)
+			return SD_ERROR;
 		return SD_OK;
 	} else {
 		if (sdio_read_blocks(sector, data, count) == 0) {
-		if (RtlDownSemaWithTimeout(&sdWSema, 1000) == 1) return SD_OK;
+			if (RtlDownSemaWithTimeout(&sdWSema, 1000) == 1)
+				return SD_OK;
 			DBG_SDIO_ERR("SD_ReadBlocks timeout\n");
 		}
 	}

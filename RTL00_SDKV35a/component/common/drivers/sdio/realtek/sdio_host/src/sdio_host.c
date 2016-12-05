@@ -205,8 +205,9 @@ s8 sdio_write_blocks(uint32_t sector, const uint8_t *buffer, uint32_t count) {
 		}
 		SdioHostAdapter.AdmaDescTbl = gAdmaTbls;
 	}
-	HAL_Status result = HalSdioHostOp.HalSdioHostWriteBlocksDma(&SdioHostAdapter, 
-			(unsigned long long) sector * SIZE_BLOCK_ADMA, count);
+	HAL_Status result = HalSdioHostOp.HalSdioHostWriteBlocksDma(
+			&SdioHostAdapter, (unsigned long long) sector * SIZE_BLOCK_ADMA,
+			count);
 	if (result) {
 		DBG_SDIO_ERR("write fail(0x%02x)\n", result);
 		return -1;
@@ -239,6 +240,7 @@ s8 sdio_sd_init(void) {
 void sdio_sd_deinit() {
 	if (sdio_status > SDIO_SD_NONE)
 		sdio_status = 1;
+	sdio_deinit_host(); // add pvvx (fix SD_DeInit())
 }
 
 //-----
@@ -276,7 +278,8 @@ s8 sdio_sd_setProtection(bool protection) {
 				goto LABEL_8;
 			hls = HalSdioHostOp.HalSdioHostSetWriteProtect(&SdioHostAdapter, 1);
 		} else {
-			if (sd_protected == 0)	goto LABEL_8;
+			if (sd_protected == 0)
+				goto LABEL_8;
 			hls = HalSdioHostOp.HalSdioHostSetWriteProtect(&SdioHostAdapter, 0);
 		}
 		if (hls) {
@@ -284,13 +287,11 @@ s8 sdio_sd_setProtection(bool protection) {
 			result = -1;
 			goto LABEL_17;
 		}
-LABEL_8:
-		sd_protected = protection;
-LABEL_7:
+		LABEL_8: sd_protected = protection;
+		LABEL_7:
 		DBG_SDIO_INFO("Set SD card Protection done.\n");
 		result = 0;
-LABEL_17:
-		rtw_mfree(padma, sizeof(ADMA2_DESC_FMT));
+		LABEL_17: rtw_mfree(padma, sizeof(ADMA2_DESC_FMT));
 		return result;
 	}
 	return -1;
@@ -364,7 +365,8 @@ u32 sdio_sd_getCapacity(void) {
 		if ((csd[0] & 0xC0) == 64)
 			result = (u16) (csd[9] + 1 + (csd[8] << 8)) << 9;
 		else
-			result = (4 * csd[7] + ((u32) csd[8] >> 6) + 1 + ((csd[6] & 3) << 10))
+			result = (4 * csd[7] + ((u32) csd[8] >> 6) + 1
+					+ ((csd[6] & 3) << 10))
 					<< ((csd[5] & 0xF) + (csd[10] >> 7) + 2 * (csd[9] & 3) - 8);
 		result *= 2;
 	}
