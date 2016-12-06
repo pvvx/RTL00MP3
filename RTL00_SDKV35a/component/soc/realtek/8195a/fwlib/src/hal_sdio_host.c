@@ -93,7 +93,7 @@ HAL_Status HalSdioHostDisable(IN VOID *Data) {
 
 //----- HalSdioHostOpInit(PHAL_SDIO_HOST_ADAPTER)
 void HalSdioHostOpInit(void *Data) {
-	PHAL_SDIO_HOST_OP phsha = Data;
+	PHAL_SDIO_HOST_OP phsha = (PHAL_SDIO_HOST_ADAPTER)Data;
 	phsha->HalSdioHostInitHost = &HalSdioHostInitHostRtl8195a;
 	phsha->HalSdioHostInitCard = &HalSdioHostInitCardRtl8195a;
 	phsha->HalSdioHostDeInit = &HalSdioHostDeInitRtl8195a;

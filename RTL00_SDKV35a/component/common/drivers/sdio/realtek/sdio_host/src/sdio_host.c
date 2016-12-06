@@ -246,7 +246,7 @@ void sdio_sd_deinit() {
 //-----
 s8 sdio_sd_setClock(SD_CLK_FREQUENCY SDCLK) {
 	HAL_Status sta;
-	if ((signed int) sdio_status <= SDIO_SD_NONE) {
+	if (sdio_status <= SDIO_SD_NONE) {
 		return -1;
 	}
 	ADMA2_DESC_FMT * padma = rtw_zmalloc(sizeof(ADMA2_DESC_FMT));
@@ -254,6 +254,7 @@ s8 sdio_sd_setClock(SD_CLK_FREQUENCY SDCLK) {
 		DBG_SDIO_ERR("Malloc ADMA2 table fail.\n");
 		return -1;
 	}
+	DBG_SDIO_INFO("SD card set CLK %d Hz\n", PLATFORM_CLOCK/(4<<(8-SDCLK)));
 	sta = HalSdioHostOp.HalSdioHostChangeSdClock(&SdioHostAdapter, SDCLK);
 	rtw_mfree(padma, sizeof(ADMA2_DESC_FMT));
 	if (sta)
@@ -287,11 +288,13 @@ s8 sdio_sd_setProtection(bool protection) {
 			result = -1;
 			goto LABEL_17;
 		}
-		LABEL_8: sd_protected = protection;
-		LABEL_7:
+LABEL_8:
+		sd_protected = protection;
+LABEL_7:
 		DBG_SDIO_INFO("Set SD card Protection done.\n");
 		result = 0;
-		LABEL_17: rtw_mfree(padma, sizeof(ADMA2_DESC_FMT));
+LABEL_17:
+		rtw_mfree(padma, sizeof(ADMA2_DESC_FMT));
 		return result;
 	}
 	return -1;
