@@ -4,4 +4,4 @@ hal_misc.c +
 hal_pinmux.c +
 hal_sdio_host.c +
 hal_soc_ps_monitor.c +
-hal_spi_flash_ram.c +-
+hal_spi_flash_ram.c +
