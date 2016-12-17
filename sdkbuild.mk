@@ -55,7 +55,8 @@ application: build_info $(SRC_O) $(DRAM_O)
 	@echo "==========================================================="
 	@echo "Link ($(TARGET))"
 #	@echo "==========================================================="
-	@$(LD) $(LFLAGS) -o $(ELFFILE) $(OBJ_LIST) $(OBJ_DIR)/ram_1.r.o $(LIBFLAGS) -T$(LDFILE)
+	@$(file > $(OBJ_DIR)/obj_list.lst,$(OBJ_LIST))
+	@$(LD) $(LFLAGS) -o $(ELFFILE) @$(OBJ_DIR)/obj_list.lst $(OBJ_DIR)/ram_1.r.o $(LIBFLAGS) -T$(LDFILE)
 	@$(OBJDUMP) -d $(ELFFILE) > $(OBJ_DIR)/$(TARGET).asm
 
 .PHONY:	prerequirement
