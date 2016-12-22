@@ -152,6 +152,7 @@ SRC_C += sdk/component/common/drivers/wlan/realtek/src/osdep/lwip_intf.c
 SRC_C += sdk/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos/sys_arch.c
 SRC_C += sdk/component/common/network/dhcp/dhcps.c
 SRC_C += sdk/component/common/network/sntp/sntp.c
+SRC_C += sdk/component/common/network/netbios/netbios.c
 
 #network - mdns
 SRC_C += sdk/component/common/network/mDNS/mDNSPlatform.c
