@@ -573,12 +573,12 @@ extern struct skb_data skb_data_pool[8];
 extern struct skb_buf skb_pool[10];
 */
 extern int skbdata_used_num; 
-extern int max_local_skb_num = 10; 
+extern int max_local_skb_num; // = 10; 
 extern struct list_head wrapper_skbbuf_list;
 extern int max_skbdata_used_num; 
 extern int max_skbbuf_used_num; 
 extern int skb_fail_count; 
-extern int max_skb_buf_num = 8; 
+extern int max_skb_buf_num; // = 8; 
 //--------------------------------
 // freertos_xmit.o
 // Function declarations
@@ -1433,227 +1433,327 @@ extern void rtw_sctx_done(struct submit_ctx **sctx);
 //--------------------------------
 // phydm_RegConfig8195A.o
 // Function declarations
-extern void  odm_ConfigRFReg_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Data, ODM_RF_RADIO_PATH_E RF_PATH, u4Byte RegAddr);
-extern void  odm_ConfigRF_RadioA_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Data); // idb
-extern void  odm_ConfigBB_AGC_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Bitmask, u4Byte Data); // idb
-extern void  odm_ConfigBB_PHY_REG_PG_8195A(PDM_ODM_T pDM_Odm, u4Byte Band, u4Byte RfPath, u4Byte TxNum, u4Byte Addr, u4Byte Bitmask, u4Byte Data);
-extern void  odm_ConfigBB_PHY_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Bitmask, u4Byte Data); // idb
-extern void  odm_ConfigBB_TXPWR_LMT_8195A(PDM_ODM_T pDM_Odm, int Regulation, int Band, int Bandwidth, u1Byte RateSection, u1Byte RfPath, u1Byte Channel, u1Byte PowerLimit);
+extern void odm_ConfigRFReg_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Data, ODM_RF_RADIO_PATH_E RF_PATH, u4Byte RegAddr);
+extern void odm_ConfigRF_RadioA_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Data);
+extern void odm_ConfigBB_AGC_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Bitmask, u4Byte Data);
+extern void odm_ConfigBB_PHY_REG_PG_8195A(PDM_ODM_T pDM_Odm, u4Byte Band, u4Byte RfPath, u4Byte TxNum, u4Byte Addr, u4Byte Bitmask, u4Byte Data);
+extern void odm_ConfigBB_PHY_8195A(PDM_ODM_T pDM_Odm, u4Byte Addr, u4Byte Bitmask, u4Byte Data);
+extern void odm_ConfigBB_TXPWR_LMT_8195A(PDM_ODM_T pDM_Odm, int Regulation, int Band, int Bandwidth, u1Byte RateSection, u1Byte RfPath, u1Byte Channel, u1Byte PowerLimit);
 // Data declarations
 //--------------------------------
 // lxbus_hci_intf.o
 // Function declarations
-extern struct dvobj_priv *hci_lxbus_dvobj_init(); // idb
-extern void  hci_lxbus_dvobj_deinit(struct dvobj_priv *dvobj); // idb
-extern void  hci_lxbus_dvobj_request_irq(struct dvobj_priv *dvobj); // idb
-extern void  hci_lxbus_free_irq(struct dvobj_priv *dvobj); // idb
-extern void  hci_lxbus_intf_stop(PADAPTER padapter); // idb
+extern struct dvobj_priv *hci_lxbus_dvobj_init();
+extern void hci_lxbus_dvobj_deinit(struct dvobj_priv *dvobj);
+extern void hci_lxbus_dvobj_request_irq(struct dvobj_priv *dvobj);
+extern void hci_lxbus_free_irq(struct dvobj_priv *dvobj);
+extern void hci_lxbus_intf_stop(PADAPTER padapter);
 // Data declarations
 //--------------------------------
 // lxbus_intf.o
 // Function declarations
-extern signed int  lextra_bus_dma_Interrupt(void *data);
+extern signed int lextra_bus_dma_Interrupt(void *data);
 // Data declarations
 //--------------------------------
 // lxbus_ops.o
 // Function declarations
-extern void  rtl8195a_free_rx_ring(_adapter *padapter); // idb
-extern int  bus_write32(struct dvobj_priv *pintfhdl, uint32_t addr, uint32_t val, int32_t *err); // idb
-extern int  bus_write16(struct dvobj_priv *pintfhdl, uint32_t addr, int val, int32_t *err);
-extern int  bus_write8(struct dvobj_priv *pintfhdl, uint32_t addr, int val, int32_t *err);
-extern uint32_t  bus_read32(struct dvobj_priv *pintfhdl, uint32_t addr, int32_t *err); // idb
-extern int  bus_read16(struct dvobj_priv *pintfhdl, uint32_t addr, int32_t *err);
-extern int  bus_read8(struct dvobj_priv *pintfhdl, uint32_t addr, int32_t *err);
-extern void  rtl8195a_free_tx_ring(_adapter *padapter, unsigned int prio); // idb
-extern signed int  rtl8195a_init_desc_ring(_adapter *padapter);
-extern signed int  rtl8195a_free_desc_ring(_adapter *padapter);
-extern void  rtl8195a_reset_desc_ring(_adapter *padapter, _irqL a2, int a3);
-extern void  InitLxDmaRtl8195a(_adapter *Adapter); // idb
-extern void  rtl8195a_prepare_bcn_tasklet(void *priv); // idb
-extern signed int  get_txdesc_buf_addr(int ff_hwaddr);
-extern signed int  rtl8195a_check_txdesc_closed(_adapter *padapter, uint32_t queue_idx, uint32_t index);
-extern void  rtl8195a_tx_isr(PADAPTER Adapter, int prio); // idb
-extern signed int  InterruptRecognized8195a(PADAPTER Adapter);
-extern void  InitInterrupt8195a(PADAPTER padapter); // idb
-extern void  EnableDMA8195a(PADAPTER padapter); // idb
-extern void  EnableInterrupt8195a(PADAPTER padapter); // idb
-extern void  DisableDMA8195a(PADAPTER padapter); // idb
-extern void  DisableInterrupt8195a(PADAPTER padapter); // idb
-extern void  UpdateInterruptMask8195a(PADAPTER Adapter, uint32_t *pAddMSRB, uint32_t *pRemoveMSR); // idb
-extern signed int  CheckRxTgRtl8195a(_adapter *padapter, uint8_t *rx_desc, uint16_t rx_queue_idx);
-extern int  rtl8192ee_check_rxdesc_remain(_adapter *padapter, int rx_queue_idx);
-extern void  rtl8195a_recv_tasklet(void *priv); // idb
-extern void  rtl8195a_tx_int_handler(_adapter *padapter, int a2, int a3);
-extern int32_t  InterruptHandle8195a(_adapter *padapter, int a2, int a3);
-extern void  rtl8195a_xmit_tasklet(void *priv); // idb
-extern void  lxbus_set_intf_ops(struct _io_ops *pops); // idb
+extern void rtl8195a_free_rx_ring(_adapter *padapter);
+extern int bus_write32(struct dvobj_priv *pintfhdl, uint32_t addr, uint32_t val, int32_t *err);
+extern int bus_write16(struct dvobj_priv *pintfhdl, uint32_t addr, int val, int32_t *err);
+extern int bus_write8(struct dvobj_priv *pintfhdl, uint32_t addr, int val, int32_t *err);
+extern uint32_t bus_read32(struct dvobj_priv *pintfhdl, uint32_t addr, int32_t *err);
+extern int bus_read16(struct dvobj_priv *pintfhdl, uint32_t addr, int32_t *err);
+extern int bus_read8(struct dvobj_priv *pintfhdl, uint32_t addr, int32_t *err);
+extern void rtl8195a_free_tx_ring(_adapter *padapter, unsigned int prio);
+extern signed int rtl8195a_init_desc_ring(_adapter *padapter);
+extern signed int rtl8195a_free_desc_ring(_adapter *padapter);
+extern void rtl8195a_reset_desc_ring(_adapter *padapter, _irqL a2, int a3);
+extern void InitLxDmaRtl8195a(_adapter *Adapter);
+extern void rtl8195a_prepare_bcn_tasklet(void *priv);
+extern signed int get_txdesc_buf_addr(int ff_hwaddr);
+extern signed int rtl8195a_check_txdesc_closed(_adapter *padapter, uint32_t queue_idx, uint32_t index);
+extern void rtl8195a_tx_isr(PADAPTER Adapter, int prio);
+extern signed int InterruptRecognized8195a(PADAPTER Adapter);
+extern void InitInterrupt8195a(PADAPTER padapter);
+extern void EnableDMA8195a(PADAPTER padapter);
+extern void EnableInterrupt8195a(PADAPTER padapter);
+extern void DisableDMA8195a(PADAPTER padapter);
+extern void DisableInterrupt8195a(PADAPTER padapter);
+extern void UpdateInterruptMask8195a(PADAPTER Adapter, uint32_t *pAddMSRB, uint32_t *pRemoveMSR);
+extern signed int CheckRxTgRtl8195a(_adapter *padapter, uint8_t *rx_desc, uint16_t rx_queue_idx);
+extern int rtl8192ee_check_rxdesc_remain(_adapter *padapter, int rx_queue_idx);
+extern void rtl8195a_recv_tasklet(void *priv);
+extern void rtl8195a_tx_int_handler(_adapter *padapter, int a2, int a3);
+extern int32_t InterruptHandle8195a(_adapter *padapter, int a2, int a3);
+extern void rtl8195a_xmit_tasklet(void *priv);
+extern void lxbus_set_intf_ops(struct _io_ops *pops);
 // Data declarations
-extern uint8_t rx_ring_pool[4][2104]; // idb
-extern u16 CSWTCH_48[8]; // = { 928, 932, 936, 940, 936, 944, 952, 936 }; // idb
-extern uint8_t stop_report_count_20629; // idb
+extern uint8_t rx_ring_pool[4][2104];
+extern u16 CSWTCH_48[8]; // = { 928, 932, 936, 940, 936, 944, 952, 936 };
+extern uint8_t stop_report_count_20629;
 //--------------------------------
 // phydm_ACS.o
 // Function declarations
-extern void  phydm_CLMInit(PVOID pDM_VOID, u2Byte sampleNum); // idb
-extern void  phydm_CLMtrigger(PVOID pDM_VOID); // idb
-extern int  phydm_checkCLMready(PVOID pDM_VOID);
-extern int  phydm_getCLMresult(PVOID pDM_VOID);
-extern void  phydm_NHMInit(PVOID pDM_VOID, u2Byte sampleNum, int round);
-extern void  phydm_NHMtrigger(PVOID pDM_VOID); // idb
-extern void  phydm_FalseAlarmCounterStatistics(PVOID pDM_VOID); // idb
-extern void  phydm_getNHMresult(PVOID pDM_VOID, unsigned int *fa_crc32_total_cnt, unsigned int *cca_count, unsigned int *nhm_cnt_exp_sum, u8 round);
+extern void phydm_CLMInit(PVOID pDM_VOID, u2Byte sampleNum);
+extern void phydm_CLMtrigger(PVOID pDM_VOID);
+extern int phydm_checkCLMready(PVOID pDM_VOID);
+extern int phydm_getCLMresult(PVOID pDM_VOID);
+extern void phydm_NHMInit(PVOID pDM_VOID, u2Byte sampleNum, int round);
+extern void phydm_NHMtrigger(PVOID pDM_VOID);
+extern void phydm_FalseAlarmCounterStatistics(PVOID pDM_VOID);
+extern void phydm_getNHMresult(PVOID pDM_VOID, unsigned int *fa_crc32_total_cnt, unsigned int *cca_count, unsigned int *nhm_cnt_exp_sum, u8 round);
 // Data declarations
 //--------------------------------
 // PhyDM_Adaptivity.o
 // Function declarations
-extern void  Phydm_CheckAdaptivity(PVOID pDM_VOID); // idb
-extern void  Phydm_NHMCounterStatisticsInit(PVOID pDM_VOID); // idb
-extern void  Phydm_GetNHMCounterStatistics(PVOID pDM_VOID); // idb
-extern void  Phydm_NHMCounterStatisticsReset(PVOID pDM_VOID); // idb
-extern void  Phydm_NHMCounterStatistics(PVOID pDM_VOID); // idb
-extern void  Phydm_SetEDCCAThreshold(PVOID pDM_VOID, s1Byte H2L, s1Byte L2H); // idb
-extern void  Phydm_SetTRxMux(PVOID pDM_VOID, PhyDM_Trx_MUX_Type txMode, PhyDM_Trx_MUX_Type rxMode); // idb
-extern void  Phydm_MACEDCCAState(PVOID pDM_VOID, PhyDM_MACEDCCA_Type State); // idb
-extern BOOL  Phydm_CalNHMcnt(PVOID pDM_VOID);
-extern void  Phydm_CheckEnvironment(PVOID pDM_VOID); // idb
-extern void  Phydm_SearchPwdBLowerBound(PVOID pDM_VOID); // idb
-extern void  Phydm_AdaptivityInit(PVOID pDM_VOID); // idb
-extern void  Phydm_Adaptivity(PVOID pDM_VOID, int IGI);
+extern void Phydm_CheckAdaptivity(PVOID pDM_VOID);
+extern void Phydm_NHMCounterStatisticsInit(PVOID pDM_VOID);
+extern void Phydm_GetNHMCounterStatistics(PVOID pDM_VOID);
+extern void Phydm_NHMCounterStatisticsReset(PVOID pDM_VOID);
+extern void Phydm_NHMCounterStatistics(PVOID pDM_VOID);
+extern void Phydm_SetEDCCAThreshold(PVOID pDM_VOID, s1Byte H2L, s1Byte L2H);
+extern void Phydm_SetTRxMux(PVOID pDM_VOID, PhyDM_Trx_MUX_Type txMode, PhyDM_Trx_MUX_Type rxMode);
+extern void Phydm_MACEDCCAState(PVOID pDM_VOID, PhyDM_MACEDCCA_Type State);
+extern BOOL Phydm_CalNHMcnt(PVOID pDM_VOID);
+extern void Phydm_CheckEnvironment(PVOID pDM_VOID);
+extern void Phydm_SearchPwdBLowerBound(PVOID pDM_VOID);
+extern void Phydm_AdaptivityInit(PVOID pDM_VOID);
+extern void Phydm_Adaptivity(PVOID pDM_VOID, int IGI);
 // Data declarations
 //--------------------------------
 // PhyDM_AntDiv.o
 // Function declarations
-extern void  ODM_SwAntDivRestAfterLink(PDM_ODM_T pDM_Odm); // idb
+extern void ODM_SwAntDivRestAfterLink(PDM_ODM_T pDM_Odm);
 // Data declarations
 //--------------------------------
 // phydm_CfoTracking.o
 // Function declarations
-extern void  ODM_CfoTrackingInit(PVOID pDM_VOID);
-extern void  ODM_CfoTracking(PVOID pDM_VOID);
-extern void  ODM_ParsingCFO(PVOID pDM_VOID, PVOID pPktinfo_VOID, s1Byte *pcfotail);
+extern void ODM_CfoTrackingInit(PVOID pDM_VOID);
+extern void ODM_CfoTracking(PVOID pDM_VOID);
+extern void ODM_ParsingCFO(PVOID pDM_VOID, PVOID pPktinfo_VOID, s1Byte *pcfotail);
 // Data declarations
 //--------------------------------
 // phydm_debug.o
 // Function declarations
-extern void  ODM_InitDebugSetting(PDM_ODM_T pDM_Odm); // idb
+extern void ODM_InitDebugSetting(PDM_ODM_T pDM_Odm);
 // Data declarations
 //--------------------------------
 // phydm_DIG.o
 // Function declarations
-extern void  ODM_ChangeDynamicInitGainThresh(PVOID pDM_VOID, u4Byte DM_Type, u4Byte DM_Value);
-extern int  getIGIForDiff(int value_IGI);
-extern void  ODM_Write_DIG(PVOID pDM_VOID, u1Byte CurrentIGI);
-extern void  odm_PauseDIG(PVOID pDM_VOID, ODM_Pause_DIG_TYPE PauseType, u1Byte IGIValue);
-extern u1Byte  odm_ForbiddenIGICheck(PVOID pDM_VOID, u1Byte DIG_Dynamic_MIN, u1Byte CurrentIGI);
-extern void  ODM_Write_CCK_CCA_Thres(PVOID pDM_VOID, u1Byte CurCCK_CCAThres);
-extern void  odm_PauseCCKPacketDetection(PVOID pDM_VOID, ODM_Pause_CCKPD_TYPE PauseType, u1Byte CCKPDThreshold);
-extern void  odm_DIGInit(PVOID pDM_VOID);
-extern BOOLEAN  odm_DigAbort(PVOID pDM_VOID);
-extern void  odm_DIGbyRSSI_LPS(PVOID pDM_VOID);
-extern void  odm_FAThresholdCheck(PVOID pDM_VOID, u4Byte *dm_FA_thres);
-extern void  odm_DIG(PVOID pDM_VOID);
-extern void  odm_FalseAlarmCounterStatistics(PVOID pDM_VOID);
-extern void  odm_CCKPacketDetectionThresh(PVOID pDM_VOID);
+extern void ODM_ChangeDynamicInitGainThresh(PVOID pDM_VOID, u4Byte DM_Type, u4Byte DM_Value);
+extern int getIGIForDiff(int value_IGI);
+extern void ODM_Write_DIG(PVOID pDM_VOID, u1Byte CurrentIGI);
+extern void odm_PauseDIG(PVOID pDM_VOID, ODM_Pause_DIG_TYPE PauseType, u1Byte IGIValue);
+extern u1Byte odm_ForbiddenIGICheck(PVOID pDM_VOID, u1Byte DIG_Dynamic_MIN, u1Byte CurrentIGI);
+extern void ODM_Write_CCK_CCA_Thres(PVOID pDM_VOID, u1Byte CurCCK_CCAThres);
+extern void odm_PauseCCKPacketDetection(PVOID pDM_VOID, ODM_Pause_CCKPD_TYPE PauseType, u1Byte CCKPDThreshold);
+extern void odm_DIGInit(PVOID pDM_VOID);
+extern BOOLEAN odm_DigAbort(PVOID pDM_VOID);
+extern void odm_DIGbyRSSI_LPS(PVOID pDM_VOID);
+extern void odm_FAThresholdCheck(PVOID pDM_VOID, u4Byte *dm_FA_thres);
+extern void odm_DIG(PVOID pDM_VOID);
+extern void odm_FalseAlarmCounterStatistics(PVOID pDM_VOID);
+extern void odm_CCKPacketDetectionThresh(PVOID pDM_VOID);
 // Data declarations
-extern BOOLEAN bPaused_20545; // idb
+extern BOOLEAN bPaused_20545;
 //--------------------------------
 // phydm_HWConfig.o
 // Function declarations
-extern u1Byte  odm_QueryRxPwrPercentage(s1Byte AntPower);
-extern s4Byte  odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Lenovo(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
-extern s4Byte  odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Netcore(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
-extern s4Byte  odm_SignalScaleMapping_92CSeries(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
-extern s4Byte  odm_SignalScaleMapping(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
-extern void  odm_RxPhyStatus8195A_Parsing(PDM_ODM_T pDM_Odm, PODM_PHY_INFO_T pPhyInfo, pu1Byte pPhyStatus, PODM_PACKET_INFO_T pPktinfo);
-extern void  odm_Process_RSSIForDM_8195A(PDM_ODM_T pDM_Odm, PODM_PHY_INFO_T pPhyInfo, PODM_PACKET_INFO_T pPktinfo, pu1Byte pPhyStatus);
-extern void  ODM_PhyStatusQuery_8195A(PDM_ODM_T pDM_Odm, PODM_PHY_INFO_T pPhyInfo, pu1Byte pPhyStatus, PODM_PACKET_INFO_T pPktinfo);
-extern HAL_STATUS  ODM_ConfigRFWithHeaderFile(PDM_ODM_T pDM_Odm, ODM_RF_Config_Type ConfigType, ODM_RF_RADIO_PATH_E eRFPath);
-extern HAL_STATUS  ODM_ConfigRFWithTxPwrTrackHeaderFile(PDM_ODM_T pDM_Odm);
-extern HAL_STATUS  ODM_ConfigBBWithHeaderFile(PDM_ODM_T pDM_Odm, ODM_BB_Config_Type ConfigType);
-extern HAL_STATUS  ODM_ConfigMACWithHeaderFile(PDM_ODM_T pDM_Odm);
-extern HAL_STATUS  ODM_ConfigFWWithHeaderFile(PDM_ODM_T pDM_Odm, ODM_FW_Config_Type ConfigType, u1Byte *pFirmware, u4Byte *pSize);
-extern u4Byte  ODM_GetHWImgVersion(PDM_ODM_T pDM_Odm);
+extern u1Byte odm_QueryRxPwrPercentage(s1Byte AntPower);
+extern s4Byte odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Lenovo(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
+extern s4Byte odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Netcore(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
+extern s4Byte odm_SignalScaleMapping_92CSeries(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
+extern s4Byte odm_SignalScaleMapping(PDM_ODM_T pDM_Odm, s4Byte CurrSig);
+extern void odm_RxPhyStatus8195A_Parsing(PDM_ODM_T pDM_Odm, PODM_PHY_INFO_T pPhyInfo, pu1Byte pPhyStatus, PODM_PACKET_INFO_T pPktinfo);
+extern void odm_Process_RSSIForDM_8195A(PDM_ODM_T pDM_Odm, PODM_PHY_INFO_T pPhyInfo, PODM_PACKET_INFO_T pPktinfo, pu1Byte pPhyStatus);
+extern void ODM_PhyStatusQuery_8195A(PDM_ODM_T pDM_Odm, PODM_PHY_INFO_T pPhyInfo, pu1Byte pPhyStatus, PODM_PACKET_INFO_T pPktinfo);
+extern HAL_STATUS ODM_ConfigRFWithHeaderFile(PDM_ODM_T pDM_Odm, ODM_RF_Config_Type ConfigType, ODM_RF_RADIO_PATH_E eRFPath);
+extern HAL_STATUS ODM_ConfigRFWithTxPwrTrackHeaderFile(PDM_ODM_T pDM_Odm);
+extern HAL_STATUS ODM_ConfigBBWithHeaderFile(PDM_ODM_T pDM_Odm, ODM_BB_Config_Type ConfigType);
+extern HAL_STATUS ODM_ConfigMACWithHeaderFile(PDM_ODM_T pDM_Odm);
+extern HAL_STATUS ODM_ConfigFWWithHeaderFile(PDM_ODM_T pDM_Odm, ODM_FW_Config_Type ConfigType, u1Byte *pFirmware, u4Byte *pSize);
+extern u4Byte ODM_GetHWImgVersion(PDM_ODM_T pDM_Odm);
 // Data declarations
 //--------------------------------
 // phydm_interface.o
 // Function declarations
-extern u1Byte  ODM_Read1Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr);
-extern u2Byte  ODM_Read2Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr);
-extern u4Byte  ODM_Read4Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr);
-extern void  ODM_Write1Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u1Byte Data);
-extern void  ODM_Write2Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u2Byte Data);
-extern void  ODM_Write4Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte Data);
-extern void  ODM_SetMACReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask, u4Byte Data);
-extern u4Byte  ODM_GetMACReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask);
-extern void  ODM_SetBBReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask, u4Byte Data);
-extern u4Byte  ODM_GetBBReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask);
+extern u1Byte ODM_Read1Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr);
+extern u2Byte ODM_Read2Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr);
+extern u4Byte ODM_Read4Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr);
+extern void ODM_Write1Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u1Byte Data);
+extern void ODM_Write2Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u2Byte Data);
+extern void ODM_Write4Byte(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte Data);
+extern void ODM_SetMACReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask, u4Byte Data);
+extern u4Byte ODM_GetMACReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask);
+extern void ODM_SetBBReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask, u4Byte Data);
+extern u4Byte ODM_GetBBReg(PDM_ODM_T pDM_Odm, u4Byte RegAddr, u4Byte BitMask);
 // void __usercall ODM_SetRFReg(PDM_ODM_T pDM_Odm@<R0>, ODM_RF_RADIO_PATH_E eRFPath@<R1>, u4Byte RegAddr@<R2>, u4Byte BitMask@<R3>, u4Byte Data);
-extern u4Byte  ODM_GetRFReg(PDM_ODM_T pDM_Odm, ODM_RF_RADIO_PATH_E eRFPath, u4Byte RegAddr, u4Byte BitMask);
-extern void  ODM_AllocateMemory(PDM_ODM_T pDM_Odm, PVOID *pPtr, u4Byte length);
-extern void  ODM_FreeMemory(PDM_ODM_T pDM_Odm, PVOID pPtr, u4Byte length);
-extern void  ODM_MoveMemory(PDM_ODM_T pDM_Odm, PVOID pDest, PVOID pSrc, u4Byte Length);
-extern u8Byte  ODM_GetCurrentTime(PDM_ODM_T pDM_Odm);
-extern u8Byte  ODM_GetProgressingTime(PDM_ODM_T pDM_Odm, u8Byte Start_Time);
+extern u4Byte ODM_GetRFReg(PDM_ODM_T pDM_Odm, ODM_RF_RADIO_PATH_E eRFPath, u4Byte RegAddr, u4Byte BitMask);
+extern void ODM_AllocateMemory(PDM_ODM_T pDM_Odm, PVOID *pPtr, u4Byte length);
+extern void ODM_FreeMemory(PDM_ODM_T pDM_Odm, PVOID pPtr, u4Byte length);
+extern void ODM_MoveMemory(PDM_ODM_T pDM_Odm, PVOID pDest, PVOID pSrc, u4Byte Length);
+extern u8Byte ODM_GetCurrentTime(PDM_ODM_T pDM_Odm);
+extern u8Byte ODM_GetProgressingTime(PDM_ODM_T pDM_Odm, u8Byte Start_Time);
 // Data declarations
 //--------------------------------
 // phydm_PowerTracking.o
 // Function declarations
-extern signed int  getSwingIndex(PVOID pDM_VOID);
-extern void  odm_TXPowerTrackingThermalMeterInit(PVOID pDM_VOID); // idb
-extern void  odm_TXPowerTrackingCheckIOT(PVOID pDM_VOID); // idb
-extern void  ODM_TXPowerTrackingCheck(PVOID pDM_VOID); // idb
+extern signed int getSwingIndex(PVOID pDM_VOID);
+extern void odm_TXPowerTrackingThermalMeterInit(PVOID pDM_VOID);
+extern void odm_TXPowerTrackingCheckIOT(PVOID pDM_VOID);
+extern void ODM_TXPowerTrackingCheck(PVOID pDM_VOID);
 // Data declarations
-extern const u4Byte OFDMSwingTable_New[43];
+extern const u4Byte OFDMSwingTable_New[43]; /* =
+{
+  188743725u,  201326640u,  213909555u,  226492470u,  239075385u,  251658300u,  268435520u,
+  285212740u,  301989960u,  318767180u,  339738705u,  360710230u,  381681755u,  402653280u,
+  427819110u,  452984940u,  478150770u,  507510905u,  536871040u,  570425480u,  603979920u,
+  637534360u,  679477410u,  717226155u,  759169205u,  805306560u,  851443915u,  901775575u,
+  956301540u,  1015021810u,  1073742080u,  1136656655u,  1203765535u,  1275068720u,  1350566210u,
+  1430258005u,  1514144105u,  1606418815u,  1698693525u,  1803551150u,  1908408775u,  2021655010u,
+  2139095550u
+}; */
 //--------------------------------
 // phydm_RaInfo.o
 // Function declarations
-extern void  odm_RSSIMonitorInit(PVOID pDM_VOID);
-extern void  ODM_RAPostActionOnAssoc(PVOID pDM_VOID);
-extern void  odm_RSSIMonitorCheckIOT(PVOID pDM_VOID);
-extern void  odm_RSSIMonitorCheck(PVOID pDM_VOID);
-extern void  odm_RateAdaptiveMaskInit(PVOID pDM_VOID);
-extern BOOLEAN  ODM_RAStateCheck(PVOID pDM_VOID, s4Byte RSSI, BOOLEAN bForceUpdate, pu1Byte pRATRState);
-extern void  odm_RefreshRateAdaptiveMaskIOT(PVOID pDM_VOID);
-extern void  odm_RefreshRateAdaptiveMask(PVOID pDM_VOID);
-extern u4Byte  ODM_Get_Rate_Bitmap(PVOID pDM_VOID, u4Byte macid, u4Byte ra_mask, u1Byte rssi_level);
+extern void odm_RSSIMonitorInit(PVOID pDM_VOID);
+extern void ODM_RAPostActionOnAssoc(PVOID pDM_VOID);
+extern void odm_RSSIMonitorCheckIOT(PVOID pDM_VOID);
+extern void odm_RSSIMonitorCheck(PVOID pDM_VOID);
+extern void odm_RateAdaptiveMaskInit(PVOID pDM_VOID);
+extern BOOLEAN ODM_RAStateCheck(PVOID pDM_VOID, s4Byte RSSI, BOOLEAN bForceUpdate, pu1Byte pRATRState);
+extern void odm_RefreshRateAdaptiveMaskIOT(PVOID pDM_VOID);
+extern void odm_RefreshRateAdaptiveMask(PVOID pDM_VOID);
+extern u4Byte ODM_Get_Rate_Bitmap(PVOID pDM_VOID, u4Byte macid, u4Byte ra_mask, u1Byte rssi_level);
+//-------------------------------------------------------------------------
+// hal_com_phycfg.o
+// Function declarations
+extern int PHY_GetTxPowerByRateBase(PADAPTER Adapter, int Band, int RfPath, int TxNum, RATE_SECTION RateSection);
+extern void phy_SetTxPowerByRateBase(PADAPTER Adapter, int Band, int RfPath, RATE_SECTION RateSection, uint8_t TxNum, uint8_t Value);
+extern void PHY_GetRateValuesOfTxPowerByRate(PADAPTER pAdapter, uint32_t RegAddr, uint32_t BitMask, uint32_t Value, uint8_t *RateIndex, int8_t *PwrByRateVal, uint8_t *RateNum);
+extern void PHY_StoreTxPowerByRateNew(PADAPTER pAdapter, uint32_t Band, uint32_t RfPath, uint32_t TxNum, uint32_t RegAddr, uint32_t BitMask, uint32_t Data);
+extern void PHY_InitTxPowerByRate(PADAPTER pAdapter);
+extern void PHY_StoreTxPowerByRate(PADAPTER pAdapter, uint32_t Band, uint32_t RfPath, uint32_t TxNum, uint32_t RegAddr, uint32_t BitMask, uint32_t Data);
+extern signed int phy_GetChnlIndex(int Channel, uint8_t *ChannelIdx);
+extern signed int PHY_GetTxPowerIndexBase(PADAPTER pAdapter, int RFPath, int Rate, CHANNEL_WIDTH BandWidth, uint8_t Channel, PBOOLEAN bIn24G);
+extern PADAPTER PHY_GetTxPowerTrackingOffset(PADAPTER result, int RFPath, int Rate);
+extern int PHY_GetRateIndexOfTxPowerByRate(uint8_t Rate);
+extern unsigned int PHY_GetTxPowerByRate(PADAPTER pAdapter, int Band, int RFPath, int TxNum, uint8_t Rate);
+extern void phy_StoreTxPowerByRateBase(PADAPTER pAdapter);
+extern void PHY_SetTxPowerByRate(PADAPTER pAdapter, int Band, int RFPath, int TxNum, uint8_t Rate, int8_t Value);
+extern void phy_ConvertTxPowerByRateInDbmToRelativeValues(PADAPTER pAdapter);
+extern void PHY_TxPowerByRateConfiguration(PADAPTER pAdapter);
+extern void PHY_SetTxPowerIndexByRateArray(PADAPTER pAdapter, int RFPath, CHANNEL_WIDTH BandWidth, uint8_t Channel, uint8_t *Rates, uint8_t RateArraySize);
+extern void PHY_SetTxPowerIndexByRateSection(PADAPTER pAdapter, int RFPath, uint8_t Channel, int RateSection);
+extern void PHY_SetTxPowerLevelByPath(PADAPTER Adapter, uint8_t channel, int path);
+extern signed int phy_GetWorldWideLimit(int8_t *LimitTable, int regulation, int16_t channel);
+extern int phy_GetChannelIndexOfTxPowerLimit(int Band, uint8_t Channel);
+extern int PHY_GetTxPowerLimit(PADAPTER Adapter, uint32_t RegPwrTblSel, BAND_TYPE Band, CHANNEL_WIDTH Bandwidth, uint8_t RfPath, uint8_t DataRate, uint8_t Channel);
+extern void PHY_ConvertTxPowerLimitToPowerIndex(PADAPTER Adapter);
+extern void PHY_InitTxPowerLimit(PADAPTER Adapter);
+extern void PHY_SetTxPowerLimit(PADAPTER Adapter, int Regulation, int Band, int Bandwidth, uint8_t RateSection, uint8_t RfPath, uint8_t Channel, uint8_t PowerLimit);
+extern int PHY_GetTxPowerIndex(PADAPTER pAdapter, int RFPath, int Rate, CHANNEL_WIDTH BandWidth, uint8_t Channel);
+// Data declarations
+//-------------------------------------------------------------------------
+// Data declarations
+
+extern int dword_A50; // = 605557260; // weak
+extern int dword_A58; // = 2206368128; // weak
+extern u8 CSWTCH_14[132];/* =
+{
+  1,  0,  0,  0,  0,  0,  0,  2,  4,  0,  0,  0,  0,  0,  5,  0,  0,  0,
+  3,  0,  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  7,  0,  0,  0,
+  0,  0,  0,  0,  0,  0,  0,  0,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  9,  0,  0,  0,
+  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+  0,  0,  10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  11,  0,  0,  0,
+  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  12,  13,
+  14,  15,  16,  17,  18,  19 }; */
+//--------------------------------
+// rtl8195a_hal_init.o
+// Function declarations
+extern void Hal_GetEfuseDefinition(PADAPTER padapter, uint8_t efuseType, int type, void *pOut, uint8_t bPseudoTest);
+extern void ResumeTxBeacon(PADAPTER padapter);
+extern void UpdateHalRAMask8195A(PADAPTER padapter, uint32_t mac_id, uint8_t rssi_level);
+extern void HalLittleWifiMCUThreadRtl8195a(thread_context context);
+extern void HalCheckInReqStateThreadRtl8195a(thread_context context);
+extern void HalTDMAChangeStateThreadRtl8195a(thread_context context);
+extern void rtl8195a_read_chip_version(PADAPTER padapter);
+extern signed int Hal_EfuseWordEnableDataWrite(PADAPTER padapter, int efuse_addr, uint8_t word_en, uint8_t *data, uint8_t bPseudoTest);
+extern void Hal_EfusePowerSwitch(PADAPTER padapter, int bWrite, int PwrState);
+extern void rtl8195a_free_hal_data(PADAPTER padapter);
+extern void StopTxBeacon(PADAPTER padapter);
+extern void SetHalODMVar8195A(PADAPTER Adapter, HAL_ODM_VARIABLE eVariable, PVOID pValue1, int bSet);
+extern void rtl8195a_start_thread(_adapter *padapter);
+extern void rtl8195a_stop_thread(_adapter *padapter);
+extern void Hal_ReadEFuse(PADAPTER padapter, int efuseType, int _offset, int _size_byte, uint8_t *pbuf, uint8_t bPseudoTest);
+extern void GetHalODMVar8195A(PADAPTER Adapter, HAL_ODM_VARIABLE eVariable, PVOID pValue1, BOOLEAN bSet);
+extern signed int rtw_flash_map_update(PADAPTER padapter, uint8_t *configTbl);
+extern void rtw_flash_map_erase(PADAPTER padapter, int a2, int a3, uint32_t a4);
+extern int32_t Hal_EfusePgPacketWrite(PADAPTER padapter, uint8_t offset, int word_en, uint8_t *pData, uint8_t bPseudoTest);
+extern int Hal_EfuseGetCurrentSize(PADAPTER pAdapter, uint8_t efuseType, int bPseudoTest);
+extern signed int rtw_flash_map_write(PADAPTER padapter, uint16_t addr, uint16_t cnts, uint8_t *data);
+extern int32_t rtl8195a_FirmwareDownload(PADAPTER padapter, BOOLEAN bUsedWoWLANFw);
+extern void rtl8195a_InitBeaconParameters(PADAPTER padapter);
+extern void InitBurstPktLen_8195AB(PADAPTER Adapter);
+extern void rtl8195a_set_hal_ops(struct hal_ops *pHalFunc);
+extern int32_t rtl8195a_InitLLTTable(PADAPTER padapter);
+extern signed int Hal_GetChnlGroup8195A(int Channel, uint8_t *pGroup);
+extern signed int rtw_flash_read(PADAPTER padapter, int addr, int cnts, uint8_t *data);
+extern signed int rtw_flash_write(PADAPTER padapter, int addr, int cnts, uint8_t *data);
+extern int rtw_config_map_read(PADAPTER padapter, int addr, int cnts, uint8_t *data, uint8_t efuse);
+extern int rtw_config_map_write(PADAPTER padapter, int addr, int cnts, uint8_t *data, uint8_t efuse);
+extern void Hal_InitPGData(PADAPTER padapter, uint8_t *PROMContent, int a3, int a4);
+extern void Hal_EfuseParseIDCode(PADAPTER padapter, uint8_t *hwinfo);
+extern void Hal_ReadPowerValueFromPROM_8195A(PADAPTER Adapter, PTxPowerInfo24G pwrInfo24G, uint8_t *PROMContent, int AutoLoadFail);
+extern void Hal_EfuseParseTxPowerInfo_8195A(PADAPTER padapter, uint8_t *PROMContent, int AutoLoadFail);
+extern void Hal_EfuseParseEEPROMVer_8195A(PADAPTER padapter, uint8_t *hwinfo, int AutoLoadFail);
+extern void Hal_EfuseParsePackageType_8195A(PADAPTER pAdapter, uint8_t *hwinfo, int a3);
+extern void Hal_EfuseParseChnlPlan_8195A(PADAPTER padapter, uint8_t *hwinfo, BOOLEAN AutoLoadFail);
+extern void Hal_EfuseParseCustomerID_8195A(PADAPTER padapter, uint8_t *hwinfo, int AutoLoadFail);
+extern void Hal_EfuseParseXtal_8195A(PADAPTER pAdapter, uint8_t *hwinfo, int AutoLoadFail);
+extern void Hal_EfuseParseThermalMeter_8195A(PADAPTER padapter, uint8_t *PROMContent, int AutoLoadFail);
+extern void Hal_ReadRFGainOffset(PADAPTER Adapter, uint8_t *PROMContent, int AutoloadFail);
+extern int BWMapping_8195A(PADAPTER Adapter, struct pkt_attrib *pattrib);
+extern signed int SCMapping_8195A(PADAPTER Adapter, struct pkt_attrib *pattrib);
+extern void rtl8195a_update_txdesc(struct xmit_frame *pxmitframe, uint8_t *pbuf);
+extern void rtl8195a_fill_fake_txdesc(PADAPTER padapter, uint8_t *pDesc, uint32_t BufferLen, int IsPsPoll, uint8_t IsBTQosNull, uint8_t bDataFrame);
+extern void SetHwReg8195A(PADAPTER padapter, int variable, uint8_t *val);
+extern void GetHwReg8195A(PADAPTER padapter, int variable, uint8_t *val);
+extern signed int SetHalDefVar8195A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
+extern signed int GetHalDefVar8195A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
+// Data declarations
+extern const struct map_mask_s efuse_map_mask[4]; // = { { 32u, 207u }, { 220u, 221u }, { 282u, 311u }, { 313u, 319u } };
+extern const struct map_mask_s flash_map_mask[2]; // = { { 32u, 311u }, { 313u, 319u } };
+//--------------------------------
+// rtw_ap.o
+// Function declarations
+extern int rtw_ht_operation_update(_adapter *padapter);
+extern void associated_clients_update_0(_adapter *padapter, int updated, int a3);
+extern signed int chk_sta_is_alive(struct sta_info *psta);
+extern void add_RATid(_adapter *padapter, struct sta_info *psta, int rssi_level);
+extern void update_sta_info_apmode(_adapter *padapter, struct sta_info *psta, int a3);
+extern void update_beacon(_adapter *padapter, int ie_id, uint8_t *oui, uint8_t tx);
+extern int rtw_check_beacon_data(_adapter *padapter, uint8_t *pbuf, int len);
+extern void associated_clients_update(_adapter *padapter, int updated, int a3);
+extern void bss_cap_update_on_sta_join(_adapter *padapter, struct sta_info *psta);
+extern signed int bss_cap_update_on_sta_leave(_adapter *padapter, struct sta_info *psta);
+extern signed int ap_free_sta(_adapter *padapter, struct sta_info *psta, int reason);
+extern void expire_timeout_chk(_adapter *padapter);
+extern int rtw_sta_flush(_adapter *padapter);
+extern void free_mlme_ap_info(_adapter *padapter, _irqL a2);
+extern void sta_info_update(_adapter *padapter, struct sta_info *psta);
+extern void ap_sta_info_defer_update(_adapter *padapter, struct sta_info *psta);
+extern void start_ap_mode(_adapter *padapter);
+extern void init_mlme_ap_info(_adapter *padapter);
+extern void stop_ap_mode(_adapter *padapter, _irqL a2);
+extern uint32_t rtw_generate_bcn_ie(_adapter *adapter, uint8_t *ssid, int ssid_len, uint8_t *ie);
+extern int set_hidden_ssid(const char *ifname, uint8_t value);
 // Data declarations
 //--------------------------------
-//
-// Function declarations
-// Data declarations
-//--------------------------------
-//
-// Function declarations
-// Data declarations
-//--------------------------------
-//
-// Function declarations
-// Data declarations
-//--------------------------------
-//
-// Function declarations
-// Data declarations
 
 #ifdef	__cplusplus
 }
 #endif
 #endif // _WIFI_LIB_H
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+

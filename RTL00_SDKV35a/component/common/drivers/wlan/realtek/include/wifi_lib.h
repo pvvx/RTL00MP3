@@ -3547,6 +3547,36 @@ enum _ODM_FW_Config_Type //: __int32
 };
 typedef enum _ODM_FW_Config_Type ODM_FW_Config_Type;
 
+enum _RATE_SECTION //: __int32
+{
+  CCK = 0x0,
+  OFDM = 0x1,
+  HT_MCS0_MCS7 = 0x2,
+  HT_MCS8_MCS15 = 0x3,
+  HT_MCS16_MCS23 = 0x4,
+  HT_MCS24_MCS31 = 0x5,
+  VHT_1SSMCS0_1SSMCS9 = 0x6,
+  VHT_2SSMCS0_2SSMCS9 = 0x7,
+  VHT_3SSMCS0_3SSMCS9 = 0x8,
+  VHT_4SSMCS0_4SSMCS9 = 0x9,
+};
+typedef enum _RATE_SECTION RATE_SECTION;
+
+struct map_mask_s
+{
+  uint16_t mask_start;
+  uint16_t mask_end;
+};
+
+struct _TxPowerInfo24G
+{
+  uint8_t IndexCCK_Base[1][6];
+  uint8_t IndexBW40_Base[1][6];
+  int8_t OFDM_Diff[1][1];
+  int8_t BW20_Diff[1][1];
+};
+typedef struct _TxPowerInfo24G TxPowerInfo24G;
+typedef struct _TxPowerInfo24G *PTxPowerInfo24G;
 
 #endif // _WLAN_LIB_H
 
