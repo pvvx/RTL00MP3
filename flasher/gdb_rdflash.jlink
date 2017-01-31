@@ -4,7 +4,7 @@ source -v flasher/gdb_flasher.jlink
 InitJlink
 SystemInit
 SPI_Init
-FlashInfo
+#FlashInfo
 # Read FullFlash
 printf "Read FullFlash:\n"
 set $dumpstartaddr = $SPI_FLASH_BASE
