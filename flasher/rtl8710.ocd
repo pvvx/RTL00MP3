@@ -2,6 +2,10 @@
 # OpenOCD script for RTL8710
 # Copyright (C) 2016 Rebane, rebane@alkohol.ee
 #
+set CHIPNAME rtl8195a
+set CHIPSERIES ameba1
+
+# Adapt based on what transport is active.
 
 source [find target/swj-dp.tcl]
 
@@ -40,7 +44,7 @@ $_TARGETNAME configure -work-area-phys 0x10001000 -work-area-size $_WORKAREASIZE
 adapter_nsrst_delay 100
 
 if {![using_hla]} {
-	cortex_m reset_config sysresetreq
+	cortex_m reset_config sysresetreq vectreset 
 }
 
 set rtl8710_flasher_firmware_ptr 0x10001000

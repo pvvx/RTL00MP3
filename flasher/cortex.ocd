@@ -87,3 +87,13 @@ proc restart_from_falsh {} {
 	boot_from_flash
 	cortex_reboot
 }
+
+proc load_ram_binary { local_filename address } {
+#	set address 0x10000BC8
+	init 
+	reset halt
+	set size [file size $local_filename]
+	load_image $local_filename $address bin $address $size
+	boot_from_ram
+	resume
+}
