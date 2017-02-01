@@ -75,8 +75,6 @@ void freertos_pre_sleep_processing(unsigned int *expected_idle_time) {
     uint32_t tick_after_sleep;
     uint32_t tick_passed;
     uint32_t backup_systick_reg;
-    unsigned char IsDramOn = 1;
-    unsigned char suspend_sdram = 1;
 
 #if (configGENERATE_RUN_TIME_STATS == 1)
 	uint32_t kernel_tick_before_sleep;
@@ -101,20 +99,6 @@ void freertos_pre_sleep_processing(unsigned int *expected_idle_time) {
     // Store gtimer timestamp before sleep
     tick_before_sleep = us_ticker_read();
 
-    if ( sys_is_sdram_power_on() == 0 ) {
-        IsDramOn = 0;
-    }
-
-    if (IsDramOn) {
-#if defined(FREERTOS_PMU_TICKLESS_SUSPEND_SDRAM) && (FREERTOS_PMU_TICKLESS_SUSPEND_SDRAM==0)
-        // sdram is turned on, and we don't want suspend sdram
-        suspend_sdram = 0;
-#endif
-    } else {
-        // sdram didn't turned on, we should not suspend it
-        suspend_sdram = 0;
-    }
-
 #if (FREERTOS_PMU_DISABLE_LOGUART_IN_TICKLESS)
     // config gpio on log uart tx for pull ctrl
     HAL_GPIO_PIN gpio_log_uart_tx;
@@ -129,8 +113,16 @@ void freertos_pre_sleep_processing(unsigned int *expected_idle_time) {
 
     backup_systick_reg = portNVIC_SYSTICK_CURRENT_VALUE_REG;
 
+#ifdef CONFIG_SDR_EN    
     // sleep
-    sleep_ex_selective(wakeup_event, stime, reserve_pll, suspend_sdram);
+#if defined(FREERTOS_PMU_TICKLESS_SUSPEND_SDRAM) && (FREERTOS_PMU_TICKLESS_SUSPEND_SDRAM!=0)
+    sleep_ex_selective(wakeup_event, stime, reserve_pll, IsSdrPowerOn());
+#else
+    sleep_ex_selective(wakeup_event, stime, reserve_pll, 0);
+#endif
+#else
+    sleep_ex_selective(wakeup_event, stime, reserve_pll, 0);
+#endif // CONFIG_SDR_EN
 
     portNVIC_SYSTICK_CURRENT_VALUE_REG = backup_systick_reg;
 

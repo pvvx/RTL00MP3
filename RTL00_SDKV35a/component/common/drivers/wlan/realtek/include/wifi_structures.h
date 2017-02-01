@@ -80,7 +80,7 @@ typedef struct rtw_wifi_setting {
 	rtw_security_t		security_type;
 	unsigned char 		password[65];
 	unsigned char		key_idx;
-}rtw_wifi_setting_t;
+} rtw_wifi_setting_t;
 #if defined(__IAR_SYSTEMS_ICC__)
 #pragma pack()
 #endif

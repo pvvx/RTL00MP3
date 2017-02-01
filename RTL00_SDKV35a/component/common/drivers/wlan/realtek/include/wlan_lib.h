@@ -38,19 +38,19 @@ extern int rtw_wx_set_freq(struct net_device *dev, struct iw_request_info *info,
 extern int rtw_ex_set(struct net_device *dev, struct iw_request_info *info, union iwreq_data *wdata, char *extra);
 extern void wireless_send_event(struct net_device *dev, unsigned int cmd, union iwreq_data *wrqu, char *extra);
 extern void indicate_wx_custom_event(_adapter *padapter, char *msg); 
-extern void indicate_wx_scan_result_present(__int64 padapter, __int64 a2);
-extern void indicate_wx_scan_complete_event(__int64 padapter, __int64 a2);
-extern void rtw_indicate_sta_assoc(__int64 padapter, __int64 buf);
+extern void indicate_wx_scan_result_present(uint64_t padapter, uint64_t a2);
+extern void indicate_wx_scan_complete_event(uint64_t padapter, uint64_t a2);
+extern void rtw_indicate_sta_assoc(uint64_t padapter, uint64_t buf);
 extern void rtw_indicate_sta_disassoc(_adapter *padapter, uint8_t *addr); 
-extern void rtw_indicate_wx_assoc_event(__int64 padapter, __int64 a2);
-extern void rtw_indicate_wx_disassoc_event(__int64 padapter, __int64 a2);
+extern void rtw_indicate_wx_assoc_event(uint64_t padapter, uint64_t a2);
+extern void rtw_indicate_wx_disassoc_event(uint64_t padapter, uint64_t a2);
 extern int rtw_set_wpa_ie(_adapter *padapter, char *pie, int ielen);
 extern void strtopsk(uint8_t *des, uint8_t *src, int len);
 extern int rtw_wx_get_passphrase(struct net_device *dev, struct iw_request_info *a, union iwreq_data *wrqu, char *extra);
 extern int rtw_wx_set_ap_essid(struct net_device *dev, struct iw_request_info *a, union iwreq_data *wrqu, char *extra);
 extern void mac_reg_dump(_adapter *padapter); 
 extern void bb_reg_dump(_adapter *padapter); 
-extern void rf_reg_dump(_adapter *padapter, int a2, int a3);
+extern void rf_reg_dump(_adapter *padapter); // , int a2, int a3);
 extern int rtw_dbg_port(struct net_device *dev, struct iw_request_info *info, union iwreq_data *wrqu, char *extra);
 extern int rtw_get_auto_channel(struct net_device *dev, u8 *channel_set, int channel_num);
 extern int rtw_set_sta_num(int ap_sta_num);
@@ -277,7 +277,7 @@ extern int max_timer_used_num;
 //--------------------------------
 // rtl8195a_cmd.o
 // Function declarations
-extern int32_t FillH2CCmd8195A(PADAPTER padapter, int ElementID, __int64 CmdLen);
+extern int32_t FillH2CCmd8195A(PADAPTER padapter, int ElementID, uint64_t CmdLen);
 extern void rtl8195a_set_FwRsvdPage_cmd(PADAPTER padapter, PH2CParam_RsvdPage pRsvdPage); 
 extern void rtl8195a_set_FwMediaStatusRpt_cmd(PADAPTER padapter, int mstatus, int macid);
 extern void rtl8195a_set_FwMacIdConfig_cmd(_adapter *padapter, int mac_id, int raid, int bw, uint8_t sgi, uint32_t mask);
@@ -1082,12 +1082,12 @@ extern signed int OnProbeReq(_adapter *padapter, union recv_frame *precv_frame);
 extern void issue_probereq(_adapter *padapter, NDIS_802_11_SSID *pssid, int blnbc);
 extern void issue_auth(_adapter *padapter, struct sta_info *psta, int status);
 extern signed int OnAuth(_adapter *padapter, union recv_frame *precv_frame);
-extern void issue_asocrsp(_adapter *padapter, unsigned __int16 status, struct sta_info *pstat, int pkt_type);
+extern void issue_asocrsp(_adapter *padapter, uint16_t status, struct sta_info *pstat, int pkt_type);
 extern void issue_assocreq(_adapter *padapter); 
 extern void issue_nulldata(_adapter *padapter, unsigned int power_mode); 
 extern void issue_qos_nulldata(_adapter *padapter, u8 *da, uint16_t tid);
 extern void issue_deauth(_adapter *padapter, u8 *da, uint32_t reason);
-extern void issue_action_BA(_adapter *padapter, u8 *raddr, u8 action, unsigned __int16 status);
+extern void issue_action_BA(_adapter *padapter, u8 *raddr, u8 action, uint16_t status);
 extern signed int OnAction_back(_adapter *padapter, union recv_frame *precv_frame);
 extern signed int send_beacon(_adapter *padapter);
 extern signed int collect_bss_info(_adapter *padapter, union recv_frame *precv_frame, WLAN_BSSID_EX *bssid);
@@ -1101,8 +1101,8 @@ extern signed int OnProbeRsp(_adapter *padapter, union recv_frame *precv_frame);
 extern void report_surveydone_event(_adapter *padapter); 
 extern void report_join_res(_adapter *padapter, int res); 
 extern signed int OnAssocRsp(_adapter *padapter, union recv_frame *precv_frame);
-extern void report_del_sta_event(_adapter *padapter, u8 *MacAddr, unsigned __int16 reason);
-extern signed int receive_disconnect(_adapter *padapter, u8 *MacAddr, unsigned __int16 reason);
+extern void report_del_sta_event(_adapter *padapter, u8 *MacAddr, uint16_t reason);
+extern signed int receive_disconnect(_adapter *padapter, u8 *MacAddr, uint16_t reason);
 extern signed int OnBeacon(_adapter *padapter, union recv_frame *precv_frame);
 extern signed int OnDeAuth(_adapter *padapter, union recv_frame *precv_frame);
 extern signed int OnDisassoc(_adapter *padapter, union recv_frame *precv_frame);
@@ -1240,7 +1240,7 @@ extern void (*promisc_callback)(u8 *, unsigned int, void *);
 //--------------------------------
 // rtw_psk.o
 // Function declarations
-extern void SetEAPOL_KEYIV(OCTET_STRING ocDst, __int64 a2, OCTET32_INTEGER oc32Counter);
+extern void SetEAPOL_KEYIV(OCTET_STRING ocDst, uint64_t a2, OCTET32_INTEGER oc32Counter);
 extern void ToDrv_SetPTK(_adapter *padapter, struct sta_info *psta);
 extern void Message_ReplayCounter_OC2LI(int a1, LARGE_INTEGER *li);
 extern int Message_SmallerEqualReplayCounter(LARGE_INTEGER li1, int a2);
@@ -1402,7 +1402,7 @@ extern void rtw_txframes_update_attrib_vcs_info(_adapter *padapter, struct xmit_
 extern int rtw_calculate_wlan_pkt_size_by_attribue(struct pkt_attrib *pattrib);
 extern int32_t rtw_put_snap(uint8_t *data, int h_proto);
 extern void rtw_update_protection(_adapter *padapter, uint8_t *ie, unsigned int ie_len); 
-extern void rtw_count_tx_stats(PADAPTER padapter, struct xmit_frame *pxmitframe, __int64 sz);
+extern void rtw_count_tx_stats(PADAPTER padapter, struct xmit_frame *pxmitframe, uint64_t sz);
 extern int32_t rtw_free_xmitbuf_ext(struct xmit_priv *pxmitpriv, struct xmit_buf *pxmitbuf, int a3);
 extern struct list_head *rtw_alloc_xmitframe(struct xmit_priv *pxmitpriv, _irqL a2);
 extern int32_t rtw_free_xmitframe(struct xmit_priv *pxmitpriv, struct xmit_frame *pxmitframe);

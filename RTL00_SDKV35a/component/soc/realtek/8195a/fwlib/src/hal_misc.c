@@ -56,4 +56,14 @@ HAL_RESET_REASON HalGetResetCause(void)
 	return HAL_PERI_ON_READ32(REG_SYS_DSLP_TIM_CTRL);
 }
 
+u8 HalGetChipId(void) {
+	u8 chip_id = CHIP_ID_8195AM;
+#if CONFIG_DEBUG_LOG > 3
+	if (HALEFUSEOneByteReadROM(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_CTRL), 0xF8, &chip_id, L25EOUTVOLTAGE) != 1)
+		DBG_MISC_INFO("Get Chip ID Failed\r");
+#else
+	HALEFUSEOneByteReadROM(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_CTRL), 0xF8, &chip_id, L25EOUTVOLTAGE);
+#endif
+	return chip_id;
+}
 

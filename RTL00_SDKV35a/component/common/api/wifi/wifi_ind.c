@@ -86,6 +86,10 @@ static rtw_result_t rtw_indicate_event_handle(int event_cmd, char *buf, int buf_
 	return RTW_SUCCESS;
 }
 #endif
+#if 0 // test beacon
+#include "gpio_api.h"   // mbed
+extern gpio_t gpio_led;
+#endif
 
 void wifi_indication( WIFI_EVENT_INDICATE event, char *buf, int buf_len, int flags)
 {
@@ -194,6 +198,10 @@ void wifi_indication( WIFI_EVENT_INDICATE event, char *buf, int buf_len, int fla
 #if(WIFI_INDICATE_MSG>1)
 			printf("%s(): WIFI_EVENT_BEACON_AFTER_DHCP\n", __func__);
 #endif
+#if 0 // test beacon
+			gpio_write(&gpio_led, 1);
+			gpio_write(&gpio_led, 0);
+#endif			
 			break;
 	}
 

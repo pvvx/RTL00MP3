@@ -37,6 +37,9 @@ struct sk_buff {
 */
 /************************************************************/
 
+// #include "wrapper.h"
+extern struct net_device *rltk_wlan_info;
+
 //----- ------------------------------------------------------------------
 // Wlan Interface opened for upper layer
 //----- ------------------------------------------------------------------
@@ -54,7 +57,6 @@ int rltk_wlan_wireless_mode(unsigned char mode);
 int rltk_wlan_set_wps_phase(unsigned char is_trigger_wps);
 int rtw_ps_enable(int enable);
 int rltk_wlan_is_connected_to_ap(void);
-
 
 #ifdef	__cplusplus
 }

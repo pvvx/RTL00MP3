@@ -58,17 +58,17 @@ typedef struct _HAL_GDMA_ADAPTER_ {
     struct GDMA_CH_LLI          *pLlix;
     struct BLOCK_SIZE_LIST      *pBlockSizeList;
 
-    PGDMA_CH_LLI_ELE            pLli;
-    u32                         NextPlli;
+    PGDMA_CH_LLI_ELE      pLli;
+    u32                   NextPlli;
     u8                    TestItem;
-    u8                          ChNum;
-    u8                          GdmaIndex;
-    u8                          IsrCtrl:1;
-    u8                          GdmaOnOff:1;
-    u8                          Llpctrl:1;
-    u8                          Lli0:1;
-    u8                          Rsvd4to7:4;
-    u8                          GdmaIsrType;
+    u8                    ChNum;
+    u8                    GdmaIndex;
+    u8                    IsrCtrl:1;
+    u8                    GdmaOnOff:1;
+    u8                    Llpctrl:1;
+    u8                    Lli0:1;
+    u8                    Rsvd4to7:4;
+    u8                    GdmaIsrType;
 }HAL_GDMA_ADAPTER, *PHAL_GDMA_ADAPTER;
 
 typedef struct _HAL_GDMA_CHNL_ {

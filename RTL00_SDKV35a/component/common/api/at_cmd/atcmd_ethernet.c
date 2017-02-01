@@ -76,10 +76,38 @@ void fATE1(void *arg)
 		printf("[ATE0]Usage to set wlan as default interface: ATE1=0\n");
 	}
 }
+/*
+void fATTT(void *arg){
+#if 1
+	 ConfigDebugErr  = -1;
+	 ConfigDebugInfo = ~(_DBG_GDMA_ | _DBG_SPI_FLASH_);
+	 ConfigDebugWarn = -1;
+	 CfgSysDebugErr = -1;
+	 CfgSysDebugInfo = -1;
+	 CfgSysDebugWarn = -1;
+#endif
+	 printf("ethernet_init = %d\n", ethernet_mii_init()); // ethernet_init()); // HalMiiInit()); //HalMiiInitRtl8195a();
+}
+
+void fATT1(void *arg){
+#if 1
+	 ConfigDebugErr  = -1;
+	 ConfigDebugInfo = ~(_DBG_GDMA_ | _DBG_SPI_FLASH_);
+	 ConfigDebugWarn = -1;
+	 CfgSysDebugErr = -1;
+	 CfgSysDebugInfo = -1;
+	 CfgSysDebugWarn = -1;
+#endif
+	 printf("ethernet_write = %d\n", ethernet_write((const char *)0x1000, 1024));
+	 printf("ethernet_send = %d\n", ethernet_send());
+}
+*/
 
 log_item_t at_ethernet_items[ ] = {
-	{"ATE0", fATE0,},
-	{"ATE1", fATE1,}
+	{"ATE0", fATE0},
+//	{"ATTT", fATTT}, // Test !
+//	{"ATT1", fATT1}, // Test !
+	{"ATE1", fATE1}
 };
 
 void at_ethernet_init(void)

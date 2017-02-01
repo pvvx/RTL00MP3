@@ -2568,7 +2568,6 @@ FRESULT f_read (
 	UINT rcnt, cc;
 	BYTE csect, *rbuff = (BYTE*)buff;
 
-
 	*br = 0;	/* Clear read byte counter */
 
 	res = validate(fp);							/* Check validity */
@@ -2670,8 +2669,9 @@ FRESULT f_write (
 	const BYTE *wbuff = (const BYTE*)buff;
 	BYTE csect;
 
-
 	*bw = 0;	/* Clear write byte counter */
+
+//	rtl_printf("f_write(%p, %p, %d) = %d\n", fp, buff, btw);
 
 	res = validate(fp);						/* Check validity */
 	if (res != FR_OK) LEAVE_FF(fp->fs, res);
@@ -2771,8 +2771,6 @@ FRESULT f_write (
 
 	LEAVE_FF(fp->fs, FR_OK);
 }
-
-
 
 
 /*-----------------------------------------------------------------------*/

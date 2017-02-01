@@ -13,26 +13,33 @@
 #include "osdep_api.h"
 
 
-#if 0// defined(RTL8710AF)
+#if defined(RTL8710AF)
 // RTL8710AF
-#define UART_TX    		PA_4 // PC_3
-#define UART_RX    		PA_0 // PC_0
+#define UART_TX   		PA_4 // PC_3
+#define UART_RX   		PA_0 // PC_0
 #define UART_RTS		PA_2 // PC_2
 #define UART_CTS		PA_1 // PC_1
 
-#elif defined(RTL8711AM)
+#elif 0 // defined(RTL8711AM)
 // RTL8711AM
-#define UART_TX    		PA_7
-#define UART_RX    		PA_6
+#define UART_TX   		PA_7
+#define UART_RX   		PA_6 // no Interrupt!
 #define UART_RTS		PA_3
 #define UART_CTS		PA_5
 
-#else
+#elif 0 // else
 // RTL8711AM + RTL8710AF
-#define UART_TX    		PC_3
-#define UART_RX    		PC_0
+#define UART_TX   		PC_3
+#define UART_RX   		PC_0 // no Interrupt!
 #define UART_RTS		PC_2
 #define UART_CTS		PC_1
+
+#elif defined(RTL8711AM)
+// RTL8711AM + RTL8710AF
+#define UART_TX   		PE_0
+#define UART_RX   		PE_3
+#define UART_RTS		PE_1
+#define UART_CTS		PE_2
 
 #endif
 

@@ -49,7 +49,7 @@
 #define __SYSTEM_CLOCK    (200000000UL/6*5) // PLATFORM_CLOCK // 
 
 extern unsigned int rand_x;
-extern u32 HalGetCpuClk(VOID);
+//extern u32 HalGetCpuClk(VOID);
 
 #ifdef CONFIG_CHIP_A_CUT
 const u32 SysCpkClkTbl[]= {

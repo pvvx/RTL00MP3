@@ -326,7 +326,7 @@ typedef enum {
 	
 	RTW_COUNTRY_MAX
 
-}rtw_country_code_t;
+} rtw_country_code_t;
 
 typedef enum {
 	RTW_ADAPTIVITY_DISABLE = 0,
@@ -341,14 +341,15 @@ typedef enum {
 	RTW_MODE_AP,
 	RTW_MODE_STA_AP,
 	RTW_MODE_PROMISC,
-	RTW_MODE_P2P
-}rtw_mode_t;
+	RTW_MODE_P2P,
+	RTW_MODE_MAX
+} rtw_mode_t;
 
 typedef enum {
 	RTW_SCAN_FULL = 0,
 	RTW_SCAN_SOCIAL,
 	RTW_SCAN_ONE
-}rtw_scan_mode_t;
+} rtw_scan_mode_t;
 
 typedef enum {
 	RTW_LINK_DISCONNECTED = 0,
@@ -421,7 +422,7 @@ typedef enum{
 	RTW_WRONG_PASSWORD = 3 ,
 	RTW_DHCP_FAIL = 4,
 	RTW_UNKNOWN,
-}rtw_connect_error_flag_t;
+} rtw_connect_error_flag_t;
 
 typedef enum {
 	RTW_TX_PWR_PERCENTAGE_100 = 0, /* 100%, default target output power.	 */
@@ -429,7 +430,7 @@ typedef enum {
 	RTW_TX_PWR_PERCENTAGE_50 = 2, /* 50% */
 	RTW_TX_PWR_PERCENTAGE_25 = 3, /* 25% */
 	RTW_TX_PWR_PERCENTAGE_12_5 = 4, /* 12.5% */
-}rtw_tx_pwr_percentage_t;
+} rtw_tx_pwr_percentage_t;
 
 typedef enum _WIFI_EVENT_INDICATE{
 	WIFI_EVENT_CONNECT = 0,

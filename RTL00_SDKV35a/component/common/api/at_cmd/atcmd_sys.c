@@ -8,6 +8,7 @@
 #include "hal_adc.h"
 #include "gpio_api.h"   // mbed
 #include "sys_api.h"
+#include "rtl8195a.h"
 #include "flash_api.h"
 #include "rtl_lib.h"
 #include "build_info.h"
@@ -50,117 +51,88 @@ struct _dev_id2name {
 	u8 *name;
 };
 
-struct _dev_id2name dev_id2name[] = {
-{UART0,  "UART0"}, {UART1,  "UART1"}, {UART2,  "UART2"},
-{SPI0,  "SPI0"}, {SPI1,  "SPI1"}, {SPI2, "SPI2"},
-{SPI0_MCS, "SPI0_MCS"},
-{I2C0, "I2C0"}, {I2C1, "I2C1"}, {I2C2, "I2C2"}, {I2C3, "I2C3"},
-{I2S0, "I2S0"}, {I2S1, "I2S1"},
-{PCM0, "PCM0"}, {PCM1, "PCM1"},
-{ADC0, "ADC0"},
-{DAC0, "DAC0"}, {DAC1, "DAC1"},
-{SDIOD, "SDIOD"}, {SDIOH, "SDIOH"},
-{USBOTG, "USBOTG"},
-{MII, "MII"},
-{WL_LED, "WL_LED"},
-{WL_ANT0,"WL_ANT0"}, {WL_ANT1,"WL_ANT1"},
-{WL_BTCOEX,"WL_BTCOEX"}, {WL_BTCMD,"WL_BTCMD"},
-{NFC,"NFC"},
-{PWM0,"PWM0"}, {PWM1,"PWM1"}, {PWM2,"PWM2"}, {PWM3,"PWM3"},
-{ETE0,"ETE0"}, {ETE1,"ETE1"}, {ETE2,"ETE2"}, {ETE3,"ETE3"},
-{EGTIM,"EGTIM"},
-{SPI_FLASH,"SPI_FLASH"},
-{SDR,"SDR"},
-{JTAG,"JTAG"},
-{TRACE,"TRACE"},
-{LOG_UART,"LOG_UART"}, {LOG_UART_IR,"LOG_UART_IR"},
-{SIC,"SIC"},
-{EEPROM,"EEPROM"},
-{DEBUG,"DEBUG"},
-{255,""}};
+struct _dev_id2name dev_id2name[] = { { UART0, "UART0" }, { UART1, "UART1" }, {
+UART2, "UART2" }, { SPI0, "SPI0" }, { SPI1, "SPI1" }, { SPI2, "SPI2" }, {
+SPI0_MCS, "SPI0_MCS" }, { I2C0, "I2C0" }, { I2C1, "I2C1" }, { I2C2, "I2C2" }, {
+I2C3, "I2C3" }, { I2S0, "I2S0" }, { I2S1, "I2S1" }, { PCM0, "PCM0" }, {
+PCM1, "PCM1" }, { ADC0, "ADC0" }, { DAC0, "DAC0" }, { DAC1, "DAC1" }, {
+SDIOD, "SDIOD" }, { SDIOH, "SDIOH" }, { USBOTG, "USBOTG" }, { MII, "MII" }, {
+WL_LED, "WL_LED" }, { WL_ANT0, "WL_ANT0" }, { WL_ANT1, "WL_ANT1" }, {
+WL_BTCOEX, "WL_BTCOEX" }, { WL_BTCMD, "WL_BTCMD" }, { NFC, "NFC" }, {
+PWM0, "PWM0" }, { PWM1, "PWM1" }, { PWM2, "PWM2" }, { PWM3, "PWM3" }, {
+ETE0, "ETE0" }, { ETE1, "ETE1" }, { ETE2, "ETE2" }, { ETE3, "ETE3" }, {
+EGTIM, "EGTIM" }, { SPI_FLASH, "SPI_FLASH" }, { SDR, "SDR" }, { JTAG, "JTAG" },
+		{ TRACE, "TRACE" }, { LOG_UART, "LOG_UART" }, {
+		LOG_UART_IR, "LOG_UART_IR" }, { SIC, "SIC" }, { EEPROM, "EEPROM" }, {
+		DEBUG, "DEBUG" }, { 255, "" } };
 
-#include "rtl8195a.h"
-#include "rtl8195a_sdio_host.h"
-#include "hal_sdio_host.h"
-#include "sd.h"
-#include "sdio_host.h"
-extern HAL_SDIO_HOST_ADAPTER SdioHostAdapter;
-extern void  SdioHostSdBusPwrCtrl(uint8_t En);
-extern int  SdioHostSdClkCtrl(void *Data, int En, int Divisor);
-
-void fATXX(void *arg)
-{
+void fATSI(void *arg) {
 	uint32 x = 0;
 	int i;
 	u8 * s;
-	for(i = 0; dev_id2name[i].id != 255; i++ ) {
+	for (i = 0; dev_id2name[i].id != 255; i++) {
 		ReadHWPwrState(dev_id2name[i].id, &x);
 		s = "?";
-		switch(x) {
-			case HWACT:
-				s = "ACT";
-				break;
-			case HWCG:
-				s = "CG";
-				break;
-			case HWINACT:
-				s = "WACT";
-				break;
-			case UNDEF:
-				s = "UNDEF";
-				break;
-			case ALLMET:
-				s = "ALLMET";
-				break;
+		switch (x) {
+		case HWACT:
+			s = "ACT";
+			break;
+		case HWCG:
+			s = "CG";
+			break;
+		case HWINACT:
+			s = "WACT";
+			break;
+		case UNDEF:
+			s = "UNDEF";
+			break;
+		case ALLMET:
+			s = "ALLMET";
+			break;
 		}
 		printf("Dev %s, state = %s\n", dev_id2name[i].name, s);
 	}
-	for(i = 0; i < _PORT_MAX; i++)  printf("Port %c state: 0x%04x\n", i+'A', GPIOState[i]);
+	for (i = 0; i < _PORT_MAX; i++)
+		printf("Port %c state: 0x%04x\n", i + 'A', GPIOState[i]);
 }
-#ifdef CONFIG_SDR_EN
-extern s32 MemTest(u32 LoopCnt);
-void fATSM(void *arg)
-{
-	MemTest(1);
-}
-#endif
+
 //-------- AT SYS commands ---------------------------------------------------------------
-void fATSD(void *arg)
-{
+void fATSD(void *arg) {
 	int argc = 0;
-	char *argv[MAX_ARGC] = {0};
-	SD_DeInit();
-	AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSD]: _AT_SYSTEM_DUMP_REGISTER_");
-	if(!arg){
+	char *argv[MAX_ARGC] = { 0 };
+	AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS,
+			"[ATSD]: _AT_SYSTEM_DUMP_REGISTER_");
+	if (!arg) {
 		AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSD] Usage: ATSD=REGISTER");
 		return;
 	}
 	argc = parse_param(arg, argv);
-	if(argc == 2 || argc == 3)
-		CmdDumpWord(argc-1, (unsigned char**)(argv+1));
+	if (argc == 2 || argc == 3)
+		CmdDumpWord(argc - 1, (unsigned char**) (argv + 1));
 }
 
 #if ATCMD_VER == ATVER_2
-void fATXD(void *arg)
-{
+void fATXD(void *arg) {
 	int argc = 0;
-	char *argv[MAX_ARGC] = {0};
-	
-	AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS, "[ATXD]: _AT_SYSTEM_WRITE_REGISTER_");
-	if(!arg){
-		AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS, "[ATXD] Usage: ATXD=REGISTER,VALUE");
+	char *argv[MAX_ARGC] = { 0 };
+
+	AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS,
+			"[ATXD]: _AT_SYSTEM_WRITE_REGISTER_");
+	if (!arg) {
+		AT_DBG_MSG(AT_FLAG_EDIT, AT_DBG_ALWAYS,
+				"[ATXD] Usage: ATXD=REGISTER,VALUE");
 		return;
 	}
 	argc = parse_param(arg, argv);
-	if(argc == 3)
-		CmdWriteWord(argc-1, (unsigned char**)(argv+1));
+	if (argc == 3)
+		CmdWriteWord(argc - 1, (unsigned char**) (argv + 1));
 }
 #endif
 
 #if ATCMD_VER == ATVER_1
 
 void fATSC(void *arg)
-{	
+{
 	AT_DBG_MSG(AT_FLAG_OTA, AT_DBG_ALWAYS, "[ATSC]: _AT_SYSTEM_CLEAR_OTA_SIGNATURE_");
 	sys_clear_ota_signature();
 }
@@ -175,10 +147,9 @@ void fATSR(void *arg)
 void fATSY(void *arg)
 {
 	// use xmodem to update, RX: PA_6, TX: PA_7, baudrate: 1M
-	OTU_FW_Update(0, 2, 115200);	
+	OTU_FW_Update(0, 2, 115200);
 }
 #endif
-
 
 #if SUPPORT_MP_MODE
 void fATSA(void *arg)
@@ -187,21 +158,21 @@ void fATSA(void *arg)
 	int argc = 0, channel;
 	char *argv[MAX_ARGC] = {0}, *ptmp;
 	u16 offset, gain;
-	
+
 	AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA]: _AT_SYSTEM_ADC_TEST_");
-	if(!arg){
+	if(!arg) {
 		AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] Usage: ATSA=CHANNEL(0~2)");
 		AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] Usage: ATSA=k_get");
 		AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] Usage: ATSA=k_set[offet(hex),gain(hex)]");
 		return;
 	}
-	
+
 	argc = parse_param(arg, argv);
-	if(strcmp(argv[1], "k_get") == 0){
+	if(strcmp(argv[1], "k_get") == 0) {
 		sys_adc_calibration(0, &offset, &gain);
 //		AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] offset = 0x%04X, gain = 0x%04X", offset, gain);
-	}else if(strcmp(argv[1], "k_set") == 0){
-		if(argc != 4){
+	} else if(strcmp(argv[1], "k_set") == 0) {
+		if(argc != 4) {
 			AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] Usage: ATSA=k_set[offet(hex),gain(hex)]");
 			return;
 		}
@@ -209,47 +180,47 @@ void fATSA(void *arg)
 		gain = strtoul(argv[3], &ptmp, 16);
 		sys_adc_calibration(1, &offset, &gain);
 //		AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] offset = 0x%04X, gain = 0x%04X", offset, gain);
-	}else{
+	} else {
 		channel = atoi(argv[1]);
-		if(channel < 0 || channel > 2){
+		if(channel < 0 || channel > 2) {
 			AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] Usage: ATSA=CHANNEL(0~2)");
 			return;
 		}
-		analogin_t   adc;
+		analogin_t adc;
 		u16 adcdat;
-		
+
 		// Remove debug info massage
 		ConfigDebugInfo = 0;
 		if(channel == 0)
-			analogin_init(&adc, AD_1);
+		analogin_init(&adc, AD_1);
 		else if(channel == 1)
-			analogin_init(&adc, AD_2);
+		analogin_init(&adc, AD_2);
 		else
-			analogin_init(&adc, AD_3);
+		analogin_init(&adc, AD_3);
 		adcdat = analogin_read_u16(&adc)>>4;
 		analogin_deinit(&adc);
 		// Recover debug info massage
 		ConfigDebugInfo = tConfigDebugInfo;
-		
+
 		AT_DBG_MSG(AT_FLAG_ADC, AT_DBG_ALWAYS, "[ATSA] A%d = 0x%04X", channel, adcdat);
 	}
 }
 
 void fATSG(void *arg)
 {
-    gpio_t gpio_test;
-    int argc = 0, val;
+	gpio_t gpio_test;
+	int argc = 0, val;
 	char *argv[MAX_ARGC] = {0}, port, num;
 	PinName pin = NC;
 	u32 tConfigDebugInfo = ConfigDebugInfo;
-    
+
 	AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "[ATSG]: _AT_SYSTEM_GPIO_TEST_");
-	if(!arg){
+	if(!arg) {
 		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "[ATSG] Usage: ATSG=PINNAME(ex:A0)");
 		return;
-	}else{
+	} else {
 		argc = parse_param(arg, argv);
-		if(argc != 2){
+		if(argc != 2) {
 			AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "[ATSG] Usage: ATSG=PINNAME(ex:A0)");
 			return;
 		}
@@ -257,81 +228,81 @@ void fATSG(void *arg)
 	port = argv[1][0];
 	num = argv[1][1];
 	if(port >= 'a' && port <= 'z')
-		port -= ('a' - 'A');
+	port -= ('a' - 'A');
 	if(num >= 'a' && num <= 'z')
-		num -= ('a' - 'A');
-	switch(port){
+	num -= ('a' - 'A');
+	switch(port) {
 		case 'A':
-			switch(num){
-				case '0': pin = PA_0; break; case '1': pin = PA_1; break; case '2': pin = PA_2; break; case '3': pin = PA_3; break;
-				case '4': pin = PA_4; break; case '5': pin = PA_5; break; case '6': pin = PA_6; break; case '7': pin = PA_7; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PA_0; break; case '1': pin = PA_1; break; case '2': pin = PA_2; break; case '3': pin = PA_3; break;
+			case '4': pin = PA_4; break; case '5': pin = PA_5; break; case '6': pin = PA_6; break; case '7': pin = PA_7; break;
+		}
+		break;
 		case 'B':
-			switch(num){
-				case '0': pin = PB_0; break; case '1': pin = PB_1; break; case '2': pin = PB_2; break; case '3': pin = PB_3; break;
-				case '4': pin = PB_4; break; case '5': pin = PB_5; break; case '6': pin = PB_6; break; case '7': pin = PB_7; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PB_0; break; case '1': pin = PB_1; break; case '2': pin = PB_2; break; case '3': pin = PB_3; break;
+			case '4': pin = PB_4; break; case '5': pin = PB_5; break; case '6': pin = PB_6; break; case '7': pin = PB_7; break;
+		}
+		break;
 		case 'C':
-			switch(num){
-				case '0': pin = PC_0; break; case '1': pin = PC_1; break; case '2': pin = PC_2; break; case '3': pin = PC_3; break;
-				case '4': pin = PC_4; break; case '5': pin = PC_5; break; case '6': pin = PC_6; break; case '7': pin = PC_7; break;
-				case '8': pin = PC_8; break; case '9': pin = PC_9; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PC_0; break; case '1': pin = PC_1; break; case '2': pin = PC_2; break; case '3': pin = PC_3; break;
+			case '4': pin = PC_4; break; case '5': pin = PC_5; break; case '6': pin = PC_6; break; case '7': pin = PC_7; break;
+			case '8': pin = PC_8; break; case '9': pin = PC_9; break;
+		}
+		break;
 		case 'D':
-			switch(num){
-				case '0': pin = PD_0; break; case '1': pin = PD_1; break; case '2': pin = PD_2; break; case '3': pin = PD_3; break;
-				case '4': pin = PD_4; break; case '5': pin = PD_5; break; case '6': pin = PD_6; break; case '7': pin = PD_7; break;
-				case '8': pin = PD_8; break; case '9': pin = PD_9; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PD_0; break; case '1': pin = PD_1; break; case '2': pin = PD_2; break; case '3': pin = PD_3; break;
+			case '4': pin = PD_4; break; case '5': pin = PD_5; break; case '6': pin = PD_6; break; case '7': pin = PD_7; break;
+			case '8': pin = PD_8; break; case '9': pin = PD_9; break;
+		}
+		break;
 		case 'E':
-			switch(num){
-				case '0': pin = PE_0; break; case '1': pin = PE_1; break; case '2': pin = PE_2; break; case '3': pin = PE_3; break;
-				case '4': pin = PE_4; break; case '5': pin = PE_5; break; case '6': pin = PE_6; break; case '7': pin = PE_7; break;
-				case '8': pin = PE_8; break; case '9': pin = PE_9; break; case 'A': pin = PE_A; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PE_0; break; case '1': pin = PE_1; break; case '2': pin = PE_2; break; case '3': pin = PE_3; break;
+			case '4': pin = PE_4; break; case '5': pin = PE_5; break; case '6': pin = PE_6; break; case '7': pin = PE_7; break;
+			case '8': pin = PE_8; break; case '9': pin = PE_9; break; case 'A': pin = PE_A; break;
+		}
+		break;
 		case 'F':
-			switch(num){
-				case '0': pin = PF_0; break; case '1': pin = PF_1; break; case '2': pin = PF_2; break; case '3': pin = PF_3; break;
-				case '4': pin = PF_4; break; case '5': pin = PF_5; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PF_0; break; case '1': pin = PF_1; break; case '2': pin = PF_2; break; case '3': pin = PF_3; break;
+			case '4': pin = PF_4; break; case '5': pin = PF_5; break;
+		}
+		break;
 		case 'G':
-			switch(num){
-				case '0': pin = PG_0; break; case '1': pin = PG_1; break; case '2': pin = PG_2; break; case '3': pin = PG_3; break;
-				case '4': pin = PG_4; break; case '5': pin = PG_5; break; case '6': pin = PG_6; break; case '7': pin = PG_7; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PG_0; break; case '1': pin = PG_1; break; case '2': pin = PG_2; break; case '3': pin = PG_3; break;
+			case '4': pin = PG_4; break; case '5': pin = PG_5; break; case '6': pin = PG_6; break; case '7': pin = PG_7; break;
+		}
+		break;
 		case 'H':
-			switch(num){
-				case '0': pin = PH_0; break; case '1': pin = PH_1; break; case '2': pin = PH_2; break; case '3': pin = PH_3; break;
-				case '4': pin = PH_4; break; case '5': pin = PH_5; break; case '6': pin = PH_6; break; case '7': pin = PH_7; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PH_0; break; case '1': pin = PH_1; break; case '2': pin = PH_2; break; case '3': pin = PH_3; break;
+			case '4': pin = PH_4; break; case '5': pin = PH_5; break; case '6': pin = PH_6; break; case '7': pin = PH_7; break;
+		}
+		break;
 		case 'I':
-			switch(num){
-				case '0': pin = PI_0; break; case '1': pin = PI_1; break; case '2': pin = PI_2; break; case '3': pin = PI_3; break;
-				case '4': pin = PI_4; break; case '5': pin = PI_5; break; case '6': pin = PI_6; break; case '7': pin = PI_7; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PI_0; break; case '1': pin = PI_1; break; case '2': pin = PI_2; break; case '3': pin = PI_3; break;
+			case '4': pin = PI_4; break; case '5': pin = PI_5; break; case '6': pin = PI_6; break; case '7': pin = PI_7; break;
+		}
+		break;
 		case 'J':
-			switch(num){
-				case '0': pin = PJ_0; break; case '1': pin = PJ_1; break; case '2': pin = PJ_2; break; case '3': pin = PJ_3; break;
-				case '4': pin = PJ_4; break; case '5': pin = PJ_5; break; case '6': pin = PJ_6; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PJ_0; break; case '1': pin = PJ_1; break; case '2': pin = PJ_2; break; case '3': pin = PJ_3; break;
+			case '4': pin = PJ_4; break; case '5': pin = PJ_5; break; case '6': pin = PJ_6; break;
+		}
+		break;
 		case 'K':
-			switch(num){
-				case '0': pin = PK_0; break; case '1': pin = PK_1; break; case '2': pin = PK_2; break; case '3': pin = PK_3; break;
-				case '4': pin = PK_4; break; case '5': pin = PK_5; break; case '6': pin = PK_6; break;
-			}
-			break;
+		switch(num) {
+			case '0': pin = PK_0; break; case '1': pin = PK_1; break; case '2': pin = PK_2; break; case '3': pin = PK_3; break;
+			case '4': pin = PK_4; break; case '5': pin = PK_5; break; case '6': pin = PK_6; break;
+		}
+		break;
 	}
-	if(pin == NC){
+	if(pin == NC) {
 		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "[ATSG]: Invalid Pin Name");
 		return;
 	}
@@ -339,18 +310,17 @@ void fATSG(void *arg)
 	ConfigDebugInfo = 0;
 	// Initial input control pin
 	gpio_init(&gpio_test, pin);
-	gpio_dir(&gpio_test, PIN_INPUT);     // Direction: Input
-	gpio_mode(&gpio_test, PullUp);       // Pull-High
+	gpio_dir(&gpio_test, PIN_INPUT);// Direction: Input
+	gpio_mode(&gpio_test, PullUp);// Pull-High
 	val = gpio_read(&gpio_test);
 	// Recover debug info massage
 	ConfigDebugInfo = tConfigDebugInfo;
 	AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "[ATSG] %c%c = %d", port, num, val);
 }
 
-
 void fATSP(void *arg)
 {
-	int   argc           = 0;
+	int argc = 0;
 	char *argv[MAX_ARGC] = {0};
 
 	unsigned long timeout; // ms
@@ -381,11 +351,11 @@ void fATSP(void *arg)
 		}
 
 		// init gpiob1 test
-		test_result         = 0;
-		timeout             = strtoul(argv[2], NULL, 10);
-		expected_zerocount  = atoi(argv[3]);
-		zerocount           = 0;
-		val_old             = 1;
+		test_result = 0;
+		timeout = strtoul(argv[2], NULL, 10);
+		expected_zerocount = atoi(argv[3]);
+		zerocount = 0;
+		val_old = 1;
 
 		sys_log_uart_off();
 
@@ -427,23 +397,23 @@ int write_otu_to_system_data(flash_t *flash, uint32_t otu_addr)
 	uint32_t data, i = 0;
 	flash_read_word(flash, FLASH_SYSTEM_DATA_ADDR+0xc, &data);
 	//printf("\n\r[%s] data 0x%x otu_addr 0x%x", __FUNCTION__, data, otu_addr);
-	AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: data 0x%x otu_addr 0x%x", data, otu_addr);	
-	if(data == ~0x0){
+	AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: data 0x%x otu_addr 0x%x", data, otu_addr);
+	if(data == ~0x0) {
 		flash_write_word(flash, FLASH_SYSTEM_DATA_ADDR+0xc, otu_addr);
-	}else{
+	} else {
 		//erase backup sector
 		flash_erase_sector(flash, FLASH_RESERVED_DATA_BASE);
 		//backup system data to backup sector
-		for(i = 0; i < 0x1000; i+= 4){
+		for(i = 0; i < 0x1000; i+= 4) {
 			flash_read_word(flash, FLASH_SYSTEM_DATA_ADDR + i, &data);
 			if(i == 0xc)
-				data = otu_addr;
+			data = otu_addr;
 			flash_write_word(flash, FLASH_RESERVED_DATA_BASE + i,data);
 		}
 		//erase system data
 		flash_erase_sector(flash, FLASH_SYSTEM_DATA_ADDR);
 		//write data back to system data
-		for(i = 0; i < 0x1000; i+= 4){
+		for(i = 0; i < 0x1000; i+= 4) {
 			flash_read_word(flash, FLASH_RESERVED_DATA_BASE + i, &data);
 			flash_write_word(flash, FLASH_SYSTEM_DATA_ADDR + i,data);
 		}
@@ -455,13 +425,13 @@ int write_otu_to_system_data(flash_t *flash, uint32_t otu_addr)
 
 void fATSB(void *arg)
 {
-	int   argc           = 0;
+	int argc = 0;
 	char *argv[MAX_ARGC] = {0};
 	u32 boot_gpio, rb_boot_gpio;
 	u8 gpio_pin;
 	u8 uart_port, uart_index;
 	u8 gpio_pin_bar;
-	u8 uart_port_bar;		
+	u8 uart_port_bar;
 	flash_t flash;
 
 	// parameter check
@@ -486,20 +456,20 @@ void fATSB(void *arg)
 	}
 
 	if ( strncmp(argv[1], "P", 1) == 0 && strlen(argv[1]) == 4
-		&& (strcmp(argv[2], "low_trigger") == 0 || strcmp(argv[2], "high_trigger") == 0)
-		&& strncmp(argv[3], "UART", 4) == 0 && strlen(argv[3]) == 5) {
-		if((0x41 <= argv[1][1] <= 0x45) && (0x30 <= argv[1][3] <= 0x39) &&(0x30 <= argv[1][4] <= 0x32)){
+			&& (strcmp(argv[2], "low_trigger") == 0 || strcmp(argv[2], "high_trigger") == 0)
+			&& strncmp(argv[3], "UART", 4) == 0 && strlen(argv[3]) == 5) {
+		if((0x41 <= argv[1][1] <= 0x45) && (0x30 <= argv[1][3] <= 0x39) &&(0x30 <= argv[1][4] <= 0x32)) {
 			if(strcmp(argv[2], "high_trigger") == 0)
-				gpio_pin = 1<< 7 | ((argv[1][1]-0x41)<<4) | (argv[1][3] - 0x30);
+			gpio_pin = 1<< 7 | ((argv[1][1]-0x41)<<4) | (argv[1][3] - 0x30);
 			else
-				gpio_pin = ((argv[1][1]-0x41)<<4) | (argv[1][3] - 0x30);
+			gpio_pin = ((argv[1][1]-0x41)<<4) | (argv[1][3] - 0x30);
 			gpio_pin_bar = ~gpio_pin;
 			uart_index = argv[3][4] - 0x30;
 			if(uart_index == 0)
-				uart_port = (uart_index<<4)|2;
+			uart_port = (uart_index<<4)|2;
 			else if(uart_index == 2)
-				uart_port = (uart_index<<4)|0;
-			else{
+			uart_port = (uart_index<<4)|0;
+			else {
 				AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: Input UART index error. Please choose UART0 or UART2.");
 				AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: example: ATSB=[PC_2, low_trigger, UART2]");
 				return;
@@ -512,16 +482,16 @@ void fATSB(void *arg)
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]:uart_port_bar 0x%x", uart_port_bar);
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]:boot_gpio 0x%x", boot_gpio);
 			write_otu_to_system_data(&flash, boot_gpio);
-			flash_read_word(&flash, FLASH_SYSTEM_DATA_ADDR+0x0c, &rb_boot_gpio);			
+			flash_read_word(&flash, FLASH_SYSTEM_DATA_ADDR+0x0c, &rb_boot_gpio);
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]:Read 0x900c 0x%x", rb_boot_gpio);
-		}else{
+		} else {
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: Usage: ATSB=[GPIO_PIN, TRIGER_MODE, UART]");
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: GPIO_PIN: PB_1, PC_4 ....");
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: TRIGER_MODE: low_trigger, high_trigger");
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: UART: UART0, UART2");
 			AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: example: ATSB=[PC_2, low_trigger, UART2]");
-		}		
-	}else{
+		}
+	} else {
 		AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: Usage: ATSB=[GPIO_PIN, TRIGER_MODE, UART]");
 		AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: GPIO_PIN: PB_1, PC_4 ....");
 		AT_DBG_MSG(AT_FLAG_DUMP, AT_DBG_ALWAYS, "[ATSB]: TRIGER_MODE: low_trigger, high_trigger");
@@ -551,11 +521,11 @@ void fATSs(void *arg)
 	char *argv[MAX_ARGC] = {0};
 
 	AT_PRINTK("[ATS@]: _AT_SYSTEM_DBG_SETTING_");
-	if(!arg){
+	if(!arg) {
 		AT_PRINTK("[ATS@] Usage: ATS@=[LEVLE,FLAG]");
-	}else{
+	} else {
 		argc = parse_param(arg, argv);
-		if(argc == 3){
+		if(argc == 3) {
 			char *ptmp;
 			gDbgLevel = atoi(argv[1]);
 			gDbgFlag = strtoul(argv[2], &ptmp, 16);
@@ -570,19 +540,19 @@ void fATSc(void *arg)
 	char *argv[MAX_ARGC] = {0};
 
 	AT_PRINTK("[ATS!]: _AT_SYSTEM_CONFIG_SETTING_");
-	if(!arg){
+	if(!arg) {
 		AT_PRINTK("[ATS!] Usage: ATS!=[CONFIG(0,1,2),FLAG]");
-	}else{
+	} else {
 		argc = parse_param(arg, argv);
-		if(argc == 3){
+		if(argc == 3) {
 			char *ptmp;
 			config = atoi(argv[1]);
 			if(config == 0)
-				ConfigDebugErr = strtoul(argv[2], &ptmp, 16);
+			ConfigDebugErr = strtoul(argv[2], &ptmp, 16);
 			if(config == 1)
-				ConfigDebugInfo = strtoul(argv[2], &ptmp, 16);
+			ConfigDebugInfo = strtoul(argv[2], &ptmp, 16);
 			if(config == 2)
-				ConfigDebugWarn = strtoul(argv[2], &ptmp, 16);
+			ConfigDebugWarn = strtoul(argv[2], &ptmp, 16);
 		}
 	}
 	AT_PRINTK("[ATS!] ConfigDebugErr  = 0x%08X", ConfigDebugErr);
@@ -615,14 +585,14 @@ void fATSJ(void *arg)
 	int argc = 0, config = 0;
 	char *argv[MAX_ARGC] = {0};
 	AT_PRINTK("[ATSJ]: _AT_SYSTEM_JTAG_");
-	if(!arg){
+	if(!arg) {
 		AT_PRINTK("[ATS!] Usage: ATSJ=off");
-	}else{
+	} else {
 		argc = parse_param(arg, argv);
 		if (strcmp(argv[1], "off" ) == 0)
-			sys_jtag_off();
+		sys_jtag_off();
 		else
-			AT_PRINTK("ATSL=%s is not supported!", argv[1]);
+		AT_PRINTK("ATSL=%s is not supported!", argv[1]);
 	}
 }
 
@@ -630,7 +600,7 @@ void fATSx(void *arg)
 {
 //	uint32_t ability = 0;
 	char buf[64];
-	
+
 	AT_PRINTK("[ATS?]: _AT_SYSTEM_HELP_");
 	AT_PRINTK("[ATS?]: COMPILE TIME: %s", RTL8195AFW_COMPILE_TIME);
 //	wifi_get_drv_ability(&ability);
@@ -654,12 +624,11 @@ extern void print_tcpip_at(void *arg);
 // uart version 2 echo info
 extern unsigned char gAT_Echo;
 
-
-void fATS0(void *arg){
+void fATS0(void *arg) {
 	at_printf("\r\n[AT] OK");
 }
 
-void fATSh(void *arg){
+void fATSh(void *arg) {
 	// print common AT command
 	at_printf("\r\n[ATS?] ");
 	at_printf("\r\nCommon AT Command:");
@@ -677,115 +646,132 @@ void fATSh(void *arg){
 	at_printf("\r\n[ATS?] OK");
 }
 
-void fATSR(void *arg){
+void fATSR(void *arg) {
 	at_printf("\r\n[ATSR] OK");
 	sys_reset();
 }
 
-void fATSV(void *arg){
+void fATSV(void *arg) {
 	char at_buf[32];
 	char fw_buf[32];
+	char cspimode[4] = { 'S', 'D', 'Q', '?' };
 
+	if (fspic_isinit == 0) {
+		flash_turnon();
+		flash_init(&flashobj);
+		SpicDisableRtl8195A();
+	}
+	printf(
+			"DeviceID: %02X, Flash Size: %d bytes, FlashID: %02X%02X%02X/%d,  SpicMode: %cIO\n",
+			HalGetChipId(), (u32) (1 << flashobj.SpicInitPara.id[2]),
+			flashobj.SpicInitPara.id[0], flashobj.SpicInitPara.id[1],
+			flashobj.SpicInitPara.id[2], flashobj.SpicInitPara.flashtype,
+			cspimode[flashobj.SpicInitPara.Mode.BitMode]);
 	// get at version
 	strcpy(at_buf, ATCMD_VERSION"."ATCMD_SUBVERSION"."ATCMD_REVISION);
 
 	// get fw version
 	strcpy(fw_buf, SDK_VERSION);
-
-	at_printf("\r\n[ATSV] OK:%s,%s(%s)",at_buf,fw_buf,RTL8195AFW_COMPILE_TIME);
+	printf("%s,%s(%s)\n", at_buf, fw_buf, RTL8195AFW_COMPILE_TIME);
+	at_printf("\r\n[ATSV] OK:%s,%s(%s)", at_buf, fw_buf,
+			RTL8195AFW_COMPILE_TIME);
 }
 
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
 
-void fATSP(void *arg){
+void fATSP(void *arg) {
 	int argc = 0;
-	char *argv[MAX_ARGC] = {0};
+	char *argv[MAX_ARGC] = { 0 };
 
 	uint32_t lock_id;
 	uint32_t bitmap;
-	
+
 	if (!arg) {
-		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, "\r\n[ATSP] Usage: ATSP=<a/r/?>");
+		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
+				"\r\n[ATSP] Usage: ATSP=<a/r/?>");
 		at_printf("\r\n[ATSP] ERROR:1");
 		return;
 	} else {
-		if((argc = parse_param(arg, argv)) != 2){
-			AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, "\r\n[ATSP] Usage: ATSP=<a/r/?>");
+		if ((argc = parse_param(arg, argv)) != 2) {
+			AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
+					"\r\n[ATSP] Usage: ATSP=<a/r/?>");
 			at_printf("\r\n[ATSP] ERROR:1");
 			return;
 		}
 	}
 
-	switch(argv[1][0]) {
-		case 'a': // acquire
-		{
-			acquire_wakelock(WAKELOCK_OS);
-			//at_printf("\r\n[ATSP] wakelock:0x%08x", get_wakelock_status());			
-			break;
-		}
+	switch (argv[1][0]) {
+	case 'a': // acquire
+	{
+		acquire_wakelock(WAKELOCK_OS);
+		//at_printf("\r\n[ATSP] wakelock:0x%08x", get_wakelock_status());
+		break;
+	}
 
-		case 'r': // release
-		{
-			release_wakelock(WAKELOCK_OS);
-			//at_printf("\r\n[ATSP] wakelock:0x%08x", get_wakelock_status());
-			break;
-		}
+	case 'r': // release
+	{
+		release_wakelock(WAKELOCK_OS);
+		//at_printf("\r\n[ATSP] wakelock:0x%08x", get_wakelock_status());
+		break;
+	}
 
-		case '?': // get status
-			break;
-		default:
-			AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, "\r\n[ATSP] Usage: ATSP=<a/r/?>");
-			at_printf("\r\n[ATSP] ERROR:2");
-			return;
+	case '?': // get status
+		break;
+	default:
+		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
+				"\r\n[ATSP] Usage: ATSP=<a/r/?>");
+		at_printf("\r\n[ATSP] ERROR:2");
+		return;
 	}
 	bitmap = get_wakelock_status();
 	at_printf("\r\n[ATSP] OK:%s", (bitmap&WAKELOCK_OS)?"1":"0");
 }
 #endif
 
-void fATSE(void *arg){
+void fATSE(void *arg) {
 	int argc = 0;
 	int echo = 0, mask = gDbgFlag, dbg_lv = gDbgLevel;
-	char *argv[MAX_ARGC] = {0};
+	char *argv[MAX_ARGC] = { 0 };
 	int err_no = 0;
-	
-	AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS, "[ATSE]: _AT_SYSTEM_ECHO_DBG_SETTING");	
-	if(!arg){
-		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, "[ATSE] Usage: ATSE=<echo>,<dbg_msk>,<dbg_lv>");
+
+	AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS,
+			"[ATSE]: _AT_SYSTEM_ECHO_DBG_SETTING");
+	if (!arg) {
+		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
+				"[ATSE] Usage: ATSE=<echo>,<dbg_msk>,<dbg_lv>");
 		err_no = 1;
 		goto exit;
 	}
 
 	argc = parse_param(arg, argv);
 
-	if(argc < 2 || argc > 4){
+	if (argc < 2 || argc > 4) {
 		err_no = 2;
 		goto exit;
 	}
 
 #if CONFIG_EXAMPLE_UART_ATCMD
-	if(argv[1] != NULL){
+	if (argv[1] != NULL) {
 		echo = atoi(argv[1]);
-		if(echo>1 || echo <0){
+		if (echo > 1 || echo < 0) {
 			err_no = 3;
 			goto exit;
 		}
-		gAT_Echo = echo?1:0;
+		gAT_Echo = echo ? 1 : 0;
 	}
 #endif
 
-	if((argc > 2) && (argv[2] != NULL)){
+	if ((argc > 2) && (argv[2] != NULL)) {
 		mask = strtoul(argv[2], NULL, 0);
 		at_set_debug_mask(mask);
 	}
-	
-	if((argc == 4) && (argv[3] != NULL)){
+
+	if ((argc == 4) && (argv[3] != NULL)) {
 		dbg_lv = strtoul(argv[3], NULL, 0);
 		at_set_debug_level(dbg_lv);
 	}
 
-exit:
-	if(err_no)
+	exit: if (err_no)
 		at_printf("\r\n[ATSE] ERROR:%d", err_no);
 	else
 		at_printf("\r\n[ATSE] OK");
@@ -796,7 +782,7 @@ exit:
 #include "wifi_structures.h"
 #include "wifi_constants.h"
 extern rtw_wifi_setting_t wifi_setting;
-void fATSW(void *arg){
+void fATSW(void *arg) {
 	int argc = 0;
 	char *argv[MAX_ARGC] = {0};
 
@@ -805,29 +791,29 @@ void fATSW(void *arg){
 		at_printf("\r\n[ATSW] ERROR:1");
 		return;
 	} else {
-		if((argc = parse_param(arg, argv)) != 2){
+		if((argc = parse_param(arg, argv)) != 2) {
 			AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, "\r\n[ATSW] Usage: ATSW=<c/s>");
 			at_printf("\r\n[ATSW] ERROR:1");
 			return;
 		}
 	}
 
-	if(argv[1][0]!='c'&&argv[1][0]!='s'){
+	if(argv[1][0]!='c'&&argv[1][0]!='s') {
 		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, "\r\n[ATSW] Usage: ATSW=<c/s>");
 		at_printf("\r\n[ATSW] ERROR:2");
 		return;
 	}
-	
+
 	// make sure AP mode
 	LoadWifiConfig();
-	if(wifi_setting.mode != RTW_MODE_AP){
+	if(wifi_setting.mode != RTW_MODE_AP) {
 		at_printf("\r\n[ATSW] ERROR:3");
 		return;
 	}
-		
+
 	switch(argv[1][0]) {
 		case 'c': // create webserver
-		{	
+		{
 			start_web_server();
 			break;
 		}
@@ -844,7 +830,7 @@ void fATSW(void *arg){
 extern int EraseApinfo();
 //extern int Erase_Fastconnect_data();
 
-void fATSY(void *arg){
+void fATSY(void *arg) {
 #if CONFIG_EXAMPLE_WLAN_FAST_CONNECT
 //	Erase_Fastconnect_data();
 #endif
@@ -854,7 +840,7 @@ void fATSY(void *arg){
 #endif
 
 #if CONFIG_EXAMPLE_UART_ATCMD
-extern int reset_uart_atcmd_setting(void);
+	extern int reset_uart_atcmd_setting(void);
 	reset_uart_atcmd_setting();
 #endif
 
@@ -869,44 +855,46 @@ extern int reset_uart_atcmd_setting(void);
 }
 
 #if CONFIG_OTA_UPDATE
-extern int wifi_is_connected_to_ap( void );
-void fATSO(void *arg){
+extern int wifi_is_connected_to_ap(void);
+void fATSO(void *arg) {
 	int argc = 0;
-	char *argv[MAX_ARGC] = {0};
-	
-	if(!arg){
-		AT_DBG_MSG(AT_FLAG_OTA, AT_DBG_ERROR, "\r\n[ATSO] Usage: ATSO=<ip>,<port>");
+	char *argv[MAX_ARGC] = { 0 };
+
+	if (!arg) {
+		AT_DBG_MSG(AT_FLAG_OTA, AT_DBG_ERROR,
+				"\r\n[ATSO] Usage: ATSO=<ip>,<port>");
 		at_printf("\r\n[ATSO] ERROR:1");
 		return;
 	}
 	argv[0] = "update";
-	if((argc = parse_param(arg, argv)) != 3){
-		AT_DBG_MSG(AT_FLAG_OTA, AT_DBG_ERROR, "\r\n[ATSO] Usage: ATSO=<ip>,<port>");
+	if ((argc = parse_param(arg, argv)) != 3) {
+		AT_DBG_MSG(AT_FLAG_OTA, AT_DBG_ERROR,
+				"\r\n[ATSO] Usage: ATSO=<ip>,<port>");
 		at_printf("\r\n[ATSO] ERROR:1");
 		return;
 	}
 
 	// check wifi connect first
-	if(wifi_is_connected_to_ap()==0){
+	if (wifi_is_connected_to_ap() == 0) {
 		cmd_update(argc, argv);
 		at_printf("\r\n[ATSO] OK");
-		
-	}else{
+
+	} else {
 		at_printf("\r\n[ATSO] ERROR:3");
 	}
 }
 
-void fATSC(void *arg){
+void fATSC(void *arg) {
 	int argc = 0;
-	char *argv[MAX_ARGC] = {0};
+	char *argv[MAX_ARGC] = { 0 };
 	int cmd = 0;
-	
-	if(!arg){
+
+	if (!arg) {
 		AT_DBG_MSG(AT_FLAG_OTA, AT_DBG_ERROR, "\r\n[ATSC] Usage: ATSC=<0/1>");
 		at_printf("\r\n[ATSC] ERROR:1");
 		return;
 	}
-	if((argc = parse_param(arg, argv)) != 2){
+	if ((argc = parse_param(arg, argv)) != 2) {
 		AT_DBG_MSG(AT_FLAG_OTA, AT_DBG_ERROR, "\r\n[ATSC] Usage: ATSC=<0/1>");
 		at_printf("\r\n[ATSC] ERROR:1");
 		return;
@@ -914,17 +902,16 @@ void fATSC(void *arg){
 
 	cmd = atoi(argv[1]);
 
-	if((cmd!=0)&&(cmd!=1)){
+	if ((cmd != 0) && (cmd != 1)) {
 		at_printf("\r\n[ATSC] ERROR:2");
 		return;
 	}
-		
+
 	at_printf("\r\n[ATSC] OK");
 
- 	if(cmd == 1){
- 		cmd_ota_image(1);
- 	}
-	else{
+	if (cmd == 1) {
+		cmd_ota_image(1);
+	} else {
 		cmd_ota_image(0);
 	}
 	// reboot
@@ -935,9 +922,9 @@ void fATSC(void *arg){
 #if CONFIG_EXAMPLE_UART_ATCMD
 extern const u32 log_uart_support_rate[];
 
-void fATSU(void *arg){
+void fATSU(void *arg) {
 	int argc = 0;
-	char *argv[MAX_ARGC] = {0};
+	char *argv[MAX_ARGC] = { 0 };
 	u32 baud = 0;
 	u8 databits = 0;
 	u8 stopbits = 0;
@@ -946,18 +933,18 @@ void fATSU(void *arg){
 	u8 configmode = 0;
 	int i;
 	UART_LOG_CONF uartconf;
-	
-	if(!arg){
-		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, 
-		"[ATSU] Usage: ATSU=<baud>,<databits>,<stopbits>,<parity>,<flowcontrol>,<configmode>");
+
+	if (!arg) {
+		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
+				"[ATSU] Usage: ATSU=<baud>,<databits>,<stopbits>,<parity>,<flowcontrol>,<configmode>");
 		at_printf("\r\n[ATSU] ERROR:1");
 		return;
 	}
-	if((argc = parse_param(arg, argv)) != 7){
-		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR, 
-		"[ATSU] Usage: ATSU=<baud>,<databits>,<stopbits>,<parity>,<flowcontrol>,<configmode>");
-	  at_printf("\r\n[ATSU] ERROR:1");
-	  return;
+	if ((argc = parse_param(arg, argv)) != 7) {
+		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
+				"[ATSU] Usage: ATSU=<baud>,<databits>,<stopbits>,<parity>,<flowcontrol>,<configmode>");
+		at_printf("\r\n[ATSU] ERROR:1");
+		return;
 	}
 
 	baud = atoi(argv[1]);
@@ -966,114 +953,110 @@ void fATSU(void *arg){
 	parity = atoi(argv[4]);
 	flowcontrol = atoi(argv[5]);
 	configmode = atoi(argv[6]);
-/*
-    // Check Baud rate
-    for (i=0; log_uart_support_rate[i]!=0xFFFFFF; i++) {
-        if (log_uart_support_rate[i] == baud) {
-            break;
-        }
-    }
-    
-    if (log_uart_support_rate[i]== 0xFFFFFF) {
-		at_printf("\r\n[ATSU] ERROR:2");
-        return;
-    }
-*/
-	if(((databits < 5) || (databits > 8))||\
-		((stopbits < 1) || (stopbits > 2))||\
-		((parity < 0) || (parity > 2))||\
-		((flowcontrol < 0) || (flowcontrol > 1))||\
-		((configmode < 0) || (configmode > 3))\
-		){
+	/*
+	 // Check Baud rate
+	 for (i=0; log_uart_support_rate[i]!=0xFFFFFF; i++) {
+	 if (log_uart_support_rate[i] == baud) {
+	 break;
+	 }
+	 }
+
+	 if (log_uart_support_rate[i]== 0xFFFFFF) {
+	 at_printf("\r\n[ATSU] ERROR:2");
+	 return;
+	 }
+	 */
+	if (((databits < 5) || (databits > 8)) || ((stopbits < 1) || (stopbits > 2))
+			|| ((parity < 0) || (parity > 2))
+			|| ((flowcontrol < 0) || (flowcontrol > 1))
+			|| ((configmode < 0) || (configmode > 3))\
+) {
 		at_printf("\r\n[ATSU] ERROR:2");
 		return;
 	}
-	
-	memset((void*)&uartconf, 0, sizeof(UART_LOG_CONF));
+
+	memset((void*) &uartconf, 0, sizeof(UART_LOG_CONF));
 	uartconf.BaudRate = baud;
 	uartconf.DataBits = databits;
 	uartconf.StopBits = stopbits;
 	uartconf.Parity = parity;
 	uartconf.FlowControl = flowcontrol;
-	AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS, 
-		"AT_UART_CONF: %d,%d,%d,%d,%d", uartconf.BaudRate, uartconf.DataBits,uartconf.StopBits,uartconf.Parity,uartconf.FlowControl);
-	switch(configmode){
-		case 0: // set current configuration, won't save
-			uart_atcmd_reinit(&uartconf);
-			break;
-		case 1: // set current configuration, and save
-			write_uart_atcmd_setting_to_system_data(&uartconf);
-			uart_atcmd_reinit(&uartconf);
-			break;
-		case 2: // set configuration, reboot to take effect
-			write_uart_atcmd_setting_to_system_data(&uartconf);
-			break;
+	AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS, "AT_UART_CONF: %d,%d,%d,%d,%d",
+			uartconf.BaudRate, uartconf.DataBits, uartconf.StopBits,
+			uartconf.Parity, uartconf.FlowControl);
+	switch (configmode) {
+	case 0: // set current configuration, won't save
+		uart_atcmd_reinit(&uartconf);
+		break;
+	case 1: // set current configuration, and save
+		write_uart_atcmd_setting_to_system_data(&uartconf);
+		uart_atcmd_reinit(&uartconf);
+		break;
+	case 2: // set configuration, reboot to take effect
+		write_uart_atcmd_setting_to_system_data(&uartconf);
+		break;
 	}
-	
+
 	at_printf("\r\n[ATSU] OK");
 }
 #endif //#if CONFIG_EXAMPLE_UART_ATCMD
 #endif //#if CONFIG_WLAN
 
-void fATSG(void *arg)
-{
+void fATSG(void *arg) {
 	gpio_t gpio_ctrl;
 	int argc = 0, val, error_no = 0;
-	char *argv[MAX_ARGC] = {0}, port, num;
+	char *argv[MAX_ARGC] = { 0 }, port, num;
 	PinName pin = NC;
 
 	AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "[ATSG]: _AT_SYSTEM_GPIO_CTRL_");
 
-	if(!arg){
-		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ERROR, 
-		"[ATSG] Usage: ATSG=<R/W>,<PORT>,<DATA>,<DIR>,<PULL>");
+	if (!arg) {
+		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ERROR,
+				"[ATSG] Usage: ATSG=<R/W>,<PORT>,<DATA>,<DIR>,<PULL>");
 		error_no = 1;
 		goto exit;
 	}
-	if((argc = parse_param(arg, argv)) < 3){
-		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ERROR, 
-			"[ATSG] Usage: ATSG=<R/W>,<PORT>,<DATA>,<DIR>,<PULL>");
+	if ((argc = parse_param(arg, argv)) < 3) {
+		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ERROR,
+				"[ATSG] Usage: ATSG=<R/W>,<PORT>,<DATA>,<DIR>,<PULL>");
 		error_no = 2;
 		goto exit;
-	}	
+	}
 
 	port = argv[2][1];
 	num = strtoul(&argv[2][3], NULL, 0);
 	port -= 'A';
 	pin = (port << 4 | num);
 	AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "PORT: %s[%d]", argv[2], pin);
-	
-	if(gpio_set(pin) == 0xff)
-	{
-		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ERROR, "[ATSG]: Invalid Pin Name [%d]", pin);
+
+	if (gpio_set(pin) == 0xff) {
+		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ERROR, "[ATSG]: Invalid Pin Name [%d]",
+				pin);
 		error_no = 3;
 		goto exit;
 	}
 
 	gpio_init(&gpio_ctrl, pin);
-	if(argv[4]){
+	if (argv[4]) {
 		int dir = atoi(argv[4]);
 		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "DIR: %s", argv[4]);
 		gpio_dir(&gpio_ctrl, dir);
 	}
-	if(argv[5]){
+	if (argv[5]) {
 		int pull = atoi(argv[5]);
 		AT_DBG_MSG(AT_FLAG_GPIO, AT_DBG_ALWAYS, "PULL: %s", argv[5]);
 		gpio_mode(&gpio_ctrl, pull);
 	}
-	if(argv[1][0] == 'R'){
+	if (argv[1][0] == 'R') {
 		val = gpio_read(&gpio_ctrl);
-	}
-	else{
+	} else {
 		val = atoi(argv[3]);
 		gpio_write(&gpio_ctrl, val);
 	}
-	
-exit:
-	if(error_no){
+
+	exit: if (error_no) {
 		at_printf("\r\n[ATSG] ERROR:%d", error_no);
-	}
-	else{
+	} else {
 		at_printf("\r\n[ATSG] OK:%d", val);
 	}
 }
@@ -1087,78 +1070,83 @@ exit:
  * bit2: LOGUART
  * bit3: SDIO
  */
-void fATSL(void *arg)
-{
+void fATSL(void *arg) {
 	int argc = 0;
-	char *argv[MAX_ARGC] = {0};
+	char *argv[MAX_ARGC] = { 0 };
 	int err_no = 0;
 	uint32_t lock_id;
 
 	AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL]: _AT_SYS_WAKELOCK_TEST_");
 
 	if (!arg) {
-		AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] Usage ATSL=[a/r/?][bitmask]");
+		AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS,
+				"[ATSL] Usage ATSL=[a/r/?][bitmask]");
 		err_no = 1;
 		goto exit;
 	} else {
 		argc = parse_param(arg, argv);
 		if (argc < 2) {
-			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] Usage ATSL=[a/r/?][bitmask]");
+			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS,
+					"[ATSL] Usage ATSL=[a/r/?][bitmask]");
 			err_no = 2;
 			goto exit;
 		}
 	}
 
-	switch(argv[1][0]) {
-		case 'a': // acquire
-		{
-			if (argc == 3) {
-				lock_id = strtoul(argv[2], NULL, 16);
-				acquire_wakelock(lock_id);
-			}
-			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] wakelock:0x%08x", get_wakelock_status());			
-			break;
+	switch (argv[1][0]) {
+	case 'a': // acquire
+	{
+		if (argc == 3) {
+			lock_id = strtoul(argv[2], NULL, 16);
+			acquire_wakelock(lock_id);
 		}
-
-		case 'r': // release
-		{
-			if (argc == 3) {
-				lock_id = strtoul(argv[2], NULL, 16);
-				release_wakelock(lock_id);
-			}
-			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] wakelock:0x%08x", get_wakelock_status());
-			break;
-		}
-
-		case '?': // get status
-			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] wakelock:0x%08x", get_wakelock_status());
-#if (configGENERATE_RUN_TIME_STATS == 1)
-			char *cBuffer = pvPortMalloc(512);
-			if(cBuffer != NULL) {
-				get_wakelock_hold_stats((char *)cBuffer);
-				AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "%s", cBuffer);
-			}
-			vPortFree(cBuffer);
-#endif
-			break;
-
-#if (configGENERATE_RUN_TIME_STATS == 1)
-		case 'c': // clean wakelock info (for recalculate wakelock hold time)
-			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] clean wakelock stat");
-			clean_wakelock_stat();
-			break;
-#endif
-		default:
-			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] Usage ATSL=[a/r/?][bitmask]");
-			err_no = 3;
-			break;
+		AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] wakelock:0x%08x",
+				get_wakelock_status());
+		break;
 	}
-exit:
+
+	case 'r': // release
+	{
+		if (argc == 3) {
+			lock_id = strtoul(argv[2], NULL, 16);
+			release_wakelock(lock_id);
+		}
+		AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] wakelock:0x%08x",
+				get_wakelock_status());
+		break;
+	}
+
+	case '?': // get status
+		AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] wakelock:0x%08x",
+				get_wakelock_status());
+#if (configGENERATE_RUN_TIME_STATS == 1)
+		char *cBuffer = pvPortMalloc(512);
+		if (cBuffer != NULL) {
+			get_wakelock_hold_stats((char *) cBuffer);
+			AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "%s", cBuffer);
+		}
+		vPortFree(cBuffer);
+#endif
+		break;
+
+#if (configGENERATE_RUN_TIME_STATS == 1)
+	case 'c': // clean wakelock info (for recalculate wakelock hold time)
+		AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS, "[ATSL] clean wakelock stat");
+		clean_wakelock_stat();
+		break;
+#endif
+	default:
+		AT_DBG_MSG(AT_FLAG_OS, AT_DBG_ALWAYS,
+				"[ATSL] Usage ATSL=[a/r/?][bitmask]");
+		err_no = 3;
+		break;
+	}
+	exit:
 #if ATCMD_VER == ATVER_2
-	if(err_no)
+	if (err_no)
 		at_printf("\r\n[ATSL] ERROR:%d", err_no);
 	else
-		at_printf("\r\n[ATSL] OK:0x%08x",get_wakelock_status());
+		at_printf("\r\n[ATSL] OK:0x%08x", get_wakelock_status());
 #endif
 	return;
 }
@@ -1167,117 +1155,253 @@ exit:
 void fATSX(void *arg)
 {
 	// use xmodem to update, RX: PA_6, TX: PA_7, baudrate: 1M
-	OTU_FW_Update(0, 2, 115200);	
+	OTU_FW_Update(0, 2, 115200);
 	at_printf("\r\n[ATSX] OK");
 }
 #endif
 
 #endif
 
+void print_hex_dump(uint8_t *buf, int len, unsigned char k) {
+	uint32_t ss[2];
+	ss[0] = 0x78323025; // "%02x"
+	ss[1] = k;	// ","...'\0'
+	uint8_t * ptr = buf;
+	while (len--) {
+		if (len == 0)
+			ss[1] = 0;
+		printf((uint8_t *) &ss[0], *ptr++);
+	}
+}
 
-void fATST(void *arg){
+//ATFD - Flash Data Dump
+void fATFD(void *arg) {
+	int argc = 0;
+	char *argv[MAX_ARGC] = { 0 };
+#if	DEBUG_AT_USER_LEVEL > 3
+	printf("ATFD: _AT_FLASH_DUMP_\n");
+#endif
+	if (!arg) {
+		printf("Usage: ATFD=faddr(HEX),[size]\n");
+	} else {
+		argc = parse_param(arg, argv);
+		if (argc >= 1) {
+			int addr;
+			sscanf(argv[1], "%x", &addr);
+			int size = 0;
+			if (argc > 2)
+				size = atoi(argv[2]);
+			if (size <= 0 || size > 16384)
+				size = 1;
+			u32 symbs_line = 32;
+			u32 rdsize = 8 * symbs_line;
+			uint8_t *flash_data = (uint8_t *) malloc(rdsize);
+			while (size) {
+				if (size < rdsize)
+					rdsize = size;
+				else
+					rdsize = 8 * symbs_line;
+				flash_stream_read(&flashobj, addr, rdsize, flash_data);
+				uint8_t *ptr = flash_data;
+				while (ptr < flash_data + rdsize) {
+					if (symbs_line > size)
+						symbs_line = size;
+					printf("%08X ", addr);
+					print_hex_dump(ptr, symbs_line, ' ');
+					printf("\r\n");
+					addr += symbs_line;
+					ptr += symbs_line;
+					size -= symbs_line;
+					if (size == 0)
+						break;
+				}
+			}
+			free(flash_data);
+		}
+	}
+}
+
+void fATFO(void *arg) {
+	int argc = 0;
+	char *argv[MAX_ARGC] = { 0 };
+#if	DEBUG_AT_USER_LEVEL > 3
+	printf("ATFO: _AT_FLASH_OTP_DUMP_\n");
+#endif
+	if (!arg) {
+		printf("Usage: ATFO=faddr(HEX),[size]\n");
+	} else {
+		argc = parse_param(arg, argv);
+		if (argc >= 1) {
+			int addr;
+			sscanf(argv[1], "%x", &addr);
+			int size = 0;
+			if (argc > 2)
+				size = atoi(argv[2]);
+			if (size <= 0 || size > 16384)
+				size = 1;
+			u32 symbs_line = 32;
+			u32 rdsize = 8 * symbs_line;
+			uint8_t *flash_data = (uint8_t *) malloc(rdsize);
+			while (size) {
+				if (size < rdsize)
+					rdsize = size;
+				else
+					rdsize = 8 * symbs_line;
+				flash_otp_read(&flashobj, addr, rdsize, flash_data);
+				uint8_t *ptr = flash_data;
+				while (ptr < flash_data + rdsize) {
+					if (symbs_line > size)
+						symbs_line = size;
+					printf("%08X ", addr);
+					print_hex_dump(ptr, symbs_line, ' ');
+					printf("\r\n");
+					addr += symbs_line;
+					ptr += symbs_line;
+					size -= symbs_line;
+					if (size == 0)
+						break;
+				}
+			}
+			free(flash_data);
+		}
+	}
+}
+
+void fATST(void *arg) {
 	extern void dump_mem_block_list(void); // heap_5.c
-		//DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
+//DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
 #if	DEBUG_AT_USER_LEVEL > 1
-		printf("ATST: Mem info:\n");
+	printf("ATST: Mem info:\n");
 #endif
 //		vPortFree(pvPortMalloc(4)); // Init RAM heap
-		printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
-				HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
-		dump_mem_block_list();
-		u32 saved = ConfigDebugInfo;
-		DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
-		tcm_heap_dump();
-		ConfigDebugInfo = saved;
-		printf("\n");
+	printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
+			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
+	dump_mem_block_list();
+	u32 saved = ConfigDebugInfo;
+	DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
+	tcm_heap_dump();
+	ConfigDebugInfo = saved;
+	printf("\n");
 #if (configGENERATE_RUN_TIME_STATS == 1)
-		char *cBuffer = pvPortMalloc(512);
-		if(cBuffer != NULL) {
-			vTaskGetRunTimeStats((char *)cBuffer);
-			printf("%s", cBuffer);
-		}
-		vPortFree(cBuffer);
+	char *cBuffer = pvPortMalloc(512);
+	if (cBuffer != NULL) {
+		vTaskGetRunTimeStats((char *) cBuffer);
+		printf("%s", cBuffer);
+	}
+	vPortFree(cBuffer);
 #endif
 }
 
+#if 0
+#include "wlan_lib.h"
+#include "hal_com_reg.h"
+// struct net_device *rltk_wlan_info;
+void fATXT(void *arg)
+{
+#if	DEBUG_AT_USER_LEVEL > 3
+	printf("ATWT: _AT_CFG_DUMP_\n");
+#endif
+	int size = 512;
+	int addr = 0;
+	uint8_t *blk_data = (uint8_t *)malloc(size);
+	memset(blk_data, 0xff, size);
+	if(blk_data) {
+		uint8_t * ptr = blk_data;
+		Hal_ReadEFuse(*(_adapter **)(rltk_wlan_info->priv), 0, 0, 512, ptr, 1);
+		//rtw_flash_map_update(*(_adapter **)(rltk_wlan_info->priv), 512);
+		u32 symbs_line = 32;
+		while(addr < size) {
+			if(symbs_line > size) symbs_line = size;
+			printf("%08X ", addr);
+			print_hex_dump(ptr, symbs_line, ' ');
+			printf("\r\n");
+			addr += symbs_line;
+			ptr += symbs_line;
+			size -= symbs_line;
+			if(size == 0) break;
+		}
+		free(blk_data);
+	}
+}
+#endif
 log_item_t at_sys_items[] = {
 #if (ATCMD_VER == ATVER_1)
-	{"ATSD", fATSD,},	// Dump register
-	{"ATSE", fATSE,},	// Edit register
-	{"ATSC", fATSC,},	// Clear OTA signature
-	{"ATSR", fATSR,},	// Recover OTA signature
+		{	"ATSD", fATSD},	// Dump register
+		{	"ATSE", fATSE},	// Edit register
+		{	"ATSC", fATSC},	// Clear OTA signature
+		{	"ATSR", fATSR},	// Recover OTA signature
 #if CONFIG_UART_XMODEM
-	{"ATSY", fATSY,},	// uart ymodem upgrade
+		{	"ATSY", fATSY},	// uart ymodem upgrade
 #endif
 #if SUPPORT_MP_MODE
-	{"ATSA", fATSA,},	// MP ADC test
-	{"ATSG", fATSG,},	// MP GPIO test
-	{"ATSP", fATSP,},	// MP Power related test
-	{"ATSB", fATSB,},	// OTU PIN setup
+		{	"ATSA", fATSA},	// MP ADC test
+		{	"ATSG", fATSG},	// MP GPIO test
+		{	"ATSP", fATSP},	// MP Power related test
+		{	"ATSB", fATSB},	// OTU PIN setup
 #endif
 #if (configGENERATE_RUN_TIME_STATS == 1)
-	{"ATSS", fATSS,},	// Show CPU stats
+		{	"ATSS", fATSS},	// Show CPU stats
 #endif
 #if SUPPORT_CP_TEST
-	{"ATSM", fATSM,},	// Apple CP test
+		{	"ATSM", fATSM},	// Apple CP test
 #endif
-	{"ATSJ", fATSJ,}, //trun off JTAG
-	{"ATS@", fATSs,},	// Debug message setting
-	{"ATS!", fATSc,},	// Debug config setting
-	{"ATS#", fATSt,},	// test command
-	{"ATS?", fATSx,},	// Help
+		{	"ATSJ", fATSJ}, //trun off JTAG
+		{	"ATS@", fATSs},	// Debug message setting
+		{	"ATS!", fATSc},	// Debug config setting
+		{	"ATS#", fATSt},	// test command
+		{	"ATS?", fATSx},	// Help
 #elif ATCMD_VER == ATVER_2 //#if ATCMD_VER == ATVER_1
-	{"AT", 	 fATS0,},	// test AT command ready
-	{"ATS?", fATSh,},	// list all AT command
-	{"ATSR", fATSR,},	// system restart
-	{"ATSV", fATSV,},	// show version info
-	{"ATSP", fATSP,},	// power saving mode
-	{"ATSE", fATSE,},	// enable and disable echo
+		{ "AT", fATS0 },	// test AT command ready
+		{ "ATS?", fATSh },	// list all AT command
+		{ "ATSR", fATSR },	// system restart
+		{ "ATSV", fATSV },	// show version info
+		{ "ATSP", fATSP },	// power saving mode
+		{ "ATSE", fATSE },	// enable and disable echo
 #if CONFIG_WLAN
 #if CONFIG_WEBSERVER
-	{"ATSW", fATSW,},	// start webserver
+		{	"ATSW", fATSW},	// start webserver
 #endif
-	{"ATSY", fATSY,},	// factory reset
+		{ "ATSY", fATSY },	// factory reset
 #if CONFIG_OTA_UPDATE
-	{"ATSO", fATSO,},	// ota upgrate
-	{"ATSC", fATSC,},	// chose the activited image
+		{ "ATSO", fATSO },	// ota upgrate
+		{ "ATSC", fATSC },	// chose the activited image
 #endif
 #if CONFIG_EXAMPLE_UART_ATCMD
-	{"ATSU", fATSU,},	// AT uart configuration
+		{ "ATSU", fATSU },	// AT uart configuration
 #endif
 #endif
-	{"ATSG", fATSG,},	// GPIO control
+		{ "ATSG", fATSG },	// GPIO control
 #if CONFIG_UART_XMODEM
-	{"ATSX", fATSX,},	// uart xmodem upgrade
+		{	"ATSX", fATSX},	// uart xmodem upgrade
 #endif
-	{"ATSD", fATSD,},	// Dump register
-	{"ATXD", fATXD,},	// Write register
+		{ "ATSD", fATSD },	// Dump register
+		{ "ATXD", fATXD },	// Write register
 #endif // end of #if ATCMD_VER == ATVER_1
 
 // Following commands exist in two versions
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
-	{"ATSL", fATSL,},	 // wakelock test
+		{ "ATSL", fATSL },	 // wakelock test
 #endif
-	{"ATST", fATST},	// add pvvx: mem info
-	{"ATXX", fATXX},	// test
-#ifdef CONFIG_SDR_EN
-	{"ATSM", fATSM}		// memtest
-#endif
+		{ "ATFD", fATFD }, 	// Flash Data Damp
+		{ "ATFO", fATFO }, 	// Flash OTP Damp
+		{ "ATST", fATST },	// add pvvx: mem info
+//		{ "ATXT", fATXT },	// add pvvx: cfg_wifi
+		{ "ATSI", fATSI }	// Dev/Ports Info
 };
 
 #if ATCMD_VER == ATVER_2
-void print_system_at(void *arg){
+void print_system_at(void *arg) {
 	int index;
 	int cmd_len = 0;
 
-	cmd_len = sizeof(at_sys_items)/sizeof(at_sys_items[0]);
-	for(index = 0; index < cmd_len; index++)
+	cmd_len = sizeof(at_sys_items) / sizeof(at_sys_items[0]);
+	for (index = 0; index < cmd_len; index++)
 		at_printf("\r\n%s", at_sys_items[index].log_cmd);
 }
 #endif
-void at_sys_init(void)
-{
-	log_service_add_table(at_sys_items, sizeof(at_sys_items)/sizeof(at_sys_items[0]));
+void at_sys_init(void) {
+	log_service_add_table(at_sys_items,
+			sizeof(at_sys_items) / sizeof(at_sys_items[0]));
 }
 
 #if SUPPORT_LOG_SERVICE

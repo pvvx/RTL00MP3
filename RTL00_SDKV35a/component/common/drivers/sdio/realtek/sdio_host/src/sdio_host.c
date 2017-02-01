@@ -5,6 +5,7 @@
  */
 
 #include "rtl8195a.h"
+#ifdef CONFIG_SDIO_HOST_EN
 #include "sd.h"
 #include "sdio_host.h"
 #include "hal_sdio_host.h"
@@ -45,13 +46,17 @@ void xfer_err_callback(void *param) {
 }
 
 void card_insert_callback(void *param) {
+#if CONFIG_DEBUG_LOG > 1 
 	rtl_printf("SD card insert\n");
+#endif
 	if (card_insert_irq_handler)
 		card_insert_irq_handler((void *) card_insert_irq_data);
 }
 
 void card_remove_callback(void *param) {
+#if CONFIG_DEBUG_LOG > 1 
 	rtl_printf("SD card removed\n");
+#endif
 	sdio_status = SDIO_SD_NONE;
 	if (card_remove_irq_handler)
 		card_remove_irq_handler((void *) card_remove_irq_data);
@@ -208,7 +213,7 @@ s8 sdio_write_blocks(uint32_t sector, const uint8_t *buffer, uint32_t count) {
 	HAL_Status result = HalSdioHostOp.HalSdioHostWriteBlocksDma(
 			&SdioHostAdapter, (unsigned long long) sector * SIZE_BLOCK_ADMA,
 			count);
-	if (result) {
+	if (result != HAL_OK) {
 		DBG_SDIO_ERR("write fail(0x%02x)\n", result);
 		return -1;
 	}
@@ -230,7 +235,7 @@ s8 sdio_sd_init(void) {
 		}
 		sdio_status = SDIO_SD_OK;
 		if (HalSdioHostOp.HalSdioHostChangeSdClock(&SdioHostAdapter,
-				SD_CLK_41_6MHZ))
+				SD_CLK_41_6MHZ) != HAL_OK)
 			DBG_SDIO_INFO("SD card does not support high speed.\n");
 	}
 	return 0;
@@ -239,7 +244,7 @@ s8 sdio_sd_init(void) {
 //-----
 void sdio_sd_deinit() {
 	if (sdio_status > SDIO_SD_NONE)
-		sdio_status = 1;
+		sdio_status = SDIO_INIT_OK;
 	sdio_deinit_host(); // add pvvx (fix SD_DeInit())
 }
 
@@ -400,3 +405,4 @@ s8 sdio_sd_hook_xfer_err_cb(sdio_sd_irq_handler CallbackFun, void *param) {
 	return 0;
 }
 
+#endif // CONFIG_SDIO_HOST_EN

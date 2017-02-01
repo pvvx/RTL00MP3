@@ -55,6 +55,7 @@ enum _SPIC_BIT_MODE_ {
     SpicOneBitMode = 0,
     SpicDualBitMode = 1,
     SpicQuadBitMode = 2,
+	SpicMaxMode = 3
 };
 
 //======================================================
@@ -98,20 +99,22 @@ enum _SPIC_BIT_MODE_ {
 #define FLASH_CMD_RDP   	0xAB            //Release from Deep Power-Down
 
 /*Micron Special command*/
-#define FLASH_CMD_DE    	0xC4
-#define FLASH_CMD_4PP2   	0x12
-#define FLASH_CMD_RFSR 		0x70
-#define FLASH_CMD_CFSR 		0x50
-#define FLASH_CMD_RNCR 		0xB5
-#define FLASH_CMD_WNCR 		0xB1
-#define FLASH_CMD_RVCR 		0x85
-#define FLASH_CMD_WVCR 		0x81
-#define FLASH_CMD_REVCR 	0x65
-#define FLASH_CMD_WEVCR		0x61
-#define FLASH_CMD_REAR		0xC8
-#define FLASH_CMD_WEAR		0xC5
-#define FLASH_CMD_ENQUAD	0x35
-#define FLASH_CMD_EXQUAD	0xF5
+#define FLASH_CMD_DE    	0xC4	// DIE ERASE
+#define FLASH_CMD_4PP2   	0x12	// 4-BYTE PAGE PROGRAM
+#define FLASH_CMD_RFSR 		0x70	// READ FLAG STATUS REGISTER
+#define FLASH_CMD_CFSR 		0x50	// CLEAR FLAG STATUS REGISTER
+#define FLASH_CMD_RNCR 		0xB5	// READ NONVOLATILE CONFIGURATION REGISTER
+#define FLASH_CMD_WNCR 		0xB1	// WRITE NONVOLATILE CONFIGURATION REGISTER
+#define FLASH_CMD_RVCR 		0x85	// READ VOLATILE CONFIGURATION REGISTER
+#define FLASH_CMD_WVCR 		0x81	// WRITE VOLATILE CONFIGURATION REGISTER
+#define FLASH_CMD_REVCR 	0x65	// READ ENHANCED VOLATILE CONFIGURATION REGISTER
+#define FLASH_CMD_WEVCR		0x61	// WRITE ENHANCED VOLATILE CONFIGURATION REGISTER
+#define FLASH_CMD_REAR		0xC8	// READ EXTENDED ADDRESS REGISTER
+#define FLASH_CMD_WEAR		0xC5	// WRITE EXTENDED ADDRESS REGISTER
+#define FLASH_CMD_ENQUAD	0x35	// ENTER QUAD
+#define FLASH_CMD_EXQUAD	0xF5	// EXIT QUAD
+#define FLASH_CMD_ROTPA		0x4B	// READ OTP ARRAY
+#define FLASH_CMD_POTPA		0x42	// PROGRAM OTP ARRAY
 
 /*MXIC Special command*/
 #define FLASH_CMD_RDCR      0x15        	//read configurate register
@@ -120,7 +123,10 @@ enum _SPIC_BIT_MODE_ {
 #define FLASH_CMD_ENSO      0xB1            // enter secured OTP
 #define FLASH_CMD_EXSO      0xC1            // exit secured OTP
 #define FLASH_CMD_RDSCUR    0x2B            // read security register
-#define FLASH_CMD_WRSCUR    0x2F            // write security register    
+#define FLASH_CMD_WRSCUR    0x2F            // write security register
+
+/* EON Special command*/
+#define FLASH_CMD_EOTPM		0x3A		//  Enter OTP Mode (3Ah)
 
 //#endif
 #if 0

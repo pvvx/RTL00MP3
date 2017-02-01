@@ -14,9 +14,7 @@
 #include "rtl8195a_sdio_host.h"
 
 
-
 #define SDIO_HOST_WAIT_FOREVER       0xFFFFFFFF
-
 
 
 typedef struct _HAL_SDIO_HOST_OP_ {
@@ -48,20 +46,20 @@ typedef enum _SDIO_XFER_TYPE_{
 }SDIO_XFER_TYPE;
 
 typedef struct _HAL_SDIO_HOST_ADAPTER_{
-	IRQ_HANDLE				IrqHandle;			// Irq Handler
-	ADMA2_DESC_FMT			*AdmaDescTbl;
-	u32						Response[4];	
-	u32						CardOCR;
-	u32 					CardStatus;
-	u32						IsWriteProtect;
-	u8 						SdStatus[SD_STATUS_LEN];
-	u8						Csd[CSD_REG_LEN];
+	IRQ_HANDLE				IrqHandle;			//+0..6(u32) Irq Handler
+	ADMA2_DESC_FMT			*AdmaDescTbl;		//+7(u32)
+	u32						Response[4];		//+8..11(u32)
+	u32						CardOCR;			//+12
+	u32 					CardStatus;			//+13
+	u32						IsWriteProtect;		//+14
+	u8 						SdStatus[SD_STATUS_LEN]; //+15..
+	u8						Csd[CSD_REG_LEN];	//+31
     volatile u8             CmdCompleteFlg;
     volatile u8             XferCompleteFlg;
 	volatile u8             ErrIntFlg;
     volatile u8             CardCurState;
 	u8						IsSdhc;
-	u8						CurrSdClk;
+	u8						CurrSdClk;	//+133?
 	u16 					RCA;
 	u16						SdSpecVer;
 	SDIO_ERR_TYPE			errType;
@@ -76,6 +74,7 @@ typedef struct _HAL_SDIO_HOST_ADAPTER_{
 	VOID *CardRemoveCbPara;
 }HAL_SDIO_HOST_ADAPTER, *PHAL_SDIO_HOST_ADAPTER;
 
+extern HAL_SDIO_HOST_ADAPTER SdioHostAdapter;
 
 extern HAL_Status 
 HalSdioHostInit(
@@ -101,7 +100,6 @@ extern VOID
 HalSdioHostOpInit(
 	IN VOID *Data
 );
-
 
 #endif
 

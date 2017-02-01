@@ -22,8 +22,8 @@ extern void xPortPendSVHandler( void ) __attribute__ (( naked ));
 #endif
 extern void xPortSysTickHandler( void );
 extern void vPortSVCHandler( void );
-extern u32 HalGetCpuClk(VOID);
-extern _LONG_CALL_  u32 HalDelayUs(u32 us);
+//extern unsigned int HalGetCpuClk(void);
+//extern _LONG_CALL_  u32 HalDelayUs(u32 us);
 
 extern COMMAND_TABLE  UartLogRomCmdTable[];
 extern HAL_TIMER_OP HalTimerOp;

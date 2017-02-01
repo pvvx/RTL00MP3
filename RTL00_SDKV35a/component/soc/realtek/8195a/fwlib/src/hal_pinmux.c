@@ -30,6 +30,7 @@ void HalJtagPinOff(void)
 	HalPinCtrlRtl8195A(JTAG, 0, 0);
 }
 
+
 #if RTL8710_DEF_PIN_ON
 
 //----- GpioIcFunChk
@@ -45,7 +46,7 @@ u8 GpioIcFunChk(IN u32 chip_pin, IN u8 Operation)
 	  if (tst & 0xEF) result = 1;
 	  else {
 		  result = tst & 0x10;
-	      if(tst & 0x10) { // RTL8710AF ?
+	      if(result) { // RTL8710AF ?
 	          if (chip_pin - 1 <= 2) result = 0; // PA_1, PA_2, PA_3
 	          else {
 	            result = chip_pin - PC_5;  // PC_5

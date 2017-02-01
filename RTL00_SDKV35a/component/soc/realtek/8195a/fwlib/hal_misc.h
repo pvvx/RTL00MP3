@@ -31,11 +31,12 @@ enum _HAL_RESET_REASON{
 typedef u32 HAL_RESET_REASON;
 
 #ifdef CONFIG_TIMER_MODULE
-extern _LONG_CALL_ u32 HalDelayUs(u32 us);
+extern _LONG_CALL_ unsigned int HalDelayUs(unsigned int us);
 #endif
 
-extern _LONG_CALL_ u32 HalGetCpuClk(VOID);
-extern _LONG_CALL_ u8 HalGetRomInfo(VOID);
+extern _LONG_CALL_ unsigned int HalGetCpuClk(VOID);
+extern _LONG_CALL_ unsigned char HalGetRomInfo(VOID);
+extern u8 HalGetChipId(void);
 
 extern _LONG_CALL_ROM_ void *_memset( void *s, int c, SIZE_T n );
 extern _LONG_CALL_ROM_ void *_memcpy( void *s1, const void *s2, SIZE_T n );

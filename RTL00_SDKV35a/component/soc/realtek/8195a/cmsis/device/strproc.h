@@ -79,7 +79,7 @@ extern _LONG_CALL_ROM_ const char * prvStrStr(
 	IN const char * str2
 );
 
-
+#ifndef __GNUC__
 /*
  * Fast implementation of tolower() for internal usage. Do not use in your
  * code.
@@ -88,6 +88,7 @@ static inline char _tolower(const char c)
 {
     return c | 0x20;
 }
+#endif
 
 /* Fast check for octal digit */
 static inline int isodigit(const char c)

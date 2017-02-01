@@ -683,7 +683,7 @@ enum CUSTOM_IE_TYPE{
 typedef struct _cus_ie{
 	__u8 *ie;
 	__u8 type;
-}cus_ie, *p_cus_ie;
+} cus_ie, *p_cus_ie;
 #endif /* _CUS_IE_ */
 
 int wifi_add_custom_ie(void *cus_ie, int ie_num);

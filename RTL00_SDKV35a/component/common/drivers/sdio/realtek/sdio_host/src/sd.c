@@ -5,6 +5,7 @@
  */
 
 #include "rtl8195a.h"
+#ifdef CONFIG_SDIO_HOST_EN
 #include "sd.h"
 #include "sdio_host.h"
 
@@ -117,7 +118,7 @@ SD_RESULT SD_ReadBlocks(u32 sector, u8 *data, u32 count) {
 		u32 end_sector = count + sector;
 		while (sector < end_sector) {
 			rd_count = sdio_read_blocks(sector, buf, 1);
-			rtl_printf("rd_counts = %d\n", rd_count);
+//			rtl_printf("rd_counts = %d\n", rd_count);
 			if (rd_count == 0 && RtlDownSemaWithTimeout(&sdWSema, 1000) != 1) {
 				DBG_SDIO_ERR("SD_ReadBlocks timeout\n");
 				return SD_ERROR;
@@ -172,3 +173,4 @@ SD_RESULT SD_WriteBlocks(u32 sector, const u8 *data, u32 count) {
 	return SD_ERROR;
 
 }
+#endif // CONFIG_SDIO_HOST_EN

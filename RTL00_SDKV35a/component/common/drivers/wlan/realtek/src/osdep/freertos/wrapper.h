@@ -412,7 +412,7 @@ typedef struct {
 	unsigned char mac[6];
 } Rltk_wlan_t;
 
-#define netdev_priv(dev)		dev->priv
+#define netdev_priv(dev)	dev->priv
 
 extern struct net_device *alloc_etherdev(int sizeof_priv);
 void free_netdev(struct net_device *dev);

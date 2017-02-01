@@ -55,7 +55,6 @@ DRESULT SD_disk_read(BYTE *buff, DWORD sector, UINT count){
 #if _USE_WRITE == 1
 DRESULT SD_disk_write(const BYTE *buff, DWORD sector, UINT count){
 	SD_RESULT res;
-
 	res = SD_WriteBlocks(sector, buff, count);
 	
 	return interpret_sd_result(res);

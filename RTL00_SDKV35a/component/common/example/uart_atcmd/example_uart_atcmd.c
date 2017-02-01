@@ -301,6 +301,11 @@ void gpio_uart_at_rx_irq_callback (uint32_t id, gpio_irq_event event)
 void uart_at_rx_wakeup()
 {
 	gpio_irq_t gpio_rx_wake;
+#ifdef RTL8711AM
+#if  (UART_AT_RX_WAKE!=PA_0)||(UART_AT_RX_WAKE!=PE_3)
+#error "Set pin rx_wakeup!"
+#endif
+#endif
 	gpio_irq_init(&gpio_rx_wake, UART_AT_RX_WAKE, gpio_uart_at_rx_irq_callback, 0);
 	gpio_irq_set(&gpio_rx_wake, IRQ_FALL, 1);   // Falling Edge Trigger
 	gpio_irq_enable(&gpio_rx_wake);

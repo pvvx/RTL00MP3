@@ -1047,7 +1047,7 @@ MemTest(
 
 } // MemTest
 
-#if defined ( __ICCARM__ )
+//#if defined ( __ICCARM__ )
 u8 IsSdrPowerOn(
     VOID
 )
@@ -1058,7 +1058,7 @@ u8 IsSdrPowerOn(
         return 1;
     }
 }
-#endif
+//#endif
 
 #else // ifndef CONFIG_SDR_EN
 

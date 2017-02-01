@@ -27,7 +27,7 @@ SECTIONS
 {
   __rom_bss_start__ = 0x10000300;
   __rom_bss_end__ = 0x10000bc8;
-
+  
 /*
   .ram.start.table :
   {

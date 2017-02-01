@@ -8,6 +8,7 @@
  */
 
 
+#include "platform_autoconf.h"
 #include "hal_pcm.h"
 
 #ifdef CONFIG_PCM_EN

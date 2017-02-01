@@ -221,7 +221,7 @@ HalPcmIsrEnAndDisRtl8195a (
     IN  VOID              *Data
 )
 {
-/*
+#ifdef CONFIG_PCM_EN
     PHAL_GDMA_ADAPTER pHalGdmaAdapter = (PHAL_GDMA_ADAPTER) Data;
     u32 IsrMask, Addr, IsrCtrl;
     u8  IsrTypeIndex = 0;
@@ -243,7 +243,7 @@ HalPcmIsrEnAndDisRtl8195a (
                     
         }   
     }
-*/
+#endif
     return _TRUE;
 }
 
@@ -254,14 +254,14 @@ HalPcmDumpRegRtl8195a (
     IN  VOID              *Data
 )
 {
-/*    
+#ifdef CONFIG_PCM_EN
     PHAL_GDMA_ADAPTER pHalGdmaAdapter = Data;
     HAL_GDMAX_WRITE32(pHalGdmaAdapter->GdmaIndex, 
                       REG_GDMA_CH_EN, 
                       (HAL_GDMAX_READ32(pHalGdmaAdapter->GdmaIndex, REG_GDMA_CH_EN)| 
                         (pHalGdmaAdapter->ChEn))
                       );    
-*/
+#endif
     return _TRUE;    
 }
 
@@ -270,16 +270,18 @@ HalPcmRtl8195a (
     IN  VOID              *Data
 )
 {
-/*    PHAL_GDMA_ADAPTER pHalGdmaAdapter = (PHAL_GDMA_ADAPTER) Data;
+#ifdef CONFIG_PCM_EN
+	PHAL_GDMA_ADAPTER pHalGdmaAdapter = (PHAL_GDMA_ADAPTER) Data;
     HAL_GDMAX_WRITE32(pHalGdmaAdapter->GdmaIndex, 
                       REG_GDMA_CH_EN, 
                       (HAL_GDMAX_READ32(pHalGdmaAdapter->GdmaIndex, REG_GDMA_CH_EN)& 
                         ~(pHalGdmaAdapter->ChEn))
                       );    
-*/		      
+#endif
     return _TRUE;		      
 }
-/*
+
+#ifdef CONFIG_PCM_EN
 u8
 HalGdmaChIsrCleanRtl8195a (
     IN  VOID              *Data
@@ -354,6 +356,6 @@ HalGdmaChCleanAutoDstRtl8195a (
     HAL_GDMAX_READ32(pHalGdmaAdapter->GdmaIndex, (REG_GDMA_CH_CFG + pHalGdmaAdapter->ChNum*REG_GDMA_CH_OFF)));
         
 }
-*/
+#endif // CONFIG_PCM_EN
 
 

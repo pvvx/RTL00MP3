@@ -14,8 +14,7 @@
 extern _LONG_CALL_
 HAL_Status HalSsiInitRtl8195a(VOID *Adaptor);
 
-extern _LONG_CALL_ 
-u32 HalGetCpuClk(VOID);
+//extern _LONG_CALL_ u32 HalGetCpuClk(VOID);
 
 
 VOID _SsiReadInterruptRtl8195a(VOID *Adapter)

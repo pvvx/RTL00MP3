@@ -412,7 +412,7 @@ typedef	long long __i64;
 #define IWEVTXDROP	0x8C00		/* Packet dropped to excessive retry */
 #define IWEVQUAL	0x8C01		/* Quality part of statistics (scan) */
 #define IWEVCUSTOM	0x8C02		/* Driver specific ascii string */
-#define IWEVREGISTERED	0x8C03		/* Discovered a new node (AP mode) */
+#define IWEVREGISTERED	0x8C03	/* Discovered a new node (AP mode) */
 #define IWEVEXPIRED	0x8C04		/* Expired a node (AP mode) */
 #define IWEVGENIE	0x8C05		/* Generic IE (WPA, RSN, WMM, ..)
 					 * (scan results); This includes id and

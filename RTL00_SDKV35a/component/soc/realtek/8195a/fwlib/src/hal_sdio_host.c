@@ -4,12 +4,17 @@
  * RTL8710/11 pvvx 12/2016
  */
 #include "rtl8195a.h"
+#ifdef CONFIG_SDIO_HOST_EN
 #include "sd.h"
 #include "sdio_host.h"
 #include "hal_sdio_host.h"
 #include "rtl8195a_sdio_host.h"
 #include "hal_pinmux.h"
-
+//#ifdef RTL8710AF
+	#include "hal_gpio.h"
+	#include "PinNames.h"
+	#include "hal_gpio.h"
+//#endif
 //-------------------------------------------------------------------------
 // Function declarations
 
@@ -107,4 +112,17 @@ void HalSdioHostOpInit(void *Data) {
 	phsha->HalSdioHostErase = &HalSdioHostEraseRtl8195a;
 	phsha->HalSdioHostGetWriteProtect = &HalSdioHostGetWriteProtectRtl8195a;
 	phsha->HalSdioHostSetWriteProtect = &HalSdioHostSetWriteProtectRtl8195a;
+//#ifdef RTL8710AF
+	if(HalGetChipId() != CHIP_ID_8195AM) {
+		GPIOState[0] &= ~((1 << 8) - 1);
+		{
+			for (int i = 0; i <= 6; i++)
+				HAL_GPIO_PullCtrl(i, PullNone);
+			HAL_GPIO_PullCtrl(PA_6, PullDown);
+			HAL_GPIO_PullCtrl(PA_7, PullDown);
+		}
+	}
+//#endif
 }
+
+#endif // CONFIG_SDIO_HOST_EN

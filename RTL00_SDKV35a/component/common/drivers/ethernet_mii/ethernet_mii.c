@@ -160,11 +160,11 @@ void ethernet_demo(void* param){
     printf("TRX pre setting done\n");
 
 	ethernet_init();
-
+#if 0
 	DBG_INFO_MSG_OFF(_DBG_MII_);  
 	DBG_WARN_MSG_OFF(_DBG_MII_);
 	DBG_ERR_MSG_ON(_DBG_MII_);
-	
+#endif
 	/*get mac*/
 	ethernet_address(mac);
 	memcpy((void*)xnetif[NET_IF_NUM - 1].hwaddr,(void*)mac, 6);
@@ -172,7 +172,7 @@ void ethernet_demo(void* param){
 	rtw_init_sema(&mii_rx_sema,0);
 	rtw_mutex_init(&mii_tx_mutex);
 
-	if(xTaskCreate(mii_rx_thread, ((const char*)"mii_rx_thread"), 1024, NULL, tskIDLE_PRIORITY+5, NULL) != pdPASS)
+	if(xTaskCreate(mii_rx_thread, ((const char*)"mii_rx_th"), 1024, NULL, tskIDLE_PRIORITY+5, NULL) != pdPASS)
 		DBG_8195A("\n\r%s xTaskCreate(mii_rx_thread) failed", __FUNCTION__);
 	
 	DBG_8195A("\nEthernet_mii Init done, interface %d",NET_IF_NUM - 1);
@@ -191,11 +191,11 @@ void ethernet_mii_init()
   ethernet_if_default = 1;
   rtw_init_sema(&mii_linkup_sema,0);
   
-	if( xTaskCreate((TaskFunction_t)dhcp_start_mii, "DHCP_START_MII", 1024, NULL, 2, NULL) != pdPASS) {
+	if( xTaskCreate((TaskFunction_t)dhcp_start_mii, "DHCP_MII", 1024, NULL, 2, NULL) != pdPASS) {
 		DBG_8195A("Cannot create demo task\n\r");
 	}	
 
-	if( xTaskCreate((TaskFunction_t)ethernet_demo, "ETHERNET DEMO", 1024, NULL, 2, NULL) != pdPASS) {
+	if( xTaskCreate((TaskFunction_t)ethernet_demo, "ETH_DEMO", 1024, NULL, 2, NULL) != pdPASS) {
 		DBG_8195A("Cannot create demo task\n\r");
 	}
 	

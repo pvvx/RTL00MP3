@@ -309,7 +309,7 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
 #elif defined ( __ICCARM__ ) /*------------------ ICC Compiler -------------------*/
 /* IAR iccarm specific functions */
 
-#include <cmsis_iar.h>
+// #include <cmsis_iar.h>
 
 
 #elif defined ( __TMS470__ ) /*---------------- TI CCS Compiler ------------------*/

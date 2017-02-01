@@ -1228,10 +1228,7 @@ RtkADCReceive(
     return _EXIT_FAILURE;
 }
 
-extern u32 
-HalDelayUs(
-    IN  u32 us
-);
+//extern u32 HalDelayUs(IN  u32 us);
 
 u32
 RtkADCReceiveBuf(

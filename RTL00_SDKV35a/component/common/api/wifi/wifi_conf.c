@@ -23,6 +23,7 @@
 extern int inic_start(void);
 extern int inic_stop(void);
 #endif
+#include "wlan_lib.h"
 
 #if CONFIG_DEBUG_LOG > 0
  #undef printf

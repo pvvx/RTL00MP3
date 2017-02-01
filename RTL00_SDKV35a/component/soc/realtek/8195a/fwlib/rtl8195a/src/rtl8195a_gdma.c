@@ -41,7 +41,7 @@ HalGdmaChBlockSetingRtl8195a_Patch(
     //4 1) Check chanel is avaliable
     if (HAL_GDMAX_READ32(GdmaIndex, REG_GDMA_CH_EN) & ChEn) {
         //4 Disable Channel
-        DBG_GDMA_WARN("Channel had used; Disable Channel!!!!\n");
+        DBG_GDMA_WARN("Channel had used; Disable Channel!\n");
 
         HalGdmaChDisRtl8195a(Data);
 

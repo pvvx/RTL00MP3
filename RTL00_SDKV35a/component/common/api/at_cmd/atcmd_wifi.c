@@ -2593,57 +2593,6 @@ void print_wlan_help(void *arg){
 }
 
 #endif // end of #if ATCMD_VER == ATVER_1
-
-#endif // end of #if CONFIG_WLAN
-
-#if CONFIG_LWIP_LAYER
-#if ATCMD_VER == ATVER_1
-void fATWL(void *arg){
-#if CONFIG_SSL_CLIENT
-	int argc;
-	char *argv[MAX_ARGC] = {0};
-        printf("[ATWL]: _AT_WLAN_SSL_CLIENT_\n"); 
-        argv[0] = "ssl_client";
-        if(!arg){
-          printf("ATWL=SSL_SERVER_HOST\n");
-          return;
-        }
-        if((argc = parse_param(arg, argv)) > 1){
-          if(argc != 2) {
-            printf("ATWL=SSL_SERVER_HOST\n");
-            return;
-          }
-
-          cmd_ssl_client(argc, argv);
-        }
-#else
-	printf("Please set CONFIG_SSL_CLIENT 1 in platform_opts.h to enable ATWL command\n");
-#endif
-}
-
-void fATWI(void *arg){
-    int argc;
-    char *argv[MAX_ARGC] = {0};
-
-    printf("[ATWI]: _AT_WLAN_PING_TEST_\n");
-
-    if(!arg){
-        printf("[ATWI] Usage: ATWI=[host],[options]\n");
-        printf("     -t        Ping the specified host until stopped\n");
-        printf("     -n    #   Number of echo requests to send (default 4 times)\n");
-        printf("     -l    #   Send buffer size (default 32 bytes)\n");
-        printf("   Example:\n");
-        printf("     ATWI=192.168.1.2,-n,100,-l,5000\n");
-        return;
-    }
-
-    argv[0] = "ping";
-
-    if((argc = parse_param(arg, argv)) > 1){
-        cmd_ping(argc, argv);
-    }
-}
-
 void fATWT(void *arg)
 {
 #if CONFIG_BSD_TCP
@@ -2719,6 +2668,57 @@ void fATWU(void *arg)
 	printf("Please set CONFIG_BSD_TCP 1 in platform_opts.h to enable ATWU command\n");
 #endif
 }
+
+#endif // end of #if CONFIG_WLAN
+
+#if CONFIG_LWIP_LAYER
+#if ATCMD_VER == ATVER_1
+void fATWL(void *arg){
+#if CONFIG_SSL_CLIENT
+	int argc;
+	char *argv[MAX_ARGC] = {0};
+        printf("[ATWL]: _AT_WLAN_SSL_CLIENT_\n");
+        argv[0] = "ssl_client";
+        if(!arg){
+          printf("ATWL=SSL_SERVER_HOST\n");
+          return;
+        }
+        if((argc = parse_param(arg, argv)) > 1){
+          if(argc != 2) {
+            printf("ATWL=SSL_SERVER_HOST\n");
+            return;
+          }
+
+          cmd_ssl_client(argc, argv);
+        }
+#else
+	printf("Please set CONFIG_SSL_CLIENT 1 in platform_opts.h to enable ATWL command\n");
+#endif
+}
+
+void fATWI(void *arg){
+    int argc;
+    char *argv[MAX_ARGC] = {0};
+
+    printf("[ATWI]: _AT_WLAN_PING_TEST_\n");
+
+    if(!arg){
+        printf("[ATWI] Usage: ATWI=[host],[options]\n");
+        printf("     -t        Ping the specified host until stopped\n");
+        printf("     -n    #   Number of echo requests to send (default 4 times)\n");
+        printf("     -l    #   Send buffer size (default 32 bytes)\n");
+        printf("   Example:\n");
+        printf("     ATWI=192.168.1.2,-n,100,-l,5000\n");
+        return;
+    }
+
+    argv[0] = "ping";
+
+    if((argc = parse_param(arg, argv)) > 1){
+        cmd_ping(argc, argv);
+    }
+}
+
 #elif ATCMD_VER == ATVER_2 // uart at command
 //move to atcmd_lwip.c
 #endif
@@ -2812,6 +2812,10 @@ log_item_t at_wifi_items[ ] = {
 	{"ATWg", fATWg,},  //p2p auto go start
 	{"ATWL", fATWL,},  //p2p listen
 	{"ATWP", fATWP,},  //p2p peers
+#endif
+#if CONFIG_LWIP_LAYER
+	{"ATWT", fATWT,},
+	{"ATWU", fATWU,},
 #endif
 #ifdef CONFIG_PROMISC
 	{"ATWM", fATWM,}, // WIFI promisc Usage: ATWM=DURATION_SECONDS[with_len]

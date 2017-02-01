@@ -945,7 +945,7 @@ enum SDIO_RPWM2_BITS {
     RPWM2_PIN_C7_LV_BIT     = BIT8,     // GPIO C7 wakeup level
     RPWM2_PIN_D5_LV_BIT     = BIT9,     // GPIO D5 wakeup level
     RPWM2_PIN_E3_LV_BIT     = BIT10,    // GPIO E3 wakeup level
-    RPWM2_CG_BIT                   = BIT11,    // Clock Gated
+    RPWM2_CG_BIT            = BIT11,    // Clock Gated
     RPWM2_ACK_BIT           = BIT14,    // Acknowledge
     RPWM2_TOGGLE_BIT        = BIT15,    // Toggle bit
 };

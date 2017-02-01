@@ -6,7 +6,7 @@ SDK_PATH = RTL00_SDKV35a/
 #OPENOCD_PATH = d:/MCU/OpenOCD/bin/# + or set in PATH
 TOOLS_PATH ?= $(SDK_PATH)component/soc/realtek/8195a/misc/iar_utility/common/tools/
 FLASHER_PATH ?= flasher/
-JLINK_PATH ?= D:/MCU/SEGGER/JLink_V610a/
+JLINK_PATH ?= D:/MCU/SEGGER/JLink_V612f/
 #---------------------------
 # Default
 #---------------------------

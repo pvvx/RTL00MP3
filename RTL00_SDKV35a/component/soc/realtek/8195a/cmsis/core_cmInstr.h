@@ -295,7 +295,7 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 #elif defined ( __ICCARM__ ) /*------------------ ICC Compiler -------------------*/
 /* IAR iccarm specific functions */
 
-#include <cmsis_iar.h>
+// #include <cmsis_iar.h>
 
 
 #elif defined ( __TMS470__ ) /*---------------- TI CCS Compiler ------------------*/

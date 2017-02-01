@@ -202,7 +202,6 @@ void __attribute__((section(".hal.ram.text"))) RtlBootToSram(void) {
 
 	SpicInitRtl8195A(1, 1); // InitBaudRate 1, SpicBitMode 1
 	SpicFlashInitRtl8195A(1); // SpicBitMode 1
-
 	DBG_8195A("===== Enter Image 1.5 ====\nImg2 Sign: %s, InfaStart @ 0x%08x\n",
 			&__image2_validate_code__, __image2_entry_func__);
 	if (strcmp((const char * )&__image2_validate_code__, "RTKWin")) {
@@ -313,7 +312,7 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(void) {
 	HalDelayUs(1000);
 	int sdr_enable = 0;
 #ifdef CONFIG_SDR_EN
-	if ((chip_id + 5) > 2) {
+	if (chip_id > CHIP_ID_8711AF) {
 		SdrCtrlInit();
 		sdr_enable = 1;
 	}
@@ -335,7 +334,9 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(void) {
 		SpicReadIDRtl8195A();
 		SpicFlashInitRtl8195A(SpicDualBitMode); // SpicBitMode 1
 	}
-//	if (sdr_enable)	SdrControllerInit();
+#ifdef CONFIG_SDR_EN
+	if (sdr_enable)	SdrControllerInit();
+#endif
 	if (flash_enable) {
 		u32 img1size = (*(u16 *) (SPI_FLASH_BASE + 0x18)) << 10; // size in 1024 bytes
 		if (img1size == 0 || img1size >= 0x3FFFC00)
