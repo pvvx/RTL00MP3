@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_WATCHDOG_API_H
-#define MBED_WATCHDOG_API_H
+#ifndef MBED_SYS_API_H
+#define MBED_SYS_API_H
 
 #include "device.h"
 
@@ -49,4 +49,4 @@ void sys_reset(void);
 }
 #endif
 
-#endif
+#endif // MBED_SYS_API_H

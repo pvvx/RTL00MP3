@@ -51,3 +51,5 @@ readfullflash:
 prerequirement:
 #	@$(file >DEPENDENCY_LIST.txt,$(DEPENDENCY_LIST))
 	
+TARGETTYPE := APP
+TARGETNAME := build\obj\build.axf

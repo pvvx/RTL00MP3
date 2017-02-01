@@ -360,7 +360,7 @@ void spi_slave_select_bypin(spi_t *obj, PinName pinname)
             }
         }
         else
-            DBG_SSI_ERR("Wrong Chip Seleect Pin.\n");
+            DBG_SSI_ERR("Wrong Chip Select Pin.\n");
         
     }
     else{

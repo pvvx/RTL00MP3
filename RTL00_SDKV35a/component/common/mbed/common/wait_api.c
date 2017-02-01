@@ -79,12 +79,12 @@ typedef struct
 #define CoreDebug_DEMCR_TRCENA_Msk         (1UL << CoreDebug_DEMCR_TRCENA_Pos)            /*!< CoreDebug DEMCR: TRCENA Mask */
 #endif
 
-void wait(float s) {
+void wait(float s) { // До 1073741 секунд? 298 часов
 //	wait_us((int)(s * 1000000.0f));
 	vTaskDelay((int)(s * 1000.0f));
 }
 
-void wait_ms(int ms) {
+void wait_ms(int ms) { // До 1073741 секунд? 298 часов
 	if(ms > 0) vTaskDelay(ms);
 //    wait_us(ms * 1000);
 }

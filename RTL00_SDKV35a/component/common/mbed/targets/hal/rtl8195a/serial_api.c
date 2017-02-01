@@ -23,41 +23,41 @@ static const PinMap PinMap_UART_TX[] = {
     {PC_3,  RTL_PIN_PERI(UART0, 0, S0), RTL_PIN_FUNC(UART0, S0)},
     {PE_0,  RTL_PIN_PERI(UART0, 0, S1), RTL_PIN_FUNC(UART0, S1)},
     {PA_7,  RTL_PIN_PERI(UART0, 0, S2), RTL_PIN_FUNC(UART0, S2)}, // None RTL8710AF
-    {PD_3,  RTL_PIN_PERI(UART1, 1, S0), RTL_PIN_FUNC(UART1, S0)}, // None RTL8710AF
+    {PD_3,  RTL_PIN_PERI(UART1, 1, S0), RTL_PIN_FUNC(UART1, S0)}, // None RTL8710AF, RTL8711AM
     {PE_4,  RTL_PIN_PERI(UART1, 1, S1), RTL_PIN_FUNC(UART1, S1)},
-    {PB_5,  RTL_PIN_PERI(UART1, 1, S2), RTL_PIN_FUNC(UART1, S2)}, // None RTL8710AF
-    {PA_4,  RTL_PIN_PERI(UART2, 2, S0), RTL_PIN_FUNC(UART2, S0)},
-    {PC_9,  RTL_PIN_PERI(UART2, 2, S1), RTL_PIN_FUNC(UART2, S1)}, // None RTL8710AF
-    {PD_7,  RTL_PIN_PERI(UART2, 2, S2), RTL_PIN_FUNC(UART2, S2)}, // None RTL8710AF
+    {PB_5,  RTL_PIN_PERI(UART1, 1, S2), RTL_PIN_FUNC(UART1, S2)}, // None RTL8710AF, RTL8711AM
+    {PA_4,  RTL_PIN_PERI(UART2, 2, S0), RTL_PIN_FUNC(UART2, S0)}, // None RTL8711AM
+    {PC_9,  RTL_PIN_PERI(UART2, 2, S1), RTL_PIN_FUNC(UART2, S1)}, // None RTL8710AF, RTL8711AM
+    {PD_7,  RTL_PIN_PERI(UART2, 2, S2), RTL_PIN_FUNC(UART2, S2)}, // None RTL8710AF, RTL8711AM
     {NC,    NC,     0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
-    {PC_0,  RTL_PIN_PERI(UART0, 0, S0), RTL_PIN_FUNC(UART0, S0)},
-    {PE_3,  RTL_PIN_PERI(UART0, 0, S1), RTL_PIN_FUNC(UART0, S1)},
-    {PA_6,  RTL_PIN_PERI(UART0, 0, S2), RTL_PIN_FUNC(UART0, S2)}, // None RTL8710AF
-    {PD_0,  RTL_PIN_PERI(UART1, 1, S0), RTL_PIN_FUNC(UART1, S0)}, // None RTL8710AF
-    {PE_7,  RTL_PIN_PERI(UART1, 1, S1), RTL_PIN_FUNC(UART1, S1)}, // None RTL8710AF
-    {PB_4,  RTL_PIN_PERI(UART1, 1, S2), RTL_PIN_FUNC(UART1, S2)}, // None RTL8710AF
-    {PA_0,  RTL_PIN_PERI(UART2, 2, S0), RTL_PIN_FUNC(UART2, S0)},
-    {PC_6,  RTL_PIN_PERI(UART2, 2, S1), RTL_PIN_FUNC(UART2, S1)}, // None RTL8710AF
-    {PD_4,  RTL_PIN_PERI(UART2, 2, S2), RTL_PIN_FUNC(UART2, S2)}, // None RTL8710AF
+    {PC_0,  RTL_PIN_PERI(UART0, 0, S0), RTL_PIN_FUNC(UART0, S0)}, // No Interrupt Source?
+    {PE_3,  RTL_PIN_PERI(UART0, 0, S1), RTL_PIN_FUNC(UART0, S1)}, 
+    {PA_6,  RTL_PIN_PERI(UART0, 0, S2), RTL_PIN_FUNC(UART0, S2)}, // None RTL8710AF, // No Interrupt Source?
+    {PD_0,  RTL_PIN_PERI(UART1, 1, S0), RTL_PIN_FUNC(UART1, S0)}, // None RTL8710AF, RTL8711AM
+    {PE_7,  RTL_PIN_PERI(UART1, 1, S1), RTL_PIN_FUNC(UART1, S1)}, // None RTL8710AF, RTL8711AM
+    {PB_4,  RTL_PIN_PERI(UART1, 1, S2), RTL_PIN_FUNC(UART1, S2)}, // None RTL8710AF, RTL8711AM
+    {PA_0,  RTL_PIN_PERI(UART2, 2, S0), RTL_PIN_FUNC(UART2, S0)}, // None RTL8711AM
+    {PC_6,  RTL_PIN_PERI(UART2, 2, S1), RTL_PIN_FUNC(UART2, S1)}, // None RTL8710AF, RTL8711AM
+    {PD_4,  RTL_PIN_PERI(UART2, 2, S2), RTL_PIN_FUNC(UART2, S2)}, // None RTL8710AF, RTL8711AM
     {NC,    NC,     0}
 };
 
-#define UART_NUM (2) //pvvx! RTL8710 !
+#define UART_NUM (3) 
 #define SERIAL_TX_IRQ_EN        0x01
 #define SERIAL_RX_IRQ_EN        0x02
 #define SERIAL_TX_DMA_EN        0x01
 #define SERIAL_RX_DMA_EN        0x02
 
-static uint32_t serial_irq_ids[UART_NUM] = {0, 0}; // , 0
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0}; // , 0
 
 static uart_irq_handler irq_handler[UART_NUM];
-static uint32_t serial_irq_en[UART_NUM] = {0, 0};  // , 0
+static uint32_t serial_irq_en[UART_NUM] = {0, 0, 0};  // , 0
 
 #ifdef CONFIG_GDMA_EN
-static uint32_t serial_dma_en[UART_NUM] = {0, 0}; // , 0
+static uint32_t serial_dma_en[UART_NUM] = {0, 0, 0}; // , 0
 static HAL_GDMA_OP UartGdmaOp;
 #endif
 

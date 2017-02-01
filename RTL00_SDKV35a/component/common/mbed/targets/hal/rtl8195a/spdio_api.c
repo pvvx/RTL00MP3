@@ -42,6 +42,20 @@ void spdio_structinit(struct spdio_t *obj){
 	obj->tx_done_cb = NULL;
 }
 
+///////// Add pvvx, no ...
+void  HalSdioRegisterRxCallback(char (*rx_done_cb)(void *priv, void* pbuf, u8 *pdata, u16 size, u8 type), void *obj)
+{
+	struct spdio_t * sp = (struct spdio_t *) obj;
+	sp->rx_done_cb = rx_done_cb;
+}
+
+void  HalSdioRegisterTxDoneCallback(char (*tx_done_cb)(void *priv, void* pbuf), void *obj)
+{
+	struct spdio_t * sp = (struct spdio_t *) obj;
+	sp->tx_done_cb = tx_done_cb;
+}
+///////
+
 void spdio_init(struct spdio_t *obj)
 {
 	if(obj == NULL){
@@ -56,8 +70,8 @@ void spdio_init(struct spdio_t *obj)
 	}
 	g_spdio_priv = obj;
 	HalSdioInit();
-	HalSdioRegisterTxCallback(spdio_rx_done_cb, (void *)obj); // ??????????
-	HalSdioRegisterRxDoneCallback(spdio_tx_done_cb, (void *)obj); // ?????????
+	HalSdioRegisterRxCallback(spdio_rx_done_cb, (void *)obj); // ??????????
+	HalSdioRegisterTxDoneCallback(spdio_tx_done_cb, (void *)obj); // ?????????
 }
 
 void spdio_deinit(struct spdio_t *obj)

@@ -17,15 +17,15 @@
 #define APP_TIM_ID      6   // the G-Timer ID for Application
 
 static int us_ticker_inited = 0;
-static TIMER_ADAPTER TimerAdapter;
+static TIMER_ADAPTER Timer6Adapter;
 
 extern HAL_TIMER_OP HalTimerOp;
-
+/*
 VOID _us_ticker_irq_handler(IN  VOID *Data)
 {
     us_ticker_irq_handler();
 }
-
+*/
 void us_ticker_init(void) 
 {
     
@@ -33,17 +33,17 @@ void us_ticker_init(void)
     us_ticker_inited = 1;
 
     // Initial a G-Timer
-    TimerAdapter.IrqDis = 1;    // Disable Irq
-    TimerAdapter.IrqHandle.IrqFun = (IRQ_FUN) _us_ticker_irq_handler;
-    TimerAdapter.IrqHandle.IrqNum = TIMER2_7_IRQ;
-    TimerAdapter.IrqHandle.Priority = 10;
-    TimerAdapter.IrqHandle.Data = (u32)NULL;
-    TimerAdapter.TimerId = APP_TIM_ID;
-    TimerAdapter.TimerIrqPriority = 0;
-    TimerAdapter.TimerLoadValueUs = 1;
-    TimerAdapter.TimerMode = FREE_RUN_MODE; // Countdown Free Run
+    Timer6Adapter.IrqDis = 1;    // Disable Irq
+    Timer6Adapter.IrqHandle.IrqFun = (IRQ_FUN) us_ticker_irq_handler;
+    Timer6Adapter.IrqHandle.IrqNum = TIMER2_7_IRQ;
+    Timer6Adapter.IrqHandle.Priority = 10;
+    Timer6Adapter.IrqHandle.Data = (u32)NULL;
+    Timer6Adapter.TimerId = APP_TIM_ID;
+    Timer6Adapter.TimerIrqPriority = 0;
+    Timer6Adapter.TimerLoadValueUs = 1;
+    Timer6Adapter.TimerMode = FREE_RUN_MODE; // Countdown Free Run
 
-    HalTimerOp.HalTimerInit((VOID*) &TimerAdapter);
+    HalTimerOp.HalTimerInit((VOID*) &Timer6Adapter);
 
     DBG_TIMER_INFO("%s: Timer_Id=%d\n", __FUNCTION__, APP_TIM_ID);
 }
@@ -119,19 +119,19 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         time_def = TIMER_TICK_US;       // at least 1 tick
     }
     
-    TimerAdapter.IrqDis = 0;    // Enable Irq
-    TimerAdapter.TimerLoadValueUs = time_def;
-    TimerAdapter.TimerMode = USER_DEFINED; // Countdown Free Run
+    Timer6Adapter.IrqDis = 0;    // Enable Irq
+    Timer6Adapter.TimerLoadValueUs = time_def;
+    Timer6Adapter.TimerMode = USER_DEFINED; // Countdown Free Run
 
-    HalTimerOp.HalTimerInit((VOID*) &TimerAdapter);
+    HalTimerOp.HalTimerInit((VOID*) &Timer6Adapter);
 }
 
 void us_ticker_disable_interrupt(void) 
 {
-    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
+    HalTimerOp.HalTimerDis((u32)Timer6Adapter.TimerId);
 }
 
 void us_ticker_clear_interrupt(void) 
 {
-    HalTimerOp.HalTimerIrqClear((u32)TimerAdapter.TimerId);
+    HalTimerOp.HalTimerIrqClear((u32)Timer6Adapter.TimerId);
 }

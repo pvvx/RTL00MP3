@@ -8,9 +8,14 @@
 #ifndef __FLASH_EEP_H_
 #define __FLASH_EEP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <basic_types.h>
 #include <FreeRTOS.h>
 #include <queue.h>
+
 //-----------------------------------------------------------------------------
 #ifndef FLASH_SECTOR_SIZE
 	#define FLASH_SECTOR_SIZE 		4096
@@ -19,7 +24,7 @@
 #define FLASH_CHIP_SIZE			(FLASH_SECTORS * FLASH_SECTOR_SIZE)
 #define FMEMORY_SCFG_BANK_SIZE	FLASH_SECTOR_SIZE // размер сектора, 4096 bytes
 #define FMEMORY_SCFG_BANKS 		2 // кол-во секторов для работы 2...
-#define FMEMORY_SCFG_BASE_ADDR	(FLASH_CHIP_SIZE - (FMEMORY_SCFG_BANKS*FMEMORY_SCFG_BANK_SIZE))
+#define FMEMORY_SCFG_BASE_ADDR	(FLASH_CHIP_SIZE - (FMEMORY_SCFG_BANKS*FMEMORY_SCFG_BANK_SIZE)) // = 0xFE000
 //-----------------------------------------------------------------------------
 #define FLASH_EEP_ATTR
 //-----------------------------------------------------------------------------
@@ -32,11 +37,16 @@ enum eFMEMORY_ERRORS {
 };
 //-----------------------------------------------------------------------------
 // extern QueueHandle_t flash_mutex;
-sint16 flash_read_cfg(void *ptr, uint16 id, uint16 maxsize) FLASH_EEP_ATTR; // возврат: размер объекта последнего сохранения, -1 - не найден, -2 - error
-bool flash_write_cfg(void *ptr, uint16 id, uint16 size) FLASH_EEP_ATTR;
+signed short flash_read_cfg(void *ptr, unsigned short id, unsigned short maxsize) FLASH_EEP_ATTR; // возврат: размер объекта последнего сохранения, -1 - не найден, -2 - error
+bool flash_write_cfg(void *ptr, unsigned short id, unsigned short size) FLASH_EEP_ATTR;
 //-----------------------------------------------------------------------------
 #ifndef USE_FLASH_EEP
 #define USE_FLASH_EEP 1
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* __FLASH_EEP_H_ */

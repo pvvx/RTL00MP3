@@ -7,8 +7,7 @@
  * possession or use of this module requires written permission of RealTek.
  *******************************************************************************
  */
-
- #ifndef MBED_EXT_FLASH_API_EXT_H
+#ifndef MBED_EXT_FLASH_API_EXT_H
 #define MBED_EXT_FLASH_API_EXT_H
 
 #include "device.h"
@@ -22,8 +21,7 @@ typedef struct flash_s flash_t;
 /**
   * global data structure
   */   
-//extern flash_t	flash;
-extern flash_t	flashobj;
+extern flash_t flashobj;
 extern bool fspic_isinit;
 
 enum {
@@ -47,10 +45,11 @@ int flash_burst_write			(flash_t * obj, uint32_t address, uint32_t Length, uint8
 int flash_burst_read			(flash_t * obj, uint32_t address, uint32_t Length, uint8_t * data);
 int flash_set_extend_addr		(flash_t * obj, uint32_t data);
 int flash_get_extend_addr		(flash_t * obj);
+unsigned int flash_get_size		(flash_t *obj);
+int  flash_otp_read				(flash_t *obj, uint32_t address, uint32_t Length, uint8_t * data);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

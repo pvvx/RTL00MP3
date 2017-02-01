@@ -15,8 +15,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include "wdt_api.h"
 #include "cmsis.h"
+#include "wdt_api.h"
 
 extern VOID WDGInitial(u32 Period);
 extern VOID WDGStart(VOID);

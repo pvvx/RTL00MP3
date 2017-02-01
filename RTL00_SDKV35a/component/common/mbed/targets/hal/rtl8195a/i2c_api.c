@@ -235,10 +235,7 @@ inline int i2c_stop(i2c_t *obj) {
     return 0;
 }
 
-extern u32 
-HalDelayUs(
-    IN  u32 us
-);
+// extern u32 HalDelayUs(IN  u32 us);
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 

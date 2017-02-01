@@ -21,6 +21,7 @@
 #include "spi_api.h"
 #include "dma_api.h"
 #include "flash_api.h"
+#include "flash_eep.h"
 #include "gpio_ex_api.h"
 #include "gpio_irq_ex_api.h"
 #include "i2c_ex_api.h"
