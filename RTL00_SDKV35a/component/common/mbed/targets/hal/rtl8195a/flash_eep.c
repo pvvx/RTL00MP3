@@ -28,10 +28,10 @@
 typedef union // заголовок объекта сохранения feep
 {
 	struct {
-	uint16 size;
-	uint16 id;
+	unsigned short size;
+	unsigned short id;
 	} __attribute__((packed)) n;
-	uint32 x;
+	unsigned int x;
 } __attribute__((packed)) fobj_head;
 
 #define fobj_head_size 4
@@ -193,7 +193,7 @@ int FLASH_EEP_ATTR cmp_align1_align4(unsigned char * pd, void * ps, unsigned int
 }
 
 //-----------------------------------------------------------------------------
-LOCAL void _fwrite_word(uint32 addr, uint32 dw)
+LOCAL void _fwrite_word(unsigned int addr, unsigned int dw)
 {
 	//Write word
 	HAL_WRITE32(SPI_FLASH_BASE, addr, dw);
@@ -215,11 +215,11 @@ LOCAL void _fwrite_word(uint32 addr, uint32 dw)
 // Returns     : новый адрес сегмента для записи
 // ret < FMEM_ERROR_MAX - ошибка
 //-----------------------------------------------------------------------------
-LOCAL FLASH_EEP_ATTR uint32 get_addr_bscfg(bool flg)
+LOCAL FLASH_EEP_ATTR unsigned int get_addr_bscfg(bool flg)
 {
-	uint32 x1 = (flg)? 0 : 0xFFFFFFFF, x2;
-	uint32 faddr = FMEMORY_SCFG_BASE_ADDR;
-	uint32 reta = FMEMORY_SCFG_BASE_ADDR;
+	unsigned int x1 = (flg)? 0 : 0xFFFFFFFF, x2;
+	unsigned int faddr = FMEMORY_SCFG_BASE_ADDR;
+	unsigned int reta = FMEMORY_SCFG_BASE_ADDR;
 	do {
 		x2 = HAL_READ32(SPI_FLASH_BASE, faddr); // if(flash_read(faddr, &x2, 4)) return -(FMEM_FLASH_ERR);
 		if(flg) { // поиск нового сегмента для записи (pack)
@@ -252,13 +252,13 @@ LOCAL FLASH_EEP_ATTR uint32 get_addr_bscfg(bool flg)
 // 0 - не найден
 // ret < FMEM_ERROR_MAX - ошибка
 //-----------------------------------------------------------------------------
-LOCAL FLASH_EEP_ATTR uint32 get_addr_fobj(uint32 base, fobj_head *obj, bool flg)
+LOCAL FLASH_EEP_ATTR unsigned int get_addr_fobj(unsigned int base, fobj_head *obj, bool flg)
 {
 //	if(base == 0) return 0;
 	fobj_head fobj;
-	uint32 faddr = base + 4;
-	uint32 fend = base + FMEMORY_SCFG_BANK_SIZE - align(fobj_head_size);
-	uint32 reta = 0;
+	unsigned int faddr = base + 4;
+	unsigned int fend = base + FMEMORY_SCFG_BANK_SIZE - align(fobj_head_size);
+	unsigned int reta = 0;
 	do {
 		fobj.x = HAL_READ32(SPI_FLASH_BASE, faddr); // if(flash_read(faddr, &fobj, fobj_head_size)) return -(FMEM_FLASH_ERR);
 		if(fobj.x == fobj_x_free) break;
@@ -284,11 +284,11 @@ LOCAL FLASH_EEP_ATTR uint32 get_addr_fobj(uint32 base, fobj_head *obj, bool flg)
 // ret < FMEM_ERROR_MAX - ошибка
 // ret = 0 - не влезет, на pack
 //-----------------------------------------------------------------------------
-LOCAL FLASH_EEP_ATTR uint32 get_addr_fobj_save(uint32 base, fobj_head obj)
+LOCAL FLASH_EEP_ATTR unsigned int get_addr_fobj_save(unsigned int base, fobj_head obj)
 {
 	fobj_head fobj;
-	uint32 faddr = base + 4;
-	uint32 fend = base + FMEMORY_SCFG_BANK_SIZE - align(obj.n.size + fobj_head_size);
+	unsigned int faddr = base + 4;
+	unsigned int fend = base + FMEMORY_SCFG_BANK_SIZE - align(obj.n.size + fobj_head_size);
 	do {
 		fobj.x = HAL_READ32(SPI_FLASH_BASE, faddr); // if(flash_read(faddr, &fobj, fobj_head_size)) return -(FMEM_FLASH_ERR);
 		if(fobj.x == fobj_x_free) {
@@ -309,17 +309,17 @@ LOCAL FLASH_EEP_ATTR uint32 get_addr_fobj_save(uint32 base, fobj_head obj)
 // FunctionName : pack_cfg_fmem
 // Returns      : адрес для записи объекта
 //-----------------------------------------------------------------------------
-LOCAL FLASH_EEP_ATTR uint32 pack_cfg_fmem(fobj_head obj)
+LOCAL FLASH_EEP_ATTR unsigned int pack_cfg_fmem(fobj_head obj)
 {
 	fobj_head fobj;
-	uint32 fnewseg = get_addr_bscfg(true); // поиск нового сегмента для записи (pack)
+	unsigned int fnewseg = get_addr_bscfg(true); // поиск нового сегмента для записи (pack)
 	if(fnewseg < FMEM_ERROR_MAX) return fnewseg; // error
-	uint32 foldseg = get_addr_bscfg(false); // поиск текушего сегмента
+	unsigned int foldseg = get_addr_bscfg(false); // поиск текушего сегмента
 	if(foldseg < FMEM_ERROR_MAX) return fnewseg; // error
-	uint32 faddr = foldseg;
-	uint32 rdaddr, wraddr;
-	uint16 len;
-	uint32 * pbuf = (uint32 *) malloc(align(MAX_FOBJ_SIZE + fobj_head_size) >> 2);
+	unsigned int faddr = foldseg;
+	unsigned int rdaddr, wraddr;
+	unsigned short len;
+	unsigned int * pbuf = (unsigned int *) malloc(align(MAX_FOBJ_SIZE + fobj_head_size) >> 2);
 	if(pbuf == NULL) {
 #if DEBUGSOO > 1
 		DBG_FEEP_ERR("pack malloc error!\n");
@@ -350,7 +350,7 @@ LOCAL FLASH_EEP_ATTR uint32 pack_cfg_fmem(fobj_head obj)
 #if 0
 				copy_align4_to_align1((uint8 *)pbuf, rdaddr, len);
 #else
-				SpicUserReadFourByteRtl8195A(len, rdaddr, (uint32 *)pbuf, SpicDualBitMode);
+				SpicUserReadFourByteRtl8195A(len, rdaddr, (unsigned int *)pbuf, flashobj.SpicInitPara.Mode.BitMode);
 #endif
 				int i = 0;
 				int size4b = len >> 2;
@@ -371,16 +371,16 @@ LOCAL FLASH_EEP_ATTR uint32 pack_cfg_fmem(fobj_head obj)
 	return get_addr_fobj_save(fnewseg, obj); // адрес для записи объекта;
 }
 //-----------------------------------------------------------------------------
-LOCAL sint16 FLASH_EEP_ATTR _flash_write_cfg(void *ptr, uint16 id, uint16 size)
+LOCAL signed short FLASH_EEP_ATTR _flash_write_cfg(void *ptr, unsigned short id, unsigned short size)
 {
 	fobj_head fobj;
 	fobj.n.id = id;
 	fobj.n.size = size;
 	bool retb = false;
-	uint32 faddr = get_addr_bscfg(false);
+	unsigned int faddr = get_addr_bscfg(false);
 
 	if(faddr >= FMEM_ERROR_MAX)  {
-		uint32 xfaddr = get_addr_fobj(faddr, &fobj, false);
+		unsigned int xfaddr = get_addr_fobj(faddr, &fobj, false);
 		if(xfaddr > FMEM_ERROR_MAX && size == fobj.n.size) {
 			if(size == 0
 					|| cmp_align1_align4(ptr, (void *)SPI_FLASH_BASE + xfaddr + fobj_head_size, size) == 0) {
@@ -445,7 +445,7 @@ LOCAL sint16 FLASH_EEP_ATTR _flash_write_cfg(void *ptr, uint16 id, uint16 size)
 //- Сохранить объект в flash --------------------------------------------------
 //  Returns	: false/true
 //-----------------------------------------------------------------------------
-bool FLASH_EEP_ATTR flash_write_cfg(void *ptr, uint16 id, uint16 size)
+bool FLASH_EEP_ATTR flash_write_cfg(void *ptr, unsigned short id, unsigned short size)
 {
 	if(size > MAX_FOBJ_SIZE) return false;
 	bool retb = false;
@@ -475,9 +475,9 @@ bool FLASH_EEP_ATTR flash_write_cfg(void *ptr, uint16 id, uint16 size)
 //  -1 - не найден
 //   0..MAX_FOBJ_SIZE - ok, сохраненный размер объекта
 //-----------------------------------------------------------------------------
-sint16 FLASH_EEP_ATTR flash_read_cfg(void *ptr, uint16 id, uint16 maxsize)
+signed short FLASH_EEP_ATTR flash_read_cfg(void *ptr, unsigned short id, unsigned short maxsize)
 {
-    sint16 rets = FMEM_ERROR;
+    signed short rets = FMEM_ERROR;
 	if (maxsize <= MAX_FOBJ_SIZE) {
 		device_mutex_lock(RT_DEV_LOCK_FLASH);
 		fobj_head fobj;
@@ -489,7 +489,7 @@ sint16 FLASH_EEP_ATTR flash_read_cfg(void *ptr, uint16 id, uint16 maxsize)
 		// SPIC Init
 	    flash_turnon();
 	    if(fspic_isinit == 0) flash_init(&flashobj);
-		uint32 faddr = get_addr_bscfg(false);
+		unsigned int faddr = get_addr_bscfg(false);
 		if(faddr >= FMEM_ERROR_MAX) {
 			faddr = get_addr_fobj(faddr, &fobj, false);
 			if(faddr >= FMEM_ERROR_MAX) {
@@ -498,7 +498,7 @@ sint16 FLASH_EEP_ATTR flash_read_cfg(void *ptr, uint16 id, uint16 maxsize)
 					copy_align4_to_align1(ptr, SPI_FLASH_BASE + faddr + fobj_head_size, mMIN(fobj.n.size, maxsize));
 #else
 				if(maxsize != 0 && ptr != NULL)
-					SpicUserReadRtl8195A(mMIN(fobj.n.size, maxsize), faddr + fobj_head_size, ptr, SpicDualBitMode);
+					SpicUserReadRtl8195A(mMIN(fobj.n.size, maxsize), faddr + fobj_head_size, ptr, flashobj.SpicInitPara.Mode.BitMode);
 #endif
 #if DEBUGSOO > 3
 				DBG_FEEP_INFO("read ok, faddr: %p, size: %d\n", faddr,  fobj.n.size);
