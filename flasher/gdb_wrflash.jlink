@@ -160,4 +160,7 @@ if $Image1Size != 0
  end
 end
 FlashImagesInfo
+monitor reset
+SetBootFlash
+monitor go
 quit
