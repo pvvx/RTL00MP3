@@ -87,7 +87,7 @@ void flash_init(flash_t *obj) {
 	flashobj.SpicInitPara.Mode.CpuClk = curclk;
 	flashobj.SpicInitPara.Mode.BitMode = flmode;
 
-#if CONFIG_DEBUG_LOG > 4
+#if CONFIG_DEBUG_LOG > 3
 	DBG_SPIF_INFO("Flash ID: %02x%02x%02x\n", flashobj.SpicInitPara.id[0], flashobj.SpicInitPara.id[1], flashobj.SpicInitPara.id[2]);
 	DBG_SPIF_INFO("Flash Mode: 0x%02x; BaudRate:%d; RdDummyCyle:%d; DelayLine:%d\n",
 			flashobj.SpicInitPara.Mode.BitMode, flashobj.SpicInitPara.BaudRate, flashobj.SpicInitPara.RdDummyCyle, flashobj.SpicInitPara.DelayLine);

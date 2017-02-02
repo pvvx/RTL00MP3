@@ -1154,8 +1154,21 @@ void fATSL(void *arg) {
 #if CONFIG_UART_XMODEM
 void fATSX(void *arg)
 {
+#ifdef RTL8711AM
+#error "Set OTU_FW_Update UARTx pins!"
 	// use xmodem to update, RX: PA_6, TX: PA_7, baudrate: 1M
 	OTU_FW_Update(0, 2, 115200);
+
+#else
+#ifdef RTL8710AF
+#error "OTU_FW_Update work only SDRAM buffer!"
+#endif
+// use xmodem to update, RX: PC_0, TX: PC_3, baudrate: 1M
+	OTU_FW_Update(0, 0, 115200);
+// use xmodem to update, RX: PE_3, TX: PE_0, baudrate: 1M
+//  JTAG Off!
+//	OTU_FW_Update(0, 1, 115200);
+#endif
 	at_printf("\r\n[ATSX] OK");
 }
 #endif
@@ -1372,7 +1385,7 @@ log_item_t at_sys_items[] = {
 #endif
 		{ "ATSG", fATSG },	// GPIO control
 #if CONFIG_UART_XMODEM
-		{	"ATSX", fATSX},	// uart xmodem upgrade
+		{ "ATSX", fATSX},	// uart xmodem upgrade
 #endif
 		{ "ATSD", fATSD },	// Dump register
 		{ "ATXD", fATXD },	// Write register

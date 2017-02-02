@@ -1,5 +1,5 @@
 @echo off
-PATH=D:\MCU\GNU_Tools_ARM_Embedded\5.2_2015q4\bin;D:\MCU\SEGGER\JLink_V610a;%PATH%
+call paths.bat
 @if %1x==x goto xxx
 set img_file=%1
 goto run

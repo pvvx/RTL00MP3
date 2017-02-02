@@ -15,6 +15,7 @@
 #include "hal_spi_flash.h"
 #include "rtl8195a_spi_flash.h"
 #include <platform/platform_stdlib.h>
+#include <platform_opts.h>
 
 #if CONFIG_UART_SOCKET
 #if /*CONFIG_PERI_UPDATE_IMG*/1
