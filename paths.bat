@@ -1,0 +1,1 @@
+PATH=D:\MCU\GNU_Tools_ARM_Embedded\5.2_2015q4\bin;D:\MCU\SEGGER\JLink_V612f;%PATH%
