@@ -37,12 +37,11 @@ if $rtl8710_flasher_capacity == 0
  monitor go
  FlasherWait
  set $id = {int}($rtl8710_flasher_buffer + 0x0C)
+ set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
  if ($id == 0x1420c2) 
-  set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
   printf "Flash ID = 0x%08x : MX25L8006E (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
  else 
-  set $rtl8710_flasher_capacity = 1024*1024)
-  error "Flash ID = 0x%08x : ?\n", $id
+  printf "Flash ID = 0x%08x : (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
  end
  printf "RTL8710 flasher initialized\n"
 else

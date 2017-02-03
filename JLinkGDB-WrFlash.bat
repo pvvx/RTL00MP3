@@ -16,6 +16,6 @@ echo define call3>>flasher/flash_file.jlink
 echo FlasherWrite %img_file% $Image2Addr $Image2Size>>flasher/flash_file.jlink
 echo end>>flasher/flash_file.jlink
 start JLinkGDBServer.exe -device Cortex-M3 -if SWD -ir -endian little -speed 3500 
-arm-none-eabi-gdb.exe -x flasher/gdb_wrflash.jlink build/bin/ram_all.bin
+arm-none-eabi-gdb.exe -x flasher/gdb_wrflash.jlink
 taskkill /F /IM JLinkGDBServer.exe
 

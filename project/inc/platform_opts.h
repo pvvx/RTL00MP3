@@ -20,7 +20,7 @@
 #if CONFIG_LOG_HISTORY
 #define LOG_HISTORY_LEN    5
 #endif
-#define SUPPORT_INTERACTIVE_MOD		1 //on/off wifi_interactive_mode
+#define SUPPORT_INTERACTIVE_MODE 0 //on/off wifi_interactive_mode
 #define CONFIG_LOG_SERVICE_LOCK 0
 #endif
 
