@@ -88,7 +88,7 @@ RAM_START_FUNCTION __attribute__((section(".start.ram.data.e"))) gRamPatchFun2 =
 RAM_START_FUNCTION __attribute__((section(".image2.ram.data"))) gImage2EntryFun0 =
 		{ InfraStart + 1 };
 _RAM_IMG2_VALID_PATTEN __attribute__((section(".image2.validate.rodata"))) RAM_IMG2_VALID_PATTEN =
-		{ { "RTKWin" }, { 0xff, 0, 1, 1, 0, 0x95, 0x81, 1, 1, 0, 0, 0, 0 } };
+		{ { IMG2_SIGN_TXT }, { 0xff, 0, 1, 1, 0, 0x95, 0x81, 1, 1, 0, 0, 0, 0 } }; // "RTKWin"
 
 HAL_GPIO_ADAPTER __attribute__((section(".hal.ram.data"))) gBoot_Gpio_Adapter;
 
@@ -204,7 +204,7 @@ void __attribute__((section(".hal.ram.text"))) RtlBootToSram(void) {
 	SpicFlashInitRtl8195A(1); // SpicBitMode 1
 	DBG_8195A("===== Enter Image 1.5 ====\nImg2 Sign: %s, InfaStart @ 0x%08x\n",
 			&__image2_validate_code__, __image2_entry_func__);
-	if (strcmp((const char * )&__image2_validate_code__, "RTKWin")) {
+	if (strcmp((const char * )&__image2_validate_code__, IMG2_SIGN_TXT)) {
 		DBG_MISC_ERR("Invalid Image2 Signature!\n");
 		RtlConsolRom(10000); // ROM: RtlConsolRom = 0xedcd;
 	}
@@ -231,7 +231,7 @@ int __attribute__((section(".hal.ram.text"))) IsForceLoadDefaultImg2(void) {
 	u8 gpio_pin[4];
 	HAL_GPIO_PIN GPIO_Pin;
 
-	*((u32 *) &gpio_pin) = *(u32 *) (SPI_FLASH_BASE + 0x9008); // config data + 8
+	*((u32 *) &gpio_pin) = *(u32 *) (SPI_FLASH_BASE + FLASH_SYSTEM_DATA_ADDR + 0x08); // config data + 8
 	int i = 0;
 	_pHAL_Gpio_Adapter = (int) &gBoot_Gpio_Adapter;
 	int result = 0;
@@ -347,16 +347,16 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(void) {
 		{
 			v16 = -1;
 			v17 = -1;
-			if (sign2 == 0x31313738) {
-				if (sign1 == 0x35393138) {
+			if (sign2 == IMG_SIGN2_RUN) {
+				if (sign1 == IMG_SIGN1_RUN) {
 					v16 = img1size;
 					v17 = -1;
-				} else if (sign1 == 0x35393130) {
+				} else if (sign1 == IMG_SIGN1_SWP) {
 					v17 = img1size;
 					v16 = -1;
 				}
 			}
-			u32 OTA_addr = *(u32 *) (SPI_FLASH_BASE + 0x9000); // config sector data
+			u32 OTA_addr = *(u32 *) (SPI_FLASH_BASE + FLASH_SYSTEM_DATA_ADDR); // config sector data
 			if (OTA_addr != -1) {
 				u32 image2size = *(u32 *) (img1size + SPI_FLASH_BASE);
 				if (OTA_addr >= (img1size + image2size)
@@ -364,9 +364,9 @@ void __attribute__((section(".hal.ram.text"))) PreProcessForVendor(void) {
 					prdflash = (u32 *) (OTA_addr + SPI_FLASH_BASE + 8);
 					sign1 = *prdflash++;
 					sign2 = *prdflash;
-					if (sign2 == 0x31313738) {
-						if (sign1 == 0x35393138) v16 = OTA_addr;
-						else if (sign1 == 0x35393130) v17 = OTA_addr;
+					if (sign2 == IMG_SIGN2_RUN) {
+						if (sign1 == IMG_SIGN1_RUN) v16 = OTA_addr;
+						else if (sign1 == IMG_SIGN1_SWP) v17 = OTA_addr;
 					}
 LABEL_41: 			if (IsForceLoadDefaultImg2()) {
 						if (v17 != -1) run_image = v17;
@@ -421,7 +421,7 @@ LABEL_55: 					prdflash = run_image + SPI_FLASH_BASE;
 									(const char * )(Image2Addr + 4),
 									*(u32 *)Image2Addr);
 							if (strcmp((const char * )(Image2Addr + 4),
-									"RTKWin")) {
+									IMG2_SIGN_TXT)) {
 								DBG_MISC_ERR("Invalid Image2 Signature\n");
 								while (1) RtlConsolRom(1000);
 							}
@@ -439,7 +439,7 @@ LABEL_55: 					prdflash = run_image + SPI_FLASH_BASE;
 			goto LABEL_41;
 		}
 	} // if (flash_enable)
-	if (strcmp((const char * )(Image2Addr + 4), "RTKWin")) {
+	if (strcmp((const char * )(Image2Addr + 4), IMG2_SIGN_TXT)) {
 		DBG_MISC_ERR("Invalid Image2 Signature\n", 2 * ConfigDebugErr);
 		while (1) RtlConsolRom(1000);
 	}

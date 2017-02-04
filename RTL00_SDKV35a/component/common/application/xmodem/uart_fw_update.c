@@ -20,6 +20,18 @@
 #if CONFIG_UART_SOCKET
 #if /*CONFIG_PERI_UPDATE_IMG*/1
 
+
+#define USE_FLASH_API 1
+
+#if USE_FLASH_API
+#include "device_lock.h"
+#include "flash_api.h"
+#endif
+
+#ifndef FLASH_SECTOR_SIZE
+	#define FLASH_SECTOR_SIZE 		4096
+#endif
+
 #define IMG1_SIGN_OFFSET        0x34
 
 enum {
@@ -29,7 +41,7 @@ enum {
   XMODEM_LOG_UART   = 3   
 };
 
-FWU_DATA_SECTION char xMFrameBuf[XM_BUFFER_SIZE];
+FWU_DATA_SECTION char * xMFrameBuf; // [XM_BUFFER_SIZE];
 FWU_DATA_SECTION XMODEM_CTRL xMCtrl;
 
 FWU_DATA_SECTION static u32 fw_img1_size;
@@ -44,7 +56,7 @@ FWU_DATA_SECTION static u32 flash_wr_err_cnt;
 
 FWU_DATA_SECTION HAL_RUART_ADAPTER xmodem_uart_adp; // we can dynamic allocate memory for this object to save memory
 
-FWU_RODATA_SECTION const char Img2Signature[8]="81958711";
+FWU_RODATA_SECTION const char Img2Signature[8] = IMG_SIGN_RUN;
 extern u32 SpicCalibrationPattern[4];
 extern const u8 ROM_IMG1_VALID_PATTEN[];
 extern HAL_RUART_ADAPTER *pxmodem_uart_adp;
@@ -60,6 +72,7 @@ extern VOID SpicWaitBusyDoneRtl8195A(VOID);
 extern VOID SpicWaitWipDoneRefinedRtl8195A(SPIC_INIT_PARA SpicInitPara);
 
 VOID WriteImg1Sign(u32 Image2Addr);
+
 
 FWU_TEXT_SECTION void FWU_WriteWord(u32 Addr, u32 FData)
 {
@@ -81,7 +94,7 @@ FWU_TEXT_SECTION u32 xModem_MemCmp(const u32 *av, const u32 *bv, u32 len)
     
     for (i=0; i<len4b; i++) {
         if (a[i] != b[i]) {
-            DBG_MISC_ERR("OTU: Flash write check error @ 0x%08x\r\n", (u32)(&b[i]));
+            DBG_MISC_ERR("OTU: Flash write check error @ 0x%08x\n", (u32)(&b[i]));
             return ((u32)(&b[i])); 
         }
     }
@@ -93,13 +106,13 @@ u32 xModem_Frame_Dump(char *ptr,  unsigned int frame_num)
 {
     u32 i;
     
-    DiagPrintf("===== Frme %d ======\r\n", frame_num);
+    DiagPrintf("===== Frme %d ======\n", frame_num);
 
     for(i=0;i<128;i+=16) {
         DiagPrintf("%02x: ", i);
         DiagPrintf("%02x %02x %02x %02x %02x %02x %02x %02x  ",
             *(ptr+i),*(ptr+i+1),*(ptr+i+2),*(ptr+i+3),*(ptr+i+4),*(ptr+i+5),*(ptr+i+6),*(ptr+i+7));
-        DiagPrintf("%02x %02x %02x %02x %02x %02x %02x %02x \r\n",
+        DiagPrintf("%02x %02x %02x %02x %02x %02x %02x %02x\n",
             *(ptr+i+8),*(ptr+i+9),*(ptr+i+10),*(ptr+i+11),*(ptr+i+12),*(ptr+i+13),*(ptr+i+14),*(ptr+i+15));
     }
 
@@ -205,26 +218,33 @@ u32 xModem_Frame_Img2(char *ptr,  unsigned int frame_num, unsigned int frame_siz
         // Parse Image2 header
         flash_wr_offset = fw_img2_addr;
         fw_img2_size = rtk_le32_to_cpu(*((u32*)ptr)) + 0x10;
+/*
         if ((fw_img2_size & 0x03) != 0) {
-            DBG_MISC_ERR("xModem_Frame_ImgAll Err#2: fw_img2_addr=0x%x fw_img2_size(%d) isn't 4-bytes aligned\r\n", fw_img2_addr, fw_img2_size);
+            DBG_MISC_ERR("OTU: fw_img2_addr=0x%x fw_img2_size(%d) isn't 4-bytes aligned\n", fw_img2_addr, fw_img2_size);
             fw_img1_size = 0;
             fw_img2_size = 0;
             return rx_len;
         }
-        
+*/
+#ifdef RTL8710AF
+        if (fw_img2_size > (0x80000-0x0B000)) {
+#else
         if (fw_img2_size > (2*1024*1024)) {
-            DBG_MISC_ERR("xModem_Frame_ImgAll Image2 to Big: fw_img2_addr=0x%x fw_img2_size(%d) \r\n", fw_img2_addr, fw_img2_size);
+#endif
+            DBG_MISC_ERR("OTU: fw_img2_addr=0x%x fw_img2_size(%d) to Big!\n", fw_img2_addr, fw_img2_size);
             fw_img1_size = 0;
             fw_img2_size = 0;
             return rx_len;
         }
+        printf("fw_img2_addr=0x%x fw_img2_size(%d)\n", fw_img2_addr, fw_img2_size);
         fw_img3_addr = fw_img2_addr + fw_img2_size;
         
         // erase Flash first
-        address = fw_img2_addr & (~0xfff);     // 4k aligned, 4k is the page size of flash memory
+        address = fw_img2_addr & (~(FLASH_SECTOR_SIZE-1));     // 4k aligned, 4k is the page size of flash memory
         while ((address) < (fw_img2_addr+fw_img2_size)) {
+            DBG_MISC_INFO("Flash Erase: %p\n", address);
             SpicSectorEraseFlashRtl8195A(SPI_FLASH_BASE + address);
-            address += 0x1000;
+            address += FLASH_SECTOR_SIZE;
         }
         flash_erased_addr = address;
     }
@@ -280,14 +300,19 @@ u32 xModem_Frame_Img2(char *ptr,  unsigned int frame_num, unsigned int frame_siz
                 fw_img3_size = 0;
                 return rx_len;                        
             }
+/*
             if ((fw_img3_size & 0x03) != 0) {
-                DBG_MISC_ERR("xModem_Frame_ImgAll Err#5: fw_img3_addr=0x%x fw_img3_size(%d) isn't 4-bytes aligned\r\n", fw_img3_addr, fw_img3_size);
+                DBG_MISC_ERR("OTU Err#5: fw_img3_addr=0x%x fw_img3_size(%d) isn't 4-bytes aligned\n", fw_img3_addr, fw_img3_size);
                 fw_img3_size = 0;
                 return rx_len;
             }
-    
-            if (fw_img3_size > (2*1024*1024)) {
-                DBG_MISC_ERR("xModem_Frame_ImgAll Image3 to Big: fw_img3_addr=0x%x fw_img2_size(%d) \r\n", fw_img3_addr, fw_img3_size);
+*/
+#ifdef RTL8710AF
+            if (fw_img2_size > (0x80000 - fw_img3_addr)) {
+#else
+        	if (fw_img2_size > (2*1024*1024)) {
+#endif
+                DBG_MISC_ERR("OTU: fw_img3_addr=0x%x fw_img2_size(%d) to Big!\n", fw_img3_addr, fw_img3_size);
                 fw_img3_size = 0;
                 return rx_len;
             }
@@ -296,21 +321,22 @@ u32 xModem_Frame_Img2(char *ptr,  unsigned int frame_num, unsigned int frame_siz
             if (flash_erased_addr >= fw_img3_addr) {
                 address = flash_erased_addr;
             } else {
-                address = fw_img3_addr & (~0xfff);     // 4k aligned, 4k is the page size of flash memory
+                address = fw_img3_addr & (~(FLASH_SECTOR_SIZE-1));     // 4k aligned, 4k is the page size of flash memory
             }
             
             while ((address) < (fw_img3_addr+fw_img3_size)) {
-                DBG_MISC_INFO("Flash Erase: 0x%x\n", address);
+                DBG_MISC_INFO("Flash Erase: %p\n", address);
 #if 0
                 if ((address & 0xFFFF) == 0) {
                     SpicBlockEraseFlashRtl8195A(SPI_FLASH_BASE + address);
-                    address += 0x10000;  // 1 block = 64k bytes
+                    address += FLASH_SECTOR_SIZE;  // 1 block = 64k bytes
                 } 
                 else 
 #endif                    
                 {
+
                     SpicSectorEraseFlashRtl8195A(SPI_FLASH_BASE + address);
-                    address += 0x1000;  // 1 sector = 4k bytes
+                    address += FLASH_SECTOR_SIZE;  // 1 sector = 4k bytes
                 }
             }
             flash_erased_addr = address;
@@ -375,7 +401,7 @@ u32 xModem_Frame_ImgAll(char *ptr,  unsigned int frame_num, unsigned int frame_s
             while (ROM_IMG1_VALID_PATTEN[i] != 0xff) {
                 if (ptr[i+IMG1_SIGN_OFFSET] != ROM_IMG1_VALID_PATTEN[i]) {
                     // image1 validation patten miss match
-                    DBG_MISC_ERR("xModem_Frame_ImgAll Err: Image1 Signature Incorrect\r\n");
+                    DBG_MISC_ERR("OTU: Image1 Signature Incorrect\n");
                     fw_img1_size = 0;
                     fw_img2_size = 0;
                     fw_img2_addr = 0;
@@ -391,15 +417,15 @@ u32 xModem_Frame_ImgAll(char *ptr,  unsigned int frame_num, unsigned int frame_s
             
             flash_wr_offset = 0;
             fw_img1_size = rtk_le32_to_cpu(*((u32*)(ptr + 0x10))) + 0x20;
-            if ((fw_img1_size & 0x03) != 0) {
-                DBG_MISC_WARN("xModem_Frame_ImgAll Err: fw_img1_size(0x%x) isn't 4-bytes aligned\r\n", fw_img1_size);
+/*            if ((fw_img1_size & 0x03) != 0) {
+                DBG_MISC_WARN("OTU: fw_img1_size(0x%x) isn't 4-bytes aligned\n", fw_img1_size);
                 fw_img1_size = 0;
                 fw_img2_size = 0;
                 fw_img2_addr = 0;
                 fw_img3_size = 0;
                 fw_img3_addr = 0;
                 return 0;
-            }
+            } */
             address = 0;
             img_size = fw_img1_size;
             img_addr = 0;
@@ -409,11 +435,11 @@ u32 xModem_Frame_ImgAll(char *ptr,  unsigned int frame_num, unsigned int frame_s
                 fw_img2_addr = fw_img1_size;
             }
             fw_img2_size = 0;
-            DBG_MISC_INFO("Update Image All: Image1 Size=%d, Image2 Addr=0x%x\r\n", fw_img1_size, fw_img2_addr);
+            DBG_MISC_INFO("Update Image All: Image1 Size=%d, Image2 Addr=0x%x\n", fw_img1_size, fw_img2_addr);
         } else {
             // It's image2(+image3) only
             if (fw_img2_addr == 0) {
-                DBG_MISC_WARN("The single-image format in flash now, it cannot just update the image2\r\n");
+                DBG_MISC_WARN("The single-image format in flash now, it cannot just update the image2\n");
                 fw_img1_size = 0;
                 fw_img2_size = 0;
                 return rx_len;
@@ -423,17 +449,17 @@ u32 xModem_Frame_ImgAll(char *ptr,  unsigned int frame_num, unsigned int frame_s
             fw_img1_size = 0;
             fw_img2_size = rtk_le32_to_cpu(*((u32*)ptr)) + 0x10;
             fw_img3_addr = fw_img2_addr + fw_img2_size;
-            if ((fw_img2_size & 0x03) != 0) {
-                DBG_MISC_ERR("xModem_Frame_ImgAll Err: fw_img2_size(0x%x) isn't 4-bytes aligned\r\n", fw_img2_size);
+/*            if ((fw_img2_size & 0x03) != 0) {
+                DBG_MISC_ERR("OTU: fw_img2_size(0x%x) isn't 4-bytes aligned\n", fw_img2_size);
                 fw_img1_size = 0;
                 fw_img2_size = 0;
                 return rx_len;
-            }
+            } */
             address = fw_img2_addr & (~0xfff);     // 4k aligned, 4k is the page size of flash memory
             img_size = fw_img2_size;
             img_addr = fw_img2_addr;
 
-            DBG_MISC_INFO("Update Image2: Addr=0x%x, Size=%d\r\n", fw_img2_addr, fw_img2_size);
+            DBG_MISC_INFO("Update Image2: Addr=0x%x, Size=%d\n", fw_img2_addr, fw_img2_size);
 
         }
 
@@ -532,15 +558,15 @@ u32 xModem_Frame_ImgAll(char *ptr,  unsigned int frame_num, unsigned int frame_s
                 if (ImgIdx < frame_size) {
                     fw_img2_size = rtk_le32_to_cpu(*((u32*)(ptr+ImgIdx))) + 0x10;
                     fw_img3_addr = fw_img2_addr + fw_img2_size;
-                    if ((fw_img2_size & 0x03) != 0) {
-                        DBG_MISC_ERR("xModem_Frame_ImgAll Err#2: fw_img2_addr=0x%x fw_img2_size(%d) isn't 4-bytes aligned\r\n", fw_img2_addr, fw_img2_size);
+/*                    if ((fw_img2_size & 0x03) != 0) {
+                        DBG_MISC_ERR("OTU: fw_img2_addr=0x%x fw_img2_size(%d) isn't 4-bytes aligned\n", fw_img2_addr, fw_img2_size);
                         fw_img1_size = 0;
                         fw_img2_size = 0;
                         return rx_len;
-                    }
+                    }*/
 
                     if (fw_img2_size > (2*1024*1024)) {
-                        DBG_MISC_ERR("xModem_Frame_ImgAll Image2 to Big: fw_img2_addr=0x%x fw_img2_size(%d) \r\n", fw_img2_addr, fw_img2_size);
+                        DBG_MISC_ERR("OTU: fw_img2_addr=0x%x fw_img2_size(%d) to Big\n", fw_img2_addr, fw_img2_size);
                         fw_img1_size = 0;
                         fw_img2_size = 0;
                         return rx_len;
@@ -601,17 +627,17 @@ u32 xModem_Frame_ImgAll(char *ptr,  unsigned int frame_num, unsigned int frame_s
                     if (fw_img3_size == 0x1A1A1A1A) {
                         // all padding bytes, no image3
                         fw_img3_size = 0;
-//                        DBG_8195A("No Img3\r\n");
+//                        DBG_8195A("No Img3\n");
                         return rx_len;                        
                     }
-                    if ((fw_img3_size & 0x03) != 0) {
-                        DBG_MISC_ERR("xModem_Frame_ImgAll Err#5: fw_img3_addr=0x%x fw_img3_size(%d) isn't 4-bytes aligned\r\n", fw_img3_addr, fw_img3_size);
+/*                    if ((fw_img3_size & 0x03) != 0) {
+                        DBG_MISC_ERR("OTU: fw_img3_addr=0x%x fw_img3_size(%d) isn't 4-bytes aligned\n", fw_img3_addr, fw_img3_size);
                         fw_img3_size = 0;
                         return rx_len;
-                    }
+                    } */
             
                     if (fw_img3_size > (2*1024*1024)) {
-                        DBG_MISC_ERR("xModem_Frame_ImgAll Image3 to Big: fw_img3_addr=0x%x fw_img2_size(%d) \r\n", fw_img3_addr, fw_img3_size);
+                        DBG_MISC_ERR("OTU: fw_img3_addr=0x%x fw_img2_size(%d) to Big!\n", fw_img3_addr, fw_img3_size);
                         fw_img3_size = 0;
                         return rx_len;
                     }
@@ -678,14 +704,14 @@ xModem_Init_UART_Port(u8 uart_idx, u8 pin_mux, u32 baud_rate)
         xmodem_uart_func_hook(&(xMCtrl.ComPort));
     } else if(uart_idx == XMODEM_LOG_UART) {
         // update firmware via Log UART
-//        DiagPrintf("Open xModem Transfer on Log UART...\r\n");
+//        DiagPrintf("Open xModem Transfer on Log UART...\n");
 //        xmodem_loguart_init();
         xmodem_loguart_init(baud_rate);
         xmodem_loguart_func_hook(&(xMCtrl.ComPort));    
-//        DiagPrintf("Please Start the xModem Sender...\r\n");
+//        DiagPrintf("Please Start the xModem Sender...\n");
     } else {
         // invalid UART port
-		DBG_MISC_ERR("xModem_Init_UART_Port: Invaild UART port(%d)\n", uart_idx);
+		DBG_MISC_ERR("OTU: Invaild UART port(%d)\n", uart_idx);
         return -1;
     }
 
@@ -883,25 +909,32 @@ void OTU_FW_Update(u8 uart_idx, u8 pin_mux, u32 baud_rate)
     flash_erased_addr = 0;
     start_with_img1 = 0;;
     flash_wr_err_cnt = 0;
+    xMFrameBuf = malloc(XM_BUFFER_SIZE);
+    if(xMFrameBuf == NULL) {
+    	DBG_MISC_ERR("OTU: SPI Init Fail!\n");
+    	return;
+    }
 
-    // Get the address of the image2 to be updated
+#if USE_FLASH_API
+	device_mutex_lock(RT_DEV_LOCK_FLASH);
+#endif
 	SPI_FLASH_PIN_FCTRL(ON);
 	if (!SpicFlashInitRtl8195A(SpicOneBitMode)){
         SPI_FLASH_PIN_FCTRL(OFF);    
-		DBG_MISC_ERR("OTU_FW_Update: SPI Init Fail!!!!!!\n");
-        return;
+		DBG_MISC_ERR("OTU: SPI Init Fail!\n");
+		goto end_error;
 	}
 	SpicWaitWipDoneRefinedRtl8195A(SpicInitPara);
-
-    printf("FW Update Over UART%d, PinMux=%d, Baud=%d\r\n", uart_idx, pin_mux, baud_rate);
+    printf("FW Update Over UART%d, PinMux=%d, Baud=%d\n", uart_idx, pin_mux, baud_rate);
+    // Get the address of the image2 to be updated
     fw_img2_addr = SelectImg2ToUpdate(&OldImage2Addr);
 
     // Start to update the Image2 through xModem on peripheral device
-    printf("FW Update Image2 @ 0x%x\r\n", fw_img2_addr);
+    printf("FW Update Image2 @ 0x%x\n", fw_img2_addr);
     // We update the image via xModem on UART now, if we want to uase other peripheral device
     // to update the image then we need to redefine the API
     if (xModem_Init_UART_Port(uart_idx, pin_mux, baud_rate) < 0) {
-        return;
+    	goto end_error;
     }
 
 //    xModemStart(&xMCtrl, xMFrameBuf, xModem_Frame_ImgAll);    // Support Image format: Image1+Image2 or Image2 only
@@ -918,13 +951,21 @@ void OTU_FW_Update(u8 uart_idx, u8 pin_mux, u32 baud_rate)
 #ifdef CONFIG_UPDATE_TOGGLE_IMG2
         // Mark the other image2 as old one by modify its signature
         if (OldImage2Addr != 0) {
-            printf("Mark Image2 @ 0x%x as Old\r\n", OldImage2Addr);
+            printf("Mark Image2 @ 0x%x as Old\n", OldImage2Addr);
             MarkImg2SignOld(OldImage2Addr);
         }
 #endif        
     }
     printf("OTU_FW_Update Done, Write Len=%d\n", wr_len);
-    SPI_FLASH_PIN_FCTRL(OFF);    
+end_error:
+    SPI_FLASH_PIN_FCTRL(OFF);
+#if USE_FLASH_API
+	device_mutex_unlock(RT_DEV_LOCK_FLASH);
+#endif
+	if(xMFrameBuf) {
+		free(xMFrameBuf);
+		xMFrameBuf = NULL;
+	}
 }
 
 FWU_TEXT_SECTION
@@ -934,7 +975,7 @@ u8 OTU_check_gpio(void)
     HAL_GPIO_PIN  GPIO_Pin;
     u8 enter_update;
 
-    GPIO_Pin.pin_name = HAL_GPIO_GetIPPinName_8195a(0x21);; //pin PC_1
+    GPIO_Pin.pin_name = HAL_GPIO_GetIPPinName_8195a(0x21); //pin PC_1
     GPIO_Pin.pin_mode = DIN_PULL_HIGH;
 
     _pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
@@ -1033,8 +1074,12 @@ void OTU_Img_Download(u8 uart_idx, u8 pin_mux, u32 baud_rate,
     if (xModem_Init_UART_Port(uart_idx, pin_mux, baud_rate) < 0) {
         return;
     }
+    if(xMFrameBuf == NULL) {
+    	DBG_MISC_ERR("OTU: SPI Init Fail!\n");
+    	return;
+    }
 
-    DBG_MISC_INFO("Image Download: StartOffset=%d StartAddr=0x%x MaxSize=%d\r\n", start_offset, start_addr, max_size);
+    DBG_MISC_INFO("Image Download: StartOffset=%d StartAddr=0x%x MaxSize=%d\n", start_offset, start_addr, max_size);
 
     fw_img2_addr = start_addr;
     flash_wr_offset = start_offset;
@@ -1043,17 +1088,20 @@ void OTU_Img_Download(u8 uart_idx, u8 pin_mux, u32 baud_rate,
     if ((start_addr & 0xFF000000) == SPI_FLASH_BASE) {
         // it's going to write the Flash memory
         if (((start_addr & 0x03) != 0) || ((start_offset&0x03) != 0)) {
-            DiagPrintf("StartAddr(0x%x), StartOffset(0x%x) Must 4-bytes Aligned\r\n", start_addr, start_offset);
+            DiagPrintf("StartAddr(0x%x), StartOffset(0x%x) Must 4-bytes Aligned\n", start_addr, start_offset);
             return;
         }
+#if USE_FLASH_API
+        device_mutex_lock(RT_DEV_LOCK_FLASH);
+#endif
         SPI_FLASH_PIN_FCTRL(ON);
         if (!SpicFlashInitRtl8195A(SpicOneBitMode)){
-            DBG_MISC_ERR("OTU_FW_Update: SPI Init Fail!!!!!!\n");
+            DBG_MISC_ERR("OTU: SPI Init Fail!\n");
             SPI_FLASH_PIN_FCTRL(OFF);    
-            return;
+            goto end_error;
         }
-        is_flash = 1;
         SpicWaitWipDoneRefinedRtl8195A(SpicInitPara);
+        is_flash = 1;
         fw_img2_addr = start_addr & 0x00FFFFFF;
         xModemStart(&xMCtrl, xMFrameBuf, xModem_Frame_FlashWrite);
     } else {
@@ -1065,10 +1113,17 @@ void OTU_Img_Download(u8 uart_idx, u8 pin_mux, u32 baud_rate,
     xModem_DeInit_UART_Port(uart_idx);
 
     DBG_MISC_INFO("OTU_Img_Download Done, Write Len=%d\n", wr_len);
-
+end_error:
     if (is_flash) {
-        SPI_FLASH_PIN_FCTRL(OFF);    
+    	SPI_FLASH_PIN_FCTRL(OFF);
+#if USE_FLASH_API
+    	device_mutex_unlock(RT_DEV_LOCK_FLASH);
+#endif
     }
+	if(xMFrameBuf) {
+		free(xMFrameBuf);
+		xMFrameBuf = NULL;
+	}
 }
 
 #endif  //#if CONFIG_PERI_UPDATE_IMG

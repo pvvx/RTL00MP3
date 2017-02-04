@@ -50,7 +50,7 @@ RAM_START_FUNCTION __attribute__((section(".start.ram.data.e"))) gRamPatchFun2 =
 RAM_START_FUNCTION __attribute__((section(".image2.ram.data"))) gImage2EntryFun0 =
 		{ InfraStart + 1 };
 _RAM_IMG2_VALID_PATTEN __attribute__((section(".image2.validate.rodata"))) RAM_IMG2_VALID_PATTEN =
-		{ { "RTKWin" }, { 0xff, 0, 1, 1, 0, 0x95, 0x81, 1, 1, 0, 0, 0, 0 } };
+		{ { IMG2_SIGN_TXT }, { 0xff, 0, 1, 1, 0, 0x95, 0x81, 1, 1, 0, 0, 0, 0 } }; // "RTKWin"
 
 HAL_GPIO_ADAPTER __attribute__((section(".hal.ram.data"))) gBoot_Gpio_Adapter;
 

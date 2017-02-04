@@ -103,16 +103,16 @@ static void update_ota_local_task(void *param)
 #if CONFIG_WRITE_MAC_TO_FLASH
 	char mac[ETH_ALEN];
 #endif
-	printf("\n\r[%s] Update task start", __FUNCTION__);
+	printf("[%s] Update task start\n", __FUNCTION__);
 	buf = update_malloc(BUF_SIZE);
 	if(!buf){
-		printf("\n\r[%s] Alloc buffer failed", __FUNCTION__);
+		printf("[%s] Alloc buffer failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	// Connect socket
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if(server_socket < 0){
-		printf("\n\r[%s] Create socket failed", __FUNCTION__);
+		printf("[%s] Create socket failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	server_addr.sin_family = AF_INET;
@@ -120,52 +120,52 @@ static void update_ota_local_task(void *param)
 	server_addr.sin_port = cfg->port;
 
 	if(connect(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1){
-		printf("\n\r[%s] socket connect failed", __FUNCTION__);
+		printf("[%s] socket connect failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	// Erase config sectors
 	if(flash_EraseSector(CONFIG_SECTOR) < 0){
-		printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+		printf("[%s] Erase sector failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 #if CONFIG_WRITE_MAC_TO_FLASH
 	// Read MAC address
  	if(flash_Read(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-		printf("\n\r[%s] Read MAC error", __FUNCTION__);
+		printf("[%s] Read MAC error\n", __FUNCTION__);
 		goto update_ota_exit;
  	}	
 #endif
 	// Erase update sectors
 	for(i = UPDATE_SECTOR; i <= FLASH_Sector_11; i += 8){
 		if(flash_EraseSector(i) < 0){
-			printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+			printf("[%s] Erase sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}
 	// Write update sectors
 	address = flash_SectorAddress(UPDATE_SECTOR);
-	printf("\n\r");
+	printf("\n");
 	while(1){
 		read_bytes = read(server_socket, buf, BUF_SIZE);
 		if(read_bytes == 0) break; // Read end
 		if(read_bytes < 0){
-			printf("\n\r[%s] Read socket failed", __FUNCTION__);
+			printf("[%s] Read socket failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		if(flash_Wrtie(address + size, buf, read_bytes) < 0){
-			printf("\n\r[%s] Write sector failed", __FUNCTION__);
+			printf("[%s] Write sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		size += read_bytes;
 		for(i = 0; i < read_bytes; i ++)
 			checksum += buf[i];
-		printf("\rUpdate file size = %d  ", size);
+		printf("Update file size = %d\n", size);
 	}
 #if CONFIG_WRITE_MAC_TO_FLASH
 	//Write MAC address
 	if(!(mac[0]==0xff&&mac[1]==0xff&&mac[2]==0xff&&mac[3]==0xff&&mac[4]==0xff&&mac[5]==0xff)){
 		if(flash_Wrtie(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-			printf("\n\r[%s] Write MAC failed", __FUNCTION__);
+			printf("[%s] Write MAC failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}	
 	}
@@ -174,10 +174,10 @@ static void update_ota_local_task(void *param)
 	address = flash_SectorAddress(CONFIG_SECTOR);
 	if( (flash_Wrtie(address, (char*)&size, 4) < 0) || 
 		(flash_Wrtie(address+4, (char*)&checksum, 4) < 0) ){
-		printf("\n\r[%s] Write sector failed", __FUNCTION__);
+		printf("[%s] Write sector failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
-	printf("\n\r[%s] Update OTA success!", __FUNCTION__);
+	printf("[%s] Update OTA success!\n", __FUNCTION__);
 update_ota_exit:
 	if(buf)
 		update_free(buf);
@@ -186,7 +186,7 @@ update_ota_exit:
 	if(param)
 		update_free(param);
 	TaskOTA = NULL;
-	printf("\n\r[%s] Update task exit", __FUNCTION__);
+	printf("[%s] Update task exit\n", __FUNCTION__);
 	vTaskDelete(NULL);
 	return;
 }
@@ -204,16 +204,16 @@ static void update_ota_local_task(void *param)
 	char mac[ETH_ALEN];
 #endif
 
-	printf("\n\r[%s] Update task start", __FUNCTION__);
+	printf("[%s] Update task start\n", __FUNCTION__);
 	buf = update_malloc(BUF_SIZE);
 	if(!buf){
-		printf("\n\r[%s] Alloc buffer failed", __FUNCTION__);
+		printf("[%s] Alloc buffer failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	// Connect socket
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if(server_socket < 0){
-		printf("\n\r[%s] Create socket failed", __FUNCTION__);
+		printf("[%s] Create socket failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	server_addr.sin_family = AF_INET;
@@ -221,20 +221,20 @@ static void update_ota_local_task(void *param)
 	server_addr.sin_port = cfg->port;
 
 	if(connect(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1){
-		printf("\n\r[%s] socket connect failed", __FUNCTION__);
+		printf("[%s] socket connect failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	// Erase config sectors
 	for(i = CONFIG_SECTOR; i < APPLICATION_SECTOR; i += FLASH_PAGE_SIZE){
 		if(flash_EraseSector(i) < 0){
-			printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+			printf("[%s] Erase sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}
 #if CONFIG_WRITE_MAC_TO_FLASH
 	// Read MAC address
  	if(flash_Read(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-		printf("\n\r[%s] Read MAC error", __FUNCTION__);
+		printf("[%s] Read MAC error\n", __FUNCTION__);
 		goto update_ota_exit;
  	}	
 #endif
@@ -242,18 +242,18 @@ static void update_ota_local_task(void *param)
 	// Erase update sectors
 	for(i = UPDATE_SECTOR; i < FLASH_Sector_0 + FLASH_SIZE; i += FLASH_PAGE_SIZE){
 		if(flash_EraseSector(i) < 0){
-			printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+			printf("[%s] Erase sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}
 	// Write update sectors
 	address = UPDATE_SECTOR;
-	printf("\n\r");
+	printf("\n");
 	while(1){
 		read_bytes = read(server_socket, buf, BUF_SIZE);
 		if(read_bytes == 0) break; // Read end
 		if(read_bytes < 0){
-			printf("\n\r[%s] Read socket failed", __FUNCTION__);
+			printf("[%s] Read socket failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		if(flag_a == 0){
@@ -261,14 +261,14 @@ static void update_ota_local_task(void *param)
 				a = buf[read_bytes - 1];
 				flag_a = 1;
 				if(flash_Wrtie(address + size, buf, read_bytes - 1) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes - 1;
 			}
 			else{
 				if(flash_Wrtie(address + size, buf, read_bytes) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes;
@@ -277,7 +277,7 @@ static void update_ota_local_task(void *param)
 		else{
 			a = buf[0] << 8 | a;
 			if(flash_Wrtie(address + size, (char*)(&a), 2) < 0){
-				printf("\n\r[%s] Write sector failed", __FUNCTION__);
+				printf("[%s] Write sector failed\n", __FUNCTION__);
 				goto update_ota_exit;
 			}
 			size += 2;
@@ -287,14 +287,14 @@ static void update_ota_local_task(void *param)
 				a = buf[read_bytes - 1];
 				flag_a = 1;
 				if(flash_Wrtie(address + size, buf + 1, read_bytes - 2) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes - 2;
 			}
 			else{ 
 				if(flash_Wrtie(address + size, buf + 1, read_bytes - 1) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes - 1;
@@ -302,11 +302,11 @@ static void update_ota_local_task(void *param)
 		}	
 		for(i = 0; i < read_bytes; i ++)
 			checksum += buf[i];
-		printf("\rUpdate file size = %d  ", size);
+		printf("Update file size = %d\n", size);
 	}
 	if(flag_a){
 		if(flash_Wrtie(address + size, (char*)(&a), 2) < 0){
-			printf("\n\r[%s] Write sector failed", __FUNCTION__);
+			printf("[%s] Write sector failed", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		size += 1;
@@ -315,7 +315,7 @@ static void update_ota_local_task(void *param)
 	//Write MAC address
 	if(!(mac[0]==0xff&&mac[1]==0xff&&mac[2]==0xff&&mac[3]==0xff&&mac[4]==0xff&&mac[5]==0xff)){
 		if(flash_Wrtie(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-			printf("\n\r[%s] Write MAC failed", __FUNCTION__);
+			printf("[%s] Write MAC failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}	
 	}
@@ -325,10 +325,10 @@ static void update_ota_local_task(void *param)
 	address = CONFIG_SECTOR;
 	if( (flash_Wrtie(address, (char*)&size, 4) < 0) || 
 		(flash_Wrtie(address+4, (char*)&checksum, 4) < 0) ){
-		printf("\n\r[%s] Write sector failed", __FUNCTION__);
+		printf("[%s] Write sector failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
-	printf("\n\r[%s] Update OTA success!", __FUNCTION__);
+	printf("[%s] Update OTA success!\n", __FUNCTION__);
 update_ota_exit:
 	if(buf)
 		update_free(buf);
@@ -337,7 +337,7 @@ update_ota_exit:
 	if(param)
 		update_free(param);
 	TaskOTA = NULL;
-	printf("\n\r[%s] Update task exit", __FUNCTION__);
+	printf("[%s] Update task exit\n", __FUNCTION__);
 	vTaskDelete(NULL);
 	return;
 }
@@ -367,7 +367,7 @@ int write_ota_addr_to_system_data(flash_t *flash, uint32_t ota_addr)
 	//Get upgraded image 2 addr from offset
 	device_mutex_lock(RT_DEV_LOCK_FLASH);
 	flash_read_word(flash, OFFSET_DATA, &data);
-	printf("\n\r[%s] data 0x%x ota_addr 0x%x", __FUNCTION__, data, ota_addr);
+	printf("[%s] data 0x%x ota_addr 0x%x\n", __FUNCTION__, data, ota_addr);
 	if(data == ~0x0){
 		flash_write_word(flash, OFFSET_DATA, ota_addr);
 	}else{
@@ -413,19 +413,19 @@ static void update_ota_local_task(void *param)
 	uint32_t ota_addr = 0x80000;
 #endif
 #if CONFIG_CUSTOM_SIGNATURE
-	char custom_sig[32] = "Customer Signature-modelxxx";
+	char custom_sig[32] = "Customer Signature-modelxxx\n";
 	uint32_t read_custom_sig[8];
 #endif
-	printf("\n\r[%s] Update task start", __FUNCTION__);
+	printf("[%s] Update task start\n", __FUNCTION__);
 	buf = update_malloc(BUF_SIZE);
 	if(!buf){
-		printf("\n\r[%s] Alloc buffer failed", __FUNCTION__);
+		printf("[%s] Alloc buffer failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	// Connect socket
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if(server_socket < 0){
-		printf("\n\r[%s] Create socket failed", __FUNCTION__);
+		printf("[%s] Create socket failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	server_addr.sin_family = AF_INET;
@@ -433,7 +433,7 @@ static void update_ota_local_task(void *param)
 	server_addr.sin_port = cfg->port;
 
 	if(connect(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1){
-		printf("\n\r[%s] socket connect failed", __FUNCTION__);
+		printf("[%s] socket connect failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 	DBG_INFO_MSG_OFF(_DBG_SPI_FLASH_);
@@ -447,9 +447,9 @@ static void update_ota_local_task(void *param)
 	flash_read_word(&flash, IMAGE_x+4, &ImgxAddr);
 	device_mutex_unlock(RT_DEV_LOCK_FLASH);
 	if(ImgxAddr==0x30000000){
-		printf("\n\r[%s] IMAGE_3 0x%x Img3Len 0x%x", __FUNCTION__, IMAGE_x, ImgxLen);
+		printf("[%s] IMAGE_3 0x%x Img3Len 0x%x\n", __FUNCTION__, IMAGE_x, ImgxLen);
 	}else{
-		printf("\n\r[%s] no IMAGE_3", __FUNCTION__);
+		printf("[%s] no IMAGE_3\n", __FUNCTION__);
 		// no image3
 		IMAGE_x = IMAGE_2;
 		ImgxLen = Img2Len;
@@ -459,7 +459,7 @@ static void update_ota_local_task(void *param)
             (ota_addr < IMAGE_x) ||
             ((ota_addr & 0xfff) != 0)||
 	      (ota_addr == ~0x0)){
-		printf("\n\r[%s] illegal ota addr 0x%x", __FUNCTION__, ota_addr);
+		printf("[%s] illegal ota addr 0x%x\n", __FUNCTION__, ota_addr);
 		goto update_ota_exit;
 	}else
 	    write_ota_addr_to_system_data( &flash, ota_addr);
@@ -472,7 +472,7 @@ static void update_ota_local_task(void *param)
             (NewImg2Addr < IMAGE_x) ||
             ((NewImg2Addr & 0xfff) != 0)||
 	      (NewImg2Addr == ~0x0)){
-		printf("\n\r[%s] Invalid OTA Address 0x%x", __FUNCTION__, NewImg2Addr);
+		printf("[%s] Invalid OTA Address 0x%x\n", __FUNCTION__, NewImg2Addr);
 		goto update_ota_exit;
 	}
 #else
@@ -484,15 +484,15 @@ static void update_ota_local_task(void *param)
 	memset(file_info, 0, sizeof(file_info));
 	
 	if(file_info[0] == 0){
-		printf("\n\r[%s] Read info first", __FUNCTION__);
+		printf("[%s] Read info first\n", __FUNCTION__);
 		read_bytes = read(server_socket, file_info, sizeof(file_info));
 		// !X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X
 		// !W checksum !W padding 0 !W file size !W
 		// !X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X!X
-		printf("\n\r[%s] info %d bytes", __FUNCTION__, read_bytes);
-		printf("\n\r[%s] tx chechsum 0x%x, file size 0x%x", __FUNCTION__, file_info[0],file_info[2]);
+		printf("[%s] info %d bytes", __FUNCTION__, read_bytes);
+		printf("[%s] tx chechsum 0x%x, file size 0x%x\n", __FUNCTION__, file_info[0],file_info[2]);
 		if(file_info[2] == 0){
-			printf("\n\r[%s] No checksum and file size", __FUNCTION__);
+			printf("[%s] No checksum and file size\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}
@@ -509,7 +509,7 @@ static void update_ota_local_task(void *param)
 	// read Part1/Part2 signature
 	flash_read_word(&flash, Part1Addr+8, &SigImage0);
 	flash_read_word(&flash, Part1Addr+12, &SigImage1);
-	printf("\n\r[%s] Part1 Sig %x", __FUNCTION__, SigImage0);
+	printf("[%s] Part1 Sig %x\n", __FUNCTION__, SigImage0);
 	if(SigImage0==0x30303030 && SigImage1==0x30303030)
 		ATSCAddr = Part1Addr;		// ATSC signature
 	else if(SigImage0==0x35393138 && SigImage1==0x31313738)	
@@ -520,7 +520,7 @@ static void update_ota_local_task(void *param)
 	flash_read_word(&flash, Part2Addr+8, &SigImage0);
 	flash_read_word(&flash, Part2Addr+12, &SigImage1);
 	device_mutex_unlock(RT_DEV_LOCK_FLASH);
-	printf("\n\r[%s] Part2 Sig %x", __FUNCTION__, SigImage0);
+	printf("[%s] Part2 Sig %x\n", __FUNCTION__, SigImage0);
 	if(SigImage0==0x30303030 && SigImage1==0x30303030)
 		ATSCAddr = Part2Addr;		// ATSC signature
 	else if(SigImage0==0x35393138 && SigImage1==0x31313738)
@@ -534,11 +534,11 @@ static void update_ota_local_task(void *param)
 		NewImg2Addr = ATSCAddr;
 	}
 	
-	printf("\n\r[%s] New %x, Old %x", __FUNCTION__, NewImg2Addr, OldImg2Addr);
+	printf("[%s] New %x, Old %x\n", __FUNCTION__, NewImg2Addr, OldImg2Addr);
 	
 	if( NewImg2Addr==Part1Addr ){
 		if( file_info[2] > (Part2Addr-Part1Addr) ){	// firmware size too large
-			printf("\n\r[%s] Part1 size < OTA size", __FUNCTION__);
+			printf("[%s] Part1 size < OTA size\n", __FUNCTION__);
 			goto update_ota_exit;
 			// or update to partition2
 			// NewImg2Addr = Part2Addr;	
@@ -550,46 +550,46 @@ static void update_ota_local_task(void *param)
 	//Erase upgraded image 2 region
 	if(NewImg2Len == 0){
 		NewImg2Len = file_info[2];
-		printf("\n\r[%s] NewImg2Len %d  ", __FUNCTION__, NewImg2Len);
+		printf("[%s] NewImg2Len %d\n", __FUNCTION__, NewImg2Len);
 		if((int)NewImg2Len > 0){
 			NewImg2BlkSize = ((NewImg2Len - 1)/4096) + 1;
-			printf("\n\r[%s] NewImg2BlkSize %d  0x%8x", __FUNCTION__, NewImg2BlkSize, NewImg2BlkSize);
+			printf("[%s] NewImg2BlkSize %d  0x%8x\n", __FUNCTION__, NewImg2BlkSize, NewImg2BlkSize);
 			device_mutex_lock(RT_DEV_LOCK_FLASH);
 			for( i = 0; i < NewImg2BlkSize; i++)
 				flash_erase_sector(&flash, NewImg2Addr + i * 4096);
 			device_mutex_unlock(RT_DEV_LOCK_FLASH);
 		}else{
-			printf("\n\r[%s] Size INVALID", __FUNCTION__);
+			printf("[%s] Size INVALID\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}	
 	
-	printf("\n\r[%s] NewImg2Addr 0x%x", __FUNCTION__, NewImg2Addr);
+	printf("[%s] NewImg2Addr 0x%x\n", __FUNCTION__, NewImg2Addr);
         
         // reset
         file_checksum.u = 0;
 	// Write New Image 2 sector
 	if(NewImg2Addr != ~0x0){
 		address = NewImg2Addr;
-		printf("\n\r");
+		printf("");
 		while(1){
 			memset(buf, 0, BUF_SIZE);
 			read_bytes = read(server_socket, buf, BUF_SIZE);
 			if(read_bytes == 0) break; // Read end
 			if(read_bytes < 0){
-				printf("\n\r[%s] Read socket failed", __FUNCTION__);
+				printf("[%s] Read socket failed\n", __FUNCTION__);
 				goto update_ota_exit;
 			}
 				checksum += file_checksum.c[0];              // not read end, this is not attached checksum
 				checksum += file_checksum.c[1];
 				checksum += file_checksum.c[2];
 				checksum += file_checksum.c[3];
-			//printf("\n\r[%s] read_bytes %d", __FUNCTION__, read_bytes);
+			//printf("[%s] read_bytes %d", __FUNCTION__, read_bytes);
 			
 			#if 1
 			device_mutex_lock(RT_DEV_LOCK_FLASH);
 			if(flash_stream_write(&flash, address + size, read_bytes, buf) < 0){
-				printf("\n\r[%s] Write sector failed", __FUNCTION__);
+				printf("[%s] Write sector failed\n", __FUNCTION__);
 				device_mutex_unlock(RT_DEV_LOCK_FLASH);
 				goto update_ota_exit;
 			}
@@ -615,7 +615,7 @@ static void update_ota_local_task(void *param)
 			if(size == NewImg2Len)
 				break;
 		}
-		printf("\n\r");
+		printf("\n");
 
 		// read flash data back and calculate checksum
 		for(i=0;i<size-4;i+=BUF_SIZE){
@@ -626,27 +626,27 @@ static void update_ota_local_task(void *param)
 				flash_checksum+=buf[k];
 		}
 
-		printf("\n\rUpdate file size = %d  checksum 0x%8x  flash checksum 0x%8x attached checksum 0x%8x", size, checksum, flash_checksum, file_checksum.u);
+		printf("Update file size = %d  checksum 0x%8x  flash checksum 0x%8x attached checksum 0x%8x\n", size, checksum, flash_checksum, file_checksum.u);
 #if CONFIG_WRITE_MAC_TO_FLASH
 		//Write MAC address
 		if(!(mac[0]==0xff&&mac[1]==0xff&&mac[2]==0xff&&mac[3]==0xff&&mac[4]==0xff&&mac[5]==0xff)){
 			device_mutex_lock(RT_DEV_LOCK_FLASH);
 			if(flash_write_word(&flash, FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-				printf("\n\r[%s] Write MAC failed", __FUNCTION__);
+				printf("[%s] Write MAC failed\n", __FUNCTION__);
 				device_mutex_unlock(RT_DEV_LOCK_FLASH);
 				goto update_ota_exit;
 			}	
 			device_mutex_unlock(RT_DEV_LOCK_FLASH);
 		}
 #endif
-		//printf("\n\r checksum 0x%x  file_info 0x%x  ", checksum, *(file_info));
+		//printf(" checksum 0x%x  file_info 0x%x  ", checksum, *(file_info));
 #if CONFIG_CUSTOM_SIGNATURE
 		device_mutex_lock(RT_DEV_LOCK_FLASH);
 		for(i = 0; i < 8; i ++){
 		    flash_read_word(&flash, NewImg2Addr + 0x28 + i *4, read_custom_sig + i);
 		}
 		device_mutex_unlock(RT_DEV_LOCK_FLASH);
-		printf("\n\r[%s] read_custom_sig %s", __FUNCTION__ , (char*)read_custom_sig);
+		printf("[%s] read_custom_sig %s\n", __FUNCTION__ , (char*)read_custom_sig);
 #endif
 		// compare checksum with received checksum
 		//if(!memcmp(&checksum,file_info,sizeof(checksum))
@@ -659,24 +659,24 @@ static void update_ota_local_task(void *param)
 			//Set signature in New Image 2 addr + 8 and + 12
 			uint32_t sig_readback0,sig_readback1;
 			device_mutex_lock(RT_DEV_LOCK_FLASH);
-			flash_write_word(&flash,NewImg2Addr + 8, 0x35393138);
-			flash_write_word(&flash,NewImg2Addr + 12, 0x31313738);
+			flash_write_word(&flash,NewImg2Addr + 8, IMG_SIGN1_RUN);
+			flash_write_word(&flash,NewImg2Addr + 12, IMG_SIGN2_RUN);
 			flash_read_word(&flash, NewImg2Addr + 8, &sig_readback0);
 			flash_read_word(&flash, NewImg2Addr + 12, &sig_readback1);
 			device_mutex_unlock(RT_DEV_LOCK_FLASH);
-			printf("\n\r[%s] signature %x,%x,  checksum 0x%x", __FUNCTION__ , sig_readback0, sig_readback1, checksum);
+			printf("[%s] signature %x,%x,  checksum 0x%x\n", __FUNCTION__ , sig_readback0, sig_readback1, checksum);
 #if SWAP_UPDATE
 			if(OldImg2Addr != ~0x0){
 				device_mutex_lock(RT_DEV_LOCK_FLASH);
-				flash_write_word(&flash,OldImg2Addr + 8, 0x35393130);
-				flash_write_word(&flash,OldImg2Addr + 12, 0x31313738);
+				flash_write_word(&flash,OldImg2Addr + 8, IMG_SIGN1_SWP);
+				flash_write_word(&flash,OldImg2Addr + 12, IMG_SIGN2_SWP);
 				flash_read_word(&flash, OldImg2Addr + 8, &sig_readback0);
 				flash_read_word(&flash, OldImg2Addr + 12, &sig_readback1);
 				device_mutex_unlock(RT_DEV_LOCK_FLASH);
-				printf("\n\r[%s] old signature %x,%x", __FUNCTION__ , sig_readback0, sig_readback1);
+				printf("[%s] old signature %x,%x\n", __FUNCTION__ , sig_readback0, sig_readback1);
 			}
 #endif			
-			printf("\n\r[%s] Update OTA success!", __FUNCTION__);
+			printf("[%s] Update OTA success!\n", __FUNCTION__);
 			
 			ret = 0;
 		}
@@ -689,9 +689,9 @@ update_ota_exit:
 	if(param)
 		update_free(param);
 	TaskOTA = NULL;
-	printf("\n\r[%s] Update task exit", __FUNCTION__);	
+	printf("[%s] Update task exit\n", __FUNCTION__);
 	if(!ret){
-		printf("\n\r[%s] Ready to reboot", __FUNCTION__);	
+		printf("[%s] Ready to reboot\n", __FUNCTION__);
 		ota_platform_reset();
 	}
 	vTaskDelete(NULL);	
@@ -706,20 +706,20 @@ int update_ota_local(char *ip, int port)
 	update_cfg_local_t *pUpdateCfg;
 	
 	if(TaskOTA){
-		printf("\n\r[%s] Update task has created.", __FUNCTION__);
+		printf("[%s] Update task has created.\n", __FUNCTION__);
 		return 0;
 	}
 	pUpdateCfg = update_malloc(sizeof(update_cfg_local_t));
 	if(pUpdateCfg == NULL){
-		printf("\n\r[%s] Alloc update cfg failed", __FUNCTION__);
+		printf("[%s] Alloc update cfg failed\n", __FUNCTION__);
 		return -1;
 	}
 	pUpdateCfg->ip_addr = inet_addr(ip);
 	pUpdateCfg->port = ntohs(port);
 		
-	if(xTaskCreate(update_ota_local_task, "OTA_server", STACK_SIZE, pUpdateCfg, TASK_PRIORITY, &TaskOTA) != pdPASS){
+	if(xTaskCreate(update_ota_local_task, "OTA_server\n", STACK_SIZE, pUpdateCfg, TASK_PRIORITY, &TaskOTA) != pdPASS){
 	  	update_free(pUpdateCfg);
-		printf("\n\r[%s] Create update task failed", __FUNCTION__);
+		printf("[%s] Create update task failed\n", __FUNCTION__);
 	}
 	return 0;
 }
@@ -738,68 +738,68 @@ static void update_ota_cloud_task(void *param)
 #if CONFIG_WRITE_MAC_TO_FLASH
 	char mac[ETH_ALEN];
 #endif
-	printf("\n\r[%s] Update task start", __FUNCTION__);
+	printf("[%s] Update task start\n", __FUNCTION__);
 	buf = update_malloc(BUF_SIZE);
 	if(!buf){
-		printf("\n\r[%s] Alloc buffer failed", __FUNCTION__);
+		printf("[%s] Alloc buffer failed\n", __FUNCTION__);
 		goto update_ota_exit_1;
 	}
 	// Init ctx
 	if(updater_init_ctx(&ctx, (char*)cfg->repository, (char*)cfg->file_path) != 0) {
-		printf("\n\r[%s] Cloud ctx init failed", __FUNCTION__);
+		printf("[%s] Cloud ctx init failed\n", __FUNCTION__);
 		goto update_ota_exit_1;
 	}
-	printf("\n\r[%s] Firmware link: %s, size = %d bytes, checksum = 0x%08x, version = %s\n", __FUNCTION__, 
+	printf("[%s] Firmware link: %s, size = %d bytes, checksum = 0x%08x, version = %s\n", __FUNCTION__,
 		ctx.link, ctx.size, ctx.checksum, ctx.version);
 
 	// Erase config sectors
 	if(flash_EraseSector(CONFIG_SECTOR) < 0){
-		printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+		printf("[%s] Erase sector failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 #if CONFIG_WRITE_MAC_TO_FLASH
 	// Read MAC address
  	if(flash_Read(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-		printf("\n\r[%s] Read MAC error", __FUNCTION__);
+		printf("[%s] Read MAC error\n", __FUNCTION__);
 		goto update_ota_exit;
  	}	
 #endif
 	// Erase update sectors
 	for(i = UPDATE_SECTOR; i <= FLASH_Sector_11; i += 8){
 		if(flash_EraseSector(i) < 0){
-			printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+			printf("[%s] Erase sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}
 	// Write update sectors
 	address = flash_SectorAddress(UPDATE_SECTOR);
-	printf("\n\r");
+	printf("\n");
 	while(ctx.bytes < ctx.size){
 		read_bytes = updater_read_bytes(&ctx, (unsigned char*)buf, BUF_SIZE);
 		if(read_bytes == 0) break; // Read end
 		if(read_bytes < 0){
-			printf("\n\r[%s] Read socket failed", __FUNCTION__);
+			printf("[%s] Read socket failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		if(flash_Wrtie(address + size, buf, read_bytes) < 0){
-			printf("\n\r[%s] Write sector failed", __FUNCTION__);
+			printf("[%s] Write sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		size += read_bytes;
 		for(i = 0; i < read_bytes; i ++)
 			checksum += buf[i];
-		printf("\rUpdate file size = %d/%d bytes   ", ctx.bytes, ctx.size);
+		printf("\rUpdate file size = %d/%d bytes\n", ctx.bytes, ctx.size);
 	}
-	printf("\n\r[%s] ctx checksum = %08x, computed checksum = %08x\n", __FUNCTION__, ctx.checksum, checksum);
+	printf("[%s] ctx checksum = %08x, computed checksum = %08x\n", __FUNCTION__, ctx.checksum, checksum);
 	if(checksum != ctx.checksum){
-		printf("\n\r[%s] Checksum error", __FUNCTION__);
+		printf("[%s] Checksum error\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 #if CONFIG_WRITE_MAC_TO_FLASH
 	//Write MAC address
 	if(!(mac[0]==0xff&&mac[1]==0xff&&mac[2]==0xff&&mac[3]==0xff&&mac[4]==0xff&&mac[5]==0xff)){
 		if(flash_Wrtie(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-			printf("\n\r[%s] Write MAC failed", __FUNCTION__);
+			printf("[%s] Write MAC failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}	
 	}
@@ -808,10 +808,10 @@ static void update_ota_cloud_task(void *param)
 	address = flash_SectorAddress(CONFIG_SECTOR);
 	if( (flash_Wrtie(address, (char*)&size, 4) < 0) || 
 		(flash_Wrtie(address+4, (char*)&checksum, 4) < 0) ){
-		printf("\n\r[%s] Write sector failed", __FUNCTION__);
+		printf("[%s] Write sector failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
-	printf("\n\r[%s] Update OTA success!", __FUNCTION__);
+	printf("[%s] Update OTA success!\n", __FUNCTION__);
 	
 update_ota_exit:
 	updater_free_ctx(&ctx);
@@ -821,7 +821,7 @@ update_ota_exit_1:
 	if(param)
 		update_free(param);
 	TaskOTA = NULL;
-	printf("\n\r[%s] Update task exit", __FUNCTION__);
+	printf("[%s] Update task exit\n", __FUNCTION__);
 	vTaskDelete(NULL);
 	return;
 }
@@ -837,31 +837,31 @@ static void update_ota_cloud_task(void *param)
 #if CONFIG_WRITE_MAC_TO_FLASH
 	char mac[ETH_ALEN];
 #endif	
-	printf("\n\r[%s] Update task start", __FUNCTION__);
+	printf("[%s] Update task start\n", __FUNCTION__);
 	buf = update_malloc(BUF_SIZE);
 	if(!buf){
-		printf("\n\r[%s] Alloc buffer failed", __FUNCTION__);
+		printf("[%s] Alloc buffer failed\n", __FUNCTION__);
 		goto update_ota_exit_1;
 	}
 	// Init ctx
 	if(updater_init_ctx(&ctx, (char*)cfg->repository, (char*)cfg->file_path) != 0) {
-		printf("\n\r[%s] Cloud ctx init failed", __FUNCTION__);
+		printf("[%s] Cloud ctx init failed\n", __FUNCTION__);
 		goto update_ota_exit_1;
 	}
-	printf("\n\r[%s] Firmware link: %s, size = %d bytes, checksum = 0x%08x, version = %s\n", __FUNCTION__, 
+	printf("[%s] Firmware link: %s, size = %d bytes, checksum = 0x%08x, version = %s\n", __FUNCTION__,
 		ctx.link, ctx.size, ctx.checksum, ctx.version);
 
 	// Erase config sectors
 	for(i = CONFIG_SECTOR; i < APPLICATION_SECTOR; i += FLASH_PAGE_SIZE){
 		if(flash_EraseSector(i) < 0){
-			printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+			printf("[%s] Erase sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}
 #if CONFIG_WRITE_MAC_TO_FLASH
 	// Read MAC address
  	if(flash_Read(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-		printf("\n\r[%s] Read MAC error", __FUNCTION__);
+		printf("[%s] Read MAC error\n", __FUNCTION__);
 		goto update_ota_exit;
  	}	
 #endif
@@ -869,18 +869,18 @@ static void update_ota_cloud_task(void *param)
 	// Erase update sectors
 	for(i = UPDATE_SECTOR; i < FLASH_Sector_0 + FLASH_SIZE; i += FLASH_PAGE_SIZE){
 		if(flash_EraseSector(i) < 0){
-			printf("\n\r[%s] Erase sector failed", __FUNCTION__);
+			printf("[%s] Erase sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 	}
 	// Write update sectors
 	address = UPDATE_SECTOR;
-	printf("\n\r");
+	printf("\n");
 	while(ctx.bytes < ctx.size){
 		read_bytes = updater_read_bytes(&ctx, (unsigned char*)buf, BUF_SIZE);
 		if(read_bytes == 0) break; // Read end
 		if(read_bytes < 0){
-			printf("\n\r[%s] Read socket failed", __FUNCTION__);
+			printf("[%s] Read socket failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		if(flag_a == 0){
@@ -888,14 +888,14 @@ static void update_ota_cloud_task(void *param)
 				a = buf[read_bytes - 1];
 				flag_a = 1;
 				if(flash_Wrtie(address + size, buf, read_bytes - 1) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes - 1;
 			}
 			else{
 				if(flash_Wrtie(address + size, buf, read_bytes) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes;
@@ -904,7 +904,7 @@ static void update_ota_cloud_task(void *param)
 		else{
 			a = buf[0]<< 8 |a;
 			if(flash_Wrtie(address + size, (char*)(&a), 2) < 0){
-				printf("\n\r[%s] Write sector failed", __FUNCTION__);
+				printf("[%s] Write sector failed\n", __FUNCTION__);
 				goto update_ota_exit;
 			}
 			size += 2;
@@ -914,14 +914,14 @@ static void update_ota_cloud_task(void *param)
 				a = buf[read_bytes - 1];
 				flag_a = 1;
 				if(flash_Wrtie(address + size, buf + 1, read_bytes - 2) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes - 2;
 			}
 			else{ 
 				if(flash_Wrtie(address + size, buf + 1, read_bytes - 1) < 0){
-					printf("\n\r[%s] Write sector failed", __FUNCTION__);
+					printf("[%s] Write sector failed\n", __FUNCTION__);
 					goto update_ota_exit;
 				}
 				size += read_bytes - 1;
@@ -929,25 +929,25 @@ static void update_ota_cloud_task(void *param)
 		}	
 		for(i = 0; i < read_bytes; i ++)
 			checksum += buf[i];
-		printf("\rUpdate file size = %d/%d bytes   ", ctx.bytes, ctx.size);
+		printf("\rUpdate file size = %d/%d bytes\n", ctx.bytes, ctx.size);
 	}
 	if(flag_a){
 		if(flash_Wrtie(address + size, (char*)(&a), 2) < 0){
-			printf("\n\r[%s] Write sector failed", __FUNCTION__);
+			printf("[%s] Write sector failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}
 		size += 1;
 	}
-	printf("\n\r[%s] ctx checksum = %08x, computed checksum = %08x\n", __FUNCTION__, ctx.checksum, checksum);
+	printf("[%s] ctx checksum = %08x, computed checksum = %08x\n", __FUNCTION__, ctx.checksum, checksum);
 	if(checksum != ctx.checksum){
-		printf("\n\r[%s] Checksum error", __FUNCTION__);
+		printf("[%s] Checksum error\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
 #if CONFIG_WRITE_MAC_TO_FLASH
 	//Write MAC address
 	if(!(mac[0]==0xff&&mac[1]==0xff&&mac[2]==0xff&&mac[3]==0xff&&mac[4]==0xff&&mac[5]==0xff)){
 		if(flash_Wrtie(FLASH_ADD_STORE_MAC, mac, ETH_ALEN) < 0){
-			printf("\n\r[%s] Write MAC failed", __FUNCTION__);
+			printf("[%s] Write MAC failed\n", __FUNCTION__);
 			goto update_ota_exit;
 		}	
 	}
@@ -957,10 +957,10 @@ static void update_ota_cloud_task(void *param)
 	address = CONFIG_SECTOR;
 	if( (flash_Wrtie(address, (char*)&size, 4) < 0) || 
 		(flash_Wrtie(address+4, (char*)&checksum, 4) < 0) ){
-		printf("\n\r[%s] Write sector failed", __FUNCTION__);
+		printf("[%s] Write sector failed\n", __FUNCTION__);
 		goto update_ota_exit;
 	}
-	printf("\n\r[%s] Update OTA success!", __FUNCTION__);
+	printf("[%s] Update OTA success!\n", __FUNCTION__);
 	
 update_ota_exit:
 	updater_free_ctx(&ctx);
@@ -970,7 +970,7 @@ update_ota_exit_1:
 	if(param)
 		update_free(param);
 	TaskOTA = NULL;
-	printf("\n\r[%s] Update task exit", __FUNCTION__);
+	printf("[%s] Update task exit\n", __FUNCTION__);
 	vTaskDelete(NULL);
 	return;
 }
@@ -983,27 +983,27 @@ int update_ota_cloud(char *repository, char *file_path)
 	update_cfg_cloud_t *pUpdateCfg;
 	
 	if(TaskOTA){
-		printf("\n\r[%s] Update task has created.", __FUNCTION__);
+		printf("[%s] Update task has created.\n", __FUNCTION__);
 		return 0;
 	}
 	pUpdateCfg = update_malloc(sizeof(update_cfg_cloud_t));
 	if(pUpdateCfg == NULL){
-		printf("\n\r[%s] Alloc update cfg failed.", __FUNCTION__);
+		printf("[%s] Alloc update cfg failed.\n", __FUNCTION__);
 		goto exit;
 	}
 	if(strlen(repository) > (REPOSITORY_LEN-1)){
-		printf("\n\r[%s] Repository length is too long.", __FUNCTION__);
+		printf("[%s] Repository length is too long.\n", __FUNCTION__);
 		goto exit;
 	}
 	if(strlen(file_path) > (FILE_PATH_LEN-1)){
-		printf("\n\r[%s] File path length is too long.", __FUNCTION__);
+		printf("[%s] File path length is too long.\n", __FUNCTION__);
 		goto exit;
 	}
 	strcpy((char*)pUpdateCfg->repository, repository);
 	strcpy((char*)pUpdateCfg->file_path, file_path);
 	  	
 	if(xTaskCreate(update_ota_cloud_task, "OTA_server", STACK_SIZE, pUpdateCfg, TASK_PRIORITY, &TaskOTA) != pdPASS){
-		printf("\n\r[%s] Create update task failed", __FUNCTION__);
+		printf("[%s] Create update task failed\n", __FUNCTION__);
 		goto exit;
 	}
 
@@ -1016,11 +1016,11 @@ exit:
 //---------------------------------------------------------------------
 void cmd_update(int argc, char **argv)
 {
-//	printf("\n\r[%s] Firmware A", __FUNCTION__);
+//	printf("[%s] Firmware A", __FUNCTION__);
 #if (SERVER_TYPE == SERVER_LOCAL)
 	int port;
 	if(argc != 3){
-		printf("\n\r[%s] Usage: update IP PORT", __FUNCTION__);
+		printf("[%s] Usage: update IP PORT\n", __FUNCTION__);
 		return;
 	}
 	port = atoi(argv[2]);
@@ -1028,7 +1028,7 @@ void cmd_update(int argc, char **argv)
 #endif
 #if (SERVER_TYPE == SERVER_CLOUD)
 	if(argc != 3){
-		printf("\n\r[%s] Usage: update REPOSITORY FILE_PATH", __FUNCTION__);
+		printf("[%s] Usage: update REPOSITORY FILE_PATH\n", __FUNCTION__);
 		return;
 	}
 	update_ota_cloud(argv[1], argv[2]);
@@ -1056,9 +1056,9 @@ void cmd_ota_image(bool cmd){
 	device_mutex_lock(RT_DEV_LOCK_FLASH);	
 	flash_stream_read(&flash, Part2Addr, FLASH_SECTOR_SIZE, pbuf);
 	if (cmd == 1)
-		memcpy((char*)pbuf+8, "81958711", 8);
+		memcpy((char*)pbuf+8, IMG_SIGN_RUN, 8);
 	else
-		memcpy((char*)pbuf+8, "01958711", 8);
+		memcpy((char*)pbuf+8, IMG_SIGN_SWP, 8);
 
 	flash_erase_sector(&flash, Part2Addr);
 	flash_stream_write(&flash, Part2Addr, FLASH_SECTOR_SIZE, pbuf);
@@ -1068,9 +1068,9 @@ void cmd_ota_image(bool cmd){
 	device_mutex_lock(RT_DEV_LOCK_FLASH);
 	flash_stream_read(&flash, Part1Addr, FLASH_SECTOR_SIZE, pbuf);
 	if (cmd == 1)
-		memcpy((char*)pbuf+8, "01958711", 8);
+		memcpy((char*)pbuf+8, IMG_SIGN_SWP, 8);
 	else
-		memcpy((char*)pbuf+8, "81958711", 8);
+		memcpy((char*)pbuf+8, IMG_SIGN_RUN, 8);
 
 	flash_erase_sector(&flash, Part1Addr);
 	flash_stream_write(&flash, Part1Addr, FLASH_SECTOR_SIZE, pbuf);
