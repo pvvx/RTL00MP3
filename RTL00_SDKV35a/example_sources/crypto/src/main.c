@@ -17,6 +17,31 @@
 
 #define STACKSIZE                   2048
 
+void test_sha1(void)
+{
+    const unsigned char *sha1_text[3] = {
+        "",
+        "abc",
+        "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
+    };
+    const uint8_t sha1_test_digest[3][20] = {
+        { 0xda,0x39,0xa3,0xee, 0x5e,0x6b,0x4b,0x0d, 0x32,0x55,0xbf,0xef, 0x95,0x60,0x18,0x90, 0xaf,0xd8,0x07,0x09 },
+        { 0xa9,0x99,0x3e,0x36, 0x47,0x06,0x81,0x6a, 0xba,0x3e,0x25,0x71, 0x78,0x50,0xc2,0x6c, 0x9c,0xd0,0xd8,0x9d },
+        { 0x84,0x98,0x3e,0x44, 0x1c,0x3b,0xd2,0x6e, 0xba,0xae,0x4a,0xa1, 0xf9,0x51,0x29,0xe5, 0xe5,0x46,0x70,0xf1 }
+    };
+    uint32_t i;
+    uint8_t digest[20];
+    int ret;
+    for (i=0; i<3; i++)
+    {
+        memset((void*)digest, 0, sizeof(digest));
+        ret = rtl_crypto_sha1(sha1_text[i], strlen(sha1_text[i]), digest);
+        if ( rtl_memcmpb((void*)digest, (void*)&sha1_test_digest[i][0], 20) == 0 )
+            DiagPrintf("SHA1 test result is correct, ret=%d\r\n", ret);
+        else
+            DiagPrintf("SHA test result is WRONG!!, ret=%d\r\n", ret);
+    }
+}
 //static const u8 plaintext[] 	= "The quick brown fox jumps over the lazy dog";
 //static const u8 md5_digest[] 	=  "\x9e\x10\x7d\x9d\x37\x2b\xb6\x82"
 //					 			   "\x6b\xd8\x1d\x35\x42\xa4\x19\xd6";
