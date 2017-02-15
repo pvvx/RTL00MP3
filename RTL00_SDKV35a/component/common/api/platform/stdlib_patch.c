@@ -712,11 +712,6 @@ Exit:
 
 }
 
-
-
-
-
-
 /*********************************************************/
 
 static int VSprintfPatch(char *buf, const char *fmt, const int *dp)
@@ -899,20 +894,18 @@ static int VSprintfPatch(char *buf, const char *fmt, const int *dp)
 }
 
 
-u32  DiagPrintfPatch(
+int  DiagPrintfPatch(
     IN  const char *fmt, ...
 )
 {
-	(void)VSprintfPatch(0, fmt, ((const int *)&fmt)+1);
-	return 1;
+	return VSprintfPatch(0, fmt, ((const int *)&fmt)+1);
 }
 
-u32  DiagSPrintfPatch(
+int  DiagSPrintfPatch(
     IN  u8 *buf,
     IN  const char *fmt, ...
 )
 {
-	(void)VSprintfPatch((char*)buf, fmt, ((const int *)&fmt)+1);
-	return 1;
+	return VSprintfPatch((char*)buf, fmt, ((const int *)&fmt)+1);
 }
 #endif
