@@ -85,8 +85,8 @@
 		extern char* DiagStrtokPatch(char *str, const char* delim);
 		extern char* DiagStrstrPatch(char *string, char *substring);
 		extern int DiagSnPrintfPatch(char *buf, size_t size, const char *fmt, ...);
-		extern u32 DiagPrintfPatch(const char *fmt, ...);
-		extern u32  DiagSPrintfPatch(u8 *buf, const char *fmt, ...);
+		extern int DiagPrintfPatch(const char *fmt, ...);
+		extern int DiagSPrintfPatch(u8 *buf, const char *fmt, ...);
 		#define printf                  DiagPrintfPatch
 		#define sprintf					DiagSPrintfPatch
 		#define snprintf				DiagSnPrintfPatch
