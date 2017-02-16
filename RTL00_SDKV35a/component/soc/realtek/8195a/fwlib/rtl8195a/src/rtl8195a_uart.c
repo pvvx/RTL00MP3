@@ -154,7 +154,7 @@ HalRuartGenBaudRateRtl8195a(
     u32 uart_ovsr_mod;
     u32 min_uart_ovsr;  // ovsr with mini err
     u32 min_uart_ovsr_mod;
-    u32 uart_clock;
+    u64 uart_clock;
     u32 divisor_temp;
     u32 max_jitter_temp;
     u32 err_temp;
@@ -168,17 +168,17 @@ HalRuartGenBaudRateRtl8195a(
     baud_rate = pBaudSetting->BaudRate;
     if (baud_rate >= 1000000) {
         baud_rate /= 100;
-        uart_clock = pBaudSetting->sclk;
+        uart_clock = (u64)pBaudSetting->sclk;
     } else {
         baud_rate /= 2;
-        uart_clock = pBaudSetting->sclk*50;   // UART clock is 1/2 CPU clock
+        uart_clock = (u64)pBaudSetting->sclk * 50;   // UART clock is 1/2 CPU clock
     }
 
     div_res = pBaudSetting->divisor_resolution;
     while ((min_err > pBaudSetting->max_err) && (div_res > 0)) {
         uart_ovsr = pBaudSetting->Ovsr_max;
         while(uart_ovsr >= pBaudSetting->Ovsr_min) {        
-            divisor_temp = ((uart_clock/baud_rate)/uart_ovsr);
+            divisor_temp = (uart_clock/baud_rate)/uart_ovsr;
             max_jitter_temp = 0;    
             if (divisor_temp > 0) {
                 max_jitter_temp = 100000/uart_ovsr;
@@ -242,8 +242,8 @@ HalRuartGenBaudRateRtl8195a(
     pBaudSetting->Ovsr_adj = ovsr_adj;
     pBaudSetting->Ovsr_adj_bits = adj_bits;
     
-    DBG_UART_INFO("HalRuartGenBaudRateRtl8195a: BaudRate=%d ovsr=%d divisor=%d ovsr_adj=0x%x\r\n", 
-        pBaudSetting->BaudRate, uart_ovsrs_actual, min_divisor, ovsr_adj);
+    DBG_UART_INFO("%sBaudRateRtl8195a: BaudRate:%d Divisor:%d Ovsr:%d Ovsr_ADj:0x%x\n",
+        "HalRuartGen", pBaudSetting->BaudRate, min_divisor, uart_ovsrs_actual, ovsr_adj);
 
     return HAL_OK;
 }
@@ -380,7 +380,7 @@ HalRuartSetBaudRateRtl8195a(
     }
 
     is_defined_baud = 0;
-        
+
     if (pHalRuartAdapter->pDefaultBaudRateTbl != NULL) {
         i = 0;
         while (pHalRuartAdapter->pDefaultBaudRateTbl[i] < 0xffffffff) {
@@ -409,6 +409,8 @@ HalRuartSetBaudRateRtl8195a(
                 // Verify again
                 cpu_clk = UART_SCLK;
                 baud_rate_temp = cpu_clk/Ovsr/Divisor;
+//                DBG_8195A("baud_rate_temp %d\n", baud_rate_temp);
+
                 if (baud_rate_temp > pHalRuartAdapter->BaudRate) {
                     err = baud_rate_temp - pHalRuartAdapter->BaudRate;
                 } else {
@@ -478,8 +480,9 @@ HalRuartSetBaudRateRtl8195a(
 
     UartIndex = pHalRuartAdapter->UartIndex;
 
-    DBG_UART_INFO("HalRuartSetBaudRateRtl8195a: BaudRate:%d Divisor:%d Ovsr:%d Ovsr_ADj:0x%x\n", 
-        pHalRuartAdapter->BaudRate, Divisor, Ovsr, Ovsr_adj);
+    DBG_UART_INFO("%sBaudRateRtl8195a: BaudRate:%d Divisor:%d Ovsr:%d Ovsr_ADj:0x%x\n",
+    		"HalRuartSet", pHalRuartAdapter->BaudRate, Divisor, Ovsr, Ovsr_adj);
+    DBG_UART_INFO("RealBaudRate: %d\n", RuartSpeedSetting.sclk/Divisor/Ovsr);
 
     Dll = Divisor & 0xFF;
     Dlm = (Divisor & 0xFF00) >> 8;

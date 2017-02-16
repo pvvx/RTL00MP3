@@ -223,7 +223,7 @@ typedef enum {
 #define UART_OVSR_POOL_MAX      2090
 #define DIVISOR_RESOLUTION      10
 #define JITTER_LIMIT            100
-#define UART_SCLK               (200000000*5/12)
+#define UART_SCLK               ((HAL_SYS_CTRL_READ32(REG_SYS_SYSPLL_CTRL1) & (1<<17))? (100000000) : (200000000*5/12))
 
 typedef struct _RUART_SPEED_SETTING_ {
     u32 BaudRate;
