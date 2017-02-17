@@ -169,22 +169,22 @@ static size_t xBlockAllocatedBit = 0;
 #include "section_config.h"
 SRAM_BF_DATA_SECTION
 #endif
-static unsigned char ucHeap[configTOTAL_HEAP_SIZE];
+unsigned char ucHeap[configTOTAL_HEAP_SIZE];
 
-extern void * __sdram_bss_end__; //, __ram_image1_text_end__, __ram_image2_text_start__;
+//extern void * __sdram_bss_end__;
+extern void * __ram_heap1_start__, __ram_heap1_end__, __ram_heap2_start__, __sdram_data_start__;
 
+extern HeapRegion_t xHeapRegions[];
+
+#if 0
 #if defined(CONFIG_PLATFORM_8195A)
 HeapRegion_t xHeapRegions[] =
 {
-	{ (uint8_t*)0x10002300, 0x10006000 - 0x10002300 }, 	// Image1 recycle heap  (__ram_image2_text_start__ - __ram_image1_text_end__)
+	{ (uint8_t*)0x10003000, 0x10006000 - 0x10003000 }, 	// __ram_heap1_start__, __ram_heap1_end__ - __ram_heap1_start__
 	{ ucHeap, sizeof(ucHeap) },	        // Defines a block from ucHeap
-#if 0
-	{ (uint8_t*)0x301b5000, 300*1024 },	// SDRAM heap
-#endif        
 #ifdef CONFIG_SDR_EN
 	{ (uint8_t*)&__sdram_bss_end__, 0x80000 },
 #endif
-//	{ NULL, 0 },	// add SDRAM heap
 	{ NULL, 0 }     // Terminates the array.
 };
 #elif (defined CONFIG_PLATFORM_8711B)
@@ -196,7 +196,7 @@ HeapRegion_t xHeapRegions[] =
 #else
 #error NOT SUPPORT CHIP
 #endif
-/* Realtek test code end */
+#endif
 
 /*-----------------------------------------------------------*/
 #if 1
@@ -212,7 +212,7 @@ void dump_mem_block_list()
 	DBG_8195A("RAM Heap Memory List:\n");
 	while(pxBlock->pxNextFreeBlock != NULL)
 	{
-		DBG_8195A(" [%d]=0x%p, %d\n", count++, pxBlock, pxBlock->xBlockSize);
+		DBG_8195A(" [%d]=%p, %d\n", count++, pxBlock, pxBlock->xBlockSize);
 		pxBlock = pxBlock->pxNextFreeBlock;
 	}
 }
@@ -226,14 +226,6 @@ void *pvReturn = NULL;
 	/* Realtek test code start */
 	if(pxEnd == NULL)
 	{
-#if defined(CONFIG_PLATFORM_8195A)
-//		xHeapRegions[0].pucStartAddress = __ram_image1_text_end__;
-//		xHeapRegions[0].xSizeInBytes = (u32)&__ram_image2_text_start__ - (u32)xHeapRegions[0].pucStartAddress;
-		xHeapRegions[1].xSizeInBytes = (u32)0x10070000 - (u32)xHeapRegions[1].pucStartAddress;
-#ifdef CONFIG_SDR_EN
-		xHeapRegions[2].xSizeInBytes = (u32)0x30200000 - (u32)xHeapRegions[2].pucStartAddress;
-#endif
-#endif
 		vPortDefineHeapRegions( xHeapRegions );
 	}
 	/* Realtek test code end */
@@ -527,6 +519,19 @@ BaseType_t xDefinedRegions = 0;
 uint32_t ulAddress;
 const HeapRegion_t *pxHeapRegion;
 
+#if defined(CONFIG_PLATFORM_8195A)
+/*		xHeapRegions[0].pucStartAddress = (uint8_t*)&__ram_heap1_start__;
+		xHeapRegions[0].xSizeInBytes = (u32)&__ram_heap1_end__ - (u32)xHeapRegions[0].pucStartAddress;
+		xHeapRegions[1].pucStartAddress = &ucHeap; // (uint8_t*)&__ram_heap2_start__;
+		xHeapRegions[1].xSizeInBytes = (u32)0x10070000 - (u32)xHeapRegions[1].pucStartAddress;
+		xHeapRegions[2].pucStartAddress = (uint8_t*)&__sdram_data_start__; */
+		if(*((uint32 *)0x40000210) & BIT(21)) xHeapRegions[2].xSizeInBytes = 0;
+/* #ifdef CONFIG_SDR_EN
+		xHeapRegions[2].xSizeInBytes = (u32)0x30200000 - (u32)xHeapRegions[2].pucStartAddress;
+#else
+		xHeapRegions[2].xSizeInBytes = 0;
+#endif */
+#endif
 	/* Can only call once! */
 	configASSERT( pxEnd == NULL );
 
@@ -534,8 +539,11 @@ const HeapRegion_t *pxHeapRegion;
 
 	while( pxHeapRegion->xSizeInBytes > 0 )
 	{
+#if CONFIG_DEBUG_LOG > 4
+		DBG_8195A("Set Heap Region: %p[%d]\n", pxHeapRegion->pucStartAddress, pxHeapRegion->xSizeInBytes);
+		rtl_memset(pxHeapRegion->pucStartAddress, 0, pxHeapRegion->xSizeInBytes);
+#endif
 		xTotalRegionSize = pxHeapRegion->xSizeInBytes;
-
 		/* Ensure the heap region starts on a correctly aligned boundary. */
 		ulAddress = ( uint32_t ) pxHeapRegion->pucStartAddress;
 		if( ( ulAddress & portBYTE_ALIGNMENT_MASK ) != 0 )
