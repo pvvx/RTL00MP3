@@ -10,7 +10,7 @@
 #ifndef _HAL_SDR_CONTROLLER_H_
 #define _HAL_SDR_CONTROLLER_H_
 
-#ifdef CONFIG_SDR_EN
+#if 1 // def CONFIG_SDR_EN
 
 typedef enum _DRAM_TYPE_ {
   DRAM_DDR_1 = 1,
@@ -187,5 +187,5 @@ typedef struct _DRAM_DEVICE_INFO_ {
 #define HAL_SDRAM_READ8(addr)             HAL_READ8(SDR_SDRAM_BASE, addr)
 
 #endif // CONFIG_SDR_EN
-extern unsigned int rand_x;
+// extern unsigned int rand_x; // in rtl_bios_data.h
 #endif  // end of "#ifndef _HAL_SDR_CONTROLLER_H_"

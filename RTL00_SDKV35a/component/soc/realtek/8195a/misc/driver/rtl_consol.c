@@ -15,20 +15,16 @@
 #include "freertos_pmu.h"
 #endif
 #include "tcm_heap.h"
+#include "rtl_bios_data.h"
 
-MON_RAM_BSS_SECTION 
-    volatile UART_LOG_CTL    UartLogCtl;
-MON_RAM_BSS_SECTION 
-    volatile UART_LOG_CTL    *pUartLogCtl;
-MON_RAM_BSS_SECTION 
-    u8                       *ArgvArray[MAX_ARGV];
-MON_RAM_BSS_SECTION 
-    UART_LOG_BUF             UartLogBuf;
+//MON_RAM_BSS_SECTION   UART_LOG_CTL    UartLogCtl;
+//MON_RAM_BSS_SECTION   UART_LOG_CTL    *pUartLogCtl;
+//MON_RAM_BSS_SECTION   u8                       *ArgvArray[MAX_ARGV];
+//MON_RAM_BSS_SECTION   UART_LOG_BUF             UartLogBuf;
 
 
 #ifdef CONFIG_UART_LOG_HISTORY
-MON_RAM_BSS_SECTION
-    u8  UartLogHistoryBuf[UART_LOG_HISTORY_LEN][UART_LOG_CMD_BUFLEN];
+//MON_RAM_BSS_SECTION    u8  UartLogHistoryBuf[UART_LOG_HISTORY_LEN][UART_LOG_CMD_BUFLEN];
 #endif
 
 _LONG_CALL_

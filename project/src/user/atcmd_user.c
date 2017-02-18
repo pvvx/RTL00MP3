@@ -108,30 +108,12 @@ void fATW2(void *arg){
 
 // Test
 void fATST(void *arg){
-	extern u8 __HeapLimit, __StackTop;
-	extern struct Heap g_tcm_heap;
-		//DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
-#if	DEBUG_AT_USER_LEVEL > 1
-		printf("ATST: Mem info:\n");
-#endif
-//		vPortFree(pvPortMalloc(4)); // Init RAM heap
-		printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nRAM free\t%d bytes\nTCM heap\t%d bytes\n",
-				HalGetCpuClk(), xPortGetFreeHeapSize(), (int)&__StackTop - (int)&__HeapLimit, tcm_heap_freeSpace());
-		printf("TCM ps_monitor\t%d bytes\n", 0x20000000 - (u32)&tcm_heap - tcm_heap_size);
-		dump_mem_block_list();
-		u32 saved = ConfigDebugInfo;
-		DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
-		tcm_heap_dump();
-		ConfigDebugInfo = saved;
-		printf("\n");
-#if (configGENERATE_RUN_TIME_STATS == 1)
-		char *cBuffer = pvPortMalloc(512);
-		if(cBuffer != NULL) {
-			vTaskGetRunTimeStats((char *)cBuffer);
-			printf("%s", cBuffer);
-		}
-		vPortFree(cBuffer);
-#endif
+	AT_PRINTK("[ATS#]: _AT_SYSTEM_TEST_");
+	DBG_8195A("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
+			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
+	dump_mem_block_list();
+	tcm_heap_dump();
+	DBG_8195A("\n");
 }
 
 int mp3_cfg_read(void)

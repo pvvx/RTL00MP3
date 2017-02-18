@@ -945,62 +945,70 @@ void fATSU(void *arg) {
 		return;
 	}
 	if ((argc = parse_param(arg, argv)) != 7) {
-		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
-				"[ATSU] Usage: ATSU=<baud>,<databits>,<stopbits>,<parity>,<flowcontrol>,<configmode>");
-		at_printf("\r\n[ATSU] ERROR:1");
-		return;
+		if(argv[1][0] == '?') {
+			read_uart_atcmd_setting_from_system_data(&uartconf);
+			at_printf("\r\n");
+			at_printf( "AT_UART_CONF: %d,%d,%d,%d,%d",
+					uartconf.BaudRate, uartconf.DataBits, uartconf.StopBits,
+					uartconf.Parity, uartconf.FlowControl);
+//			return;
+		}
+		else {
+			AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ERROR,
+					"[ATSU] Usage: ATSU=<baud>,<databits>,<stopbits>,<parity>,<flowcontrol>,<configmode>");
+			at_printf("\r\n[ATSU] ERROR:1");
+			return;
+		}
 	}
+	else {
+		baud = atoi(argv[1]);
+		databits = atoi(argv[2]);
+		stopbits = atoi(argv[3]);
+		parity = atoi(argv[4]);
+		flowcontrol = atoi(argv[5]);
+		configmode = atoi(argv[6]);
+		/*
+		 // Check Baud rate
+		 for (i=0; log_uart_support_rate[i]!=0xFFFFFF; i++) {
+		 if (log_uart_support_rate[i] == baud) {
+		 break;
+		 }
+		 }
 
-	baud = atoi(argv[1]);
-	databits = atoi(argv[2]);
-	stopbits = atoi(argv[3]);
-	parity = atoi(argv[4]);
-	flowcontrol = atoi(argv[5]);
-	configmode = atoi(argv[6]);
-	/*
-	 // Check Baud rate
-	 for (i=0; log_uart_support_rate[i]!=0xFFFFFF; i++) {
-	 if (log_uart_support_rate[i] == baud) {
-	 break;
-	 }
-	 }
-
-	 if (log_uart_support_rate[i]== 0xFFFFFF) {
-	 at_printf("\r\n[ATSU] ERROR:2");
-	 return;
-	 }
-	 */
-	if (((databits < 5) || (databits > 8)) || ((stopbits < 1) || (stopbits > 2))
-			|| ((parity < 0) || (parity > 2))
-			|| ((flowcontrol < 0) || (flowcontrol > 1))
-			|| ((configmode < 0) || (configmode > 3))\
-) {
-		at_printf("\r\n[ATSU] ERROR:2");
-		return;
+		 if (log_uart_support_rate[i]== 0xFFFFFF) {
+		 at_printf("\r\n[ATSU] ERROR:2");
+		 return;
+		 }
+		 */
+		if (((databits < 5) || (databits > 8)) || ((stopbits < 1) || (stopbits > 2))
+				|| ((parity < 0) || (parity > 2))
+				|| ((flowcontrol < 0) || (flowcontrol > 1))
+				|| ((configmode < 0) || (configmode > 3)) ) {
+			at_printf("\r\n[ATSU] ERROR:2");
+			return;
+		}
+		memset((void*) &uartconf, 0, sizeof(UART_LOG_CONF));
+		uartconf.BaudRate = baud;
+		uartconf.DataBits = databits;
+		uartconf.StopBits = stopbits;
+		uartconf.Parity = parity;
+		uartconf.FlowControl = flowcontrol;
+		AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS, "AT_UART_CONF: %d,%d,%d,%d,%d",
+				uartconf.BaudRate, uartconf.DataBits, uartconf.StopBits,
+				uartconf.Parity, uartconf.FlowControl);
+		switch (configmode) {
+		case 0: // set current configuration, won't save
+			uart_atcmd_reinit(&uartconf);
+			break;
+		case 1: // set current configuration, and save
+			write_uart_atcmd_setting_to_system_data(&uartconf);
+			uart_atcmd_reinit(&uartconf);
+			break;
+		case 2: // set configuration, reboot to take effect
+			write_uart_atcmd_setting_to_system_data(&uartconf);
+			break;
+		}
 	}
-
-	memset((void*) &uartconf, 0, sizeof(UART_LOG_CONF));
-	uartconf.BaudRate = baud;
-	uartconf.DataBits = databits;
-	uartconf.StopBits = stopbits;
-	uartconf.Parity = parity;
-	uartconf.FlowControl = flowcontrol;
-	AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS, "AT_UART_CONF: %d,%d,%d,%d,%d",
-			uartconf.BaudRate, uartconf.DataBits, uartconf.StopBits,
-			uartconf.Parity, uartconf.FlowControl);
-	switch (configmode) {
-	case 0: // set current configuration, won't save
-		uart_atcmd_reinit(&uartconf);
-		break;
-	case 1: // set current configuration, and save
-		write_uart_atcmd_setting_to_system_data(&uartconf);
-		uart_atcmd_reinit(&uartconf);
-		break;
-	case 2: // set configuration, reboot to take effect
-		write_uart_atcmd_setting_to_system_data(&uartconf);
-		break;
-	}
-
 	at_printf("\r\n[ATSU] OK");
 }
 #endif //#if CONFIG_EXAMPLE_UART_ATCMD
@@ -1372,7 +1380,7 @@ log_item_t at_sys_items[] = {
 		{ "ATSE", fATSE },	// enable and disable echo
 #if CONFIG_WLAN
 #if CONFIG_WEBSERVER
-		{	"ATSW", fATSW},	// start webserver
+		{ "ATSW", fATSW},	// start webserver
 #endif
 		{ "ATSY", fATSY },	// factory reset
 #if CONFIG_OTA_UPDATE

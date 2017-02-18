@@ -500,7 +500,13 @@ void main(void) {
 	 if ( rtl_cryptoEngine_init() != 0 ) DBG_8195A("crypto engine init failed\r\n");
 */
 #if defined(CONFIG_CPU_CLK)
-		HalCpuClkConfig(CPU_CLOCK_SEL_VALUE); // 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
+#if 1 // 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
+	 HAL_SYS_CTRL_WRITE32(REG_SYS_SYSPLL_CTRL1, HAL_SYS_CTRL_READ32(REG_SYS_SYSPLL_CTRL1) & (~(1<<17)));
+	 HalCpuClkConfig(CPU_CLOCK_SEL_VALUE); // 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
+#else // 0 - 200000000 Hz, 1 - 10000000 Hz, 2 - 50000000 Hz, 3 - 25000000 Hz, 4 - 12500000 Hz, 5 - 4000000 Hz
+	 HalCpuClkConfig(1);
+	 HAL_SYS_CTRL_WRITE32(REG_SYS_SYSPLL_CTRL1, HAL_SYS_CTRL_READ32(REG_SYS_SYSPLL_CTRL1) | (1<<17));
+#endif
 		HAL_LOG_UART_ADAPTER pUartAdapter;
 		pUartAdapter.BaudRate = RUART_BAUD_RATE_38400;
 		HalLogUartSetBaudRate(&pUartAdapter);

@@ -3,8 +3,6 @@
  *
  *  Copyright (c) 2013 Realtek Semiconductor Corp.
  *
- *  This module is a confidential and proprietary property of RealTek and
- *  possession or use of this module requires written permission of RealTek.
  */
 #ifndef _HAL_8195A_H_
 #define _HAL_8195A_H_
@@ -168,5 +166,38 @@
 #define	IMG_SIGN2_RUN	0x31313738	// "8711"
 #define	IMG_SIGN2_SWP	IMG_SIGN2_RUN	// "8711"
 #define IMG2_SIGN_TXT	"RTKWin"
+
+typedef struct _RAM_FUNCTION_START_TABLE_ {
+    VOID (*RamStartFun) (VOID);		// Run for Init console, Run if ( v40000210 & 0x4000000 )
+    VOID (*RamWakeupFun) (VOID);	// Run if ( v40000210 & 0x20000000 )
+    VOID (*RamPatchFun0) (VOID);	// Run if ( v40000210 & 0x10000000 )
+    VOID (*RamPatchFun1) (VOID);	// Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x8000000 )
+    VOID (*RamPatchFun2) (VOID);	// Run for Init console, if ( v40000210 & 0x4000000 )
+}RAM_FUNCTION_START_TABLE, *PRAM_FUNCTION_START_TABLE;
+// START_RAM_FUN_SECTION RAM_FUNCTION_START_TABLE __ram_start_table_start__ =
+// {RamStartFun + 1, RamWakeupFun + 1, RamPatchFun0 + 1, RamPatchFun1 + 1, RamPatchFun2 + 1 };
+
+#define IMG1_VALID_PATTEN_INIT() { 0x23, 0x79, 0x16, 0x88, 0xff, 0xff, 0xff, 0xff }
+// IMAGE1_VALID_PATTEN_SECTION uint8 RAM_IMG1_VALID_PATTEN[8] = IMG1_VALID_PATTEN_INIT();
+
+typedef struct _RAM_START_FUNCTION_ {
+    VOID (*RamStartFun) (VOID);
+}RAM_START_FUNCTION, *PRAM_START_FUNCTION;
+// IMAGE2_START_RAM_FUN_SECTION RAM_START_FUNCTION gImage2EntryFun0 = { InfraStart + 1 };
+
+typedef struct __RAM_IMG2_VALID_PATTEN__ {
+	char rtkwin[7];
+	u8 x[13];
+} _RAM_IMG2_VALID_PATTEN, *_PRAM_IMG2_VALID_PATTEN;
+
+// IMAGE2_VALID_PATTEN_SECTION _RAM_IMG2_VALID_PATTEN RAM_IMG2_VALID_PATTEN = RAM_IMG2_VALID_PATTEN_INIT();
+#define RAM_IMG2_VALID_PATTEN_INIT() { \
+	{ IMG2_SIGN_TXT }, { 0xff, \
+    (FW_VERSION&0xff), ((FW_VERSION >> 8)&0xff),	\
+    (FW_SUBVERSION&0xff), ((FW_SUBVERSION >> 8)&0xff), \
+    (FW_CHIP_ID&0xff), ((FW_CHIP_ID >> 8)&0xff),	\
+    (FW_CHIP_VER), (FW_BUS_TYPE), \
+    (FW_INFO_RSV1), (FW_INFO_RSV2), (FW_INFO_RSV3), (FW_INFO_RSV4)}}
+
 
 #endif //_HAL_8195A_H_

@@ -51,6 +51,7 @@ INCLUDES += sdk/component/soc/realtek/8195a/cmsis
 INCLUDES += sdk/component/soc/realtek/8195a/cmsis/device
 INCLUDES += sdk/component/soc/realtek/8195a/fwlib
 INCLUDES += sdk/component/soc/realtek/8195a/fwlib/rtl8195a
+INCLUDES += sdk/component/soc/realtek/8195a/misc/rtl_std_lib
 INCLUDES += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/include
 INCLUDES += sdk/component/common/drivers
 INCLUDES += sdk/component/common/drivers/wlan/realtek/include

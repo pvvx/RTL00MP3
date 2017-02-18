@@ -510,7 +510,7 @@ typedef unsigned char	BOOLEAN,*PBOOLEAN;
 #define __extension__		/* Ignore */
 #define	__restrict			/* Ignore */
 #endif
-
+/* in rtl8155a.h
 typedef struct _RAM_START_FUNCTION_ {
     VOID (*RamStartFun) (VOID);
 }RAM_START_FUNCTION, *PRAM_START_FUNCTION;
@@ -522,5 +522,5 @@ typedef struct _RAM_FUNCTION_START_TABLE_ {
     VOID (*RamPatchFun1) (VOID);
     VOID (*RamPatchFun2) (VOID);
 }RAM_FUNCTION_START_TABLE, *PRAM_FUNCTION_START_TABLE;
-
+*/
 #endif// __BASIC_TYPES_H__
