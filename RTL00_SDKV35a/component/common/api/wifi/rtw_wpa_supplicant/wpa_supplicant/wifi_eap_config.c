@@ -35,7 +35,7 @@ const unsigned char *eap_client_cert = NULL;
 const unsigned char *eap_client_key = NULL;
 char *eap_client_key_pwd = NULL;
 
-int max_buf_bio_size = SSL_BUFFER_LEN;
+//int max_buf_bio_size = SSL_BUFFER_LEN;
 
 #ifdef CONFIG_ENABLE_EAP
 void eap_eapol_recvd_hdl(char *buf, int buf_len, int flags, void* handler_user_data);
