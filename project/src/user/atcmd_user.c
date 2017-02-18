@@ -112,8 +112,20 @@ void fATST(void *arg){
 	DBG_8195A("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
 			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 	dump_mem_block_list();
+	u32 saved = ConfigDebugInfo;
+	DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
 	tcm_heap_dump();
-	DBG_8195A("\n");
+	ConfigDebugInfo = saved;
+	printf("\n");
+#if (configGENERATE_RUN_TIME_STATS == 1)
+	char *cBuffer = pvPortMalloc(512);
+	if(cBuffer != NULL) {
+		vTaskGetRunTimeStats((char *)cBuffer);
+		printf("%s", cBuffer);
+	}
+	vPortFree(cBuffer);
+#endif
+
 }
 
 int mp3_cfg_read(void)
