@@ -9,17 +9,18 @@ MEMORY
 {
   ROM_USED_RAM (rwx): ORIGIN = 0x10000bc8, LENGTH = 21560	/* end 0x10006000 */
   ROM_HEAP (rwx)	: ORIGIN = 0x10002400, LENGTH = 3K		/* end 0x10003000 */
-  RAM_HEAP1 (rwx)	: ORIGIN = 0x10003000, LENGTH = 12k		/* end 0x10006000 */
+  RAM_HEAP1 (rwx)	: ORIGIN = 0x10003000, LENGTH = 12K		/* end 0x10006000 */
   BD_RAM (rwx)		: ORIGIN = 0x10006000, LENGTH = 424K	/* end 0x10070000 */
   TCM (rwx)			: ORIGIN = 0x1FFF0000, LENGTH = 64K		/* end 0x20000000 */
-  TCM_TAB (rwx)		: ORIGIN = 0x1FFF0000, LENGTH = 64K		/* end 0x20000000 */
-  SDRAM_RAM (rwx)	: ORIGIN = 0x30000000, LENGTH = 0 /*2M	 end 0x30200000 */
+  TCM_TAB (rwx)		: ORIGIN = 0x1FFFFD00, LENGTH = 768		/* end 0x20000000 */
+  SDRAM_RAM (rwx)	: ORIGIN = 0x30000000, LENGTH = 2M	 	/* end 0x30200000 */
 }
 
 EXTERN(RAM_IMG2_VALID_PATTEN)
 EXTERN(main)
 EXTERN(InfraStart)
 EXTERN(gImage2EntryFun0)
+
 
 SECTIONS
 {
@@ -51,7 +52,8 @@ SECTIONS
   	{ 
 	  	__ram_tcm_start__ = .;
 	    *mem.o (.bss*)
-	    *memp.o (.bss*)
+	    *memp.o (.bss*) 
+  		__tcm_heap_start__ = .;
 	    *(.tcm.heap)
   	}
   	.dummy 
@@ -77,6 +79,11 @@ SECTIONS
 	    *(.infra.ram.text*)
   	}
   } > TCM
+
+  .soc_ps_monitor :
+  { 
+  	__tcm_heap_end__ = .;
+  } > TCM_TAB
 
   .image2.start.table :
   {
@@ -116,11 +123,11 @@ SECTIONS
     . = ALIGN(4);
     xHeapRegions = .;
     LONG(__ram_heap1_start__)
-    LONG(ORIGIN(RAM_HEAP1) + LENGTH(RAM_HEAP1) - __ram_heap1_start__)
+    LONG(__ram_heap1_end__ - __ram_heap1_start__)
     LONG(__ram_heap2_start__)
-    LONG(ORIGIN(BD_RAM) + LENGTH(BD_RAM) - __ram_heap2_start__)
+    LONG(__ram_heap2_end__ - __ram_heap2_start__)
     LONG(__sdram_heap_start__)
-    LONG(ORIGIN(SDRAM_RAM) + LENGTH(SDRAM_RAM) - __sdram_heap_start__)
+    LONG(__sdram_heap_end__ - __sdram_heap_start__)
     LONG(0)
     LONG(0)
   } > BD_RAM
@@ -148,20 +155,23 @@ SECTIONS
     *(.bss*)
     *(COMMON)
     *(.bdsram.data*)
+	*(.bfsram.data*)
     *(.sdram.bss*)
     *(.p2p.bss*)
     *(.wps.bss*)
     *(.websocket.bss*)
     __bss_end__ = .;
     .ram.bss$$Limit = .;
+    
   } > BD_RAM
 
   .ram_heap2 : 
   {
     . = ALIGN(8);
   	__ram_heap2_start__ = .;
-    KEEP(*(.bfsram.data*)) /* ucHeap */
+    KEEP(*(.heap*)) /* ucHeap */
   } > BD_RAM
+  __ram_heap2_end__ = 0x10070000;
   
   .sdr_text :
   {
@@ -184,6 +194,7 @@ SECTIONS
     . = ALIGN(8);
   	__sdram_heap_start__ = .;
   } > SDRAM_RAM
+  __sdram_heap_end__ = 0x30200000;
 
 	.boot.head :
 	{

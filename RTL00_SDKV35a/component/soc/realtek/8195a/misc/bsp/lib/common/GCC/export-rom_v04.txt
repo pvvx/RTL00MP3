@@ -764,7 +764,7 @@ SECTIONS
 	gRamPatchFun2 = 0x10000bd8; /* HalResetVsrV02(), HalResetVsr() */
 	__image1_validate_code__ = 0x10000bdc; /* 8 bytes HalResetVsrV02(), HalResetVsr() */
 	RAM_IMG1_VALID_PATTEN = 0x10000bdc;
-	_RandSeed = 0x10000be4; /* ChangeRandSeed_rom().. Sdr_Rand2_rom() */
+	rand_x = 0x10000be4; /* ChangeRandSeed_rom().. Sdr_Rand2_rom() */
 	AvaWds = 0x10000be8; /* SdrCalibration_rom() */
 	SdrDramInfo = 0x10001be8; /* SdrCalibration_rom() */
 	SdrDramTiming = 0x10001bfc; /* SdrCalibration_rom() */

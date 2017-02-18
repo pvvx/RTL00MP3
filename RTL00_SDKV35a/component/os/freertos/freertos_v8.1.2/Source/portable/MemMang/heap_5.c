@@ -108,6 +108,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "diag.h"
+#include "platform_autoconf.h"
+#include "hal_misc.h"
+
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
@@ -167,7 +170,7 @@ static size_t xBlockAllocatedBit = 0;
 //TODO: remove section when combine BD and BF
 #if (defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B))
 #include "section_config.h"
-SRAM_BF_DATA_SECTION
+SRAM_HEAP_SECTION
 #endif
 unsigned char ucHeap[configTOTAL_HEAP_SIZE];
 
@@ -520,17 +523,16 @@ uint32_t ulAddress;
 const HeapRegion_t *pxHeapRegion;
 
 #if defined(CONFIG_PLATFORM_8195A)
-/*		xHeapRegions[0].pucStartAddress = (uint8_t*)&__ram_heap1_start__;
+/*
+		xHeapRegions[0].pucStartAddress = (uint8_t*)&__ram_heap1_start__;
 		xHeapRegions[0].xSizeInBytes = (u32)&__ram_heap1_end__ - (u32)xHeapRegions[0].pucStartAddress;
 		xHeapRegions[1].pucStartAddress = &ucHeap; // (uint8_t*)&__ram_heap2_start__;
 		xHeapRegions[1].xSizeInBytes = (u32)0x10070000 - (u32)xHeapRegions[1].pucStartAddress;
-		xHeapRegions[2].pucStartAddress = (uint8_t*)&__sdram_data_start__; */
-		if(*((uint32 *)0x40000210) & BIT(21)) xHeapRegions[2].xSizeInBytes = 0;
-/* #ifdef CONFIG_SDR_EN
+		xHeapRegions[2].pucStartAddress = (uint8_t*)&__sdram_data_start__; 
 		xHeapRegions[2].xSizeInBytes = (u32)0x30200000 - (u32)xHeapRegions[2].pucStartAddress;
-#else
-		xHeapRegions[2].xSizeInBytes = 0;
-#endif */
+*/
+	int chip_id = HalGetChipId();
+	if (chip_id >= CHIP_ID_8711AN && chip_id <= CHIP_ID_8711AF) xHeapRegions[2].xSizeInBytes = 0;
 #endif
 	/* Can only call once! */
 	configASSERT( pxEnd == NULL );
@@ -539,9 +541,9 @@ const HeapRegion_t *pxHeapRegion;
 
 	while( pxHeapRegion->xSizeInBytes > 0 )
 	{
+		DBG_8195A("Init Heap Region: %p[%d]\n", pxHeapRegion->pucStartAddress, pxHeapRegion->xSizeInBytes);
 #if CONFIG_DEBUG_LOG > 4
-		DBG_8195A("Set Heap Region: %p[%d]\n", pxHeapRegion->pucStartAddress, pxHeapRegion->xSizeInBytes);
-		rtl_memset(pxHeapRegion->pucStartAddress, 0, pxHeapRegion->xSizeInBytes);
+//		rtl_memset(pxHeapRegion->pucStartAddress, 0, pxHeapRegion->xSizeInBytes);
 #endif
 		xTotalRegionSize = pxHeapRegion->xSizeInBytes;
 		/* Ensure the heap region starts on a correctly aligned boundary. */

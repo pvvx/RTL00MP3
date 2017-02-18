@@ -108,7 +108,7 @@ void fATW2(void *arg){
 
 // Test
 void fATST(void *arg){
-	AT_PRINTK("[ATS#]: _AT_SYSTEM_TEST_");
+//	AT_PRINTK("[ATS#]: _AT_SYSTEM_TEST_");
 	DBG_8195A("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
 			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 	dump_mem_block_list();

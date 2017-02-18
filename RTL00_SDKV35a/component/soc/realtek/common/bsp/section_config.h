@@ -210,7 +210,7 @@
 #define SDIO_ROM_BSS_SECTION                        \
         SECTION(".sdio.rom.bss")
 #define SDIO_ROM_TEXT_SECTION                       \
-            SECTION(".sdio.rom.text")
+		SECTION(".sdio.rom.text")
 
 //3 SRAM Config Section
 #define SRAM_BD_DATA_SECTION                        \
@@ -218,6 +218,9 @@
 
 #define SRAM_BF_DATA_SECTION                        \
         SECTION(".bfsram.data")
+
+#define SRAM_HEAP_SECTION                        \
+        SECTION(".sram.heap")
 
     
 #define START_RAM_FUN_SECTION                         \
@@ -277,7 +280,7 @@
 
 
 #define IMAGE2_START_RAM_FUN_SECTION                     \
-            SECTION(".image2.ram.data")
+		SECTION(".image2.ram.data")
 
 #define SDRAM_DATA_SECTION                        \
         SECTION(".sdram.data")
