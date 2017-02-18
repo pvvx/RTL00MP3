@@ -51,6 +51,7 @@ struct _rom_ssl_ram_map {
 
 	/* Variables */
 	u32 use_hw_crypto_func;
+	u32 ssl_buffer_len;
 };
 
 extern struct _rom_ssl_ram_map rom_ssl_ram_map;

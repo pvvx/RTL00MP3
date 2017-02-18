@@ -77,9 +77,10 @@ static void polarssl_zeroize( void *v, size_t n ) {
  *    } MaxFragmentLength;
  * and we add 0 -> extension unused
  */
-static unsigned int mfl_code_to_length[SSL_MAX_FRAG_LEN_INVALID] =
+//static 
+unsigned int mfl_code_to_length[SSL_MAX_FRAG_LEN_INVALID] =
 {
-    SSL_MAX_CONTENT_LEN,    /* SSL_MAX_FRAG_LEN_NONE */
+    16384, /* = SSL_MAX_CONTENT_LEN */ /* SSL_MAX_FRAG_LEN_NONE */ 
     512,                    /* SSL_MAX_FRAG_LEN_512  */
     1024,                   /* SSL_MAX_FRAG_LEN_1024 */
     2048,                   /* SSL_MAX_FRAG_LEN_2048 */

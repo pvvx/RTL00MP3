@@ -258,7 +258,12 @@
  * peers are using it too!
  */
 #if !defined(SSL_MAX_CONTENT_LEN)
-#define SSL_MAX_CONTENT_LEN         16384   /**< Size of the input / output buffer */
+#if defined(POLARSSL_SSL_MAX_FRAGMENT_LENGTH)
+extern unsigned int mfl_code_to_length[]; // pvvx
+#define SSL_MAX_CONTENT_LEN	mfl_code_to_length[0] // default = 16384 (!)
+#else
+#define SSL_MAX_CONTENT_LEN	16384   /**< Size of the input / output buffer */
+#endif
 #endif
 
 /* \} name SECTION: Module settings */
@@ -295,13 +300,15 @@
 #define SSL_PADDING_ADD              0
 #endif
 
-#define SSL_BUFFER_LEN  ( SSL_MAX_CONTENT_LEN               \
+#define SSL_BUFFER_LEN  (rom_ssl_ram_map.ssl_buffer_len) // pvvx -> int set_ssl_max_frag_len(int len)
+/*
+						( SSL_MAX_CONTENT_LEN               \
                         + SSL_COMPRESSION_ADD               \
-                        + 29 /* counter + header + IV */    \
+                        + 29 // counter + header + IV       \
                         + SSL_MAC_ADD                       \
                         + SSL_PADDING_ADD                   \
                         )
-
+*/
 /*
  * Signaling ciphersuite values (SCSV)
  */

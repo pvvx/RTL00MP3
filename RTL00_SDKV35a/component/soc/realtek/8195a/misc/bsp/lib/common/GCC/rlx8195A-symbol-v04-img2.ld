@@ -154,12 +154,13 @@ SECTIONS
     *(.fwu.data*)
     *(.bss*)
     *(COMMON)
-    *(.bdsram.data*)
-	*(.bfsram.data*)
     *(.sdram.bss*)
     *(.p2p.bss*)
     *(.wps.bss*)
     *(.websocket.bss*)
+    *(.ssl_ram_map*)
+    *(.bdsram.data*)
+	*(.bfsram.data*)
     __bss_end__ = .;
     .ram.bss$$Limit = .;
     
