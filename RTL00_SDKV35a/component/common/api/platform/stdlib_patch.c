@@ -44,6 +44,10 @@ typedef signed short int	s16;
 typedef unsigned char		bool;
 
 
+extern u8 txt0123456789ABCDEF[16];
+#define tab0123456789ABCDEF txt0123456789ABCDEF // = "0123456789ABCDEF"
+
+
 #define in_range(c, lo, up)  ((u8)c >= lo && (u8)c <= up)
 #define isprint(c)           in_range(c, 0x20, 0x7f)
 #define isdigit(c)           in_range(c, '0', '9')
@@ -644,7 +648,7 @@ int DiagSnPrintfPatch(char *buf, size_t size, const char *fmt, ...)
 					shift = (hex_count - 1)*4;
 
 				for(; shift >= 0; shift -= 4)
-					*q++ = "0123456789ABCDEF"[(h >> shift) & 0xF] | ncase;
+					*q++ = tab0123456789ABCDEF[(h >> shift) & 0xF] | ncase;
 			}
 			else if(*fmt == 'd') {
 				int i = *dp++;
@@ -825,7 +829,7 @@ static int VSprintfPatch(char *buf, const char *fmt, const int *dp)
 
 				for(; shift >= 0; shift -= 4) {
 
-					*q++ = "0123456789ABCDEF"[(h >> shift) & 0xF] | ncase;
+					*q++ = tab0123456789ABCDEF[(h >> shift) & 0xF] | ncase;
 				}
 
 			}

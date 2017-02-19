@@ -90,7 +90,7 @@
 		#define printf                  DiagPrintfPatch
 		#define sprintf					DiagSPrintfPatch
 		#define snprintf				DiagSnPrintfPatch
-		#define strstr(a, b)					DiagStrstrPatch((char *)(a), (char *)(b))
+		#define strstr(a, b)			DiagStrstrPatch((char *)(a), (char *)(b))
 		#define strtok					DiagStrtokPatch
 	#else
 		#define printf                  DiagPrintf

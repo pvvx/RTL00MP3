@@ -22,6 +22,23 @@ HalReInitPlatformLogUart(
     VOID
 );
 
+extern VOID
+PatchHalInitPlatformTimer(
+VOID
+);
+
+extern VOID
+PatchHalInitPlatformLogUart(
+    VOID
+);
+
+extern VOID 
+PatchSpicInitRtl8195A
+(
+    IN  u8 InitBaudRate,
+    IN  u8 SpicBitMode
+);
+
 extern VOID 
 SpicLoadInitParaFromClockRtl8195A
 (
@@ -70,7 +87,9 @@ SPIC_INIT_PARA SpicInitPara;
 #define PATTERN_4 0x6231DCE5
 
 
-#define DBGPRINT(fmt, arg...) do{ if( is_dbgmsg ) DiagPrintf(fmt, ##arg);}while(0)
+#define DBGPRINT(fmt, arg...) do \
+{ if( is_dbgmsg ) DiagPrintf(fmt, ##arg); }\
+while(0)
 
 //unsigned int fw_head[4] = {PATTERN_1, PATTERN_2, PATTERN_3, PATTERN_4};
 unsigned int seg_head[4] = {0,0,0,0};
@@ -123,7 +142,7 @@ FlashDownloadHalInitialROMCodeGlobalVar(VOID)
     ConfigDebugInfo= 0x0;
     ConfigDebugWarn= 0x0;
 }
-
+/*
 static VOID
 FlashDownloadHalCleanROMCodeGlobalVar(VOID)
 {
@@ -131,7 +150,7 @@ FlashDownloadHalCleanROMCodeGlobalVar(VOID)
     ConfigDebugInfo= 0x0;
     ConfigDebugWarn= 0x0;
 }
-
+*/
 // Please clean this Array
 extern SPIC_INIT_PARA SpicInitParaAllClk[3][CPU_CLK_TYPE_NO];
 
@@ -178,7 +197,7 @@ uint32_t FlashInit(void *base_of_flash, uint32_t image_size, uint32_t link_addre
 		is_dbgmsg = 0;
 	
 	if( (addr = (char*)find_option( "--img2_addr", 1, argc, argv))){
-		img2_addr = strtod(addr, NULL)/1024;
+		img2_addr =  atol(addr)/1024; // strtod(addr, NULL)/1024; // 
 		DBG_8195A(" image2 start address = %s, offset = %x\n\r", addr, img2_addr);
 	}else
 		img2_addr = 0;

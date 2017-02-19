@@ -68,7 +68,7 @@ enum _SPIC_BIT_MODE_ {
 #define FLASH_EON 5
 
 //#define FLASH_MXIC_MX25L4006E   0
-//#define FLASH_MXIC_MX25L8073E   0
+//#define FLASH_MXIC_MX25L8073E   1
 //#define FLASH_MICRON_N25Q512A 1
 // The below parts are based on the flash characteristics
 //====== Flash Command Definition  ======
@@ -244,6 +244,7 @@ enum _SPIC_BIT_MODE_ {
 
 
 //#endif
+
 #if 0
 #if FLASH_MXIC_MX25L4006E
 #define FLASH_RD_2IO_EN         1

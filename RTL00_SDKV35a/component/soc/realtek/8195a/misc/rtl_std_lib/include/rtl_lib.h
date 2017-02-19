@@ -68,9 +68,6 @@ extern int rtl_fcmplt(float a, float b);
 extern int rtl_fcmpgt(float a, float b);
 
 
-
-
-
 //
 // RTL eabi functions 
 

@@ -1,0 +1,4 @@
+ram_libc.o
+ram_libgloss_retarget.o
+rtl_eabi_cast_ram.o
+rtl_math_ram.o

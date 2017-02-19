@@ -12,8 +12,9 @@
 
 #include "rtl8195a_spi_flash.h"
 
+#pragma arm section code = ".hal.flash.text", rodata = ".hal.flash.rodata", rwdata = ".hal.flash.data", zidata = ".hal.flash.bss"
 
-#define SPI_CTRL_BASE 0x1FFEF000
+//#define SPI_CTRL_BASE 0x1FFEF000
 #define SPI_DLY_CTRL_ADDR 0x40000300	// [7:0]
 #define MIN_BAUDRATE  0x01
 #define MAX_BAUDRATE  0x04
@@ -633,7 +634,6 @@ SpicReadIDRtl8195A(
     }
     /* Disable SPI_FLASH User Mode */
     HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0);        
-
 }
 
 HAL_FLASH_TEXT_SECTION
@@ -645,7 +645,7 @@ SpicCalibrationRtl8195A
 ) 
 {
 
-    u32 rd_data, /*id_no,*/ baudr, autolen, dly_line;
+    u32 rd_data, baudr, autolen, dly_line;
     u32 total_ava_wds=0;
     u32 tmp_str_pt, tmp_end_pt, pass, last_pass;
     struct ava_window max_wd;
@@ -841,9 +841,7 @@ SpicConfigAutoModeRtl8195A
                 BIT_RD_DUAL_IO |
                 BIT_RD_DUAL_I))));//Disable all the four and two bit commands.
     }
-
-
-    if (SpicDualBitMode == SpicBitMode) {
+    else  if (SpicDualBitMode == SpicBitMode) {
         #if FLASH_RD_2IO_EN
             HAL_SPI_WRITE32(REG_SPIC_READ_DUAL_ADDR_DATA, FLASH_CMD_2READ);
         #endif
@@ -856,8 +854,7 @@ SpicConfigAutoModeRtl8195A
                 (HAL_SPI_READ32(REG_SPIC_VALID_CMD)|(FLASH_VLD_DUAL_CMDS)));
 
     }
-
-    if (SpicQuadBitMode == SpicBitMode) {
+    else if (SpicQuadBitMode == SpicBitMode) {
         #if FLASH_WR_4IO_EN
             HAL_SPI_WRITE32(REG_SPIC_WRITE_QUAD_ADDR_DATA, FLASH_CMD_4PP);
         #endif

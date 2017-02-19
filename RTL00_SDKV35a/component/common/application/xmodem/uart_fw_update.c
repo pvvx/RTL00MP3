@@ -978,7 +978,7 @@ u8 OTU_check_gpio(void)
     GPIO_Pin.pin_name = HAL_GPIO_GetIPPinName_8195a(0x21); //pin PC_1
     GPIO_Pin.pin_mode = DIN_PULL_HIGH;
 
-    _pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
+//    _pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
    
     HAL_GPIO_Init_8195a(&GPIO_Pin);
     if (HAL_GPIO_ReadPin_8195a(&GPIO_Pin) == GPIO_PIN_LOW) {
@@ -989,7 +989,7 @@ u8 OTU_check_gpio(void)
     }
     HAL_GPIO_DeInit_8195a(&GPIO_Pin);
 
-    _pHAL_Gpio_Adapter = NULL;
+//    _pHAL_Gpio_Adapter = NULL;
     return enter_update;
 #else
     return 0;

@@ -70,6 +70,45 @@ extern "C" {
 #define DNS_RRCLASS_HS            4     /* Hesiod [Dyer 87] */
 #define DNS_RRCLASS_FLUSH         0x800 /* Flush bit */
 
+/* DNS protocol flags */
+#define DNS_FLAG1_RESPONSE        0x80
+#define DNS_FLAG1_OPCODE_STATUS   0x10
+#define DNS_FLAG1_OPCODE_INVERSE  0x08
+#define DNS_FLAG1_OPCODE_STANDARD 0x00
+#define DNS_FLAG1_AUTHORATIVE     0x04
+#define DNS_FLAG1_TRUNC           0x02
+#define DNS_FLAG1_RD              0x01
+#define DNS_FLAG2_RA              0x80
+#define DNS_FLAG2_ERR_MASK        0x0f
+#define DNS_FLAG2_ERR_NONE        0x00
+#define DNS_FLAG2_ERR_NAME        0x03
+
+/* DNS protocol states */
+#define DNS_STATE_UNUSED          0
+#define DNS_STATE_NEW             1
+#define DNS_STATE_ASKING          2
+#define DNS_STATE_DONE            3
+
+#ifdef PACK_STRUCT_USE_INCLUDES
+#  include "arch/bpstruct.h"
+#endif
+PACK_STRUCT_BEGIN
+/** DNS message header */
+struct dns_hdr {
+  PACK_STRUCT_FIELD(u16_t id);
+  PACK_STRUCT_FIELD(u8_t flags1);
+  PACK_STRUCT_FIELD(u8_t flags2);
+  PACK_STRUCT_FIELD(u16_t numquestions);
+  PACK_STRUCT_FIELD(u16_t numanswers);
+  PACK_STRUCT_FIELD(u16_t numauthrr);
+  PACK_STRUCT_FIELD(u16_t numextrarr);
+} PACK_STRUCT_STRUCT;
+PACK_STRUCT_END
+#ifdef PACK_STRUCT_USE_INCLUDES
+#  include "arch/epstruct.h"
+#endif
+#define SIZEOF_DNS_HDR 12
+
 /* The size used for the next line is rather a hack, but it prevents including socket.h in all files
    that include memp.h, and that would possibly break portability (since socket.h defines some types
    and constants possibly already define by the OS).

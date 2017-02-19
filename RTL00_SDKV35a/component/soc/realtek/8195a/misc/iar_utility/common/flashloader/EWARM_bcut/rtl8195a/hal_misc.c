@@ -1,3 +1,4 @@
+
 #include "rtl8195a.h"
 
 typedef struct _UART_LOG_BUF_ {

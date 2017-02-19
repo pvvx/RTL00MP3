@@ -16,12 +16,6 @@
 
 #define SYSTEM_CLK                  PLATFORM_CLOCK
 
-#define SDR_SDRAM_BASE              0x30000000
-#define SYSTEM_CTRL_BASE            0x40000000
-#define PERI_ON_BASE                0x40000000
-#define VENDOR_REG_BASE             0x40002800
-#define SPI_FLASH_BASE              0x98000000
-#define SDR_CTRL_BASE               0x40005000
 
 #define PERIPHERAL_IRQ_STATUS       0x04
 #define PERIPHERAL_IRQ_MODE         0x08
@@ -34,13 +28,21 @@
 
 #define TIMER_CLK                   32*1000
 
+#define SDR_SDRAM_BASE              0x30000000
+#define SYSTEM_CTRL_BASE            0x40000000
+#define PERI_ON_BASE                0x40000000
+#define SPI_FLASH_BASE              0x98000000
+
 //3 Peripheral IP Base Address
+
 #define GPIO_REG_BASE               0x40001000
 #define TIMER_REG_BASE              0x40002000
+#define VENDOR_REG_BASE             0x40002800
 #define NFC_INTERFACE_BASE          0x40002400
 #define LOG_UART_REG_BASE           0x40003000
 #define I2C2_REG_BASE               0x40003400
 #define I2C3_REG_BASE               0x40003800
+#define SDR_CTRL_BASE               0x40005000
 #define SPI_FLASH_CTRL_BASE         0x40006000
 #define ADC_REG_BASE                0x40010000
 #define DAC_REG_BASE                0x40011000

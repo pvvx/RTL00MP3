@@ -12,7 +12,7 @@
       <name>General</name>
       <archiveVersion>3</archiveVersion>
       <data>
-        <version>22</version>
+        <version>24</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -26,11 +26,6 @@
         <option>
           <name>ListPath</name>
           <state>Debug\List</state>
-        </option>
-        <option>
-          <name>Variant</name>
-          <version>21</version>
-          <state>38</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -59,11 +54,6 @@
           <state>0</state>
         </option>
         <option>
-          <name>FPU</name>
-          <version>3</version>
-          <state>0</state>
-        </option>
-        <option>
           <name>OGCoreOrChip</name>
           <state>0</state>
         </option>
@@ -87,7 +77,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>7.30.3.8061</state>
+          <state>7.50.2.10499</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -136,13 +126,8 @@
           <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Normal.h</state>
         </option>
         <option>
-          <name>GFPUCoreSlave</name>
-          <version>21</version>
-          <state>38</state>
-        </option>
-        <option>
           <name>GBECoreSlave</name>
-          <version>21</version>
+          <version>22</version>
           <state>38</state>
         </option>
         <option>
@@ -156,6 +141,34 @@
         <option>
           <name>GRuntimeLibThreads</name>
           <state>0</state>
+        </option>
+        <option>
+          <name>CoreVariant</name>
+          <version>22</version>
+          <state>38</state>
+        </option>
+        <option>
+          <name>GFPUDeviceSlave</name>
+          <state>LPC1850	NXP LPC1850</state>
+        </option>
+        <option>
+          <name>FPU2</name>
+          <version>0</version>
+          <state>0</state>
+        </option>
+        <option>
+          <name>NrRegs</name>
+          <version>0</version>
+          <state>0</state>
+        </option>
+        <option>
+          <name>NEON</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>GFPUCoreSlave2</name>
+          <version>22</version>
+          <state>38</state>
         </option>
       </data>
     </settings>
@@ -596,16 +609,16 @@
         <debug>1</debug>
         <option>
           <name>OOCOutputFormat</name>
-          <version>2</version>
-          <state>0</state>
+          <version>3</version>
+          <state>3</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>FlashLoader.srec</state>
+          <state>FlashLoader.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -613,7 +626,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -736,7 +749,7 @@
         </option>
         <option>
           <name>IlinkSuppressDiags</name>
-          <state></state>
+          <state>Lp048, Lp049</state>
         </option>
         <option>
           <name>IlinkTreatAsRem</name>
@@ -971,7 +984,7 @@
       <name>$PROJ_DIR$\rtl8195a\hal_misc.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\fwlib\ram_lib\hal_spi_flash_ram.c</name>
+      <name>$PROJ_DIR$\rtl8195a\hal_spi_flash_ram.c</name>
     </file>
   </group>
   <file>

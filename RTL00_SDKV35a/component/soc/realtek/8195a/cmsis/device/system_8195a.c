@@ -48,7 +48,6 @@
 //#define __SYSTEM_CLOCK    (5*__XTAL)
 #define __SYSTEM_CLOCK    (200000000UL/6*5) // PLATFORM_CLOCK // 
 
-extern unsigned int rand_x;
 //extern u32 HalGetCpuClk(VOID);
 
 #ifdef CONFIG_CHIP_A_CUT
@@ -61,6 +60,8 @@ const u32 SysCpkClkTbl[]= {
     4000000
 };
 #endif
+
+unsigned int rand_x = 12345;
 
 u32 Rand2(void)
 {

@@ -1,0 +1,13 @@
+"D:\MCU\IAR Systems\Embedded Workbench 7.3\arm\bin\armproc.dll" 
+
+"D:\MCU\IAR Systems\Embedded Workbench 7.3\arm\bin\armjlink2.dll" 
+
+"E:\RTL87xx\git\RTL00_SDKV35a\component\soc\realtek\8195a\misc\iar_utility\common\flashloader\FlashRTL8195aMP.out" 
+
+--plugin "D:\MCU\IAR Systems\Embedded Workbench 7.3\arm\bin\armbat.dll" 
+
+--macro "E:\RTL87xx\git\RTL00_SDKV35a\component\soc\realtek\8195a\misc\iar_utility\common\flashloader\EWARM_bcut\..\FlashRTL8195aMP.mac" 
+
+
+
+

@@ -9,10 +9,8 @@ MEMORY
 {
   TCM (rwx) : ORIGIN = 0x1FFF0000, LENGTH = 65536
   ROM_USED_RAM (rwx)  : ORIGIN = 0x10000bc8, LENGTH = 21560 /* end 0x10006000 */
-  RECY_RAM (rwx)  : ORIGIN = 0x10002100, LENGTH = 16128 /* end 0x10006000 */
+  //RECY_RAM (rwx)  : ORIGIN = 0x10002100, LENGTH = 16128 /* end 0x10006000 */
   BD_RAM (rwx)  : ORIGIN = 0x10006000, LENGTH = 434176
-  //RECY_RAM (rwx)  : ORIGIN = 0x10002100, LENGTH = 7936	/* end 0x10004000 */
-  //BD_RAM (rwx)  : ORIGIN = 0x10004000, LENGTH = 442368
   SDRAM_RAM (rwx)  : ORIGIN = 0x30000000, LENGTH = 2M
 }
 
@@ -117,10 +115,10 @@ SECTIONS
     __ram_image2_text_start__ = .;
     __image2_entry_func__ = .;
     .image2.start.table1$$Base = .;
-    *(SORT(.image2.ram.data*))
+    KEEP(*(SORT(.image2.ram.data*)))
     __image2_validate_code__ = .;
-    *(.image2.validate.rodata*)
-    *(.custom.validate.rodata*)
+    KEEP(*(.image2.validate.rodata*))
+    KEEP(*(.custom.validate.rodata*))
   } > BD_RAM
 
   .ram_image2.text :

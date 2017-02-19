@@ -96,24 +96,54 @@ VOID ShowRamBuildInfo(VOID)
     */
 }
 
-#ifdef CONFIG_APP_DEMO
-#include "device.h"
-#include "gpio_api.h"   // mbed
+#if 1 //def CONFIG_APP_DEMO
+#include "rtl8195a.h"
+//#include "device.h"
+//#include "gpio_api.h"   // mbed
+typedef struct _UART_LOG_BUF_ {
+        u8  BufCount;                           //record the input cmd char number.
+        u8  UARTLogBuf[127];   //record the input command.
+} UART_LOG_BUF, *PUART_LOG_BUF;
+
+//MON_RAM_BSS_SECTION
+typedef struct _UART_LOG_CTL_ {
+        u8  NewIdx;		//+0
+        u8  SeeIdx;		//+1
+        u8  RevdNo;		//+2
+        u8  EscSTS;		//+3
+        u8  ExecuteCmd;	//+4
+        u8  ExecuteEsc; //+5
+        u8  BootRdy;	//+6
+        u8  Resvd;		//+7
+        PUART_LOG_BUF   pTmpLogBuf;
+        VOID *pfINPUT;
+        PCOMMAND_TABLE  pCmdTbl;
+        u32 CmdTblSz;
+
+        u32  CRSTS;
+
+        u8  (*pHistoryBuf)[127];
+
+		u32	TaskRdy;
+		u32	Sema;
+} UART_LOG_CTL, *PUART_LOG_CTL;
+
+extern volatile UART_LOG_CTL *pUartLogCtl;
 
 _WEAK int main(void)
 {
 	HalPinCtrlRtl8195A(JTAG, 0, 1);
 
 	DiagPrintf("\r\nRTL Console ROM: Start - press key 'Up', Help '?'\r\n");
-	while(pUartLogCtl[5] != 1);
-	pUartLogCtl[3] = 0;
-	pUartLogCtl[6] = 1;
+	while(pUartLogCtl->ExecuteEsc != 1);
+	pUartLogCtl->RevdNo = 0;
+	pUartLogCtl->BootRdy = 1;
     DiagPrintf("\r<RTL8710AF>");
     while(1) {
-    	while(pUartLogCtl[4] != 1 );
+    	while(pUartLogCtl->ExecuteCmd != 1 );
     	UartLogCmdExecute(pUartLogCtl);
         DiagPrintf("\r<RTL8710AF>");
-        pUartLogCtl[4] = 0;
+        pUartLogCtl->ExecuteCmd = 0;
     }
     
     return 0;
@@ -190,6 +220,7 @@ void _AppStart(void)
     xTaskCreate( (TaskFunction_t)main, "MAIN_APP__TASK", (MAIN_APP_DEFAULT_STACK_SIZE/4), (void *)NULL, MAIN_APP_DEFAULT_PRIORITY, NULL);
     vTaskStartScheduler();
 #endif
+
 #else
 	
 	__low_level_init();		

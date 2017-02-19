@@ -7,13 +7,21 @@
  *  possession or use of this module requires written permission of RealTek.
  */
 #include "rtl8195a.h"
+#include "platform_opts.h"
 #include "hal_sdr_controller.h"
 #include "rtl8195a_sdr.h"
 #include "flash_api.h"
 
 #ifdef CONFIG_SDR_EN 
 
+#ifndef USE_SRC_ONLY_BOOT
+#define USE_SRC_ONLY_BOOT	0
+#endif
+
+#if !USE_SRC_ONLY_BOOT
 #define SDRAM_INIT_USE_TCM_HEAP
+#define SDRAM_INIT_USE_FLASH_API
+#endif
 
 
 #if 0
@@ -122,9 +130,11 @@ u32 SdrCalibration(VOID);
 //#define Sdr_Rand2 Rand
 
 #ifndef SDRAM_INIT_USE_TCM_HEAP
+#if !USE_SRC_ONLY_BOOT
 //3 Note: stack overfloat if the arrary is declared in the task
 HAL_CUT_B_RAM_DATA_SECTION
 u32  AvaWds[2][REC_NUM];
+#endif
 #else
 typedef struct {
 	u32 m[2][REC_NUM];
@@ -137,6 +147,12 @@ HAL_CUT_B_RAM_DATA_SECTION
 unsigned int rand_x = 123456789;
 */
 #ifdef CONFIG_SDR_EN
+
+//#pragma arm section code = ".hal.sdrc.text"
+#pragma arm section rodata = ".rodata.hal.sdrc"
+//, rwdata = ".hal.sdrc.data"
+//, zidata = ".hal.sdrc.bss"
+//#pragma arm section bss = ".hal.sdrc.bss"
 
 #ifdef CONFIG_SDR_VERIFY
 enum{
@@ -744,8 +760,10 @@ SdrCalibration(
 	u32 valid;
 	union { u8 b[4]; u32 l;} value;
 ////
+#ifdef	SDRAM_INIT_USE_FLASH_API
 	flash_turnon();
 	if(fspic_isinit == 0) flash_init(&flashobj);
+#endif
 ////
 
 	u32 CpuType = ((HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_CLK_CTRL1) & (0x70)) >> 4);
@@ -776,9 +794,14 @@ SdrCalibration(
 	}	
 #endif	
 
+#if !USE_SRC_ONLY_BOOT
 #ifdef SDRAM_INIT_USE_TCM_HEAP
 	pAvaWds AvaWds = (pAvaWds) tcm_heap_calloc(sizeof(u32)*REC_NUM*2);
 #else
+    _memset((u8*)AvaWds, 0, sizeof(u32)*REC_NUM*2);
+#endif
+#else
+    u32  AvaWds[2][REC_NUM];
     _memset((u8*)AvaWds, 0, sizeof(u32)*REC_NUM*2);
 #endif
 
@@ -981,7 +1004,7 @@ SdrCalibration(
     return Result;
 } // SdrCalibration
  
- 
+HAL_RAM_DATA_SECTION
 /*
  
 HAL_SDRC_TEXT_SECTION 
@@ -1062,7 +1085,7 @@ u8 IsSdrPowerOn(
 
 #else // ifndef CONFIG_SDR_EN
 
-VOID SdrPowerOff(
+HAL_SDRC_TEXT_SECTION VOID SdrPowerOff(
     VOID
 )
 {
@@ -1070,7 +1093,6 @@ VOID SdrPowerOff(
     LDO25M_CTRL(OFF);
     HAL_WRITE32(PERI_ON_BASE, REG_SOC_FUNC_EN, HAL_READ32(PERI_ON_BASE, REG_SOC_FUNC_EN) | BIT(21));
 }
-
 
 
 HAL_SDRC_TEXT_SECTION VOID SdrCtrlInit(VOID)
