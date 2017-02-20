@@ -8,7 +8,7 @@ INCLUDE "export-rom_v04.txt"
 MEMORY
 {
   ROM_USED_RAM (rwx): ORIGIN = 0x10000bc8, LENGTH = 21560	/* end 0x10006000 */
-  ROM_HEAP (rwx)	: ORIGIN = 0x10002400, LENGTH = 3K		/* end 0x10003000 */
+  ROM_HEAP (rwx)	: ORIGIN = 0x10002400, LENGTH = 3K  	/* end 0x10003000 */
   RAM_HEAP1 (rwx)	: ORIGIN = 0x10003000, LENGTH = 12K		/* end 0x10006000 */
   BD_RAM (rwx)		: ORIGIN = 0x10006000, LENGTH = 424K	/* end 0x10070000 */
   TCM (rwx)			: ORIGIN = 0x1FFF0000, LENGTH = 64K		/* end 0x20000000 */
@@ -99,17 +99,37 @@ SECTIONS
 
   .ram_image2.text :
   {
-    *(.infra.ram.start*)
+    *(.infra.ram.start*) 
+    . = ALIGN(4);
+    KEEP(*(.init))
+
+    /* init data */
+    . = ALIGN(4);
+    PROVIDE (__init_array_start = .);
+    KEEP(*(SORT(.init_array.*)))
+    KEEP(*(.init_array))
+    PROVIDE (__init_array_end = .);
+
+    . = ALIGN(4);
+    KEEP(*(.fini))
+
+    . = ALIGN(4);
+    PROVIDE (__fini_array_start = .);
+    KEEP(*(SORT(.fini_array.*)))
+    KEEP(*(.fini_array))
+    PROVIDE (__fini_array_end = .);
+
     *(.mon.ram.text*)
-    *(.hal.flash.text*)   
+    *(.hal.flash.text*)    
     *(.hal.sdrc.text*)
     *(.hal.gpio.text*)
     *(.fwu.text*)
-    *(.text*)    
+    *(.otg.rom.text*)
     *(.sdram.text*)
     *(.p2p.text*)
     *(.wps.text*)
     *(.websocket.text*)
+    *(.text*)
   } > BD_RAM
 
   .ram_image2.rodata :
@@ -123,11 +143,11 @@ SECTIONS
     . = ALIGN(4);
     xHeapRegions = .;
     LONG(__ram_heap1_start__)
-    LONG(__ram_heap1_end__ - __ram_heap1_start__)
+    LONG(__ram_heap1_end__ - __ram_heap1_start__)  
     LONG(__ram_heap2_start__)
     LONG(__ram_heap2_end__ - __ram_heap2_start__)
     LONG(__sdram_heap_start__)
-    LONG(__sdram_heap_end__ - __sdram_heap_start__)
+    LONG(__sdram_heap_end__ - __sdram_heap_start__)  
     LONG(0)
     LONG(0)
   } > BD_RAM
@@ -136,10 +156,6 @@ SECTIONS
   {
     __data_start__ = .;
     *(.data*)
-    *(.sdram.data*)
-    *(.p2p.data*)
-    *(.wps.data*)
-    *(.websocket.data*)
     __data_end__ = .;
   	__ram_image2_text_end__ = .;    
   } > BD_RAM
@@ -152,6 +168,12 @@ SECTIONS
     *(.hal.sdrc.data*)    
     *(.hal.gpio.data*)
     *(.fwu.data*)
+    *(.bdsram.data*)
+	*(.bfsram.data*)
+    *(.sdram.data*)
+    *(.p2p.data*)
+    *(.wps.data*)
+    *(.websocket.data*)
     *(.bss*)
     *(COMMON)
     *(.sdram.bss*)
@@ -159,8 +181,6 @@ SECTIONS
     *(.wps.bss*)
     *(.websocket.bss*)
     *(.ssl_ram_map*)
-    *(.bdsram.data*)
-	*(.bfsram.data*)
     __bss_end__ = .;
     .ram.bss$$Limit = .;
     

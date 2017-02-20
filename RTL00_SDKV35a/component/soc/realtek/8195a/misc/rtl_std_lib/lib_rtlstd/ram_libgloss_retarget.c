@@ -24,8 +24,7 @@ extern char end;
 
 //-------------------------------------------------------------------------
 // Data declarations
-
-char *heap_end;
+static char *rheap_end;
 // extern __rtl_errno;
 // extern end;
 // extern rom_libgloss_ram_map;
@@ -77,12 +76,12 @@ int ram_libgloss_read(int file, char *ptr, int len) {
 char *ram_libgloss_sbrk(int incr) {
 	char *prev_heap_end;
 
-	if (!heap_end)
-		heap_end = (char *) &end;
-	prev_heap_end = heap_end;
-	heap_end += incr;
+	if (!rheap_end)
+		rheap_end = (char *) &end;
+	prev_heap_end = rheap_end;
+	rheap_end += incr;
 #if CONFIG_DEBUG_LOG > 4
-	DBG_8195A("ROM_heap = %p[%d], end = %p\n", prev_heap_end, incr, heap_end);
+	DBG_8195A("ROM_heap = %p[%d], end = %p\n", prev_heap_end, incr, rheap_end);
 #endif
 	return prev_heap_end;
 }

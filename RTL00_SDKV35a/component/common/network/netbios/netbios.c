@@ -47,7 +47,7 @@
 #include "lwip/udp.h"
 #include "lwip/netif.h"
 #include "lwip_netconf.h"
-#include "rtl8195a/esp_comp.h"
+#include "platform/esp_comp.h"
 
 #define NETBIOS_CODE_ATTR
 #define NETBIOS_DATA_ATTR

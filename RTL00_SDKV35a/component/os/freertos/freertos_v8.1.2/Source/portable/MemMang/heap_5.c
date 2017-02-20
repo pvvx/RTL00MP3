@@ -227,10 +227,8 @@ BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
 void *pvReturn = NULL;
 
 	/* Realtek test code start */
-	if(pxEnd == NULL)
-	{
-		vPortDefineHeapRegions( xHeapRegions );
-	}
+	if(pxEnd == NULL) vPortDefineHeapRegions( xHeapRegions );
+
 	/* Realtek test code end */
 
 	/* The heap must be initialised before the first call to
@@ -531,81 +529,87 @@ const HeapRegion_t *pxHeapRegion;
 		xHeapRegions[2].pucStartAddress = (uint8_t*)&__sdram_data_start__; 
 		xHeapRegions[2].xSizeInBytes = (u32)0x30200000 - (u32)xHeapRegions[2].pucStartAddress;
 */
-	int chip_id = HalGetChipId();
-	if (chip_id >= CHIP_ID_8711AN && chip_id <= CHIP_ID_8711AF) xHeapRegions[2].xSizeInBytes = 0;
 #endif
 	/* Can only call once! */
 	configASSERT( pxEnd == NULL );
 
 	pxHeapRegion = &( pxHeapRegions[ xDefinedRegions ] );
 
+	int chip_id = HalGetChipId();
 	while( pxHeapRegion->xSizeInBytes > 0 )
 	{
-		DBG_8195A("Init Heap Region: %p[%d]\n", pxHeapRegion->pucStartAddress, pxHeapRegion->xSizeInBytes);
+		if(pxHeapRegion->pucStartAddress > 0x20000000
+		&& chip_id >= CHIP_ID_8711AN && chip_id <= CHIP_ID_8711AF) {
+//				pxHeapRegion->pucStartAddress = 0;
+//				pxHeapRegion->xSizeInBytes = 0;
+//				DBG_8195A("ChipID: %p !\n", chip_id);
+		}
+		else {
+			DBG_8195A("Init Heap Region: %p[%d]\n", pxHeapRegion->pucStartAddress, pxHeapRegion->xSizeInBytes);
 #if CONFIG_DEBUG_LOG > 4
-//		rtl_memset(pxHeapRegion->pucStartAddress, 0, pxHeapRegion->xSizeInBytes);
+			rtl_memset(pxHeapRegion->pucStartAddress, 0, pxHeapRegion->xSizeInBytes);
 #endif
-		xTotalRegionSize = pxHeapRegion->xSizeInBytes;
-		/* Ensure the heap region starts on a correctly aligned boundary. */
-		ulAddress = ( uint32_t ) pxHeapRegion->pucStartAddress;
-		if( ( ulAddress & portBYTE_ALIGNMENT_MASK ) != 0 )
-		{
-			ulAddress += ( portBYTE_ALIGNMENT - 1 );
+			xTotalRegionSize = pxHeapRegion->xSizeInBytes;
+			/* Ensure the heap region starts on a correctly aligned boundary. */
+			ulAddress = ( uint32_t ) pxHeapRegion->pucStartAddress;
+			if( ( ulAddress & portBYTE_ALIGNMENT_MASK ) != 0 )
+			{
+				ulAddress += ( portBYTE_ALIGNMENT - 1 );
+				ulAddress &= ~portBYTE_ALIGNMENT_MASK;
+
+				/* Adjust the size for the bytes lost to alignment. */
+				xTotalRegionSize -= ulAddress - ( uint32_t ) pxHeapRegion->pucStartAddress;
+			}
+
+			pucAlignedHeap = ( uint8_t * ) ulAddress;
+
+			/* Set xStart if it has not already been set. */
+			if( xDefinedRegions == 0 )
+			{
+				/* xStart is used to hold a pointer to the first item in the list of
+				free blocks.  The void cast is used to prevent compiler warnings. */
+				xStart.pxNextFreeBlock = ( BlockLink_t * ) pucAlignedHeap;
+				xStart.xBlockSize = ( size_t ) 0;
+			}
+			else
+			{
+				/* Should only get here if one region has already been added to the
+				heap. */
+				configASSERT( pxEnd != NULL );
+
+				/* Check blocks are passed in with increasing start addresses. */
+				configASSERT( ulAddress > ( uint32_t ) pxEnd );
+			}
+
+			/* Remember the location of the end marker in the previous region, if
+			any. */
+			pxPreviousFreeBlock = pxEnd;
+
+			/* pxEnd is used to mark the end of the list of free blocks and is
+			inserted at the end of the region space. */
+			ulAddress = ( ( uint32_t ) pucAlignedHeap ) + xTotalRegionSize;
+			ulAddress -= uxHeapStructSize;
 			ulAddress &= ~portBYTE_ALIGNMENT_MASK;
+			pxEnd = ( BlockLink_t * ) ulAddress;
+			pxEnd->xBlockSize = 0;
+			pxEnd->pxNextFreeBlock = NULL;
 
-			/* Adjust the size for the bytes lost to alignment. */
-			xTotalRegionSize -= ulAddress - ( uint32_t ) pxHeapRegion->pucStartAddress;
+			/* To start with there is a single free block in this region that is
+			sized to take up the entire heap region minus the space taken by the
+			free block structure. */
+			pxFirstFreeBlockInRegion = ( BlockLink_t * ) pucAlignedHeap;
+			pxFirstFreeBlockInRegion->xBlockSize = ulAddress - ( uint32_t ) pxFirstFreeBlockInRegion;
+			pxFirstFreeBlockInRegion->pxNextFreeBlock = pxEnd;
+
+			/* If this is not the first region that makes up the entire heap space
+			then link the previous region to this region. */
+			if( pxPreviousFreeBlock != NULL )
+			{
+				pxPreviousFreeBlock->pxNextFreeBlock = pxFirstFreeBlockInRegion;
+			}
+
+			xTotalHeapSize += pxFirstFreeBlockInRegion->xBlockSize;
 		}
-		
-		pucAlignedHeap = ( uint8_t * ) ulAddress;
-
-		/* Set xStart if it has not already been set. */
-		if( xDefinedRegions == 0 )
-		{
-			/* xStart is used to hold a pointer to the first item in the list of
-			free blocks.  The void cast is used to prevent compiler warnings. */
-			xStart.pxNextFreeBlock = ( BlockLink_t * ) pucAlignedHeap;
-			xStart.xBlockSize = ( size_t ) 0;
-		}
-		else
-		{
-			/* Should only get here if one region has already been added to the
-			heap. */
-			configASSERT( pxEnd != NULL );
-
-			/* Check blocks are passed in with increasing start addresses. */
-			configASSERT( ulAddress > ( uint32_t ) pxEnd );
-		}
-
-		/* Remember the location of the end marker in the previous region, if
-		any. */
-		pxPreviousFreeBlock = pxEnd;
-
-		/* pxEnd is used to mark the end of the list of free blocks and is
-		inserted at the end of the region space. */
-		ulAddress = ( ( uint32_t ) pucAlignedHeap ) + xTotalRegionSize;
-		ulAddress -= uxHeapStructSize;
-		ulAddress &= ~portBYTE_ALIGNMENT_MASK;
-		pxEnd = ( BlockLink_t * ) ulAddress;
-		pxEnd->xBlockSize = 0;
-		pxEnd->pxNextFreeBlock = NULL;
-
-		/* To start with there is a single free block in this region that is
-		sized to take up the entire heap region minus the space taken by the
-		free block structure. */
-		pxFirstFreeBlockInRegion = ( BlockLink_t * ) pucAlignedHeap;
-		pxFirstFreeBlockInRegion->xBlockSize = ulAddress - ( uint32_t ) pxFirstFreeBlockInRegion;
-		pxFirstFreeBlockInRegion->pxNextFreeBlock = pxEnd;
-
-		/* If this is not the first region that makes up the entire heap space
-		then link the previous region to this region. */
-		if( pxPreviousFreeBlock != NULL )
-		{
-			pxPreviousFreeBlock->pxNextFreeBlock = pxFirstFreeBlockInRegion;
-		}
-
-		xTotalHeapSize += pxFirstFreeBlockInRegion->xBlockSize;
-
 		/* Move onto the next HeapRegion_t structure. */
 		xDefinedRegions++;
 		pxHeapRegion = &( pxHeapRegions[ xDefinedRegions ] );

@@ -618,7 +618,7 @@ void fATSx(void *arg)
 
 #define ATCMD_VERSION		"v2" //ATCMD MAJOR VERSION, AT FORMAT CHANGED
 #define ATCMD_SUBVERSION	"2" //ATCMD MINOR VERSION, NEW COMMAND ADDED
-#define ATCMD_REVISION		"1" //ATCMD FIX BUG REVISION
+#define ATCMD_REVISION		"2" //ATCMD FIX BUG REVISION
 #define SDK_VERSION		"v3.5" //SDK VERSION
 extern void sys_reset(void);
 void print_system_at(void *arg);

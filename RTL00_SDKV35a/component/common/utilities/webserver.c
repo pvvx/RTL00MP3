@@ -85,9 +85,7 @@
 #include "webserver.h"
 #include "wlan_intf.h"
 
-
 #define CONFIG_READ_FLASH	1
-
 
 #ifdef CONFIG_READ_FLASH
 
@@ -104,7 +102,14 @@
 
 #else
 #include "flash_api.h"
+#include "flash_eep.h"
+#include "feep_config.h"
 #include "device_lock.h"
+
+#ifndef FEEP_ID_WIFI_AP_CFG
+#define FEEP_ID_WIFI_AP_CFG 0x5731
+#endif
+
 #define DATA_SECTOR     AP_SETTING_SECTOR
 #define BACKUP_SECTOR	(0x00008000)
 
@@ -542,13 +547,40 @@ int StoreApInfo()
 
 void LoadWifiConfig()
 {
-
-
-    flash_t flash;
-
     rtw_wifi_config_t local_config;
-    uint32_t address;
+    local_config.boot_mode = 0;
+#ifdef USE_FLASH_EEP
+    if(flash_read_cfg((uint8_t *)(&local_config), FEEP_ID_WIFI_AP_CFG, sizeof(rtw_wifi_config_t)) >= sizeof(rtw_wifi_config_t)) {
+        printf("%s: Read from FLASH!\n", __FUNCTION__);
+        printf("%s: local_config.boot_mode=0x%x\n", __FUNCTION__, local_config.boot_mode);
+        printf("%s: local_config.ssid=%s\n", __FUNCTION__, local_config.ssid);
+        printf("%s: local_config.channel=%d\n", __FUNCTION__, local_config.channel);
+        printf("%s: local_config.security_type=%d\n", __FUNCTION__, local_config.security_type);
+        printf("%s: local_config.password=%s\n", __FUNCTION__, local_config.password);
+    }
+    if(local_config.boot_mode == 0x77665502) {
+        wifi_setting.mode = RTW_MODE_AP;
+        if(local_config.ssid_len > 32)
+            local_config.ssid_len = 32;
+        memcpy(wifi_setting.ssid, local_config.ssid, local_config.ssid_len);
+        wifi_setting.ssid[local_config.ssid_len] = '\0';
+        wifi_setting.channel = local_config.channel;
+        if(local_config.security_type == 1)
+          wifi_setting.security_type = RTW_SECURITY_WPA2_AES_PSK;
+        else
+          wifi_setting.security_type = RTW_SECURITY_OPEN;
+        if(local_config.password_len > 32)
+            local_config.password_len = 32;
+        memcpy(wifi_setting.password, local_config.password, local_config.password_len);
+        wifi_setting.password[local_config.password_len] = '\0';
+    }
+    else {
+        LoadWifiSetting();
+    }
 
+#else
+    flash_t flash;
+    uint32_t address;
     address = DATA_SECTOR;
 
     
@@ -559,6 +591,7 @@ void LoadWifiConfig()
     device_mutex_lock(RT_DEV_LOCK_FLASH);
     flash_stream_read(&flash, address, sizeof(rtw_wifi_config_t),(uint8_t *)(&local_config));
 	device_mutex_unlock(RT_DEV_LOCK_FLASH);
+
 
     printf("\r\nLoadWifiConfig(): local_config.boot_mode=0x%x\n", local_config.boot_mode); 
     printf("\r\nLoadWifiConfig(): local_config.ssid=%s\n", local_config.ssid); 
@@ -587,12 +620,29 @@ void LoadWifiConfig()
     {
         LoadWifiSetting();
     }
-
+#endif
 }
 
 int StoreApInfo()
 {
-
+#ifdef USE_FLASH_EEP
+    rtw_wifi_config_t wifi_config;
+    // clean wifi_config first
+    memset(&wifi_config, 0x00, sizeof(rtw_wifi_config_t));
+    wifi_config.boot_mode = 0x77665502;
+    memcpy(wifi_config.ssid, wifi_setting.ssid, strlen((char*)wifi_setting.ssid));
+    wifi_config.ssid_len = strlen((char*)wifi_setting.ssid);
+    wifi_config.security_type = wifi_setting.security_type;
+    if(wifi_setting.security_type !=0)
+        wifi_config.security_type = 1;
+    else
+        wifi_config.security_type = 0;
+    memcpy(wifi_config.password, wifi_setting.password, strlen((char*)wifi_setting.password));
+    wifi_config.password_len= strlen((char*)wifi_setting.password);
+    wifi_config.channel = wifi_setting.channel;
+    printf("\n\rWritting boot mode 0x77665502 and Wi-Fi setting to flash ...");
+    flash_write_cfg((uint8_t *)(&wifi_config), FEEP_ID_WIFI_AP_CFG, sizeof(wifi_config));
+#else
     flash_t flash;
 
     rtw_wifi_config_t wifi_config;
@@ -659,11 +709,14 @@ int StoreApInfo()
         //flash_stream_read(&flash, address, sizeof(rtw_wifi_config_t),data);
 	//printf("\n\r Base + 0x000FF000 +4  wifi config  = %s",data[4]);
         //printf("\n\r Base + 0x000FF000 +71 wifi channel = %d",data[71]);
-
+#endif
 	return 0;
 }
 
-int EraseApinfo(){
+int EraseApinfo() {
+#ifdef USE_FLASH_EEP
+	flash_write_cfg(NULL, FEEP_ID_WIFI_AP_CFG, 0);
+#else
 	flash_t flash;
 	uint32_t address;
 
@@ -671,6 +724,7 @@ int EraseApinfo(){
 	device_mutex_lock(RT_DEV_LOCK_FLASH);
 	flash_erase_sector(&flash, address);
 	device_mutex_unlock(RT_DEV_LOCK_FLASH);
+#endif
 	return 0;
 }
 #endif
