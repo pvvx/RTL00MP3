@@ -9,13 +9,13 @@
 
 #include "rtl8195a.h"
 //#include <stdarg.h>
-#include "rtl_consol.h"
+#include "rtl_bios_data.h"
+//#include "rtl_consol.h"
 #include "osdep_api.h"
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
 #include "freertos_pmu.h"
 #endif
 #include "tcm_heap.h"
-#include "rtl_bios_data.h"
 
 //MON_RAM_BSS_SECTION   UART_LOG_CTL    UartLogCtl;
 //MON_RAM_BSS_SECTION   UART_LOG_CTL    *pUartLogCtl;
@@ -316,8 +316,7 @@ RtlConsolTaskRam(
     //4 Set this for UartLog check cmd history
 #ifdef CONFIG_KERNEL
 	pUartLogCtl->TaskRdy = 1;
-#endif
-#ifndef CONFIG_KERNEL   
+#else
     pUartLogCtl->BootRdy = 1;
 #endif
     do{
