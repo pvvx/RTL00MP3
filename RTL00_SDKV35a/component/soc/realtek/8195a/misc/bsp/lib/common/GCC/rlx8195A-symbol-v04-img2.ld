@@ -150,7 +150,13 @@ SECTIONS
     LONG(__sdram_heap_end__ - __sdram_heap_start__)
     LONG(0)
     LONG(0)
+    UartLogRamCmdTable = .;
+    KEEP(*(SORT(.mon.tab*)))
+    UartLogRamCmdTable_end = .;
+    LONG(0)
   } > BD_RAM
+  
+  PROVIDE(UartLogRamCmdTableSize = UartLogRamCmdTable_end - UartLogRamCmdTable);
 
   .ram.data : 
   {

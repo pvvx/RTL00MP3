@@ -89,13 +89,13 @@ SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_math_ra
 SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/system_8195a.c
 
 #console
-SRC_C += sdk/component/common/api/at_cmd/atcmd_ethernet.c
-SRC_C += sdk/component/common/api/at_cmd/atcmd_lwip.c
-SRC_C += sdk/component/common/api/at_cmd/atcmd_sys.c
-SRC_C += sdk/component/common/api/at_cmd/atcmd_wifi.c
-SRC_C += sdk/component/common/api/at_cmd/log_service.c
+#SRC_C += sdk/component/common/api/at_cmd/atcmd_ethernet.c
+#SRC_C += sdk/component/common/api/at_cmd/atcmd_lwip.c
+#SRC_C += sdk/component/common/api/at_cmd/atcmd_sys.c
+#SRC_C += sdk/component/common/api/at_cmd/atcmd_wifi.c
+#SRC_C += sdk/component/common/api/at_cmd/log_service.c
 SRC_C += sdk/component/soc/realtek/8195a/misc/driver/low_level_io.c
-SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_consol.c
+#SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_consol.c
 
 #network - api
 SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_eap_config.c
@@ -187,7 +187,7 @@ SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/analogin_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/dma_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/efuse_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/ethernet_api.c
-SRC_C += sdk/component/common/drivers/ethernet_mii/ethernet_mii.c
+#SRC_C += sdk/component/common/drivers/ethernet_mii/ethernet_mii.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/flash_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/gpio_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/gpio_irq_api.c
@@ -401,6 +401,8 @@ ADD_SRC_C += project/src/mad/stream.c
 
 #driver
 ADD_SRC_C += project/src/driver/i2s_freertos.c
+#ADD_SRC_C += project/src/driver/wifi_api.c
+ADD_SRC_C += project/src/driver/console_api.c
 
 #include
 INCLUDES += project/inc/mad

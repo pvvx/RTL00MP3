@@ -89,6 +89,32 @@ prvDiagSPrintf(
     IN  const char *fmt, ...
 );
 
+#if CONFIG_DEBUG_LOG > 3
+#define debug_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#define info_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#define warning_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#define error_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#elif CONFIG_DEBUG_LOG > 2
+#define debug_printf(fmt, ...)
+#define info_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#define warning_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#define error_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#elif CONFIG_DEBUG_LOG > 1
+#define debug_printf(fmt, ...)
+#define info_printf(fmt, ...)
+#define warning_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#define error_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#elif CONFIG_DEBUG_LOG > 0
+#define debug_printf(fmt, ...)
+#define info_printf(fmt, ...)
+#define warning_printf(fmt, ...)
+#define error_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
+#else
+#define debug_printf(fmt, ...)
+#define info_printf(fmt, ...)
+#define warning_printf(fmt, ...)
+#define error_printf(fmt, ...)
+#endif
 
 #define _DbgDump  DiagPrintf
 

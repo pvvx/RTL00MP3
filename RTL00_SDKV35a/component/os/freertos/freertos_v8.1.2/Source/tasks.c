@@ -2753,6 +2753,9 @@ static portTASK_FUNCTION( prvIdleTask, pvParameters )
 			{
 				mtCOVERAGE_TEST_MARKER();
 			}
+#ifdef CONFIG_WDG_ON_IDLE
+			WDGRefresh();
+#endif
 		}
 		#endif /* configUSE_TICKLESS_IDLE */
 	}
@@ -3641,7 +3644,7 @@ TCB_t *pxTCB;
 					/* What percentage of the total run time has the task used?
 					This will always be rounded down to the nearest integer.
 					ulTotalRunTimeDiv100 has already been divided by 100. */
-#if 0
+#if 1
 					ulStatsAsPercentage = pxTaskStatusArray[ x ].ulRunTimeCounter / ulTotalTime;
 #else
 					ulStatsAsPercentage = (100*pxTaskStatusArray[ x ].ulDelataRunTimeCounterOfPeroid) / ulDeltaTotalRunTime;
@@ -3651,25 +3654,30 @@ TCB_t *pxTCB;
 					else
 						ulDeltaRunTimeCounter = portCONFIGURE_STATS_PEROID_VALUE*ulStatsAsPercentage/100;
 #endif
-
+					int cnt = sprintf( pcWriteBuffer, "%s", pxTaskStatusArray[ x ].pcTaskName);
+					pcWriteBuffer += cnt;
+					while(cnt < configMAX_TASK_NAME_LEN) {
+						cnt++;
+						*pcWriteBuffer++ = ' ';
+					}
 					if( ulStatsAsPercentage > 0UL )
 					{
 						#ifdef portLU_PRINTF_SPECIFIER_REQUIRED
 						{
-#if 0
-							sprintf( pcWriteBuffer, "%s\t\t%lu\t\t%lu%%\n", pxTaskStatusArray[ x ].pcTaskName, pxTaskStatusArray[ x ].ulRunTimeCounter, ulStatsAsPercentage );
+#if 1
+							sprintf( pcWriteBuffer, "\t%lu\t\t%lu%%\n", pxTaskStatusArray[ x ].ulRunTimeCounter, ulStatsAsPercentage );
 #else
-							sprintf( pcWriteBuffer, "%s\t\t%lu\t\t%lu%%\n", pxTaskStatusArray[ x ].pcTaskName, ulDeltaRunTimeCounter, ulStatsAsPercentage );
+							sprintf( pcWriteBuffer, "\t%lu\t\t%lu%%\n", ulDeltaRunTimeCounter, ulStatsAsPercentage );
 #endif
 						}
 						#else
 						{
 							/* sizeof( int ) == sizeof( long ) so a smaller
 							printf() library can be used. */
-#if 0							
-							sprintf( pcWriteBuffer, "%s\t\t%u\t\t%u%%\n", pxTaskStatusArray[ x ].pcTaskName, ( unsigned int ) pxTaskStatusArray[ x ].ulRunTimeCounter, ( unsigned int ) ulStatsAsPercentage );
+#if 1
+							sprintf( pcWriteBuffer, "\t%lu\t\t%u%%\n", ( unsigned int ) pxTaskStatusArray[ x ].ulRunTimeCounter, ( unsigned int ) ulStatsAsPercentage );
 #else
-							sprintf( pcWriteBuffer, "%s\t\t%u\t\t%u%%\n", pxTaskStatusArray[ x ].pcTaskName, ( unsigned int ) ulDeltaRunTimeCounter, ( unsigned int ) ulStatsAsPercentage );
+							sprintf( pcWriteBuffer, "\t%u\t\t%u%%\n", ( unsigned int ) ulDeltaRunTimeCounter, ( unsigned int ) ulStatsAsPercentage );
 #endif
 						}
 						#endif
@@ -3680,20 +3688,20 @@ TCB_t *pxTCB;
 						consumed less than 1% of the total run time. */
 						#ifdef portLU_PRINTF_SPECIFIER_REQUIRED
 						{
-#if 0						
-							sprintf( pcWriteBuffer, "%s\t\t%lu\t\t<1%%\n", pxTaskStatusArray[ x ].pcTaskName, pxTaskStatusArray[ x ].ulRunTimeCounter );
+#if 1
+							sprintf( pcWriteBuffer, "\t%lu\t\t<1%%\n", pxTaskStatusArray[ x ].ulRunTimeCounter );
 #else
-							sprintf( pcWriteBuffer, "%s\t\t%lu\t\t<1%%\n", pxTaskStatusArray[ x ].pcTaskName, ulDeltaRunTimeCounter );
+							sprintf( pcWriteBuffer, "\t%lu\t\t<1%%\n", ulDeltaRunTimeCounter );
 #endif
 						}
 						#else
 						{
 							/* sizeof( int ) == sizeof( long ) so a smaller
 							printf() library can be used. */
-#if 0							
-							sprintf( pcWriteBuffer, "%s\t\t%u\t\t<1%%\n", pxTaskStatusArray[ x ].pcTaskName, ( unsigned int ) pxTaskStatusArray[ x ].ulRunTimeCounter );
+#if 1
+							sprintf( pcWriteBuffer, "\t%lu\t\t<1%%\n", ( unsigned int ) pxTaskStatusArray[ x ].ulRunTimeCounter );
 #else
-							sprintf( pcWriteBuffer, "%s\t\t%u\t\t<1%%\n", pxTaskStatusArray[ x ].pcTaskName, ( unsigned int ) ulDeltaRunTimeCounter );
+							sprintf( pcWriteBuffer, "\t%u\t\t<1%%\n", ( unsigned int ) ulDeltaRunTimeCounter );
 #endif
 						}
 						#endif

@@ -624,6 +624,7 @@ SECTIONS
 	rom_wps_rcons = 0x35d88;
 	rom_wps_Td4s = 0x35d94;
 	rom_wps_Td0 = 0x35e94;
+	str_rom_hex_addr = 0x442D6;
 	__rom_b_cut_end__ = 0x4467c;
 	__rom_c_cut_text_start__ = 0x4467c;
 	HalInitPlatformLogUartV02 = 0x4467d;

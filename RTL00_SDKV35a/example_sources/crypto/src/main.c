@@ -39,7 +39,7 @@ void test_sha1(void)
         if ( rtl_memcmpb((void*)digest, (void*)&sha1_test_digest[i][0], 20) == 0 )
             DiagPrintf("SHA1 test result is correct, ret=%d\r\n", ret);
         else
-            DiagPrintf("SHA test result is WRONG!!, ret=%d\r\n", ret);
+            DiagPrintf("SHA test result is WRONG!, ret=%d\r\n", ret);
     }
 }
 //static const u8 plaintext[] 	= "The quick brown fox jumps over the lazy dog";
@@ -144,7 +144,7 @@ void test_md5(void)
 	if ( rtl_memcmpb(digest, md5_digest, 16) == 0 ) {
 		DiagPrintf("MD5 test result is correct, ret=%d\r\n", ret);
 	} else {
-		DiagPrintf("MD5 test result is WRONG!!, ret=%d\r\n", ret);
+		DiagPrintf("MD5 test result is WRONG!, ret=%d\r\n", ret);
 	}
 
 	for( i = 0; i < 16; i++ )

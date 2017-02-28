@@ -79,7 +79,7 @@ typedef struct _USR_server_setings
 } mp3_server_setings;
 
 extern mp3_server_setings mp3_serv;
-extern void at_USR_init(void);
+extern void start_init(void);
 
 #endif // CONFIG_AT_USR
 

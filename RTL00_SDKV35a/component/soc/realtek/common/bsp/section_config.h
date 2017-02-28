@@ -203,6 +203,8 @@
 #define MON_RAM_BSS_SECTION                      \
         SECTION(".mon.ram.bss")
 
+#define MON_RAM_TAB_SECTION						 \
+        SECTION(".mon.tab.rodata")
 
 //3 SDIO Section
 #define SECTION_SDIO_RAM

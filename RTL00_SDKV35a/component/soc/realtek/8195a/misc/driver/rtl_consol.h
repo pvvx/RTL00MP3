@@ -29,15 +29,14 @@
 #define UART_LOG_CMD_BUFLEN     127     
 #define MAX_ARGV                10
 
-
+extern COMMAND_TABLE UartLogRomCmdTable[6]; // in ROM (hal_diag.h)
 
 typedef u32 (*ECHOFUNC)(IN u8*,...);    //UART LOG echo-function type.
 
 typedef struct _UART_LOG_BUF_ {
-        u8  BufCount;                           //record the input cmd char number.
+        u8  BufCount;                          //record the input cmd char number.
         u8  UARTLogBuf[UART_LOG_CMD_BUFLEN];   //record the input command.
 } UART_LOG_BUF, *PUART_LOG_BUF;
-
 
 
 typedef struct _UART_LOG_CTL_ {
@@ -49,19 +48,17 @@ typedef struct _UART_LOG_CTL_ {
         u8  ExecuteEsc;		//+0x05
         u8  BootRdy;		//+0x06
         u8  Resvd;			//+0x07
-        PUART_LOG_BUF   pTmpLogBuf;        
-        VOID *pfINPUT;
-        PCOMMAND_TABLE  pCmdTbl;
-        u32 CmdTblSz;
+        PUART_LOG_BUF   pTmpLogBuf;  //+0x08 = UartLogBuf
+        VOID *pfINPUT;		//+0x0C = DiagPrintf
+        PCOMMAND_TABLE  pCmdTbl; //+0x10
+        u32 CmdTblSz;		//+0x14
 #ifdef CONFIG_UART_LOG_HISTORY        
-        u32  CRSTS;
-#endif        
-#ifdef CONFIG_UART_LOG_HISTORY
-        u8  (*pHistoryBuf)[UART_LOG_CMD_BUFLEN];
+        u32  CRSTS;			//+0x18
+        u8  (*pHistoryBuf)[UART_LOG_CMD_BUFLEN]; //+0x1C UartLogHistoryBuf[UART_LOG_HISTORY_LEN][UART_LOG_CMD_BUFLEN]
 #endif
 #ifdef CONFIG_KERNEL
-		u32		TaskRdy;
-		_Sema	Sema;
+		u32		TaskRdy;	//+0x20
+		_Sema	Sema;		//+0x24
 #else
         // Since ROM code will reference this typedef, so keep the typedef same size
         u32     TaskRdy;
@@ -127,6 +124,8 @@ Strtoul(
     IN  u8 **endptr,
     IN  u32 base
 );
+
+_LONG_CALL_ extern VOID UartLogIrqHandle(VOID * Data); // in ROM
 
 void console_init(void);
 
