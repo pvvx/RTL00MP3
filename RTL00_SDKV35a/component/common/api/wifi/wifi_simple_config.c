@@ -999,7 +999,7 @@ void print_simple_config_result(enum sc_result sc_code)
 	printf("\n");
 	switch (sc_code) {
 	case SC_NO_CONTROLLER_FOUND:
-		printf("Simple Config timeout!! Can't get Ap profile. Please try again\n"); 
+		printf("Simple Config timeout! Can't get Ap profile. Please try again\n"); 
 	break;
 	case SC_CONTROLLER_INFO_PARSE_FAIL:
 		printf("Simple Config fail, cannot parse target ap info from controller\n");
@@ -1014,7 +1014,7 @@ void print_simple_config_result(enum sc_result sc_code)
 		printf("Simple Config fail, cannot get dhcp ip address\n");
 	break;
 	case SC_UDP_SOCKET_CREATE_FAIL:
-		printf("Simple Config Ack socket create fail!!!\n");
+		printf("Simple Config Ack socket create fail!\n");
 	break;
 	case SC_TERMINATE:
 		printf("Simple Config terminate\n");

@@ -90,7 +90,7 @@ HAL_Pwm_SetDuty_8195a(
     pwm_id = pPwmAdapt->pwm_id;
     // Adjust the tick time to a proper value
     if (period < (MIN_GTIMER_TIMEOUT*2)) {
-        DBG_PWM_ERR ("HAL_Pwm_SetDuty_8195a: Invalid PWM period(%d), too short!!\n", period);
+        DBG_PWM_ERR ("HAL_Pwm_SetDuty_8195a: Invalid PWM period(%d), too short!\n", period);
         tick_time = MIN_GTIMER_TIMEOUT;
         period = MIN_GTIMER_TIMEOUT*2;
     }

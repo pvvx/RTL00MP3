@@ -38,7 +38,7 @@ void big_task() {
 }
 
 void my_watchdog_irq_handler(uint32_t id) {
-    printf("watchdog barks!!!\r\n");
+    printf("watchdog barks!\r\n");
     watchdog_stop();
 }
 

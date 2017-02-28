@@ -56,12 +56,15 @@
 #include "ethernetif.h"
 #include "queue.h"
 #include "lwip_netconf.h"
-#include "ethernet_mii/ethernet_mii.h"
 
 //#include "lwip/ethip6.h" //Add for ipv6
 
 #include <platform/platform_stdlib.h>
 #include "platform_opts.h"
+
+#if CONFIG_ETHERNET
+#include "ethernet_mii/ethernet_mii.h"
+#endif
 
 #if CONFIG_WLAN
 #include <lwip_intf.h>
@@ -159,6 +162,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 	return ERR_OK;
 }
 
+#if CONFIG_ETHERNET
 /*for ethernet mii interface*/
 static err_t low_level_output_mii(struct netif *netif, struct pbuf *p)
 {
@@ -177,7 +181,7 @@ static err_t low_level_output_mii(struct netif *netif, struct pbuf *p)
 	}
 	return ERR_OK;
 }
-
+#endif
 	
 /**
  * Should allocate a pbuf and transfer the bytes of the incoming
@@ -241,7 +245,7 @@ void ethernetif_recv(struct netif *netif, int total_len)
 
 }
 
-
+#if CONFIG_ETHERNET
 void ethernetif_mii_recv(struct netif *netif, int total_len)
 {
 	struct eth_drv_sg sg_list[MAX_ETH_DRV_SG];
@@ -270,6 +274,7 @@ void ethernetif_mii_recv(struct netif *netif, int total_len)
 		pbuf_free(p);
 
 }
+#endif
 /**
  * Should be called at the beginning of the program to set up the
  * network interface. It calls the function low_level_init() to do the
@@ -307,7 +312,7 @@ err_t ethernetif_init(struct netif *netif)
 
 	return ERR_OK;
 }
-
+#if CONFIG_ETHERNET
 err_t ethernetif_mii_init(struct netif *netif)
 {
 	LWIP_ASSERT("netif != NULL", (netif != NULL));
@@ -329,7 +334,7 @@ err_t ethernetif_mii_init(struct netif *netif)
 
 	return ERR_OK;
 }
-
+#endif
 static void arp_timer(void *arg)
 {
   etharp_tmr();

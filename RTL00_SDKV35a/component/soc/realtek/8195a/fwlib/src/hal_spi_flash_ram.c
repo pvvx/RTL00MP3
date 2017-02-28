@@ -369,7 +369,7 @@ SpicFlashInitRtl8195A(
             #endif
             break;
         default:
-            DBG_8195A("No Support SPI Mode!!!!!!!!\n");
+            DBG_8195A("No Support SPI Mode!\n");
             break;
             
     }
@@ -1455,7 +1455,7 @@ SpicNVMCalStore(u8 BitMode, u8 CpuClk)
     }
     else {
         // There is a parameter on the flash memory already
-        DBG_SPIF_ERR("SpicNVMCalStore: The flash memory(@0x%x = 0x%x) is not able to be write, Erase it first!!\r\n", 
+        DBG_SPIF_ERR("SpicNVMCalStore: The flash memory(@0x%x = 0x%x) is not able to be write, Erase it first!\r\n", 
             (FLASH_SPIC_PARA_BASE+flash_offset), spci_para);
     }
 }

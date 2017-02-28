@@ -10,7 +10,7 @@
 #include "device.h"
 #include "log_uart_api.h"
 
-char buf[100]="Hello World!!\r\n";;
+char buf[100]="Hello World!\r\n";;
 log_uart_t uobj;
 
 int uart_scan (char *buf)

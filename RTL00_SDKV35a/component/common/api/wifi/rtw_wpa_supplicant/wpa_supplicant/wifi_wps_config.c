@@ -314,7 +314,7 @@ static int wps_connect_to_AP_by_certificate(rtw_network_info_t *wifi)
 			if(retry_count == RETRY_COUNT)
 				rtw_msleep_os(1000);  //When start wps with OPEN AP, AP will send a disassociate frame after STA connected, need reconnect here.
 			if(RTW_SUCCESS == wifi_is_connected_to_ap( )){
-				//printf("\r\n[WPS]Ready to tranceive!!\n");
+				//printf("\r\n[WPS]Ready to tranceive!\n");
 				wps_check_and_show_connection_info();
 				break;
 			}
@@ -501,7 +501,7 @@ int wps_start(u16 wps_config, char *pin, u8 channel, char *ssid)
 	wifi_set_wps_phase(ENABLE);
 	ret = wps_connect_to_AP_by_open_system(target_ssid);
 	if(ret < 0){
-		printf("WPS: WPS Fail!!\n");
+		printf("WPS: WPS Fail!\n");
 		goto exit;
 	}
 	os_xqueue_receive(queue_for_credential, &dev_cred, 120);
@@ -511,9 +511,9 @@ int wps_start(u16 wps_config, char *pin, u8 channel, char *ssid)
 		ret = wps_connect_to_AP_by_certificate(&wifi);
 		goto exit1;
 	} else {
-		printf("WPS: WPS FAIL!!!\n");
-//		printf("\n\rWPS: WPS FAIL!!!\n");
-//		printf("\n\rWPS: WPS FAIL!!!\n");
+		printf("WPS: WPS FAIL!\n");
+//		printf("\n\rWPS: WPS FAIL!\n");
+//		printf("\n\rWPS: WPS FAIL!\n");
 		ret = -1;
 	}
 exit:

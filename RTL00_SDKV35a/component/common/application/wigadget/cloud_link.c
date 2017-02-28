@@ -51,7 +51,7 @@ void cloud_link_task(void *param){
 			sprintf(j, "%.2f", humidity);
 #endif
 			if(ret < 0)
-				printf("\n<-----LOCAL LINK FAILED!!(get infor failed)\n");
+				printf("\n<-----LOCAL LINK FAILED!(get infor failed)\n");
 			else{
 				gen_json_data(i,j, data);
 	            printf("\nCLOUD-LINK--Sending data : \n%s\n", data);
@@ -60,10 +60,10 @@ void cloud_link_task(void *param){
 					if(gn_put(&googlenest, URI, data) != 0)
 		                        	printf("PUT data failed!\n");
 					gn_close(&googlenest);
-					printf("\n<=====CLOUD LINK OK!!\n");
+					printf("\n<=====CLOUD LINK OK!\n");
 				}
 				else{
-					printf("\n<=====CLOUD LINK FAILED!!(google nest connecting)\n");
+					printf("\n<=====CLOUD LINK FAILED!(google nest connecting)\n");
 				}
 				free(data);
 				vTaskDelay(10000);
@@ -72,7 +72,7 @@ void cloud_link_task(void *param){
 			
 	}
 	else 
-		printf("\n<=====CLOUD LINK FAILED!!(flash reading)\n");
+		printf("\n<=====CLOUD LINK FAILED!(flash reading)\n");
 
 }
 

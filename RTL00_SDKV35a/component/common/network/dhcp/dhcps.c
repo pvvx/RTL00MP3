@@ -310,9 +310,9 @@ static void dhcps_send_offer(struct pbuf *packet_buffer)
 #if 0	
 	  	memset(&ip_table, 0, sizeof(struct table));
 		mark_ip_in_table((uint8_t)ip4_addr4(&dhcps_local_address));
-		printf("reset ip table!!");	
+		printf("reset ip table!");	
 #endif	
-		printf("No useable ip!!!!");
+		printf("No useable ip!");
 	}
 	
 	IP4_ADDR(&dhcps_allocated_client_address, (ip4_addr1(&dhcps_network_id)),
@@ -502,7 +502,7 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
 	
 	dhcp_message_repository = (struct dhcp_msg *)udp_packet_buffer->payload;
 	if (udp_packet_buffer == NULL) {
-		printf("Error!!!! System doesn't allocate any buffer\n");
+		printf("Error! System doesn't allocate any buffer\n");
 		return;  
 	}
 	if (sender_port == DHCP_CLIENT_PORT) {
@@ -580,7 +580,7 @@ void dhcps_init(struct netif * pnetif)
 
         dhcps_pcb = udp_new(); 
 	if (dhcps_pcb == NULL) {
-		printf("Error!!!upd_new error\n");
+		printf("Error! upd_new error\n");
 		return;
 	}
         IP4_ADDR(&dhcps_send_broadcast_address, 255, 255, 255, 255);

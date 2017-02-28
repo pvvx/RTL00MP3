@@ -8,6 +8,7 @@
  */
 #include "rtl8195a.h"
 #include "hal_soc_ps_monitor.h"
+#include "rtl_consol.h"
 
 #include "PinNames.h"
 #include "gpio_api.h"
@@ -135,6 +136,8 @@ PatchHalLogUartInit(
     return 0;
 }
 
+//_LONG_CALL_ extern VOID UartLogIrqHandle(VOID * Data); // in ROM
+extern void UartLogIrqHandleRam(void * data);
 VOID
 PSHalInitPlatformLogUart(
     VOID
@@ -443,7 +446,7 @@ CLKCal(
         RRTemp = (((2133/Rtemp) >> x) - 1);
     }
     if ( x == 5 )
-      DiagPrintf("Using ana to cal is not allowed!!\n");
+      DiagPrintf("Using ana to cal is not allowed!\n");
     
     return RRTemp;
 }
@@ -1901,7 +1904,6 @@ DeepSleep(
         __WFI();
     }
 }
-
 
 VOID
 DSleep_GPIO(

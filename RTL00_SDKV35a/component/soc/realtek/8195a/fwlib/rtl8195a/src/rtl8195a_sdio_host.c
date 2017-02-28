@@ -179,7 +179,7 @@ HAL_Status SdioHostSdClkCtrl(void *Data, int En, int Divisor) { // SD_CLK_DIVISO
 			}
 		}
 
-		DBG_SDIO_ERR("Unsupported SDCLK divisor !!\n");
+		DBG_SDIO_ERR("Unsupported SDCLK divisor!\n");
 		return 0;
 	}
 	return result;
@@ -365,7 +365,7 @@ HAL_Status HalSdioHostInitHostRtl8195a(IN VOID *Data) {
 	int x = 1000;
 	while (HAL_SDIO_HOST_READ8(REG_SDIO_HOST_SW_RESET) & 1) {
 		if (x-- == 0) {
-			DBG_SDIO_ERR("SD host initialization FAIL !!\n");
+			DBG_SDIO_ERR("SD host initialization FAIL!\n");
 			return HAL_TIMEOUT;
 		}
 	}
@@ -380,7 +380,7 @@ HAL_Status HalSdioHostInitHostRtl8195a(IN VOID *Data) {
 	while (!(HAL_SDIO_HOST_READ16(REG_SDIO_HOST_CLK_CTRL)
 			& CLK_CTRL_INTERAL_CLK_STABLE)) {
 		if (x-- == 0) {
-			DBG_SDIO_ERR("SD host initialization FAIL !!\n");
+			DBG_SDIO_ERR("SD host initialization FAIL!\n");
 			return HAL_TIMEOUT;
 		}
 	}
@@ -457,7 +457,7 @@ signed int SdioHostErrIntRecovery(void *Data, int a2, signed int a3) {
 				goto LABEL_14;
 		}
 		if (v5 == 1000) {
-			DBG_SDIO_ERR("CMD line reset timeout !!\n");
+			DBG_SDIO_ERR("CMD line reset timeout!\n");
 			return 2;
 		}
 	}
@@ -474,7 +474,7 @@ signed int SdioHostErrIntRecovery(void *Data, int a2, signed int a3) {
 				goto LABEL_22;
 		}
 		if (v8 == 1000) {
-			DBG_SDIO_ERR("DAT line reset timeout !!\n");
+			DBG_SDIO_ERR("DAT line reset timeout!\n");
 			return 2;
 		}
 	}
@@ -494,13 +494,13 @@ signed int SdioHostErrIntRecovery(void *Data, int a2, signed int a3) {
 		if (v9 == 1000)
 			return 2;
 		LABEL_30: if (v40058032 << 28) {
-			DBG_SDIO_ERR("Non-recoverable error(1) !!\n");
+			DBG_SDIO_ERR("Non-recoverable error(1)!\n");
 			LABEL_33: DiagPrintf(v10);
 			goto LABEL_34;
 		}
 	} else {
 		if (v40058032 & 0x10) {
-			DBG_SDIO_ERR("Non-recoverable error(2) !!\n");
+			DBG_SDIO_ERR("Non-recoverable error(2)!\n");
 			goto LABEL_34;
 		}
 		HalDelayUs(50);
@@ -509,7 +509,7 @@ signed int SdioHostErrIntRecovery(void *Data, int a2, signed int a3) {
 			result = 16;
 			goto LABEL_44;
 		}
-		DBG_SDIO_ERR("Non-recoverable error(3) !!\n");
+		DBG_SDIO_ERR("Non-recoverable error(3)!\n");
 		goto LABEL_34;
 	}
 
@@ -517,7 +517,7 @@ signed int SdioHostErrIntRecovery(void *Data, int a2, signed int a3) {
 	LABEL_44: v4005803A = 127;
 	return result;
 
-	DBG_SDIO_ERR("Stop transmission error !!\n");
+	DBG_SDIO_ERR("Stop transmission error!\n");
 	return 238;
 }
 // 23D4: using guessed type int DiagPrintf(const char *, ...);
@@ -627,7 +627,7 @@ int SdioHostCardSelection(void *Data, int Select, int a3) {
 										*(u8 *) &Cmd.CmdFmt & 3), v3[24] == 7)) {
 							result = v9;
 						} else {
-							DBG_SDIO_ERR("Command index error !!\n");
+							DBG_SDIO_ERR("Command index error!\n");
 							result = 238;
 						}
 					}
@@ -906,7 +906,7 @@ IN u32 BlockCnt) {
 					*(u8 *) &Cmd.CmdFmt & 3);
 			if (*(u32 *) (pSdioHostAdapter + 20) & 0x4000000) {
 				LABEL_14:
-				DBG_SDIO_ERR("Write protect violation !!\n");
+				DBG_SDIO_ERR("Write protect violation!\n");
 				return HAL_ERR_PARA;
 			}
 			result = SdioHostChkXferComplete((void *) pSdioHostAdapter, 0x1388u,
@@ -1073,7 +1073,7 @@ HAL_Status HalSdioHostGetCardStatusRtl8195a(IN VOID *Data) {
 		*((u8 *) v3 + 131) = (v8 >> 9) & 0xF;
 		return v7;
 	}
-	DBG_SDIO_ERR("Command index error !!\n");
+	DBG_SDIO_ERR("Command index error!\n");
 	return 238;
 }
 // 23D4: using guessed type int DiagPrintf(const char *, ...);
@@ -1152,7 +1152,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	};
 	v7 = v4;
 	if (v4) {
-		DBG_SDIO_ERR("Reset sd card fail !!\n");
+		DBG_SDIO_ERR("Reset sd card fail!\n");
 		goto LABEL_104;
 	};
 	goto LABEL_115;
@@ -1171,7 +1171,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		SdioHostGetResponse(v3, (u8) v52 & 3);
 		if (v3[24] != 8) {
 			if (ConfigDebugErr & 0x400) {
-				v11 = "\r[SDIO Err]Command index error !!\n"
+				v11 = "\r[SDIO Err]Command index error!\n"
 				); // DBG_SDIO_ERR("
 				LABEL_18: DiagPrintf(v11);
 				goto LABEL_21;
@@ -1191,7 +1191,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 			}
 			LABEL_21: v7 = 238;
 			LABEL_22: if (ConfigDebugErr & 0x400) {
-				v8 = "\r[SDIO Err]Voltage check fail !!\n";
+				v8 = "\r[SDIO Err]Voltage check fail!\n";
 				goto LABEL_104;
 			}
 			goto LABEL_115;
@@ -1213,7 +1213,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	if (v3[24] != 55) {
 		if (ConfigDebugErr & 0x400) // DBG_SDIO_ERR("
 				{
-			v17 = "\r[SDIO Err]Command index error !!\n";
+			v17 = "\r[SDIO Err]Command index error!\n";
 			LABEL_32: DiagPrintf(v17);
 			goto LABEL_57;
 		}
@@ -1237,7 +1237,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		if (!v13)
 			goto LABEL_64;
 		LABEL_60: if (ConfigDebugErr & 0x400) {
-			v8 = "\r[SDIO Err]Get OCR fail !!\n";
+			v8 = "\r[SDIO Err]Get OCR fail!\n";
 			goto LABEL_104;
 		}
 		goto LABEL_115;
@@ -1264,7 +1264,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		v25 = SdioHostGetResponse(v3, (u8) v52 & 3);
 		if (v3[24] != 55) {
 			if (ConfigDebugErr & 0x400) {
-				v26 = "\r[SDIO Err]Command index error !!\n";
+				v26 = "\r[SDIO Err]Command index error!\n";
 				LABEL_46: DiagPrintf(v26);
 				goto LABEL_62;
 			}
@@ -1322,7 +1322,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		if (!v31)
 			goto LABEL_70;
 		if (ConfigDebugErr & 0x400) {
-			v8 = "\r[SDIO Err]Get CID fail !!\n";
+			v8 = "\r[SDIO Err]Get CID fail!\n";
 			goto LABEL_104;
 		}
 		goto LABEL_115;
@@ -1341,10 +1341,10 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		SdioHostGetResponse(v3, (u8) v52 & 3);
 		if (v3[24] != 3) {
 			if (ConfigDebugErr & 0x400)
-				DiagPrintf("\r[SDIO Err]Command index error !!\n");
+				DiagPrintf("\r[SDIO Err]Command index error!\n");
 			v7 = 238;
 			LABEL_79: if (ConfigDebugErr & 0x400) {
-				v8 = "\r[SDIO Err]Get RCA fail !!\n";
+				v8 = "\r[SDIO Err]Get RCA fail!\n";
 				goto LABEL_104;
 			}
 			goto LABEL_115;
@@ -1356,7 +1356,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	if (v39) {
 		v40 = ConfigDebugErr << 21;
 		if (ConfigDebugErr & 0x400) {
-			v41 = "\r[SDIO Err]Get CSD fail !!\n";
+			v41 = "\r[SDIO Err]Get CSD fail!\n";
 			goto LABEL_108;
 		}
 		LABEL_113: v7 = v39;
@@ -1366,7 +1366,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	if (v39) {
 		if (!(ConfigDebugErr & 0x400))
 			goto LABEL_113;
-		v41 = "\r[SDIO Err]Select sd card fail !!\n";
+		v41 = "\r[SDIO Err]Select sd card fail!\n";
 		LABEL_108: DiagPrintf(v41, v40);
 		goto LABEL_113;
 	}
@@ -1406,12 +1406,12 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 			v40 = ConfigDebugErr << 21;
 			if (!(ConfigDebugErr & 0x400))
 				goto LABEL_113;
-			v41 = "\r[SDIO Err]Get sd card current state fail !!\n";
+			v41 = "\r[SDIO Err]Get sd card current state fail!\n";
 			goto LABEL_108;
 		}
 		if (v3[131] != 4) {
 			DBG_SDIO_ERR(
-					"The card isn't in TRANSFER state !! (Current state: %d)\n",
+					"The card isn't in TRANSFER state! (Current state: %d)\n",
 					v3[131], ConfigDebugErr << 21);
 			v7 = 238;
 			goto LABEL_115;
@@ -1424,16 +1424,16 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 			goto LABEL_105;
 		}
 		LABEL_90: if (ConfigDebugErr & 0x400) {
-			v48 = "\r[SDIO Err]Command index error !!\n";
+			v48 = "\r[SDIO Err]Command index error!\n";
 			goto LABEL_95;
 		}
 		LABEL_96: v7 = 238;
 		LABEL_102: if (ConfigDebugErr & 0x400) {
-			v8 = "\r[SDIO Err]Set bus width fail !!\n";
+			v8 = "\r[SDIO Err]Set bus width fail!\n";
 			LABEL_104: DiagPrintf(v8);
 		}
 		LABEL_115:
-		DBG_SDIO_ERR("SD card initialization FAIL !!\n");
+		DBG_SDIO_ERR("SD card initialization FAIL!\n");
 	}
 	return v7;
 }
@@ -1490,7 +1490,7 @@ HAL_Status HalSdioHostGetSdStatusRtl8195a(IN VOID *Data) {
 				SdioHostGetResponse(v4, *(u8 *) &Cmd.CmdFmt & 3);
 				if (v4[24] != 55) {
 					if (ConfigDebugErr & 0x400) {
-						v10 = "\r[SDIO Err]Command index error !!\n";
+						v10 = "\r[SDIO Err]Command index error!\n";
 						LABEL_20: DiagPrintf(v10);
 						return 238;
 					}
@@ -1585,7 +1585,7 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 		else if (Frequency == SD_CLK_20_8MHZ) // SD_CLK_20_8MHZ
 			v20 = BASE_CLK_DIVIDED_BY_2;
 		else if (Frequency != SD_CLK_5_2MHZ) { // SD_CLK_5_2MHZ
-			DBG_SDIO_ERR("Unsupported SDCLK frequency !!\n");
+			DBG_SDIO_ERR("Unsupported SDCLK frequency!\n");
 			v3 = 3;
 			goto LABEL_60;
 		}
@@ -1596,7 +1596,7 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 		return 0;
 	LABEL_60: if (!(ConfigDebugErr & 0x400)) {
 		return v3;
-		v19 = "\r[SDIO Err]Host changes clock fail !!\n"; // DBG_SDIO_ERR("
+		v19 = "\r[SDIO Err]Host changes clock fail!\n"; // DBG_SDIO_ERR("
 		goto LABEL_62;
 	}
 	v4 = *((u32 *) Data + 4);
@@ -1627,7 +1627,7 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 	if (v2[24] != 55) {
 		if (!(ConfigDebugErr & 0x400))
 			return 238;
-		v10 = "\r[SDIO Err]Command index error !!\n";
+		v10 = "\r[SDIO Err]Command index error!\n";
 		LABEL_15: DiagPrintf(v10);
 		return 238;
 	}
@@ -1678,7 +1678,7 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 			if ((StatusData[16] & 0xF) != 1) {
 				if (!(ConfigDebugErr & 0x400))
 					return 238;
-				v10 = "\r[SDIO Err]\"High-Speed\" can't be switched !!\n";
+				v10 = "\r[SDIO Err]\"High-Speed\" can't be switched!\n";
 				goto LABEL_15;
 			}
 			v18 = SdioHostSwitchFunction(v2, 1, 1, (int) StatusData,
@@ -1688,14 +1688,14 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 			if ((StatusData[16] & 0xF) != 1) {
 				if (!(ConfigDebugErr & 0x400))
 					return 238;
-				v10 = "\r[SDIO Err]Card changes to High-Speed fail !!\n";
+				v10 = "\r[SDIO Err]Card changes to High-Speed fail!\n";
 				goto LABEL_15;
 			}
 			v3 = SdioHostSdClkCtrl(v2, 1, v18);
 			if (v3) {
 				if (!(ConfigDebugErr & 0x400))
 					return v3;
-				v19 = "\r[SDIO Err]Host changes to High-Speed fail !!\n";
+				v19 = "\r[SDIO Err]Host changes to High-Speed fail!\n";
 				LABEL_62: DiagPrintf(v19);
 				return v3;
 			}
@@ -1773,7 +1773,7 @@ IN u64 EndAddr) {
 			v12 = SdioHostGetResponse((void *) v5, *(u8 *) &v16.CmdFmt & 3);
 			if (*(u8 *) (v5 + 24) != 33) {
 				LABEL_20:
-				DBG_SDIO_ERR("Command index error !!\n");
+				DBG_SDIO_ERR("Command index error!\n");
 				result = 238;
 			} else {
 				result = SdioHostChkCmdInhibitCMD(v12);
@@ -1818,7 +1818,7 @@ HAL_Status HalSdioHostGetWriteProtectRtl8195a(IN VOID *Data) {
 	if (v6) {
 		if (!(ConfigDebugErr & 0x400))
 			return v6;
-		v9 = "\r[SDIO Err]Get card status fail !!\n";
+		v9 = "\r[SDIO Err]Get card status fail!\n";
 		LABEL_16: DiagPrintf(v9);
 		return v6;
 	}
@@ -1830,7 +1830,7 @@ HAL_Status HalSdioHostGetWriteProtectRtl8195a(IN VOID *Data) {
 		}
 		if (!(ConfigDebugErr & 0x400))
 			return v6;
-		v9 = "\r[SDIO Err]Get CSD fail !!\n";
+		v9 = "\r[SDIO Err]Get CSD fail!\n";
 		goto LABEL_16;
 	}
 	if (*((u8 *) v3 + 131) == 4 || *((u8 *) v3 + 131) == 5) {
@@ -1840,7 +1840,7 @@ HAL_Status HalSdioHostGetWriteProtectRtl8195a(IN VOID *Data) {
 		goto LABEL_10;
 	}
 	if (ConfigDebugErr & 0x400)
-		DiagPrintf("\r[SDIO Err]Wrong card state !!\n", ConfigDebugErr << 21);
+		DiagPrintf("\r[SDIO Err]Wrong card state!\n", ConfigDebugErr << 21);
 	return 238;
 }
 // 23D4: using guessed type int DiagPrintf(const char *, ...);
@@ -1917,7 +1917,7 @@ HAL_Status HalSdioHostSetWriteProtectRtl8195a(IN VOID *Data, IN u8 Setting) {
 			if (!result) {
 				SdioHostGetResponse(v3, v16 & 3);
 				if (*((u32 *) v3 + 5) & 0x4000000) {
-					DBG_SDIO_ERR("Write protect violation !!\n",
+					DBG_SDIO_ERR("Write protect violation!\n",
 							ConfigDebugErr << 21);
 					return 3;
 				}

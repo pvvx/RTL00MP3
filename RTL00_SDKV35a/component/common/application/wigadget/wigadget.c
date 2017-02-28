@@ -318,15 +318,15 @@ static void local_link_task(void *param)
 			sprintf(j, "%.2f", humidity);
 #endif
 			if(ret < 0)
-				printf("\r\n\r\n<-----LOCAL LINK FAILED!!(get infor failed)\r\n\r\n");
+				printf("\r\n\r\n<-----LOCAL LINK FAILED!(get infor failed)\r\n\r\n");
 			else{
 				printf("\r\n\r\n----->START LOCAL LINKING\r\n\r\n");
 				gen_json_data(i, j, data);
 				printf("Sending data : %s\r\n", data);
 				if (local_link(data) < 0)
-					printf("\r\n\r\n<-----LOCAL LINK FAILED!!\r\n\r\n");
+					printf("\r\n\r\n<-----LOCAL LINK FAILED!\r\n\r\n");
 				else
-					printf("\r\n\r\n<-----LOCAL LINK OK!!\r\n\r\n");
+					printf("\r\n\r\n<-----LOCAL LINK OK!\r\n\r\n");
 				vTaskDelay(1000);
 			}
 	}
@@ -502,10 +502,10 @@ static void pair_device_task(void)
 				temp = NULL;
 			}
 			if(pair_device(tx_buffer, rx_buffer, 1) >= 0)
-				printf("\r\n\r\n<===First handshake OK!!\r\n\r\n");
+				printf("\r\n\r\n<===First handshake OK!\r\n\r\n");
                     	else{
 				i--;
-				printf("\r\n\r\n<===First handshake FAILED!!\r\n\r\n");
+				printf("\r\n\r\n<===First handshake FAILED!\r\n\r\n");
                         }
 		}
 //Second handshake  
@@ -558,11 +558,11 @@ static void pair_device_task(void)
 		    			flash_stream_write(&iot_flash, FLASH_IOT_DATA, 33, (uint8_t *) data);
 					IOT_DEBUG("PAIR_STATE: %d\r\n", PAIR_STATE[0]);
 				}
-				printf("\r\n\r\n<=====Second handshake OK!!\r\n\r\n");
+				printf("\r\n\r\n<=====Second handshake OK!\r\n\r\n");
 			}
 			else{
 				i = i - 2;
-				printf("\r\n\r\n<=====Second handshake FAILED!!\r\n\r\n");
+				printf("\r\n\r\n<=====Second handshake FAILED!\r\n\r\n");
 			}
 		}
 //Third handshake
@@ -586,15 +586,15 @@ static void pair_device_task(void)
 		    		flash_stream_write(&iot_flash, FLASH_IOT_DATA, 97, (uint8_t *) data);
 				IOT_DEBUG("PAIR_STATE: %d\r\n", PAIR_STATE[0]);
 
-				printf("\r\n\r\n<=======Third handshake OK!!\r\n\r\n");
+				printf("\r\n\r\n<=======Third handshake OK!\r\n\r\n");
 			}
 			else{
 				i = i - 3;
-				printf("\r\n\r\n<=======Third handshake FAILED!!\r\n\r\n");
+				printf("\r\n\r\n<=======Third handshake FAILED!\r\n\r\n");
 			}
 		}
 	}
-	printf("\r\n\r\n<=========Pairing OK!!\r\n\r\n");
+	printf("\r\n\r\n<=========Pairing OK!\r\n\r\n");
 }
 
 static void mdns_task(void *param)
@@ -657,7 +657,7 @@ static void mdns_task(void *param)
 				TXTRecordSetValue(&txtRecord, "CONTROL_TYPE", strlen("0"), "0");
 			dnsServiceRef = mDNSRegisterService("ht_sensor", "_Ameba._tcp", "local", PORT, &txtRecord);
 			TXTRecordDeallocate(&txtRecord);			
-			printf("\r\n\r\n<========Registering mDNS service OK!!\r\n\r\n");			
+			printf("\r\n\r\n<========Registering mDNS service OK!\r\n\r\n");			
 			pair_device_task();
                 }
 //The device was paired
@@ -676,7 +676,7 @@ static void mdns_task(void *param)
 			
 			dnsServiceRef = mDNSRegisterService("ht_sensor", "_Ameba._tcp", "local", PORT, &txtRecord);
 			TXTRecordDeallocate(&txtRecord);
-			printf("\r\n\r\n<========Registering mDNS service OK!! PAIR_STATE = 1\r\n\r\n");	
+			printf("\r\n\r\n<========Registering mDNS service OK! PAIR_STATE = 1\r\n\r\n");	
                 }
 #if PSEUDO_DATA
 	printf("\r\n\r\n========>Using the speudo data\r\n\r\n");

@@ -876,7 +876,7 @@ dns_enqueue(const char *name, dns_found_callback found, void *callback_arg)
 
 /**
  * Resolve a hostname (string) into an IP address.
- * NON-BLOCKING callback version for use with raw API!!!
+ * NON-BLOCKING callback version for use with raw API!
  *
  * Returns immediately with one of err_t return codes:
  * - ERR_OK if hostname is a valid IP address string or the host

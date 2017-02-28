@@ -318,7 +318,7 @@ BOOL SDIO_Device_Init(
 // TODO: initial TX BD
 	pSDIODev->pTXBDAddr = RtlZmalloc((SDIO_TX_BD_NUM * sizeof(SDIO_TX_BD))+3);
 	if (NULL == pSDIODev->pTXBDAddr) {
-		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for TX_BD Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for TX_BD Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 	pSDIODev->pTXBDAddrAligned = (PSDIO_TX_BD)(((((u32)pSDIODev->pTXBDAddr - 1) >> 2) + 1) << 2);	// Make it 4-bytes aligned
@@ -347,7 +347,7 @@ BOOL SDIO_Device_Init(
     
 	pSDIODev->pTXBDHdl = (PSDIO_TX_BD_HANDLE)RtlZmalloc(SDIO_TX_BD_NUM * sizeof(SDIO_TX_BD_HANDLE));
 	if (NULL == pSDIODev->pTXBDHdl) {
-		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for TX_BD Handle Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for TX_BD Handle Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 
@@ -363,7 +363,7 @@ BOOL SDIO_Device_Init(
 	if(pTxBdHdl->skb)
 		pTxBdHdl->pTXBD->Address = (u32)pTxBdHdl->skb->tail;
 	else
-		DBG_SDIO_ERR("SDIO_Device_Init: rltk_wlan_alloc_skb (%d) failed!!\n", SDIO_TX_BD_BUF_USIZE*SDIO_TX_BUF_SZ_UNIT);
+		DBG_SDIO_ERR("SDIO_Device_Init: rltk_wlan_alloc_skb (%d) failed!\n", SDIO_TX_BD_BUF_USIZE*SDIO_TX_BUF_SZ_UNIT);
 #else
 		pTxBdHdl->pTXBD->Address = (u32)(&inic_TX_Buf[i][0]);
 #endif
@@ -404,7 +404,7 @@ BOOL SDIO_Device_Init(
 	/* Allocate memory for TX Packets handler */
 	pSDIODev->pTxPktHandler = (SDIO_TX_PACKET *)(RtlZmalloc(sizeof(SDIO_TX_PACKET)*SDIO_TX_PKT_NUM));
 	if (NULL == pSDIODev->pTxPktHandler) {
-		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for TX PKT Handler Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for TX PKT Handler Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 	/* Add all TX packet handler into the Free Queue(list) */
@@ -417,7 +417,7 @@ BOOL SDIO_Device_Init(
 	/* Init RX BD and RX Buffer */
 	pSDIODev->pRXBDAddr = RtlZmalloc((SDIO_RX_BD_NUM * sizeof(SDIO_RX_BD))+7);
 	if (NULL == pSDIODev->pRXBDAddr) {
-		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for RX_BD Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for RX_BD Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 	pSDIODev->pRXBDAddrAligned = (PSDIO_RX_BD)(((((u32)pSDIODev->pRXBDAddr - 1) >> 3) + 1) << 3);	// Make it 8-bytes aligned
@@ -430,7 +430,7 @@ BOOL SDIO_Device_Init(
 
 	pSDIODev->pRXBDHdl = (PSDIO_RX_BD_HANDLE)RtlZmalloc(SDIO_RX_BD_NUM * sizeof(SDIO_RX_BD_HANDLE));
 	if (NULL == pSDIODev->pRXBDHdl) {
-		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for RX_BD Handle Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for RX_BD Handle Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 
@@ -447,7 +447,7 @@ BOOL SDIO_Device_Init(
 	/* Allocate memory for RX Packets handler */
 	pSDIODev->pRxPktHandler = (SDIO_RX_PACKET *)(RtlZmalloc(sizeof(SDIO_RX_PACKET)*SDIO_RX_PKT_NUM));
 	if (NULL == pSDIODev->pRxPktHandler) {
-		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for RX PKT Handler Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init: Malloc for RX PKT Handler Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 	/* Add all RX packet handler into the Free Queue(list) */
@@ -467,20 +467,20 @@ BOOL SDIO_Device_Init(
 #if !TASK_SCHEDULER_DISABLED
 	RtlInitSema(&(pSDIODev->TxSema), 0);
 	if (NULL == pSDIODev->TxSema){
-		DBG_SDIO_ERR("SDIO_Device_Init Create Semaphore Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init Create Semaphore Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 
 	RtlInitSema(&(pSDIODev->RxSema), 0);
 	if (NULL == pSDIODev->RxSema){
-		DBG_SDIO_ERR("SDIO_Device_Init Create RX Semaphore Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init Create RX Semaphore Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 
 	/* create a Mailbox for other driver module to send message to SDIO driver */
 	pSDIODev->pMBox = RtlMailboxCreate(MBOX_ID_SDIO, SDIO_MAILBOX_SIZE, &(pSDIODev->RxSema));
 	if (NULL == pSDIODev->pMBox) {
-		DBG_SDIO_ERR("SDIO_Device_Init Create Mailbox Err!!\n");	
+		DBG_SDIO_ERR("SDIO_Device_Init Create Mailbox Err!\n");	
 		goto SDIO_INIT_ERR;
 	}
 #if SDIO_MP_MODE
@@ -491,14 +491,14 @@ BOOL SDIO_Device_Init(
 	ret = xTaskCreate( SDIO_TxTask, "SDIO_TX_TASK", ((1024*2)/sizeof(portBASE_TYPE)), (void *)pSDIODev, SDIO_TASK_PRIORITY + PRIORITIE_OFFSET, &pSDIODev->xSDIOTxTaskHandle);
 	if (pdTRUE != ret )
 	{
-		DBG_SDIO_ERR("SDIO_Device_Init: Create Task Err(%d)!!\n", ret);
+		DBG_SDIO_ERR("SDIO_Device_Init: Create Task Err(%d)!\n", ret);
 		goto SDIO_INIT_ERR;
 	}
 
 	ret = xTaskCreate( SDIO_RxTask, "SDIO_RX_TASK", ((1024*1)/sizeof(portBASE_TYPE)), (void *)pSDIODev, SDIO_TASK_PRIORITY + PRIORITIE_OFFSET, &pSDIODev->xSDIORxTaskHandle);
 	if (pdTRUE != ret )
 	{
-		DBG_SDIO_ERR("SDIO_Device_Init: Create RX Task Err(%d)!!\n", ret);
+		DBG_SDIO_ERR("SDIO_Device_Init: Create RX Task Err(%d)!\n", ret);
 		goto SDIO_INIT_ERR;
 	}
     
@@ -1355,7 +1355,7 @@ VOID SDIO_TX_FIFO_DataReady(
 	TxBDWPtr = HAL_SDIO_READ16(REG_SPDIO_TXBD_WPTR);
 	if (TxBDWPtr == pSDIODev->TXBDRPtr) {
         if ((pSDIODev->IntStatus & BIT_TXFIFO_H2C_OVF) == 0) {
-    		DBG_SDIO_WARN("SDIO TX Data Read False Triggered!!, TXBDWPtr=0x%x\n", TxBDWPtr);	
+    		DBG_SDIO_WARN("SDIO TX Data Read False Triggered!, TXBDWPtr=0x%x\n", TxBDWPtr);	
     		return;
         }
         else {
@@ -1518,7 +1518,7 @@ PSDIO_RX_PACKET SDIO_Alloc_Rx_Pkt(
                 RtlMsleepOS(10);
                 loop_cnt++;
                 if (loop_cnt > 100) {
-                    DBG_SDIO_ERR("SDIO_Alloc_Rx_Pkt: Err!! Allocate RX PKT Failed!!\n");
+                    DBG_SDIO_ERR("SDIO_Alloc_Rx_Pkt: Err! Allocate RX PKT Failed!\n");
                     break;
                 }
             }
@@ -1741,14 +1741,14 @@ u8 SDIO_Send_C2H_PktMsg(
 
 	MsgBuf = RtlZmalloc(MsgLen);
 	if (NULL == MsgBuf) {
-		DBG_SDIO_ERR("SDIO_Send_C2H_PktMsg: Malloc Err!!\n");
+		DBG_SDIO_ERR("SDIO_Send_C2H_PktMsg: Malloc Err!\n");
 		return FAIL;
 	}
 	_memcpy((void *)(MsgBuf), (void *)C2HMsg, MsgLen);
 	
 	pPkt = SDIO_Alloc_Rx_Pkt(pSDIODev);
 	if (pPkt == NULL) {
-		DBG_SDIO_ERR("RX Callback Err!! No Free RX PKT!\n");
+		DBG_SDIO_ERR("RX Callback Err! No Free RX PKT!\n");
 		return FAIL;
 	}
 	pRxDesc = &pPkt->RxDesc;
@@ -2244,7 +2244,7 @@ s8 SDIO_Rx_Callback(
 
 	pPkt = SDIO_Alloc_Rx_Pkt(pSDIODev);
 	if (pPkt == NULL) {
-		DBG_SDIO_ERR("RX Callback Err!! No Free RX PKT!\n");
+		DBG_SDIO_ERR("RX Callback Err! No Free RX PKT!\n");
 		return FAIL;
 	}
 	pRxDesc = &pPkt->RxDesc;
@@ -2877,7 +2877,7 @@ VOID SDIO_DeviceMPApp(
 	case SDIO_MP_LOOPBACK:
 		DBG_SDIO_INFO("MP_App: argv[1]=%s\n", argv[1]);
 		if (pSDIODev->MP_ModeEn == 0) {
-			DiagPrintf("Not in MP mode!! Please start MP mode first.\n");
+			DiagPrintf("Not in MP mode! Please start MP mode first.\n");
 			break;
 		}
 		arg1 = Strtoul((const u8*)(argv[1]), (u8 **)NULL, 10);
@@ -2887,14 +2887,14 @@ VOID SDIO_DeviceMPApp(
 #if !TASK_SCHEDULER_DISABLED
                 RtlInitSema(&(pSDIODev->MP_EventSema), 0);
                 if (NULL == pSDIODev->MP_EventSema){
-                    DBG_SDIO_ERR("SDIO MP_Loopback Create Semaphore Err!!\n");  
+                    DBG_SDIO_ERR("SDIO MP_Loopback Create Semaphore Err!\n");  
                     break;  // break the switch case
                 }
             
                 /* create a Mailbox for other driver module to send message to SDIO driver */
                 pSDIODev->pMP_MBox = RtlMailboxCreate(MBOX_ID_SDIO_MP, SDIO_MAILBOX_SIZE, &(pSDIODev->MP_EventSema));
                 if (NULL == pSDIODev->pMBox) {
-                    DBG_SDIO_ERR("SDIO MP_Loopback Create Mailbox Err!!\n");    
+                    DBG_SDIO_ERR("SDIO MP_Loopback Create Mailbox Err!\n");    
                     break;  // break the switch case
                 }
             
@@ -2903,7 +2903,7 @@ VOID SDIO_DeviceMPApp(
                 ret = xTaskCreate( SDIO_MP_Task, "SDIO_MP_TASK", ((256*4)/sizeof(portBASE_TYPE)), (void *)pSDIODev, SDIO_MP_TASK_PRIORITY, &pSDIODev->MP_TaskHandle);
                 if (pdTRUE != ret )
                 {
-                    DBG_SDIO_ERR("SDIO MP Create Task Err(%d)!!\n", ret);
+                    DBG_SDIO_ERR("SDIO MP Create Task Err(%d)!\n", ret);
                     break;
                 }
 #endif
@@ -3101,7 +3101,7 @@ VOID SDIO_DeviceMPApp(
                 pSDIODev->pMP_CRxBuf = RtlMalloc(pSDIODev->MP_CRxSize+26);    // 26: Wlan header                
                 DiagPrintf("SDIO RX Test: pBuf @ 0x%x\n", (u32)pSDIODev->pMP_CRxBuf);
                 if (((u32)(pSDIODev->pMP_CRxBuf) & 0x03) != 0) {
-                    DiagPrintf("SDIO RX Test: pBuf Not 4-bytes Aligned!!\n");
+                    DiagPrintf("SDIO RX Test: pBuf Not 4-bytes Aligned!\n");
                 }
 #if SDIO_DEBUG
                 pSDIODev->MemAllocCnt++;

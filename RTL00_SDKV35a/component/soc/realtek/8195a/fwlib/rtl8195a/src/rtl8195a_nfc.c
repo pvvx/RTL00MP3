@@ -1230,7 +1230,7 @@ A2NWriteInQueue(
     if ((pNFCAdp->A2NWQWIdx == (pNFCAdp->A2NWQRIdx - 1))||
         ((pNFCAdp->A2NWQRIdx == 0)&&(pNFCAdp->A2NWQWIdx == N2A_Q_LENGTH - 1))){
 
-        DBG_8195A("A2N write Mailbox Queue full !!\n");
+        DBG_8195A("A2N write Mailbox Queue full!\n");
     }
     
     for (Idx = 0; Idx < pA2NWData->Length; Idx++) {
@@ -1696,7 +1696,7 @@ HalNFCInit(
         NFCTmpSts = xTaskCreate( NFCTaskHandle, (const char *)"NFC_TASK", 
                             ((1024*4)/sizeof(portBASE_TYPE)), (void *)pNFCAdp, 1, &(pNFCAdp->NFCTask));
         if (pdTRUE != NFCTmpSts ) {
-            DBG_NFC_ERR("HalNFCInit: Create Task Err(%d)!!\n", NFCTmpSts);
+            DBG_NFC_ERR("HalNFCInit: Create Task Err(%d)!\n", NFCTmpSts);
         }
     }
     #endif
@@ -1760,7 +1760,7 @@ HalNFCRead32(
             }
             if (Idxtemp > 0x0fffff) {
                 DBG_8195A("A2N_OCP_MISC_R_IN_WHILE: 0x%x\r\n", HAL_READ32(NFC_INTERFACE_BASE, 0x4));
-                DBG_8195A("Read FAIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\r\n");
+                DBG_8195A("Read FAIL!\r\n");
                 return 0;
             }            
         }
@@ -1799,7 +1799,7 @@ HalNFCWrite32(
             }
             if (Idxtemp > 0x0fffff) {
                 DBG_8195A("A2N_OCP_MISC_R_IN_WHILE: 0x%x\r\n", HAL_READ32(NFC_INTERFACE_BASE, 0x4));
-        	    DBG_8195A("write FAIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\r\n");
+        	    DBG_8195A("write FAIL!\r\n");
                 return;
             }
         }
@@ -1914,7 +1914,7 @@ HalNFCFwDownload(
         // DBG_8195A("NFC FW Download IMEM SUCCESS \n");
     }
     else {
-        DBG_8195A("NFC FW Download IMEM FAIL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n");
+        DBG_8195A("NFC FW Download IMEM FAIL!\n");
         return;
     }
 
@@ -1934,7 +1934,7 @@ HalNFCFwDownload(
         //DBG_8195A("NFC FW Download DMEM SUCCESS \n");
     }
     else {
-        DBG_8195A("NFC FW Download DMEM FAIL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n");
+        DBG_8195A("NFC FW Download DMEM FAIL!\n");
         return;
     }
     
@@ -1967,7 +1967,7 @@ HalNFCDbgRead32(
             }
             if (Idxtemp > 0x0fffff) {
                 DBG_8195A("A2N_OCP_MISC_R_IN_WHILE: 0x%x\r\n", HAL_READ32(NFC_INTERFACE_BASE, 0x4));
-                DBG_8195A("Read FAIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\r\n");
+                DBG_8195A("Read FAIL!\r\n");
                 return 0;
             }            
         }
@@ -2007,7 +2007,7 @@ HalNFCDbgWrite32(
             }
             if (Idxtemp > 0x0fffff) {
                 DBG_8195A("A2N_OCP_MISC_R_IN_WHILE: 0x%x\r\n", HAL_READ32(NFC_INTERFACE_BASE, 0x4));
-        	    DBG_8195A("write FAIL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\r\n");
+        	    DBG_8195A("write FAIL!\r\n");
                 return;
             }
         }

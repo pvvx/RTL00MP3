@@ -52,7 +52,7 @@ void main(void)
     serial_format(&sobj, 8, ParityNone, 1);
 
     uart_send_string(&sobj, "UART IRQ API Demo...\r\n");
-    uart_send_string(&sobj, "Hello World!!\n");
+    uart_send_string(&sobj, "Hello World!\n");
     uart_send_string(&sobj, "\r\n8195a$");
     serial_irq_handler(&sobj, uart_irq, (uint32_t)&sobj);
     serial_irq_set(&sobj, RxIrq, 1);

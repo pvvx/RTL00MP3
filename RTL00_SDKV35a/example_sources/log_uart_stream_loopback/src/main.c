@@ -14,7 +14,7 @@
 
 extern void wait_ms(int ms);
 
-char buf[BUF_SZ]="Hello World!!\r\n";;
+char buf[BUF_SZ]="Hello World!\r\n";;
 volatile uint32_t tx_busy=0;
 volatile uint32_t rx_busy=0;
 log_uart_t uobj;

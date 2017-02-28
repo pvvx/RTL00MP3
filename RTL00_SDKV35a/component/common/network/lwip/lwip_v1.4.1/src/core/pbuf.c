@@ -15,7 +15,7 @@
  * 
  * So, a packet queue consists of one or more pbuf chains, each of
  * which consist of one or more pbufs. CURRENTLY, PACKET QUEUES ARE
- * NOT SUPPORTED!!! Use helper structs to queue multiple packets.
+ * NOT SUPPORTED! Use helper structs to queue multiple packets.
  * 
  * The differences between a pbuf chain and a packet queue are very
  * precise but subtle. 
@@ -359,7 +359,7 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
  * @param payload_mem pointer to the buffer that is used for payload and headers,
  *        must be at least big enough to hold 'length' plus the header size,
  *        may be NULL if set later.
- *        ATTENTION: The caller is responsible for correct alignment of this buffer!!
+ *        ATTENTION: The caller is responsible for correct alignment of this buffer!
  * @param payload_mem_len the size of the 'payload_mem' buffer, must be at least
  *        big enough to hold 'length' plus the header size
  */

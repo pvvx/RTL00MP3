@@ -103,7 +103,7 @@ void mii_intr_handler(u32 Event, u32 Data)
 			  
 			break;
 		default:
-			DBG_8195A("Unknown event !!\n");
+			DBG_8195A("Unknown event!\n");
 			break;
 	}
 }

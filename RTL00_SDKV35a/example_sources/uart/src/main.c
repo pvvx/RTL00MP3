@@ -36,7 +36,7 @@ void main(void)
     serial_format(&sobj, 8, ParityNone, 1);
 
     uart_send_string(&sobj, "UART API Demo...\r\n");
-    uart_send_string(&sobj, "Hello World!!\r\n");
+    uart_send_string(&sobj, "Hello World!\r\n");
     while(1){
         uart_send_string(&sobj, "\r\n8195a$");
         rc = serial_getc(&sobj);

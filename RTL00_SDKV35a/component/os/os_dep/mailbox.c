@@ -159,7 +159,7 @@ PRTL_MAILBOX RtlMailboxCreate(
 	// check if this mailbox ID is ocupied ?
 	pMBox = RtlMBoxIdToHdl(MboxID);
 	if (NULL != pMBox) {
-		MSG_MBOX_ERR("RtlMailboxCreate: The Mailbox ID %d is used by someone!!\n", MboxID);
+		MSG_MBOX_ERR("RtlMailboxCreate: The Mailbox ID %d is used by someone!\n", MboxID);
 		return NULL;
 	}
 

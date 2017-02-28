@@ -152,7 +152,7 @@ HAL_GPIO_ADAPTER PINMUX_RAM_DATA_SECTION gBoot_Gpio_Adapter;
 #if !USE_SRC_ONLY_BOOT
 //----- HalNMIHandler_Patch
 void HalNMIHandler_Patch(void) {
-	DBG_8195A_HAL("RTL8195A[HAL]: %s:NMI Error!\n", "HalNMIHandler_Patch");
+	DBG_8195A_HAL("%s:NMI Error!\n", __func__);
 	if ( HAL_READ32(VENDOR_REG_BASE, 0) < 0)
 		HalWdgIntrHandle(); // ROM: HalWdgIntrHandle = 0x3485;
 }

@@ -310,7 +310,7 @@ SdrTestApp(
 
                 //1 "SdrControllerInit" is located in Image1, so we shouldn't call it in Image2 
                 if (!SdrControllerInit()) {
-                    DBG_8195A("SDR Calibartion Fail!!!!\n");
+                    DBG_8195A("SDR Calibartion Fail!\n");
                 }
             break;
         case 2:

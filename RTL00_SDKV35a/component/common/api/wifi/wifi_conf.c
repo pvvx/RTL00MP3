@@ -1000,7 +1000,7 @@ int wifi_rf_off(void)
 int wifi_on(rtw_mode_t mode)
 {
 	int ret = 0;
-//pvvx	int timeout = 20; // 20 sec ??!!
+//pvvx	int timeout = 20; // 20 sec ?!
 	int timeout = wifi_test_timeout_ms/wifi_test_timeout_step_ms;
 	int idx;
 	int devnum = 1;
@@ -1063,7 +1063,7 @@ int wifi_on(rtw_mode_t mode)
 int wifi_off(void)
 {
 //	int ret = 0;
-//pvvx	int timeout = 20; // 20 sec ??!!
+//pvvx	int timeout = 20; // 20 sec ?!
 	int timeout = wifi_test_timeout_ms/10;
 
 	if((rltk_wlan_running(WLAN0_IDX) == 0) &&

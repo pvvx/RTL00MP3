@@ -190,7 +190,7 @@ HalGdmaChBlockSetingRtl8195a_Patch(
 
     //4 Check 4 Bytes Alignment
     if ((u32)(pLliEle) & 0x3) {
-        DBG_GDMA_WARN("LLi Addr: 0x%x not 4 bytes alignment!!!!\n", 
+        DBG_GDMA_WARN("LLi Addr: 0x%x not 4 bytes alignment!\n", 
                         pHalGdmaAdapter->pLli);
         return _FALSE;
     }
@@ -214,7 +214,7 @@ HalGdmaChBlockSetingRtl8195a_Patch(
         pLliEle = pGdmaChLli->pLliEle;
 
         if (NULL == pLliEle) {
-            DBG_GDMA_ERR("pLliEle Null Point!!!!!\n");
+            DBG_GDMA_ERR("pLliEle Null Point!\n");
             return _FALSE;
         }
 

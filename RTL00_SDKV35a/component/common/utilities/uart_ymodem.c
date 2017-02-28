@@ -612,7 +612,7 @@ exit:
 	//if anything goes wrong or transfer over,we kill ourself.
 	if(error_bit || transfer_over){
 		if(error_bit)
-			printf("error!!! error bit = %d\r\n",error_bit);
+			printf("error! error bit = %d\r\n",error_bit);
 		else{
 			printf(" [%s, %d Bytes] transfer_over!\r\n",ymodem_ptr->filename,ymodem_ptr->filelen);	
 			set_signature(ymodem_ptr);

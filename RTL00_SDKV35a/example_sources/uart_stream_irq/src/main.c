@@ -70,7 +70,7 @@ void main(void)
     while (1) {
 #if 0
         if (!tx_busy) {
-            uart_send_string(&sobj, "Hello! World!! :) \r\n");
+            uart_send_string(&sobj, "Hello World! :) \r\n");
          }
 #endif
         if (rx_done) {

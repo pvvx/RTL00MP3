@@ -261,7 +261,7 @@ int uart_read(uart_socket_t *u, void *read_buf, size_t size)
 	if(!u->rxoverlap){
 		memcpy(ptr, (u->recv_buf+ pread_local), read_bytes );
 	} else {
-		uart_printf("uart recv buf is write through!!\n");
+		uart_printf("uart recv buf is write through!\n");
 		if((pread_local + read_bytes) > UART_RECV_BUFFER_LEN){
 			memcpy(ptr,(u->recv_buf+ pread_local), (UART_RECV_BUFFER_LEN-pread_local));
 			memcpy(ptr+(UART_RECV_BUFFER_LEN-pread_local), u->recv_buf, read_bytes-(UART_RECV_BUFFER_LEN- pread_local));

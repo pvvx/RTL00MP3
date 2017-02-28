@@ -148,7 +148,7 @@ HalMiiInitIrqRtl8195a(
 
 
 	if(pEthAdapter == NULL)
-		DBG_MII_ERR("pEthAdapter is NULL !!\n");
+		DBG_MII_ERR("pEthAdapter is NULL!\n");
 
 	pMiiIrqHandle->Data	 = (u32) pEthAdapter;
 	pMiiIrqHandle->IrqNum	 = GMAC_IRQ;
@@ -169,7 +169,7 @@ HalMiiDeInitIrqRtl8195a(
 
 
 	if(pEthAdapter == NULL)
-		DBG_8195A("pEthAdapter is NULL !!\n");
+		DBG_8195A("pEthAdapter is NULL!\n");
 
 	/* Clear all interrupt status */
 	HAL_MII_WRITE32(REG_MII_ISRIMR, ISR_CLR_ALL);
@@ -203,7 +203,7 @@ HalMiiInitRtl8195a(
 
 	if((!(pEthAdapter->tx_desc_num)) || (!(pEthAdapter->rx_desc_num)))
 	{
-		DBG_MII_ERR("Invalid Tx/Rx descriptor number !!\n");
+		DBG_MII_ERR("Invalid Tx/Rx descriptor number!\n");
 		return -1;
 	}
 	DBG_MII_INFO("Tx/Rx: %d/%d\n", pEthAdapter->tx_desc_num, pEthAdapter->rx_desc_num);
@@ -286,7 +286,7 @@ HalMiiInitRtl8195a(
 	RxDesc = (PRX_DESC_FMT)(pEthAdapter->RxDescAddr);
 	if((TxDesc == NULL) || (RxDesc == NULL))
 	{
-		DBG_MII_ERR("Invalid Tx/Rx descriptor address !!\n");
+		DBG_MII_ERR("Invalid Tx/Rx descriptor address!\n");
 		return -1;
 	}
 
@@ -327,7 +327,7 @@ HalMiiInitRtl8195a(
 	pRxDataBuf = pEthAdapter->pRxPktBuf;
 	if((pTxDataBuf == NULL) || (pRxDataBuf == NULL))
 	{
-		DBG_MII_ERR("Invalid Tx/Rx packet buffer address !!\n");
+		DBG_MII_ERR("Invalid Tx/Rx packet buffer address!\n");
 		return -1;
 	}
 
@@ -407,7 +407,7 @@ HalMiiWriteDataRtl8195a(
 
 	if((Data == NULL) || (Size == 0) || (Size > MAX_FRAME_SIZE))
 	{
-		DBG_MII_ERR("Invalid parameter !!\n");
+		DBG_MII_ERR("Invalid parameter!\n");
 		return -1;
 	}
 

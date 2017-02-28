@@ -44,7 +44,7 @@ int main(void)
 		DiagPrintf("<---- Init %d ---->\n", x);
 		if (!SpicFlashInitRtl8195A(x)) {// SpicOneBitMode)){
 
-			DiagPrintf("SPI Init Fail!!!!!!\n"); // DBG_SPIF_ERR?
+			DiagPrintf("SPI Init Fail!\n"); // DBG_SPIF_ERR?
 			HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_DSTBY_INFO3, HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_DSTBY_INFO3)|0xf);
 			while(1);
 		}

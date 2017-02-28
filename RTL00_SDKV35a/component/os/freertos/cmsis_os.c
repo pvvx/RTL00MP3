@@ -56,7 +56,7 @@ static osPriority makeCmsisPriority (unsigned portBASE_TYPE fpriority)
     return priority;
 }
 
-/* pvvx!!! */
+/* pvvx! */
 static uint32_t __get_IPSR(void)
 {
   uint32_t result;

@@ -1057,7 +1057,7 @@ static u8_t ProcessPostMessage(struct netbuf  *pxRxBuffer, portCHAR *LocalBuf)
     pcRxString = LocalBuf;
     p = pxRxBuffer->p;
     usLength = p->tot_len;
-    //printf("\r\n !!!!!!!!!POST!p->tot_len =%d p->len=%d\n", p->tot_len, p->len);            
+    //printf("\r\n !POST!p->tot_len =%d p->len=%d\n", p->tot_len, p->len);            
     while(p)
     {
         memcpy(pcRxString, p->payload, p->len);
@@ -1342,7 +1342,7 @@ void stop_web_server()
   				netconn_delete(pxHTTPListener);
 				pxHTTPListener = NULL;
 			}
-			printf("\r\nWEB: Take webs sema(%p) failed!!!!!!!!!!!\n", webs_sema);
+			printf("\r\nWEB: Take webs sema(%p) failed!\n", webs_sema);
 		}
 		vSemaphoreDelete(webs_sema);
 		webs_sema = NULL;

@@ -30,7 +30,7 @@ void main(void)
     log_uart_init(&uobj, 38400, 8, ParityNone, 1);
 
     uart_send_string(&uobj, "UART API Demo...\r\n");
-    uart_send_string(&uobj, "Hello World!!\r\n");
+    uart_send_string(&uobj, "Hello World!\r\n");
     while(1){
         uart_send_string(&uobj, "\r\n8195a$");
         rc = log_uart_getc(&uobj);

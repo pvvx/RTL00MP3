@@ -19,9 +19,9 @@ En32KCalibration(
 {
     u32 Rtemp;
     u32 Ttemp = 0;
-
-    //DiagPrintf("32K clock source calibration\n");
-
+#if CONFIG_DEBUG_LOG > 5
+    DiagPrintf("32K clock source calibration\n");
+#endif
     //set parameter
     HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
     //offset 1 = 0x1500
@@ -57,16 +57,20 @@ En32KCalibration(
 
         Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL1);
         if ((Rtemp & 0x3000) != 0x0){
-            //DiagPrintf("32.768 Calibration Success\n", Ttemp);
+#if CONFIG_DEBUG_LOG > 5
+            DiagPrintf("32.768 Calibration Success\n", Ttemp);
+#endif
             break;
         }
         else {
             Ttemp++;
             HalDelayUs(30);
-            //DiagPrintf("Check lock: %d\n", Ttemp);
-            //DiagPrintf("0x278: %x\n", Rtemp);
+#if CONFIG_DEBUG_LOG > 5
+            DiagPrintf("Check lock: %d\n", Ttemp);
+            DiagPrintf("0x278: %x\n", Rtemp);
+#endif
             if (Ttemp > 100000) { /*Delay 100ms*/            
-                DiagPrintf("32K Calibration Fail!!\n", Ttemp);
+                DiagPrintf("32K Calibration Fail!\n", Ttemp);
                 break;
             }
         }
@@ -78,6 +82,10 @@ WDG_ADAPTER          WDGAdapter;
 extern HAL_TIMER_OP HalTimerOp;
 
 #ifdef CONFIG_WDG_NORMAL
+/*
+ * pvvx: if WDT RESET_MODE:
+ * HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & 0x1FFFFF);
+ */
 VOID
 WDGInitial(
     IN  u32 Period
@@ -93,8 +101,9 @@ WDGInitial(
     u32 PeriodTemp = 0;
     u32 *Reg = (u32*)&(WDGAdapter.Ctrl);
     
-    DBG_8195A(" Period = 0x%08x\n", Period);
-
+#if CONFIG_DEBUG_LOG > 1
+    DBG_8195A("WdgPeriod = %d ms\n", Period);
+#endif
     for (CountId = 0; CountId < 12; CountId++) {
         CountTemp = ((0x00000001 << (CountId+1))-1);
         DivFactor = (u16)((PeriodProcess)/(CountTemp*3));
@@ -111,18 +120,20 @@ WDGInitial(
         }
     }
 
-    DBG_8195A("WdgScalar = 0x%08x\n", DivFacProcess);
-    DBG_8195A("WdgCunLimit = 0x%08x\n", CountProcess);
-
+#if CONFIG_DEBUG_LOG > 4
+    DBG_8195A("WdgScalar = %p\n", DivFacProcess);
+    DBG_8195A("WdgCunLimit = %p\n", CountProcess);
+#endif
     WDGAdapter.Ctrl.WdgScalar   = DivFacProcess;
     WDGAdapter.Ctrl.WdgEnByte   = 0;
     WDGAdapter.Ctrl.WdgClear    = 1;
     WDGAdapter.Ctrl.WdgCunLimit = CountProcess;
     WDGAdapter.Ctrl.WdgMode     = RESET_MODE;
     WDGAdapter.Ctrl.WdgToISR    = 0;
-
+#if CONFIG_DEBUG_LOG > 4
+    DBG_8195A("WdgCtrl = %p\n", (u32)(*Reg));
+#endif
     HAL_WRITE32(VENDOR_REG_BASE, 0, (*Reg));
-    
 }
 
 VOID
@@ -159,6 +170,7 @@ WDGIrqInitial(
          
     InterruptRegister(&(WDGAdapter.IrqHandle));
     InterruptEn(&(WDGAdapter.IrqHandle));
+
 
     WDGAdapter.Ctrl.WdgToISR    = 1;    // clear ISR first
     WDGAdapter.Ctrl.WdgMode     = INT_MODE;

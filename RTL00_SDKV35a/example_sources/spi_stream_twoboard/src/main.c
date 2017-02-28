@@ -117,7 +117,7 @@ void main(void)
             wait_ms(10);
             i++;
         }
-        DBG_8195A("SPI Master Write Done!!\r\n");
+        DBG_8195A("SPI Master Write Done!\r\n");
 
         DBG_8195A("SPI Master Read Test==>\r\n");
 
@@ -138,7 +138,7 @@ void main(void)
             wait_ms(10);
             i++;
         }
-        DBG_8195A("SPI Master Read Done!!\r\n");
+        DBG_8195A("SPI Master Read Done!\r\n");
         __rtl_memDump_v1_00(TestBuf, TEST_BUF_SIZE, "SPI Master Read Data:");
         Counter++;
     }
@@ -200,7 +200,7 @@ void main(void)
                 break;
             }
         }
-        DBG_8195A("SPI Slave Write Done!!\r\n");
+        DBG_8195A("SPI Slave Write Done!\r\n");
         Counter++;
     }
     spi_free(&spi_slave);

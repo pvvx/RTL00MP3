@@ -311,7 +311,7 @@ snmp_asn1_enc_length_cnt(u16_t length, u8_t *octets_needed)
  *
  * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
  * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
- * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!!
+ * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!
  */
 void
 snmp_asn1_enc_u32t_cnt(u32_t value, u16_t *octets_needed)
@@ -337,7 +337,7 @@ snmp_asn1_enc_u32t_cnt(u32_t value, u16_t *octets_needed)
  *
  * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
  * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
- * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!!
+ * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!
  */
 void
 snmp_asn1_enc_u64t_cnt(const u32_t *value, u16_t *octets_needed)
@@ -479,7 +479,7 @@ snmp_asn1_dec_tlv(struct snmp_pbuf_stream* pbuf_stream, struct snmp_asn1_tlv* tl
  *
  * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
  * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
- * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!!
+ * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!
  */
 err_t
 snmp_asn1_dec_u32t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *value)
@@ -519,7 +519,7 @@ snmp_asn1_dec_u32t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *value
  *
  * @note ASN coded integers are _always_ signed. E.g. +0xFFFF is coded
  * as 0x00,0xFF,0xFF. Note the leading sign octet. A positive value
- * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!!
+ * of 0xFFFFFFFF is preceded with 0x00 and the length is 5 octets!
  */
 err_t
 snmp_asn1_dec_u64t(struct snmp_pbuf_stream *pbuf_stream, u16_t len, u32_t *value)

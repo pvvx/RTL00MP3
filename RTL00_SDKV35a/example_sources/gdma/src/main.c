@@ -35,7 +35,7 @@ struct BlockInfo{
 };
 
 void dma_done_handler(uint32_t id) {
-    DiagPrintf("DMA Copy Done!!\r\n");
+    DiagPrintf("DMA Copy Done!\r\n");
     dma_done = 1;
 }
 
@@ -96,7 +96,7 @@ int main(void) {
     }
 
     if (!err) {
-        DiagPrintf("DMA Copy Memory Compare OK!! %x\r\n", TestBuf2[DMA_DST_OFFSET+DMA_CPY_LEN - 1]);
+        DiagPrintf("DMA Copy Memory Compare OK! %x\r\n", TestBuf2[DMA_DST_OFFSET+DMA_CPY_LEN - 1]);
     }
     
     HalGdmaMemCpyDeInit(&(gdma.gdma_obj));
@@ -118,7 +118,7 @@ volatile uint8_t dma_done;
 
 
 void dma_done_handler(uint32_t id) {
-    DiagPrintf("DMA Copy Done!!\r\n");
+    DiagPrintf("DMA Copy Done!\r\n");
     dma_done = 1;
 }
 
@@ -148,7 +148,7 @@ int main(void) {
     }
     
     if (!err) {
-        DiagPrintf("DMA Copy Memory Compare OK!! %x\r\n", TestBuf2[DMA_DST_OFFSET+DMA_CPY_LEN]);
+        DiagPrintf("DMA Copy Memory Compare OK! %x\r\n", TestBuf2[DMA_DST_OFFSET+DMA_CPY_LEN]);
     }
     HalGdmaMemCpyDeInit(&(gdma.gdma_obj));
    

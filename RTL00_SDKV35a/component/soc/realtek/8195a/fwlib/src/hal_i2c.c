@@ -358,7 +358,7 @@ I2CISRHandle_Patch(
     if (pHalI2COP->HalI2CReadReg(pHalI2CInitDat,REG_DW_I2C_IC_INTR_STAT) & 
                                 BIT_CTRL_IC_INTR_STAT_R_TX_ABRT(1)) {
         I2CStsTmp = pHalI2COP->HalI2CReadReg(pHalI2CInitDat,REG_DW_I2C_IC_TX_ABRT_SOURCE);
-        DBG_I2C_ERR("!!!I2C%d INTR_TX_ABRT!!!\n",I2CIrqIdx);
+        DBG_I2C_ERR("!I2C%d INTR_TX_ABRT!\n",I2CIrqIdx);
         DBG_I2C_ERR("I2C%d IC_TX_ABRT_SOURCE[%2x]: %x\n", I2CIrqIdx, REG_DW_I2C_IC_TX_ABRT_SOURCE, I2CStsTmp);
         DBG_I2C_ERR("Dev Sts:%x\n",pSalI2CHND->DevSts);
         DBG_I2C_ERR("rx len:%x\n",pSalI2CHND->pRXBuf->DataLen);
@@ -579,7 +579,7 @@ I2CISRHandle_Patch(
     if (pHalI2COP->HalI2CReadReg(pHalI2CInitDat,REG_DW_I2C_IC_INTR_STAT) & 
                                 BIT_CTRL_IC_INTR_STAT_R_TX_OVER(1)) {
 
-        DBG_I2C_ERR("!!!I2C%d INTR_TX_OVER!!!\n",I2CIrqIdx);
+        DBG_I2C_ERR("!I2C%d INTR_TX_OVER!\n",I2CIrqIdx);
 
         /* Clear I2C interrupt */
         pHalI2CInitDat->I2CIntrClr = REG_DW_I2C_IC_CLR_TX_OVER;
@@ -778,7 +778,7 @@ I2CISRHandle_Patch(
     if (pHalI2COP->HalI2CReadReg(pHalI2CInitDat,REG_DW_I2C_IC_INTR_STAT) &
                                 BIT_CTRL_IC_INTR_STAT_R_RX_UNDER(1)) {
 
-        DBG_I2C_ERR("!!!I2C%d INTR_RX_UNDER!!!\n",I2CIrqIdx);
+        DBG_I2C_ERR("!I2C%d INTR_RX_UNDER!\n",I2CIrqIdx);
 
         pHalI2CInitDat->I2CIntrClr = REG_DW_I2C_IC_CLR_RX_UNDER;
         pHalI2COP->HalI2CClrIntr(pHalI2CInitDat);

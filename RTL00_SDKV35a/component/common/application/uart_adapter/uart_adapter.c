@@ -153,7 +153,7 @@ int uartadapter_uart_read(ua_socket_t *ua_socket, void *read_buf, size_t size)
 	if(!ua_socket->uart.overlap){
 		memcpy(ptr, (ua_socket->uart.recv_buf+ pread_local), read_bytes );
 	}else {
-		ua_printf(UA_DEBUG, "uart recv buf is write overlap!!");
+		ua_printf(UA_DEBUG, "uart recv buf is write overlap!");
 		if((pread_local + read_bytes) > UA_UART_RECV_BUFFER_LEN){
 			memcpy(ptr,(ua_socket->uart.recv_buf+ pread_local),(UA_UART_RECV_BUFFER_LEN-pread_local));
 			memcpy(ptr+(UA_UART_RECV_BUFFER_LEN-pread_local), ua_socket->uart.recv_buf,read_bytes-(UA_UART_RECV_BUFFER_LEN- pread_local));
@@ -187,7 +187,7 @@ int uartadapter_uart_write(ua_socket_t *ua_socket, char *pbuf, size_t size)
 	while(RtlDownSema(&ua_socket->uart.dma_tx) == pdTRUE){			
 	   	ret = serial_send_stream_dma(&ua_socket->uart.uart_sobj, pbuf, size);
 	   	if(ret != HAL_OK){
-			ua_printf(UA_ERROR, "uart dma tx error %d!!", ret);
+			ua_printf(UA_ERROR, "uart dma tx error %d!", ret);
 			RtlUpSema(&ua_socket->uart.dma_tx);
 			return -1;
 		}else{
@@ -459,7 +459,7 @@ void uartadapter_systemreload(void)
 
 void uartadapter_gpio_irq (uint32_t id, gpio_irq_event event)
 {
-       ua_printf(UA_DEBUG, "GPIO push button!!");
+       ua_printf(UA_DEBUG, "GPIO push button!");
 	
        ua_gpio_irq_happen = 1;
 	RtlUpSemaFromISR(&ua_exception_sema);
@@ -510,7 +510,7 @@ void uartadapter_gpio_led_mode(ua_socket_t *ua_socket, ua_led_mode_t mode)
 					(void*)uartadapter_gtimer_timeout_handler, (uint32_t)&ua_socket->gpio.gpio_led);						
 			break;
 		default:
-       		ua_printf(UA_ERROR, "Unknown GPIO LED mode!!");			
+       		ua_printf(UA_ERROR, "Unknown GPIO LED mode!");			
 			break;
 	}
 }
