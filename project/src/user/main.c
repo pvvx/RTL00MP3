@@ -516,9 +516,10 @@ void main(void)
 	}
 #ifdef CONFIG_WDG_ON_IDLE
 	HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & 0x1FFFFF);
-	WDGInitial(5000); // 5 s
+	WDGInitial(CONFIG_WDG_ON_IDLE * 1000); // 5 s
 	WDGStart();
 #endif
+
 #if (defined(CONFIG_CRYPTO_STARTUP) && (CONFIG_CRYPTO_STARTUP))
 	 if(rtl_cryptoEngine_init() != 0 ) {
 		 DBG_8195A("Crypto engine init failed!\n");

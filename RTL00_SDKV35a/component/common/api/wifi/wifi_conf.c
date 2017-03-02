@@ -157,10 +157,10 @@ void patch_rltk_wlan_deinit(void) {
 	uint8_t chk;
 	if (rltk_wlan_info[0].enable || rltk_wlan_info[0].enable) {
 		_adapter *ad = rltk_wlan_info[0].dev->priv;
-		ad->bSurpriseRemoved = 1; // + 5892
-		rtw_wakeup_task(&ad->isrThread.task); // +5912
+		ad->bSurpriseRemoved = 1;
+		rtw_wakeup_task(&ad->isrThread.task);
 		while (1) {
-			save_and_cli(); // taskENTER_CRITICAL(); // vPortEnterCritical()
+			save_and_cli(); // = taskENTER_CRITICAL(); // = vPortEnterCritical()
 			rltk_wlan_info[0].enable = 0;
 			rltk_wlan_info[1].enable = 0;
 			chk = rltk_wlan_info[0].tx_busy + rltk_wlan_info[0].rx_busy

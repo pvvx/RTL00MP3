@@ -18,21 +18,25 @@ PWM Out GC_2 and PE_2 (2 канала по 96Bit на один исходный 
 
 Console command (RX/TX GB1/GB0 38400 baud):<br>
 
-ATW0=SSID - задать имя AP<br>
-ATW1=PASSPHRASE - задать пароль AP<br>
-ATWC - Connect to an AES AP<br>
-ATWD - DisConnect AP<br>
-ATWS=URL,PORT - задать канал web-radio или http файл<br> 
-. Sample: ATWS=icecast.omroep.nl/3fm-sb-mp3,80<br>
-. ATWS=meuk.spritesserver.nl/Ii.Romanzeandante.mp3,80<br>
-. ATWS=?, ATWS=close, ATWS=save, ATWS=read<br>
-. ATWS=x,0 и ATWS=save - отключить старт<br>
-ATST - Mem/Task Info<br>
-ATOF - Отключить MP3<br>
-
-ATSD=hexaddr,count - Damp памяти/регистров с адреса...<br>
-ATWD=hexaddr,hexdata - Записать dword по адресу<br>
-
+CONSOLE COMMAND SET:<br>
+==============================<br>
+ATPN=<SSID>[,<PASSPHRASE>[,WEPKEY]]: WIFI Connect to AP<br>
+ATWS=<URL,PORT>: MP3 Connect to URL<br>
+ATWS=<c>[lose]: Close MP3<br>
+ATWS=<r>[ead]: Read MP3 URL<br>
+ATWS=<s>[ave]: Save MP3 URL<br>
+ATWS=<?>: URL Info<br>
+ATWD: WIFI Disconnect<br>
+ATST: Memory info<br>
+ATLW: Lwip Info<br>
+ATSB=<ADDRES(hex)>[,COUNT(dec)]: Dump byte register<br>
+ATSD=<ADDRES(hex)>[,COUNT(dec)]: Dump dword register<br>
+ATSW=<ADDRES(hex)>,<DATA(hex)>: Set register<br>
+ATDS=[TIME(ms)]: Deep sleep<br>
+ATON: Open connections<br>
+ATOF: Close connections<br>
+?: This Help<br>
+==============================<br>
 
 По умолчанию, в качестве JTAG используется J-Link STLink V2.<br>
 

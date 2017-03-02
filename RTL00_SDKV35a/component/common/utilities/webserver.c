@@ -442,8 +442,6 @@ static void     vProcessConnection( struct netconn *pxNetCon );
 rtw_wifi_setting_t wifi_setting = {RTW_MODE_NONE, {0}, 0, RTW_SECURITY_OPEN, {0}};
 
 
-
-
 #ifndef WLAN0_NAME
   #define WLAN0_NAME		"wlan0"
 #endif

@@ -163,7 +163,7 @@ void fATWC(int argc, char *argv[]){
 		wifi.password_len = strlen(password);
 	}
 	if(argc > 3) {
-		if((strlen(argv[3][0]) != 1 ) || (argv[3][0] <'0' || argv[3][0] >'3')) {
+		if((strlen(argv[3]) != 1 ) || (argv[3][0] <'0' || argv[3][0] >'3')) {
 			printf("%s: Wrong WEP key id. Must be one of 0,1,2, or 3.\n", argv[0]);
 			return;
 		}
