@@ -233,7 +233,7 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 				iptab[1] = (uint8_t) (IPaddress >> 16);
 				iptab[2] = (uint8_t) (IPaddress >> 8);
 				iptab[3] = (uint8_t) (IPaddress);
-				printf("Interface %d IP address: %d.%d.%d.%d\n", idx, iptab[3],
+				info_printf("Interface %d IP address: %d.%d.%d.%d\n", idx, iptab[3],
 						iptab[2], iptab[1], iptab[0]);
 #if CONFIG_WLAN
 				error_flag = RTW_NO_ERROR;
@@ -257,8 +257,8 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 					iptab[1] = IP_ADDR2;
 					iptab[2] = IP_ADDR1;
 					iptab[3] = IP_ADDR0;
-					printf("Interface %d DHCP timeout\n", idx);
-					printf("Static IP address: %d.%d.%d.%d\n", iptab[3], iptab[2], iptab[1], iptab[0]);
+					info_printf("Interface %d DHCP timeout\n", idx);
+					info_printf("Static IP address: %d.%d.%d.%d\n", iptab[3], iptab[2], iptab[1], iptab[0]);
 #if CONFIG_WLAN
 					error_flag = RTW_DHCP_FAIL;
 #endif
@@ -280,14 +280,14 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 #if CONFIG_WLAN
 			wifi_unreg_event_handler(WIFI_EVENT_BEACON_AFTER_DHCP, wifi_rx_beacon_hdl);
 #endif
-			printf("LwIP_DHCP: Release ip\n");
+			info_printf("LwIP_DHCP(%d): Release ip\n", idx);
 			dhcp_release_unicast(pnetif);
 			return DHCP_RELEASE_IP;
 		case DHCP_STOP:
 #if CONFIG_WLAN
 			wifi_unreg_event_handler(WIFI_EVENT_BEACON_AFTER_DHCP, wifi_rx_beacon_hdl);
 #endif
-			printf("LwIP_DHCP: dhcp stop.\n");
+			info_printf("LwIP_DHCP(%d): dhcp stop.\n", idx);
 			dhcp_stop(pnetif);
 			return DHCP_STOP;
 		default:

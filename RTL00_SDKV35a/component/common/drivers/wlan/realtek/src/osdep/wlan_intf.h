@@ -38,7 +38,7 @@ struct sk_buff {
 /************************************************************/
 
 // #include "wrapper.h"
-extern struct net_device *rltk_wlan_info;
+//extern Rltk_wlan_t rltk_wlan_info[2];
 
 //----- ------------------------------------------------------------------
 // Wlan Interface opened for upper layer

@@ -29,7 +29,7 @@
 #define UART_LOG_CMD_BUFLEN     127     
 #define MAX_ARGV                10
 
-extern COMMAND_TABLE UartLogRomCmdTable[6]; // in ROM (hal_diag.h)
+//extern COMMAND_TABLE UartLogRomCmdTable[6]; // in ROM (hal_diag.h)
 
 typedef u32 (*ECHOFUNC)(IN u8*,...);    //UART LOG echo-function type.
 

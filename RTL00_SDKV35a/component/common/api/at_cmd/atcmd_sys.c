@@ -1316,7 +1316,7 @@ void fATST(void *arg) {
 #if 0
 #include "wlan_lib.h"
 #include "hal_com_reg.h"
-// struct net_device *rltk_wlan_info;
+// extern Rltk_wlan_t rltk_wlan_info[2];
 void fATXT(void *arg)
 {
 #if	DEBUG_AT_USER_LEVEL > 3

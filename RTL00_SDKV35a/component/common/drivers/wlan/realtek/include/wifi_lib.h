@@ -7,15 +7,16 @@
 
 #include "osdep_service.h"
 #include "freertos/wrapper.h"
+#include "rtl_bios_data.h"
 
-#define _atr_aligned2_  __attribute__((aligned(2)))
-#define _atr_aligned4_  __attribute__((aligned(4)))
-#define _atr_aligned8_  __attribute__((aligned(4)))
+#define _atr_aligned2_ __attribute__((aligned(2)))
+#define _atr_aligned4_ __attribute__((aligned(4)))
+#define _atr_aligned8_ __attribute__((aligned(4)))
 
 #define sint8_t char
 #define sint16_t short
 #define sint32_t int
-#define sint64_t long long
+//#define sint64_t long long // warning align(8)!
 /*
  struct _ADAPTER;
  struct dvobj_priv;
@@ -45,7 +46,7 @@
 //typedef uint32_t dma_addr_t; // basic_types.h
 //typedef uint8_t uint8_t;
 //typedef uint16_t uint16_t;
-//typedef unsigned sint64_t uint64_t;
+//typedef unsigned sint64_t u8Byte;
 typedef int sint;
 typedef uint8_t BOOL;
 typedef uint8_t bool;
@@ -55,6 +56,7 @@ typedef uint8_t u1Byte;
 typedef uint16_t u2Byte;
 typedef uint32_t u4Byte;
 typedef uint64_t u8Byte;
+typedef uint64_t __attribute__((aligned(4))) _u8Byte;
 typedef sint8_t s1Byte;
 typedef sint16_t s2Byte;
 typedef sint32_t s4Byte;
@@ -365,7 +367,6 @@ struct _NDIS_802_11_SSID {
 	uint32_t SsidLength;
 	uint8_t Ssid[36];
 };
-
 typedef struct _NDIS_802_11_SSID NDIS_802_11_SSID;
 typedef uint8_t NDIS_802_11_MAC_ADDRESS[6];
 typedef int NDIS_802_11_RSSI;
@@ -545,7 +546,7 @@ struct mlme_priv {
 	uint8_t key_mask;
 	uint8_t acm_mask;
 	uint8_t ChannelPlan;
-	RT_SCAN_TYPE scan_mode;
+	uint8_t scan_mode; // RT_SCAN_TYPE scan_mode; byte/dword ??
 	uint8_t *wps_probe_req_ie;
 	uint32_t wps_probe_req_ie_len;
 	uint8_t *wps_assoc_req_ie;
@@ -566,12 +567,12 @@ struct mlme_priv {
 	_lock bcn_update_lock;
 	uint8_t update_bcn;
 	uint8_t scanning_via_buddy_intf;
-	union recv_frame *p_copy_recv_frame;
+	struct recv_frame *p_copy_recv_frame;
 };
 
 struct _atr_aligned4_ _RT_CHANNEL_INFO {
 	uint8_t ChannelNum;
-	RT_SCAN_TYPE ScanType;
+	RT_SCAN_TYPE ScanType; // uint8_t ScanType; //  byte/dword?
 	uint8_t pscan_config;
 };
 typedef struct _RT_CHANNEL_INFO RT_CHANNEL_INFO;
@@ -603,22 +604,18 @@ struct WMM_para_element {
 	struct AC_param ac_param[4];
 };
 
-struct _atr_aligned4_ $FE810F6EACF8FAA6CBF1198AEAF43F3A {
-	uint16_t HT_caps_info;
-	uint8_t AMPDU_para;
-	uint8_t MCS_rate[16];
-	uint16_t HT_ext_caps;
-	uint32_t Beamforming_caps;
-	uint8_t ASEL_caps;
-};
-
-union $4DB0E692E0E1D0D49E1F34B7B8486D8E {
-	struct $FE810F6EACF8FAA6CBF1198AEAF43F3A HT_cap_element;
-	uint8_t HT_cap[26];
-};
-
 struct HT_caps_element {
-	union $4DB0E692E0E1D0D49E1F34B7B8486D8E u;
+	union {
+		struct  _atr_aligned4_ {
+			uint16_t HT_caps_info;
+			uint8_t AMPDU_para;
+			uint8_t MCS_rate[16];
+			uint16_t HT_ext_caps;
+			uint32_t Beamforming_caps;
+			uint8_t ASEL_caps;
+		} HT_cap_element;
+		uint8_t HT_cap[26];
+	}u;
 };
 
 struct HT_info_element {
@@ -685,8 +682,8 @@ typedef struct _cus_ie{
 #endif /* _CUS_IE_ */
 // typedef struct _cus_ie *p_cus_ie;
 
-struct _atr_aligned2_ mlme_ext_priv { //__attribute__((packed))?
-	_adapter *padapter;
+struct mlme_ext_priv { //__attribute__((packed))?
+	_adapter *padapter; //+0 padapter+1256 [912]
 	uint8_t mlmeext_init;
 	struct atomic_t event_seq;
 	uint16_t mgnt_seq;
@@ -698,15 +695,15 @@ struct _atr_aligned2_ mlme_ext_priv { //__attribute__((packed))?
 	RT_CHANNEL_INFO channel_set[14];
 	uint8_t basicrate[13];
 	uint8_t datarate[13];
-	struct ss_res sitesurvey_res;
-	struct mlme_ext_info mlmext_info;
+	struct ss_res sitesurvey_res; //padapter+1472
+	struct mlme_ext_info mlmext_info; //padapter+1528
 	_timer survey_timer;
 	_timer link_timer;
-	uint16_t chan_scan_time;
-	uint8_t scan_abort;
-	uint8_t tx_rate;
-	uint8_t retry;
-	uint64_t TSFValue;
+	uint16_t chan_scan_time;	//padapter+1984
+	uint8_t scan_abort;			//padapter+1986
+	uint8_t tx_rate;			//padapter+1987
+	uint8_t retry;				//padapter+1988
+	_u8Byte TSFValue;		//+740?  padapter+1992
 	uint8_t bstart_bss;
 	uint16_t action_public_rxseq;
 	_timer reconnect_timer;
@@ -784,11 +781,11 @@ struct _atr_aligned8_ xmit_priv {
 	uint8_t vcs_setting;
 	uint8_t vcs;
 	uint8_t vcs_type;
-	uint64_t tx_bytes;
-	uint64_t tx_pkts;
-	uint64_t tx_drop;
-	uint64_t last_tx_bytes;
-	uint64_t last_tx_pkts;
+	u8Byte tx_bytes;
+	u8Byte tx_pkts;
+	u8Byte tx_drop;
+	u8Byte last_tx_bytes;
+	u8Byte last_tx_pkts;
 	struct hw_xmit *hwxmits;
 	uint8_t hwxmit_entry;
 	struct rtw_tx_ring tx_ring[8];
@@ -830,11 +827,11 @@ struct _atr_aligned8_ recv_priv {
 	uint32_t free_recvframe_cnt;
 	_adapter *adapter;
 	uint32_t bIsAnyNonBEPkts;
-	uint64_t rx_bytes;
-	uint64_t rx_pkts;
-	uint64_t rx_drop;
-	uint64_t rx_overflow;
-	uint64_t last_rx_bytes;
+	u8Byte rx_bytes;
+	u8Byte rx_pkts;
+	u8Byte rx_drop;
+	u8Byte rx_overflow;
+	u8Byte last_rx_bytes;
 	uint32_t rx_icv_err;
 	uint32_t rx_largepacket_crcerr;
 	uint32_t rx_smallpacket_crcerr;
@@ -898,20 +895,20 @@ union Keytype {
 	uint32_t lkey[4];
 };
 
-struct $7EAAF07643C317F97751F130E632CB13 {
-	uint8_t TSC0;
-	uint8_t TSC1;
-	uint8_t TSC2;
-	uint8_t TSC3;
-	uint8_t TSC4;
-	uint8_t TSC5;
-	uint8_t TSC6;
-	uint8_t TSC7;
-};
+
 
 union pn48 {
-	uint64_t val;
-	struct $7EAAF07643C317F97751F130E632CB13 _byte_;
+	u8Byte val;
+	struct {
+		uint8_t TSC0;
+		uint8_t TSC1;
+		uint8_t TSC2;
+		uint8_t TSC3;
+		uint8_t TSC4;
+		uint8_t TSC5;
+		uint8_t TSC6;
+		uint8_t TSC7;
+	}_byte_;
 };
 
 struct _NDIS_802_11_WEP {
@@ -1091,7 +1088,7 @@ struct _atr_aligned4_ pwrctrl_priv {
 	uint8_t smart_ps;
 	uint8_t bcn_ant_mode;
 	uint32_t alives;
-	uint64_t wowlan_fw_iv;
+	u8Byte wowlan_fw_iv;
 	uint8_t bpower_saving;
 	uint8_t b_hw_radio_off;
 	uint8_t reg_rfoff;
@@ -1310,10 +1307,12 @@ struct recv_frame_hdr {
 	struct sta_info *psta;
 };
 
-union recv_frame {
+struct recv_frame {
+union {
 	_list list;
 	struct recv_frame_hdr hdr;
 	uint32_t mem[32];
+	};
 };
 /*
 union $AB04817EA6EB89125E28056B7464A4D7 {
@@ -1380,22 +1379,22 @@ struct sta_recv_priv {
 };
 
 struct stainfo_stats {
-	uint64_t rx_mgnt_pkts;
-	uint64_t rx_ctrl_pkts;
-	uint64_t rx_data_pkts;
-	uint64_t last_rx_mgnt_pkts;
-	uint64_t last_rx_ctrl_pkts;
-	uint64_t last_rx_data_pkts;
-	uint64_t rx_bytes;
-	uint64_t tx_pkts;
-	uint64_t tx_bytes;
+	u8Byte rx_mgnt_pkts;
+	u8Byte rx_ctrl_pkts;
+	u8Byte rx_data_pkts;
+	u8Byte last_rx_mgnt_pkts;
+	u8Byte last_rx_ctrl_pkts;
+	u8Byte last_rx_data_pkts;
+	u8Byte rx_bytes;
+	u8Byte tx_pkts;
+	u8Byte tx_bytes;
 };
 
 struct _RSSI_STA {
 	int32_t UndecoratedSmoothedPWDB;
 	int32_t UndecoratedSmoothedCCK;
 	int32_t UndecoratedSmoothedOFDM;
-	uint64_t PacketMap;
+	u8Byte PacketMap;
 	uint8_t ValidBit;
 	uint32_t OFDM_pkt;
 };
@@ -1980,61 +1979,62 @@ struct hal_ops {
 
 struct _atr_aligned4_ _ADAPTER {
 	uint16_t HardwareType;
-	uint16_t interface_type;
+	uint16_t interface_type;	//+2
 	uint32_t work_mode;
-	struct dvobj_priv *dvobj;
-	struct mlme_priv mlmepriv;
-	struct mlme_ext_priv mlmeextpriv;
-	struct cmd_priv cmdpriv;
-	struct evt_priv evtpriv;
+	struct dvobj_priv *dvobj;	//+8
+	struct mlme_priv mlmepriv; //+12 [1244]
+	struct mlme_ext_priv mlmeextpriv; //+1256 [912]
+	struct cmd_priv cmdpriv; //+2168
+	struct evt_priv evtpriv; //+
 	struct io_priv iopriv;
-	struct xmit_priv xmitpriv;
-	struct recv_priv recvpriv;
-	struct sta_priv stapriv;
+	struct xmit_priv xmitpriv; //+2248
+	struct recv_priv recvpriv; //+2752
+	struct sta_priv stapriv; //+3024 [164]
 	struct security_priv securitypriv;
 	struct registry_priv registrypriv;
-	struct pwrctrl_priv pwrctrlpriv;
+	struct pwrctrl_priv pwrctrlpriv; // pwrctrlpriv.bInternalAutoSuspend //+5061
 	struct eeprom_priv eeprompriv;
 	PVOID HalData;
 	uint32_t hal_data_sz;
 	struct hal_ops HalFunc;
-	int32_t bDriverStopped;
-	int32_t bSurpriseRemoved;
-	int32_t bCardDisableWOHSM;
-	uint8_t RxStop;
+	int32_t bDriverStopped;		//+5880
+	int32_t bSurpriseRemoved;	//+5884
+	int32_t bCardDisableWOHSM;	//+5888
+	uint8_t RxStop;				//+5892
 	uint32_t IsrContent;
 	uint32_t ImrContent;
 	uint8_t EepromAddressSize;
-	uint8_t hw_init_completed;
+	uint8_t hw_init_completed;	//+5905
 	uint8_t bDriverIsGoingToUnload;
 	uint8_t init_adpt_in_progress;
 	uint8_t bMpDriver;
 	uint8_t bForwardingDisabled;
-	struct task_struct isrThread;
-	struct task_struct cmdThread;
-	struct task_struct recvtasklet_thread;
-	struct task_struct xmittasklet_thread;
-	void (*intf_start)(_adapter *);
-	void (*intf_stop)(_adapter *);
-	_nic_hdl pnetdev;
-	int bup;
+	struct task_struct isrThread;	//+5888
+	struct task_struct cmdThread;   //+5920
+	struct task_struct recvtasklet_thread; //+5952
+	struct task_struct xmittasklet_thread; //+5984
+	void (*intf_start)(_adapter *); //+6008
+	void (*intf_stop)(_adapter *); //+6012
+	_nic_hdl pnetdev;	//+6016
+	int bup;			//+6020
 	struct net_device_stats stats;
-	uint8_t net_closed;
+	uint8_t net_closed; //+6052
 	uint8_t bFWReady;
 	uint8_t bLinkInfoDump;
 	uint8_t bRxRSSIDisplay;
-	_adapter *pbuddy_adapter;
-	_mutex *hw_init_mutex;
-	uint8_t isprimary;
-	uint8_t adapter_type;
-	uint8_t iface_type;
-	_mutex *ph2c_fwcmd_mutex;
-	_mutex *psetch_mutex;
-	_mutex *psetbw_mutex;
-	struct co_data_priv *pcodatapriv;
-	uint8_t fix_rate;
-};
+	_adapter *pbuddy_adapter; //+6056
+	_mutex *hw_init_mutex;	//+6060
+	uint8_t isprimary;		//+6064
+	uint8_t adapter_type; 	//+6065
+	uint8_t iface_type;		//+6056
+	_mutex *ph2c_fwcmd_mutex; //+6068
+	_mutex *psetch_mutex;	//+6072
+	_mutex *psetbw_mutex;	//+6076
+	struct co_data_priv *pcodatapriv; //+6080
+	uint8_t fix_rate; //+6084
+}; // [6088] (!)
 typedef struct _ADAPTER *PADAPTER;
+// if sizeof(struct _ADAPTER) != 6088 #error "Check aligned struct!" !
 
 enum tag_HAL_IC_Type_Definition // : sint32_t
 {
@@ -2315,7 +2315,7 @@ struct _ODM_NOISE_MONITOR_ {
 	s2Byte noise_all;
 };
 typedef struct _ODM_NOISE_MONITOR_ ODM_NOISE_MONITOR;
-
+/* in rtl_bios_data.h
 struct _FALSE_ALARM_STATISTICS {
 	u4Byte Cnt_Parity_Fail;
 	u4Byte Cnt_Rate_Illegal;
@@ -2334,6 +2334,7 @@ struct _FALSE_ALARM_STATISTICS {
 	u4Byte Cnt_BW_LSC;
 };
 typedef struct _FALSE_ALARM_STATISTICS FALSE_ALARM_STATISTICS;
+*/
 
 enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE //: sint32_t
 {
@@ -2341,6 +2342,7 @@ enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE //: sint32_t
 };
 typedef enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE PHY_REG_PG_TYPE;
 
+/* in rtl_bios_data.h
 struct _atr_aligned4_ _CFO_TRACKING_ {
 	BOOLEAN bATCStatus;
 	BOOLEAN largeCFOHit;
@@ -2358,7 +2360,8 @@ struct _atr_aligned4_ _CFO_TRACKING_ {
 	u1Byte CFO_TH_ATC;
 };
 typedef struct _CFO_TRACKING_ CFO_TRACKING;
-
+*/
+/* in rtl_bios_data.h
 struct _atr_aligned8_ _ROM_INFO {
 	u1Byte EEPROMVersion;
 	u1Byte CrystalCap;
@@ -2366,6 +2369,8 @@ struct _atr_aligned8_ _ROM_INFO {
 	u4Byte DebugLevel;
 };
 typedef struct _ROM_INFO ROM_INFO;
+*/
+
 typedef struct _ROM_INFO *PROM_INFO;
 
 typedef struct sta_info *PSTA_INFO_T;
@@ -3269,7 +3274,7 @@ typedef int (*mac_monitor_ptr)(uint8_t *, char);
 
 struct mlme_handler {
 	uint32_t num;
-	uint32_t (*func)(_adapter *, union recv_frame *);
+	uint32_t (*func)(_adapter *, struct recv_frame *);
 };
 
 struct fwevent {

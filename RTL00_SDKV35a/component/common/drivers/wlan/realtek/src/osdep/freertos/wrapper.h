@@ -392,24 +392,24 @@ struct net_device_stats {
 };
 
 struct net_device {
-	char			name[16];
-	void			*priv;		/* pointer to private data */
-	unsigned char		dev_addr[6];	/* set during bootup */
-	int (*init)(void);
-	int (*open)(struct net_device *dev);
-	int (*stop)(struct net_device *dev);
-	int (*hard_start_xmit)(struct sk_buff *skb, struct net_device *dev);
-	int (*do_ioctl)(struct net_device *dev, struct iwreq *ifr, int cmd);
-	struct net_device_stats* (*get_stats)(struct net_device *dev);
+	char			name[16];		//+0
+	void			*priv;			//+16 _adapter /* pointer to private data */
+	unsigned char	dev_addr[6];	//+20 /* set during bootup */
+	int (*init)(void);				//+28
+	int (*open)(struct net_device *dev);	//+32
+	int (*stop)(struct net_device *dev);	//+36
+	int (*hard_start_xmit)(struct sk_buff *skb, struct net_device *dev); //+40
+	int (*do_ioctl)(struct net_device *dev, struct iwreq *ifr, int cmd); //+44
+	struct net_device_stats* (*get_stats)(struct net_device *dev);	//+48
 };
 
 typedef struct {
-	struct net_device *dev;		/* Binding wlan driver netdev */
-	void *skb;			/* pending Rx packet */
-	unsigned int tx_busy;
-	unsigned int rx_busy;
-	unsigned char enable;
-	unsigned char mac[6];
+	struct net_device *dev;		//+0 /* Binding wlan driver netdev */
+	void *skb;					//+4 /* pending Rx packet */
+	unsigned int tx_busy;		//+8
+	unsigned int rx_busy;		//+12
+	unsigned char enable;		//+16
+	unsigned char mac[6];		//+17..23
 } Rltk_wlan_t;
 
 #define netdev_priv(dev)	dev->priv

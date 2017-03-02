@@ -113,7 +113,7 @@
 
 struct timer_list {
 	_timerHandle 	timer_hdl;
-	unsigned long	data;
+	unsigned long	data; // unsigned int	data; ?
 	void (*function)(void *);
 };
 
