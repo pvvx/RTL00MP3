@@ -61,7 +61,7 @@
 #define CONFIG_WDG 1
 #undef  CONFIG_WDG_NON
 #define CONFIG_WDG_NORMAL 1
-#define CONFIG_WDG_ON_IDLE 1 // add pvvx: wdt on -> main.c + tasks.c
+#define CONFIG_WDG_ON_IDLE 10 // wdt in sec -> main.c + tasks.c
 #define CONFIG_GDMA_EN 1
 #define CONFIG_GDMA_NORMAL 1
 #undef  CONFIG_GDMA_TEST
