@@ -17,26 +17,28 @@ RTL00 module (RTL8710AF)<br>
 PWM Out GC_2 and PE_2 (2 канала по 96Bit на один исходный sample 48 кГц)<br>
 
 Console command (RX/TX GB1/GB0 38400 baud):<br>
-
+```
 CONSOLE COMMAND SET:<br>
-==============================<br>
-ATPN=<SSID>[,<PASSPHRASE>[,WEPKEY]]: WIFI Connect to AP<br>
-ATWS=<URL,PORT>: MP3 Connect to URL<br>
-ATWS=<c>[lose]: Close MP3<br>
-ATWS=<r>[ead]: Read MP3 URL<br>
-ATWS=<s>[ave]: Save MP3 URL<br>
-ATWS=<?>: URL Info<br>
-ATWD: WIFI Disconnect<br>
-ATST: Memory info<br>
-ATLW: Lwip Info<br>
-ATSB=<ADDRES(hex)>[,COUNT(dec)]: Dump byte register<br>
-ATSD=<ADDRES(hex)>[,COUNT(dec)]: Dump dword register<br>
-ATSW=<ADDRES(hex)>,<DATA(hex)>: Set register<br>
-ATDS=[TIME(ms)]: Deep sleep<br>
-ATON: Open connections<br>
-ATOF: Close connections<br>
-?: This Help<br>
-==============================<br>
+==============================
+ATPN=<SSID>[,<PASSPHRASE>[,WEPKEY]]: WIFI Connect to AP
+ATWS=<URL,PORT>: MP3 Connect to URL
+ATWS=<c>[lose]: Close MP3
+ATWS=<r>[ead]: Read MP3 URL
+ATWS=<s>[ave]: Save MP3 URL
+ATWS=<?>: URL Info
+ATWD: WIFI Disconnect
+ATST: Memory info
+ATLW: Lwip Info
+ATSB=<ADDRES(hex)>[,COUNT(dec)]: Dump byte register
+ATSD=<ADDRES(hex)>[,COUNT(dec)]: Dump dword register
+ATSW=<ADDRES(hex)>,<DATA(hex)>: Set register
+ATDS=[TIME(ms)]: Deep sleep
+ATON: Open connections
+ATOF: Close connections
+?: This Help
+==============================
+```
+
 
 По умолчанию, в качестве JTAG используется J-Link STLink V2.<br>
 
