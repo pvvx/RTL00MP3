@@ -3488,6 +3488,14 @@ TCB_t *pxTCB;
 
 #endif /* portCRITICAL_NESTING_IN_TCB */
 /*-----------------------------------------------------------*/
+char * sprintf_pcTaskName(char * buf, char * name)
+{
+	int len = sprintf(buf, name);
+	if(len < configMAX_TASK_NAME_LEN) {
+		memset(buf + len, ' ', configMAX_TASK_NAME_LEN - len);
+	}
+	return buf + configMAX_TASK_NAME_LEN;
+}
 
 #if ( ( configUSE_TRACE_FACILITY == 1 ) && ( configUSE_STATS_FORMATTING_FUNCTIONS == 1 ) )
 
@@ -3559,8 +3567,9 @@ TCB_t *pxTCB;
 									cStatus = 0x00;
 									break;
 				}
+				pcWriteBuffer = sprintf_pcTaskName( pcWriteBuffer,	pxTaskStatusArray[ x ].pcTaskName);
 
-				sprintf( pcWriteBuffer, "%s\t\t%c\t%u\t%u\t%u\r\n", pxTaskStatusArray[ x ].pcTaskName, cStatus, ( unsigned int ) pxTaskStatusArray[ x ].uxCurrentPriority, ( unsigned int ) pxTaskStatusArray[ x ].usStackHighWaterMark, ( unsigned int ) pxTaskStatusArray[ x ].xTaskNumber );
+				sprintf( pcWriteBuffer, "\t%c\t%u\t%u\t%u\r\n", cStatus, ( unsigned int ) pxTaskStatusArray[ x ].uxCurrentPriority, ( unsigned int ) pxTaskStatusArray[ x ].usStackHighWaterMark, ( unsigned int ) pxTaskStatusArray[ x ].xTaskNumber );
 				pcWriteBuffer += strlen( pcWriteBuffer );
 			}
 
@@ -3654,12 +3663,7 @@ TCB_t *pxTCB;
 					else
 						ulDeltaRunTimeCounter = portCONFIGURE_STATS_PEROID_VALUE*ulStatsAsPercentage/100;
 #endif
-					int cnt = sprintf( pcWriteBuffer, "%s", pxTaskStatusArray[ x ].pcTaskName);
-					pcWriteBuffer += cnt;
-					while(cnt < configMAX_TASK_NAME_LEN) {
-						cnt++;
-						*pcWriteBuffer++ = ' ';
-					}
+					pcWriteBuffer = sprintf_pcTaskName( pcWriteBuffer, pxTaskStatusArray[ x ].pcTaskName);
 					if( ulStatsAsPercentage > 0UL )
 					{
 						#ifdef portLU_PRINTF_SPECIFIER_REQUIRED

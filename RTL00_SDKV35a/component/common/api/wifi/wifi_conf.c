@@ -152,51 +152,6 @@ extern unsigned char dhcp_mode_sta;
 #include "freertos/wrapper.h"
 #include "skbuff.h"
 
-//extern Rltk_wlan_t rltk_wlan_info[2];
-void patch_rltk_wlan_deinit(void) {
-	uint8_t chk;
-	if (rltk_wlan_info[0].enable || rltk_wlan_info[0].enable) {
-		_adapter *ad = rltk_wlan_info[0].dev->priv;
-		ad->bSurpriseRemoved = 1;
-		rtw_wakeup_task(&ad->isrThread.task);
-		while (1) {
-			save_and_cli(); // = taskENTER_CRITICAL(); // = vPortEnterCritical()
-			rltk_wlan_info[0].enable = 0;
-			rltk_wlan_info[1].enable = 0;
-			chk = rltk_wlan_info[0].tx_busy + rltk_wlan_info[0].rx_busy
-					+ rltk_wlan_info[1].tx_busy + rltk_wlan_info[0].rx_busy;
-			restore_flags();
-			if (!chk)
-				break;
-			rtl_printf("[%s] Wait for TX/RX Busy (%d)\n", __func__, chk);
-			vTaskDelay(10);
-		}
-		while (1) {
-			if (!*(u32 *) (ad->isrThread.wakeup_sema) || ad->RxStop == 2)
-				break;
-			rtl_printf("[%s] Wait for RxStop\n", __func__);
-			vTaskDelay(10);
-		}
-		rtw_dev_remove(rltk_wlan_info);
-		rtw_drv_halt();
-		deinit_timer_wrapper();
-
-		rltk_wlan_info[0].enable = 0;
-		rltk_wlan_info[1].enable = 0;
-
-		rltk_wlan_info[0].dev = 0;
-		rltk_wlan_info[0].skb = 0;
-		rltk_wlan_info[0].tx_busy = 0;
-		rltk_wlan_info[0].rx_busy = 0;
-		rltk_wlan_info[0].enable = 0;
-		rltk_wlan_info[1].dev = 0;
-		rltk_wlan_info[1].skb = 0;
-		rltk_wlan_info[1].tx_busy = 0;
-		rltk_wlan_info[1].rx_busy = 0;
-		rltk_wlan_info[1].enable = 0;
-		//deinit_mem_monitor(NULL, NULL);
-	}
-}
 //------------------------------------------------------------------------end-patch//
 static int wifi_connect_local(rtw_network_info_t *pWifi) {
 	int ret = 0;
@@ -1056,8 +1011,7 @@ int wifi_off(void) {
 	wpas_wps_deinit();
 #endif
 	info_printf("Deinitializing WIFI ...\n");
-//	extern void patch_rltk_wlan_deinit();
-	patch_rltk_wlan_deinit();
+	rltk_wlan_deinit();
 
 	while (1) {
 		if ((rltk_wlan_running(WLAN0_IDX) == 0)

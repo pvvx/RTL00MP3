@@ -40,10 +40,10 @@ typedef struct Heap
 void tcm_heap_init(void);
 
 /// Allocate a chunk of memory of \a size bytes from the heap
-void *tcm_heap_allocmem(int size);
+// void *tcm_heap_allocmem(int size);
 
 /// Free a chunk of memory of \a size bytes from the heap
-void tcm_heap_freemem(void *mem, int size);
+// void tcm_heap_freemem(void *mem, int size);
 
 int tcm_heap_freeSpace(void);
 

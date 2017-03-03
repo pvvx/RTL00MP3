@@ -774,7 +774,7 @@ int wext_add_custom_ie(const char *ifname, void *cus_ie, int ie_num) {
 	int cmd_len = sizeof("SetCusIE");
 	if (ie_num <= 0 || !cus_ie) {
 #if	CONFIG_DEBUG_LOG > 3
-		wext_printf("%s: wrong parameter!\n", __func__);
+		error_printf("%s: wrong parameter!\n", __func__);
 #endif
 	} else {
 		memset(&iwr, 0, sizeof(iwr));
@@ -807,7 +807,7 @@ int wext_update_custom_ie(const char *ifname, void * cus_ie, int ie_index) {
 	int cmd_len = sizeof("UpdateIE");
 	if (ie_index <= 0 || !cus_ie) {
 #if	CONFIG_DEBUG_LOG > 3
-		wext_printf("%s: wrong parameter!\n", __func__);
+		error_printf("%s: wrong parameter!\n", __func__);
 #endif
 	} else {
 		memset(&iwr, 0, sizeof(iwr));

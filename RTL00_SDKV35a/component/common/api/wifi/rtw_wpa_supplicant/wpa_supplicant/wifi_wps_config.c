@@ -18,16 +18,16 @@
 struct dev_credential {
 	u8 ssid[32]; 			/**< SSID */
 	size_t ssid_len;		/**< Length of SSID */
-	u16 auth_type;		/**< Authentication Type (WPS_AUTH_OPEN, .. flags) */
-	u16 encr_type;		/**< Encryption Type (WPS_ENCR_NONE, .. flags) */
-	u8 key_idx;			/**< Key index */
-	u8 key[65];			/**< Key */
-	size_t key_len;		/**< Key length in octets */
-	u8 mac_addr[6];		/**< MAC address of the Credential receiver */
+	u16 auth_type;			/**< Authentication Type (WPS_AUTH_OPEN, .. flags) */
+	u16 encr_type;			/**< Encryption Type (WPS_ENCR_NONE, .. flags) */
+	u8 key_idx;				/**< Key index */
+	u8 key[65];				/**< Key */
+	size_t key_len;			/**< Key length in octets */
+	u8 mac_addr[6];			/**< MAC address of the Credential receiver */
 	const u8 *cred_attr;	/**< Unparsed Credential attribute data (used only in cred_cb()).
 							This may be NULL, if not used. */
 	size_t cred_attr_len;	/**< Length of cred_attr in octets */
-	u16 ap_channel;		/**< AP channel */
+	u16 ap_channel;			/**< AP channel */
 };
 
 typedef struct {

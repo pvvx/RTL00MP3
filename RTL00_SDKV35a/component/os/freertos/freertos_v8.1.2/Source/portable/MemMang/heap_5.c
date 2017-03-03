@@ -202,24 +202,22 @@ HeapRegion_t xHeapRegions[] =
 #endif
 
 /*-----------------------------------------------------------*/
-#if 1
 /*
 	Dump xBlock list
 */
-void dump_mem_block_list()
+void dump_mem_block_list(void)
 {
+	if(pxEnd == NULL) vPortDefineHeapRegions( xHeapRegions );
+#if CONFIG_DEBUG_LOG > 1
 //	if(pxEnd == NULL) vPortDefineHeapRegions( xHeapRegions ); // test code start
 	BlockLink_t *pxBlock = &xStart;
 	int count = 0;
-
-	DBG_8195A("RAM Heap Memory List:\n");
-	while(pxBlock->pxNextFreeBlock != NULL)
-	{
-		DBG_8195A(" [%d]=%p, %d\n", count++, pxBlock, pxBlock->xBlockSize);
-		pxBlock = pxBlock->pxNextFreeBlock;
+	DBG_8195A("RAM Free Heap Memory List:\n");
+	for(pxBlock = pxBlock->pxNextFreeBlock; pxBlock->pxNextFreeBlock != NULL; pxBlock = pxBlock->pxNextFreeBlock) {
+		DBG_8195A(" [%d]=%p, %d\n", ++count, pxBlock, pxBlock->xBlockSize);
 	}
-}
 #endif
+}
 
 void *pvPortMalloc( size_t xWantedSize )
 {
@@ -228,7 +226,6 @@ void *pvReturn = NULL;
 
 	/* Realtek test code start */
 	if(pxEnd == NULL) vPortDefineHeapRegions( xHeapRegions );
-
 	/* Realtek test code end */
 
 	/* The heap must be initialised before the first call to
@@ -343,11 +340,14 @@ void *pvReturn = NULL;
 		{
 			mtCOVERAGE_TEST_MARKER();
 		}
-
 		traceMALLOC( pvReturn, xWantedSize );
 	}
 	( void ) xTaskResumeAll();
-
+	if(pvReturn == NULL) {
+		DBG_RAM_HEAP_WARN("ram_alloc(%d): freeSpace(%d)!\n", xWantedSize, xFreeBytesRemaining);
+	} else {
+//		DBG_RAM_HEAP_INFO("ram_alloc:%p[%d]\n", pvReturn , xWantedSize);
+	}
 	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
 	{
 		if( pvReturn == NULL )
@@ -410,6 +410,7 @@ BlockLink_t *pxLink;
 		{
 			mtCOVERAGE_TEST_MARKER();
 		}
+//		DBG_RAM_HEAP_INFO("ram_free:%p[%d]\n", pv , pxLink->xBlockSize);
 	}
 }
 
@@ -511,7 +512,7 @@ uint8_t *puc;
 }
 /*-----------------------------------------------------------*/
 
-void vPortDefineHeapRegions( const HeapRegion_t * const pxHeapRegions )
+static void vPortDefineHeapRegions( const HeapRegion_t * const pxHeapRegions )
 {
 BlockLink_t *pxFirstFreeBlockInRegion = NULL, *pxPreviousFreeBlock;
 uint8_t *pucAlignedHeap;

@@ -209,9 +209,9 @@ prvDiagSPrintf(
 #define OTG_WARN_PREFIX        "[OTG Wrn]"
 #define OTG_INFO_PREFIX        "[OTG Inf]"
 
-#define TCM_ERR_PREFIX         "[TCM Err]"
-#define TCM_WARN_PREFIX        "[TCM Wrn]"
-#define TCM_INFO_PREFIX        "[TCM Inf]"
+#define HEAP_ERR_PREFIX         "[HEAP Err]"
+#define HEAP_WARN_PREFIX        "[HEAP Wrn]"
+#define HEAP_INFO_PREFIX        "[HEAP Inf]"
 
 #define FEEP_ERR_PREFIX         "[FEEP Err]"
 #define FEEP_WARN_PREFIX        "[FEEP Wrn]"
@@ -352,24 +352,24 @@ prvDiagSPrintf(
 }while(0)
 
 #define DBG_8195A_OTG(...)  do{\
-                if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)) \
-                    _DbgDump(OTG_PREFIX __VA_ARGS__);\
-            }while(0)
+	if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)) \
+		_DbgDump(OTG_PREFIX __VA_ARGS__);\
+	}while(0)
 
 #define DBG_8195A_OTG_INFO(...)  do{\
-                if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)) \
-                    _DbgDump(OTG_PREFIX __VA_ARGS__);\
-            }while(0)
+	if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)) \
+		_DbgDump(OTG_PREFIX __VA_ARGS__);\
+	}while(0)
 
 #define DBG_8195A_OTG_WARN(...)  do{\
-                if (unlikely(ConfigDebugWarn & _DBG_USB_OTG_)) \
-                    _DbgDump(OTG_PREFIX __VA_ARGS__);\
-            }while(0)
+	if (unlikely(ConfigDebugWarn & _DBG_USB_OTG_)) \
+		_DbgDump(OTG_PREFIX __VA_ARGS__);\
+	}while(0)
 
 #define DBG_8195A_OTG_ERR(...)  do{\
-                if (unlikely(ConfigDebugErr & _DBG_USB_OTG_)) \
-                    _DbgDump(OTG_PREFIX __VA_ARGS__);\
-            }while(0)
+	if (unlikely(ConfigDebugErr & _DBG_USB_OTG_)) \
+		_DbgDump(OTG_PREFIX __VA_ARGS__);\
+	}while(0)
             
 #define DBG_8195A_OTG_LVL(LVL,...)  do{\
     if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)){ \
@@ -378,9 +378,18 @@ prvDiagSPrintf(
     }\
 }while(0)
 
-#define DBG_TCM_ERR(...)     do {\
-    if (likely(ConfigDebugErr & _DBG_TCM_HEAP_)) \
-        _DbgDump(TCM_ERR_PREFIX __VA_ARGS__);\
+#define DBG_TCM_HEAP_ERR(...)     do {\
+    if (likely(ConfigDebugErr & _DBG_TCM_HEAP_)){ \
+    _DbgDump(HEAP_ERR_PREFIX ANSI_COLOR_RED);\
+    _DbgDump(__VA_ARGS__ );\
+    _DbgDump(ANSI_COLOR_RESET);}\
+}while(0)
+
+#define DBG_RAM_HEAP_ERR(...)     do {\
+    if (likely(ConfigDebugErr & _DBG_RAM_HEAP_)){ \
+    _DbgDump(HEAP_ERR_PREFIX ANSI_COLOR_RED);\
+    _DbgDump(__VA_ARGS__ );\
+    _DbgDump(ANSI_COLOR_RESET);}\
 }while(0)
 
 #define DBG_MISC_ERR(...)     do {\
@@ -425,7 +434,8 @@ prvDiagSPrintf(
 #define DBG_8195A_OTG_WARN(...)
 #define DBG_8195A_OTG_ERR(...)
 
-#define DBG_TCM_ERR(...)
+#define DBG_TCM_HEAP_ERR(...)
+#define DBG_RAM_HEAP_ERR(...)
 #define DBG_FEEP_ERR(...)
 
 #endif  // end of else of "#if CONFIG_DEBUG_ERROR"
@@ -544,9 +554,18 @@ prvDiagSPrintf(
         _DbgDump(TIMER_PREFIX __VA_ARGS__);\
 }while(0)
 
-#define DBG_TCM_WARN(...)     do {\
-    if (likely(ConfigDebugWarn & _DBG_TCM_HEAP_)) \
-        _DbgDump(TCM_WARN_PREFIX __VA_ARGS__);\
+#define DBG_TCM_HEAP_WARN(...)     do {\
+    if (likely(ConfigDebugWarn & _DBG_TCM_HEAP_)){ \
+        _DbgDump(HEAP_WARN_PREFIX ANSI_COLOR_MAGENTA);\
+        _DbgDump(__VA_ARGS__ );\
+        _DbgDump(ANSI_COLOR_RESET);}\
+}while(0)
+
+#define DBG_RAM_HEAP_WARN(...)     do {\
+    if (likely(ConfigDebugWarn & _DBG_RAM_HEAP_)){ \
+        _DbgDump(HEAP_WARN_PREFIX ANSI_COLOR_MAGENTA);\
+        _DbgDump(__VA_ARGS__ );\
+        _DbgDump(ANSI_COLOR_RESET);}\
 }while(0)
 
 #define DBG_FEEP_WARN(...)     do {\
@@ -581,7 +600,8 @@ prvDiagSPrintf(
 #define DBG_CRYPTO_WARN(...)
 #define DBG_ADC_WARN(...)
 #define DBG_DAC_WARN(...)
-#define DBG_TCM_WARN(...)
+#define DBG_TCM_HEAP_WARN(...)
+#define DBG_RAM_HEAP_WARN(...)
 #define DBG_FEEP_WARN(...)
 #define DBG_MISC_WARN(...)
 
@@ -704,9 +724,18 @@ prvDiagSPrintf(
         _DbgDump(TIMER_PREFIX __VA_ARGS__);\
 }while(0)
 
-#define DBG_TCM_INFO(...)     do {\
-    if (likely(ConfigDebugInfo & _DBG_TCM_HEAP_)) \
-        _DbgDump(TCM_INFO_PREFIX __VA_ARGS__);\
+#define DBG_TCM_HEAP_INFO(...)     do {\
+    if (likely(ConfigDebugInfo & _DBG_TCM_HEAP_)){\
+		_DbgDump(HEAP_INFO_PREFIX ANSI_COLOR_BLUE);\
+		_DbgDump(__VA_ARGS__ );\
+		_DbgDump(ANSI_COLOR_RESET);}\
+}while(0)
+
+#define DBG_RAM_HEAP_INFO(...)     do {\
+    if (likely(ConfigDebugInfo & _DBG_RAM_HEAP_)){ \
+		_DbgDump(HEAP_INFO_PREFIX ANSI_COLOR_BLUE);\
+		_DbgDump(__VA_ARGS__ );\
+		_DbgDump(ANSI_COLOR_RESET);}\
 }while(0)
 
 #define DBG_FEEP_INFO(...)     do {\
@@ -741,7 +770,8 @@ prvDiagSPrintf(
 #define DBG_CRYPTO_INFO(...)
 #define DBG_ADC_INFO(...)
 #define DBG_DAC_INFO(...)
-#define DBG_TCM_INFO(...)
+#define DBG_RAM_HEAP_INFO(...)
+#define DBG_TCM_HEAP_INFO(...)
 #define DBG_FEEP_INFO(...)
 #define DBG_MISC_INFO(...)
 

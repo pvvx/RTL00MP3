@@ -13,7 +13,7 @@
 #endif
 
 #ifdef CONFIG_WOWLAN_DEV_NT96658
-#define WOW_WIFI_IN_PIN			PE_4 //JTAG pin, so JTAG must be disable before using this pin as wakeup pin
+#define WOW_WIFI_IN_PIN			PE_4 // JTAG pin, so JTAG must be disable before using this pin as wakeup pin
 #define WOW_TRIGGER_INTERVAL		500
 #elif defined(CONFIG_WOWLAN_DEV_OV788)
 #define WOW_WIFI_IN_PIN			PD_5

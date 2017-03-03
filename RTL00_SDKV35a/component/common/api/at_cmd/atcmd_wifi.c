@@ -459,7 +459,8 @@ void fATWx(void *arg){
 			ip = LwIP_GetIP(&xnetif[i]);
 			gw = LwIP_GetGW(&xnetif[i]);
 #endif
-			printf("\nWIFI %s Status: Running\n==============================\n",  ifname[i]);
+			printf("\nWIFI %s Status: Running\n",  ifname[i]);
+			printf("==============================\n");
 
 			rltk_wlan_statistic(i);
 
@@ -478,7 +479,8 @@ void fATWx(void *arg){
 			at_printf("%d.%d.%d.%d,", ip[0], ip[1], ip[2], ip[3]);
 			at_printf("%d.%d.%d.%d", gw[0], gw[1], gw[2], gw[3]);
 #endif
-			printf("Interface (%s)\n==============================\n", ifname[i]);
+			printf("\nInterface (%s)\n", ifname[i]);
+			printf("==============================\n");
 			printf("\tMAC => %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]) ;
 			printf("\tIP  => %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 			printf("\tGW  => %d.%d.%d.%d\n", gw[0], gw[1], gw[2], gw[3]);
@@ -494,7 +496,8 @@ void fATWx(void *arg){
 				client_info.count = AP_STA_NUM;
 				wifi_get_associated_client_list(&client_info, sizeof(client_info));
 
-				printf("Associated Client List:\n==============================\n");
+				printf("Associated Client List:\n");
+				printf("==============================\n");
 
 				if(client_info.count == 0)
 					printf("Client Num: 0\n", client_info.count);
@@ -530,7 +533,8 @@ void fATWx(void *arg){
         mac = LwIP_GetMAC(&xnetif[i]);
         ip = LwIP_GetIP(&xnetif[i]);
         gw = LwIP_GetGW(&xnetif[i]);
-        printf("Interface ethernet\n==============================\n");
+        printf("\nInterface ethernet\n");
+        printf("==============================\n");
         printf("\tMAC => %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]) ;
         printf("\tIP  => %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
         printf("\tGW  => %d.%d.%d.%d\n", gw[0], gw[1], gw[2], gw[3]);
@@ -542,9 +546,14 @@ void fATWx(void *arg){
 
 #if defined(configUSE_TRACE_FACILITY) && (configUSE_TRACE_FACILITY == 1) && (configUSE_STATS_FORMATTING_FUNCTIONS == 1)
 	{
-		signed char pcWriteBuffer[1024];
-		vTaskList((char*)pcWriteBuffer);
-		printf("Task List:\n%s\n", pcWriteBuffer);
+		char * pcWriteBuffer = malloc(1024);
+		if(pcWriteBuffer) {
+			vTaskList((char*)pcWriteBuffer);
+			printf("\nTask List:\n");
+	        printf("==============================\n");
+	        printf("Name\t  Status Priority HighWaterMark TaskNumber\n%s\n", pcWriteBuffer);
+			free(pcWriteBuffer);
+		}
 	}
 #endif
 

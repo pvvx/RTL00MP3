@@ -1288,25 +1288,20 @@ void fATFO(void *arg) {
 	}
 }
 
+// Mem info
 void fATST(void *arg) {
 	extern void dump_mem_block_list(void); // heap_5.c
-//DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
-#if	DEBUG_AT_USER_LEVEL > 1
-	printf("ATST: Mem info:\n");
-#endif
-//		vPortFree(pvPortMalloc(4)); // Init RAM heap
 	printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
 			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
+#if CONFIG_DEBUG_LOG > 1
 	dump_mem_block_list();
-	u32 saved = ConfigDebugInfo;
-	DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
 	tcm_heap_dump();
-	ConfigDebugInfo = saved;
+#endif;
 	printf("\n");
 #if (configGENERATE_RUN_TIME_STATS == 1)
 	char *cBuffer = pvPortMalloc(512);
-	if (cBuffer != NULL) {
-		vTaskGetRunTimeStats((char *) cBuffer);
+	if(cBuffer != NULL) {
+		vTaskGetRunTimeStats((char *)cBuffer);
 		printf("%s", cBuffer);
 	}
 	vPortFree(cBuffer);

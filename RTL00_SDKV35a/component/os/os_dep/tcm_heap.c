@@ -24,7 +24,7 @@ __attribute__((section(".tcm.heap")))
 HEAP_DEFINE_BUF(tcm_heap, TCM_HEAP_SIZE);
 //unsigned char tcm_heap[TCM_HEAP_SIZE];
 
-static int g_heap_inited=0;
+static int g_heap_inited = 0;
 static	_lock	tcm_lock;
 
 extern void vPortSetExtFree( void (*free)( void *p ), uint32_t upper, uint32_t lower );
@@ -55,28 +55,38 @@ void tcm_heap_init(void)
 
 void tcm_heap_dump(void)
 {
+	if(!g_heap_inited) tcm_heap_init();
+#if CONFIG_DEBUG_LOG > 1
 	MemChunk *chunk, *prev;
 	struct Heap* h = &g_tcm_heap;
-	
-	DBG_8195A("TCM Free List:\n");
+	int count = 0;
+	int free_mem;
+
+	DBG_8195A("TCM Free Heap Memory List:\n");
+	for (chunk = h->FreeList; chunk; chunk = chunk->next) {
+		DBG_8195A(" [%d]=%p, %d\n", ++count, chunk, chunk->size);
+	}
+
+/*
 	for (prev = (MemChunk *)&h->FreeList, chunk = h->FreeList;
 		chunk;
 		prev = chunk, chunk = chunk->next)
 	{
-		DBG_8195A(" prev %x, chunk %x, size %d\n", prev, chunk, chunk->size);
+		DBG_8195A(" [%d]=%p, %d\n", ++count, chunk, chunk->size);
 	}
-//	DBG_8195A(" end %x\n", tcm_heap);
+*/
+#endif
 }
 
-void *tcm_heap_allocmem(int size)
+static void *tcm_heap_allocmem(int size)
 {
 	MemChunk *chunk, *prev;
 	struct Heap* h = &g_tcm_heap;
 	_irqL 	irqL;
-	DBG_TCM_INFO("allocmem(%d)\n", size);
+
 	rtw_enter_critical(&tcm_lock, &irqL);
 	
-	if(!g_heap_inited)	tcm_heap_init();
+	if(!g_heap_inited) tcm_heap_init();
 
 	/* Round size up to the allocation granularity */
 	size = ROUND_UP2(size, sizeof(MemChunk));
@@ -98,46 +108,28 @@ void *tcm_heap_allocmem(int size)
 			{
 				/* Just remove this chunk from the free list */
 				prev->next = chunk->next;
-#ifdef _DEBUG
-				memset(chunk, ALLOC_FILL_CODE, size);
-#endif
-				
-				rtw_exit_critical(&tcm_lock, &irqL);
-				//printf("----ALLOC1-----\n\r");
-				// tcm_heap_dump();
-				//printf("--------------\n\r");
-				return (void *)chunk;
 			}
 			else
 			{
 				/* Allocate from the END of an existing chunk */
 				chunk->size -= size;
-#ifdef _DEBUG
-				memset((uint8_t *)chunk + chunk->size, ALLOC_FILL_CODE, size);
-#endif
-				rtw_exit_critical(&tcm_lock, &irqL);
-				//printf("----ALLOC2-----\n\r");
-				// tcm_heap_dump();
-				//printf("--------------\n\r");
-				
-				return (void *)((uint8_t *)chunk + chunk->size);
+				chunk = (MemChunk *)((uint8_t *)chunk + chunk->size);
 			}
+#ifdef _DEBUG
+			memset(chunk, ALLOC_FILL_CODE, size);
+#endif
+
+			rtw_exit_critical(&tcm_lock, &irqL);
+			DBG_TCM_HEAP_INFO("tcm_alloc:%p[%d]\n", chunk, size);
+			return (void *)chunk;
 		}
 	}
-	
 	rtw_exit_critical(&tcm_lock, &irqL);
-	//printf("----ALLOC3-----\n\r");
-	DBG_TCM_WARN(ANSI_COLOR_MAGENTA "allocmem(%d): freeSpace(%d)!\n" ANSI_COLOR_RESET, size, tcm_heap_freeSpace());
-//	if (likely(ConfigDebugErr & _DBG_TCM_HEAP_)) {
-//		tcm_heap_dump();
-//	}
-	// tcm_heap_dump();
-	//printf("--------------\n\r");
+	DBG_TCM_HEAP_WARN("tcm_alloc(%d) - freeSpace(%d)!\n", size, tcm_heap_freeSpace());
 	return NULL; /* fail */
 }
 
-
-void tcm_heap_freemem(void *mem, int size)
+static void tcm_heap_freemem(void *mem, int size)
 {
 	MemChunk *prev;
 	//ASSERT(mem);
@@ -146,7 +138,7 @@ void tcm_heap_freemem(void *mem, int size)
 
 	rtw_enter_critical(&tcm_lock, &irqL);	
 	
-	if(!g_heap_inited)	tcm_heap_init();
+//	if(!g_heap_inited)	tcm_heap_init();
 
 #ifdef _DEBUG
 	memset(mem, FREE_FILL_CODE, size);
@@ -216,10 +208,7 @@ void tcm_heap_freemem(void *mem, int size)
 	}
 	
 	rtw_exit_critical(&tcm_lock, &irqL);	
-	//printf("---FREE %x--\n\r", mem);
-	//tcm_heap_dump();
-	//printf("--------------\n\r");
-	
+	DBG_TCM_HEAP_INFO("tcm_free:%p[%d]\n", mem, size);
 }
 
 int tcm_heap_freeSpace(void)
@@ -293,7 +282,8 @@ void tcm_heap_free(void *mem)
 	}
 }
 
-
+#if 0
+//----------- Tests -------------
 static void alloc_test(int size, int test_len)
 {
 	//Simple test
@@ -352,5 +342,6 @@ int tcm_heap_testRun(void)
 
 	return 0;
 }
+#endif // tests
 
 #endif

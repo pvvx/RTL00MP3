@@ -122,16 +122,14 @@ void fATWS(int argc, char *argv[]){
 }
 
 // Mem info
+// Mem info
 void fATST(void){
-	extern u8 __HeapLimit, __StackTop;
-	extern struct Heap g_tcm_heap;
 		printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
 				HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
+#if CONFIG_DEBUG_LOG > 1
 		dump_mem_block_list();
-		u32 saved = ConfigDebugInfo;
-		DBG_INFO_MSG_ON(_DBG_TCM_HEAP_); // On Debug TCM MEM
 		tcm_heap_dump();
-		ConfigDebugInfo = saved;
+#endif;
 		printf("\n");
 #if (configGENERATE_RUN_TIME_STATS == 1)
 		char *cBuffer = pvPortMalloc(512);
