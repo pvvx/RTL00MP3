@@ -75,6 +75,7 @@ SECTIONS
 		/* KEEP(*(.data));  ? */
 		build/obj/RTL00_SDKV35a/component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.o (.rodata*)
 		KEEP(*(.ram.boot.text))
+		build/obj/RTL00_SDKV35a/component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.o (.rodata*)
 	    __image1_bss_start__ = .;
 	    __image1_bss_end__ = .;
 		__ram_image1_text_end__ = .;

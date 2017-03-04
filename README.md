@@ -1,4 +1,4 @@
-# RTL00(RTL8710AF) Test MP3 SDK V3.5+ GCC
+# RTL00(RTL8710AF) Test MP3 SDK V3.5.1 GCC
 ---
 
 MP3 stereo player V0004<br>
