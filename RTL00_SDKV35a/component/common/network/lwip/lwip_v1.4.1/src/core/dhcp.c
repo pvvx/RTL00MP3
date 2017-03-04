@@ -550,7 +550,7 @@ dhcp_handle_ack(struct netif *netif)
     dhcp->offered_t2_rebind = dhcp_get_option_value(dhcp, DHCP_OPTION_IDX_T2);
   } else {
     /* calculate safe periods for rebinding */
-    dhcp->offered_t2_rebind = (u32_t)(dhcp->offered_t0_lease * 0.875);
+    dhcp->offered_t2_rebind = dhcp->offered_t0_lease/2 + dhcp->offered_t0_lease /4 + dhcp->offered_t0_lease/8; // (u32_t)(dhcp->offered_t0_lease * 0.875);
   }
 
   /* (y)our internet address */

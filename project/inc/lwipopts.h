@@ -26,7 +26,27 @@
 
 #include <platform/platform_stdlib.h>
 #include "platform_opts.h"
-#define WIFI_LOGO_CERTIFICATION_CONFIG 0    //for ping 10k test buffer setting
+
+/**
+ * LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS==1: randomize the local port for the first
+ * local TCP/UDP pcb (default==0). This can prevent creating predictable port
+ * numbers after booting a device.
+ */
+#define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 1
+
+#define WIFI_LOGO_CERTIFICATION_CONFIG 1    //for ping 10k test buffer setting
+/**
+ * MEM_LIBC_MALLOC==1: Use malloc/free/realloc provided by your C-library
+ * instead of the lwip internal allocator. Can save code size if you
+ * already use it.
+ */
+#define MEM_LIBC_MALLOC			1
+/**
+* MEMP_MEM_MALLOC==1: Use mem_malloc/mem_free instead of the lwip pool allocator.
+* Especially useful with MEM_LIBC_MALLOC but handle with care regarding execution
+* speed and usage from interrupts!
+*/
+#define MEMP_MEM_MALLOC         1
     
 /**
  * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
@@ -124,34 +144,33 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_SND_QUEUELEN        (4* TCP_SND_BUF/TCP_MSS)
 
 /* TCP receive window. */
-#define TCP_WND                 (2*TCP_MSS)
+#define TCP_WND                 (4*TCP_MSS) // (2*TCP_MSS)
 
 
 /* ---------- ICMP options ---------- */
-#define LWIP_ICMP                       1
+#define LWIP_ICMP		1
 
 /* ---------- ARP options ----------- */
-#define LWIP_ARP                        1
+#define LWIP_ARP		1
 
 /* ---------- DHCP options ---------- */
 /* Define LWIP_DHCP to 1 if you want DHCP configuration of
    interfaces. DHCP is not implemented in lwIP 0.5.1, however, so
    turning this on does currently not work. */
-#define LWIP_DHCP               1
-
+#define LWIP_DHCP		1
 
 /* ---------- UDP options ---------- */
-#define LWIP_UDP                1
-#define UDP_TTL                 255
+#define LWIP_UDP		1
+#define UDP_TTL			255
 /* ---------- DNS options ---------- */
-#define LWIP_DNS                        1
+#define LWIP_DNS		1
 
 /* ---------- UPNP options --------- */
 #define LWIP_UPNP		0
 
 /* Support Multicast */
-#define LWIP_IGMP                   1
-#define LWIP_RAND()                 rand()
+#define LWIP_IGMP		1
+#define LWIP_RAND()		Rand()
 
 /* Support TCP Keepalive */
 #define LWIP_TCP_KEEPALIVE				1
@@ -209,8 +228,8 @@ a lot of data that needs to be copied, this should be set high. */
 #endif
 
 /* ---------- Statistics options ---------- */
-#define LWIP_STATS 0
-#define LWIP_PROVIDE_ERRNO 1
+#define LWIP_STATS			0
+#define LWIP_PROVIDE_ERRNO	1
 
 
 /*
@@ -275,7 +294,7 @@ The STM32F2x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
-#define LWIP_SOCKET                     1	
+#define LWIP_SOCKET                     1
 
 /*
    -----------------------------------
@@ -285,20 +304,59 @@ The STM32F2x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 #define LWIP_DEBUG                      0
 
-
 /*
    ---------------------------------
    ---------- OS options ----------
    ---------------------------------
 */
 
+/**
+ * TCPIP_THREAD_STACKSIZE: The stack size used by the main tcpip thread.
+ * The stack size value itself is platform-dependent, but is passed to
+ * sys_thread_new() when the thread is created.
+ */
 #define TCPIP_THREAD_STACKSIZE          1000
+/**
+ * TCPIP_MBOX_SIZE: The mailbox size for the tcpip thread messages
+ * The queue size value itself is platform-dependent, but is passed to
+ * sys_mbox_new() when tcpip_init is called.
+ */
 #define TCPIP_MBOX_SIZE                 6
+/**
+ * DEFAULT_UDP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
+ * NETCONN_UDP. The queue size value itself is platform-dependent, but is passed
+ * to sys_mbox_new() when the recvmbox is created.
+ */
 #define DEFAULT_UDP_RECVMBOX_SIZE       6
+/**
+ * DEFAULT_TCP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
+ * NETCONN_TCP. The queue size value itself is platform-dependent, but is passed
+ * to sys_mbox_new() when the recvmbox is created.
+ */
 #define DEFAULT_TCP_RECVMBOX_SIZE       6
+/**
+ * DEFAULT_RAW_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
+ * NETCONN_RAW. The queue size value itself is platform-dependent, but is passed
+ * to sys_mbox_new() when the recvmbox is created.
+ */
 #define DEFAULT_RAW_RECVMBOX_SIZE		6
+/**
+ * DEFAULT_ACCEPTMBOX_SIZE: The mailbox size for the incoming connections.
+ * The queue size value itself is platform-dependent, but is passed to
+ * sys_mbox_new() when the acceptmbox is created.
+ */
 #define DEFAULT_ACCEPTMBOX_SIZE         6
+/**
+ * DEFAULT_THREAD_STACKSIZE: The stack size used by any other lwIP thread.
+ * The stack size value itself is platform-dependent, but is passed to
+ * sys_thread_new() when the thread is created.
+ */
 #define DEFAULT_THREAD_STACKSIZE        500
+/**
+ * TCPIP_THREAD_PRIO: The priority assigned to the main tcpip thread.
+ * The priority value itself is platform-dependent, but is passed to
+ * sys_thread_new() when the thread is created.
+ */
 #define TCPIP_THREAD_PRIO               (configMAX_PRIORITIES - 2)
 
 /** LWIP_TIMEVAL_PRIVATE: if you want to use the struct timeval provided

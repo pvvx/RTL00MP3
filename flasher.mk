@@ -55,14 +55,18 @@ FLASHER_SPEED = 500
 endif
 endif
 
-# COMPILED_BOOT if defined -> extract image1, =1 boot head in elf, =2 boot head ?
-#COMPILED_BOOT=1
+# COMPILED_BOOT if defined -> extract image1, boot head in elf
+COMPILED_BOOT=1
+# COMPILED_BOOT_BIN if !defined -> use source startup boot
+#COMPILED_BOOT_BIN=1
 # PADDINGSIZE defined -> image2 OTA
 PADDINGSIZE =44k
 
 NMAPFILE = $(OBJ_DIR)/$(TARGET).nmap
 
 #FLASHER_PATH ?= flasher/
+
+RAM_IMAGE?= $(BIN_DIR)/ram.bin
 
 RAM1_IMAGE ?= $(BIN_DIR)/ram_1.bin
 RAM1P_IMAGE ?= $(BIN_DIR)/ram_1.p.bin
@@ -71,8 +75,8 @@ RAM2_IMAGE = $(BIN_DIR)/ram_2.bin
 RAM2P_IMAGE = $(BIN_DIR)/ram_2.p.bin
 RAM2NS_IMAGE = $(BIN_DIR)/ram_2.ns.bin
 
-RAM3_IMAGE = $(BIN_DIR)/ram_3.bin
-RAM3P_IMAGE = $(BIN_DIR)/ram_3.p.bin
+RAM3_IMAGE = $(BIN_DIR)/sdram.bin
+RAM3P_IMAGE = $(BIN_DIR)/sdram.p.bin
 
 FLASH_IMAGE = $(BIN_DIR)/ram_all.bin
 OTA_IMAGE = $(BIN_DIR)/ota.bin
@@ -139,20 +143,19 @@ $(NMAPFILE): $(ELFFILE)
 	@$(NM) $< | sort > $@
 #	@echo "==========================================================="
 
-$(FLASH_IMAGE): $(RAM1P_IMAGE) $(RAM2P_IMAGE) $(RAM3_IMAGE)
+$(FLASH_IMAGE): $(RAM1P_IMAGE) $(RAM2P_IMAGE) $(RAM3P_IMAGE)
 	@echo "==========================================================="
 	@echo "Make Flash image ($(FLASH_IMAGE))" 
 #	@echo "==========================================================="
 	@mkdir -p $(BIN_DIR)
 	@rm -f $(FLASH_IMAGE) 
-	@if [ -s $(RAM3_IMAGE) ]; then $(PICK) 0x$(RAM3_START_ADDR) 0x$(RAM3_END_ADDR) $(RAM3_IMAGE) $(RAM3P_IMAGE) body+reset_offset; fi 
 	@cat $(RAM1P_IMAGE) > $(FLASH_IMAGE)
 #	@chmod 777 $(FLASH_IMAGE)
 ifdef PADDINGSIZE
 	@$(PADDING) $(PADDINGSIZE) 0xFF $(FLASH_IMAGE)
 endif	
 	@cat $(RAM2P_IMAGE) >> $(FLASH_IMAGE)
-	@if [ -s $(RAM3_IMAGE) ]; then cat $(RAM3P_IMAGE) >> $(FLASH_IMAGE); fi
+	@cat $(RAM3P_IMAGE) >> $(FLASH_IMAGE)
 #	@echo "Image ($(FLASH_IMAGE)) size $(shell printf '%d\n' $$(( $$(stat --printf="%s" $(FLASH_IMAGE)) )) ) bytes"
 #	@echo "==========================================================="
 #	@rm $(BIN_DIR)/ram_*.p.bin  
@@ -161,9 +164,8 @@ $(OTA_IMAGE): $(RAM2NS_IMAGE) $(RAM3_IMAGE)
 	@echo "==========================================================="
 	@echo "Make OTA image ($(OTA_IMAGE))"
 	@rm -f $(OTA_IMAGE) 
-	@if [ -s $(RAM3_IMAGE) ]; then $(PICK) 0x$(RAM3_START_ADDR) 0x$(RAM3_END_ADDR) $(RAM3_IMAGE) $(RAM3P_IMAGE) body+reset_offset; fi 
 	@cat $(RAM2NS_IMAGE) > $(OTA_IMAGE)
-	@if [ -s $(RAM3_IMAGE) ]; then cat $(RAM3P_IMAGE) >> $(OTA_IMAGE); fi
+	@cat $(RAM3P_IMAGE) >> $(OTA_IMAGE)
 #	@chmod 777 $(OTA_IMAGE)
 	@$(CHCKSUM) $(OTA_IMAGE) || true
 #	@echo "==========================================================="
@@ -175,7 +177,7 @@ $(RAM1P_IMAGE): $(ELFFILE) $(NMAPFILE)
 ifdef COMPILED_BOOT
 	@mkdir -p $(BIN_DIR)
 	@rm -f $(RAM1_IMAGE) $(RAM1P_IMAGE)
-ifeq ($(COMPILED_BOOT),1)
+ifdef COMPILED_BOOT_BIN
 	@$(eval RAM1_START_ADDR := $(shell grep _binary_build_bin_ram_1_r_bin_start $(NMAPFILE) | awk '{print $$1}'))
 	@$(eval RAM1_END_ADDR := $(shell grep _binary_build_bin_ram_1_r_bin_end $(NMAPFILE) | awk '{print $$1}'))
 else
@@ -185,13 +187,13 @@ endif
 	$(if $(RAM1_START_ADDR),,$(error "Not found __ram_image1_text_start__!"))
 	$(if $(RAM1_END_ADDR),,$(error "Not found __ram_image1_text_end__!"))
 ifeq ($(RAM1_START_ADDR),$(RAM1_END_ADDR))
-ifneq ($(COMPILED_BOOT),1)
-	$(OBJCOPY) -j .ram.start.table -j .ram_image1.text -Obinary $(ELFFILE) $(RAM1_IMAGE)
-	$(PICK) 0x$(RAM1_START_ADDR) 0x$(RAM1_END_ADDR) $(RAM1_IMAGE) $(RAM1P_IMAGE) body+reset_offset
-else
+ifdef COMPILED_BOOT_BIN
 	$(OBJCOPY) --change-section-address .boot.head=0x10000ba8 -j .boot.head -j .bootloader -Obinary $(ELFFILE) $(RAM1P_IMAGE)
+else
+	$(OBJCOPY) -j .rom_ram -Obinary $(ELFFILE) $(RAM_IMAGE)
+	$(OBJCOPY) -j .ram.start.table -j .ram_image1.text -Obinary $(ELFFILE) $(RAM1_IMAGE)
+	$(PICK) 0x$(RAM1_START_ADDR) 0x$(RAM1_END_ADDR) $(RAM1_IMAGE) $(RAM1P_IMAGE) head+reset_offset 0x0B000
 endif
-	$(warning "Flasher: Use external $(RAM1_IMAGE)?")
 else 
 	$(error "BOOT-image size = 0")
 #	$(error Flasher: COMPILE_BOOT = No)
@@ -236,13 +238,14 @@ $(RAM3_IMAGE): $(ELFFILE) $(NMAPFILE)
 	@$(eval RAM3_END_ADDR = $(shell grep __sdram_data_ $(NMAPFILE) | grep _end__ | awk '{print $$1}'))
 	$(if $(RAM3_START_ADDR),,$(error "Not found __sdram_data_start__!"))
 	$(if $(RAM3_END_ADDR),,$(error "Not found __sdram_data_end__!"))
-ifneq ($(RAM3_START_ADDR),$(RAM3_END_ADDR))
+#ifneq ($(RAM3_START_ADDR),$(RAM3_END_ADDR))
 	@echo	$(RAM3_START_ADDR) $(RAM3_END_ADDR)
 	@$(OBJCOPY) -j .image3 -j .sdr_text -j .sdr_rodata -j .sdr_data -Obinary $(ELFFILE) $(RAM3_IMAGE)
-else
-	@rm -f $(RAM3_IMAGE) $(RAM3P_IMAGE)
-	@echo "SDRAM not used (size = 0)"
-endif
+	$(PICK) 0x$(RAM3_START_ADDR) 0x$(RAM3_END_ADDR) $(RAM3_IMAGE) $(RAM3P_IMAGE) body+reset_offset
+#else
+#	@rm -f $(RAM3_IMAGE) $(RAM3P_IMAGE)
+#	@echo "SDRAM not used (size = 0)"
+#endif
 	
 $(ELFFILE):
 	$(error Falsher: file $@ not found)

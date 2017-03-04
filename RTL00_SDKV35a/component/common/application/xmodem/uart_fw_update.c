@@ -62,8 +62,8 @@ extern const u8 ROM_IMG1_VALID_PATTEN[];
 extern HAL_RUART_ADAPTER *pxmodem_uart_adp;
 
 #ifdef CONFIG_GPIO_EN
-extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
-extern PHAL_GPIO_ADAPTER _pHAL_Gpio_Adapter;
+//extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
+//extern PHAL_GPIO_ADAPTER _pHAL_Gpio_Adapter;
 #endif
 
 extern BOOLEAN SpicFlashInitRtl8195A(u8 SpicBitMode);

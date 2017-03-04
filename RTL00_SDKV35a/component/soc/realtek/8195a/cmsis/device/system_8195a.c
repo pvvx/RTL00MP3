@@ -36,8 +36,10 @@
    ---------------------------------------------------------------------------*/
 
 
+#include "platform_autoconf.h"
 #include "basic_types.h"
 #include "rtl8195a.h"
+#include "rtl_bios_data.h"
 
 /*----------------------------------------------------------------------------
   Define clocks
@@ -46,7 +48,7 @@
 #define __XTAL            ( 5000000UL)    /* Oscillator frequency             */
 
 //#define __SYSTEM_CLOCK    (5*__XTAL)
-#define __SYSTEM_CLOCK    (200000000UL/6*5) // PLATFORM_CLOCK // 
+//#define __SYSTEM_CLOCK    (200000000UL/6*5) // PLATFORM_CLOCK in platform_autoconf.h ! //
 
 //extern u32 HalGetCpuClk(VOID);
 
@@ -61,8 +63,8 @@ const u32 SysCpkClkTbl[]= {
 };
 #endif
 
-unsigned int rand_x = 12345;
-
+//extern unsigned int rand_x = 12345;
+/*
 u32 Rand2(void)
 {
     static unsigned int y = 362436;
@@ -77,11 +79,11 @@ u32 Rand2(void)
 
     return rand_x + y + z;
 }
-
+*/
 /*----------------------------------------------------------------------------
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
-uint32_t SystemCoreClock = __SYSTEM_CLOCK; /*!< System Clock Frequency (Core Clock)*/
+uint32_t SystemCoreClock = PLATFORM_CLOCK; // __SYSTEM_CLOCK; /*!< System Clock Frequency (Core Clock)*/
 
 
 u32

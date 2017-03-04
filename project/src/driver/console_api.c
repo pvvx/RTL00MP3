@@ -6,7 +6,7 @@
  */
 //======================================================
 #define	LOGUART_STACK_SIZE	400 // USE_MIN_STACK_SIZE modify from 512 to 128
-#define	CONSOLE_PRIORITY 1
+#define	CONSOLE_PRIORITY 0
 //======================================================
 #include "rtl8195a.h"
 #include "rtl_bios_data.h"

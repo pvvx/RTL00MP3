@@ -12,6 +12,7 @@
 #ifndef _RTL_BIOS_DATA_H_
 #define _RTL_BIOS_DATA_H_
 
+#include "platform_autoconf.h"
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -54,7 +55,7 @@ extern u32 ConfigDebugErr;		// 10000314
 
 /* ROM + hal_timer.h & .. */
 extern HAL_TIMER_OP HalTimerOp; 		// 10000318
-extern u16 GPIOState[11];				// 10000334 побитно 16 бит для каждого порта (A..K), бит=номер задействованного пина в порту на периферию.
+extern u16 GPIOState[11];				// 10000334
 extern u32 gTimerRecord;				// 1000034C
 /* ROM + hal_ssi.h */
 extern u32 SSI_DBG_CONFIG;				// 10000350
@@ -167,7 +168,7 @@ extern RAM_START_FUNCTION gRamPatchWAKE;	// 10000bcc = { RtlBootToSram + 1 };
 extern RAM_START_FUNCTION gRamPatchFun0;	// 10000bd0 = { RtlBootToSram + 1 };
 extern RAM_START_FUNCTION gRamPatchFun1;	// 10000bd4 = { RtlBootToSram + 1 };
 extern RAM_START_FUNCTION gRamPatchFun2;	// 10000bd8 = { RtlBootToSram + 1 };
-extern uint8 RAM_IMG1_VALID_PATTEN[8];		// 10000bdc = { 0x23, 0x79, 0x16, 0x88, 0xff, 0xff, 0xff, 0xff };
+//extern uint8 RAM_IMG1_VALID_PATTEN[8];		// 10000bdc = { 0x23, 0x79, 0x16, 0x88, 0xff, 0xff, 0xff, 0xff };
 
 /* ROM + hal_sdr_controller.c */
 extern u32 rand_x; 							// 10000be4: ChangeRandSeed_rom(), Sdr_Rand2_rom()

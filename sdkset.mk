@@ -4,15 +4,17 @@ CFLAGS = -DM3 -DCONFIG_PLATFORM_8195A -DGCC_ARMCM3 -DARDUINO_SDK -DF_CPU=1666666
 CFLAGS += -mcpu=cortex-m3 -mthumb -g2 -Os -std=gnu99 
 CFLAGS += -fno-common -fmessage-length=0 -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums -fsigned-char 
 CFLAGS += -w -Wno-pointer-sign    
-LFLAGS = -mcpu=cortex-m3 -mthumb -g -Os --specs=nano.specs -nostartfiles 
-LFLAGS += -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning
+LFLAGS = -mcpu=cortex-m3 -mthumb -g -Os -nostartfiles -nostdlib
+#--specs=nano.specs
+LFLAGS += -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning -Wl,-nostdlib
 
 # LIBS
 # -------------------------------------------------------------------
 LIBS =
-all: LIBS +=_platform_new _wlan _p2p _wps _rtlstd _websocket _sdcard _xmodem _mdns m c nosys gcc
-mp: LIBS +=_platform_new _wlan_mp _p2p _wps _rtlstd _websocket _sdcard _xmodem _mdns m c nosys gcc
-PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/GCC
+all: LIBS +=_platform_new _wlan 
+# _mdns m c nosys gcc _wps _p2p _websocket _sdcard _xmodem 
+mp: LIBS +=_platform_new _wlan_mp 
+PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
 LDFILE = rlx8195A-symbol-v04-img2.ld
 BOOTS = sdk/component/soc/realtek/8195a/misc/bsp/image
 
@@ -51,7 +53,7 @@ INCLUDES += sdk/component/soc/realtek/8195a/cmsis
 INCLUDES += sdk/component/soc/realtek/8195a/cmsis/device
 INCLUDES += sdk/component/soc/realtek/8195a/fwlib
 INCLUDES += sdk/component/soc/realtek/8195a/fwlib/rtl8195a
-INCLUDES += sdk/component/soc/realtek/8195a/misc/rtl_std_lib
+INCLUDES += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/
 INCLUDES += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/include
 INCLUDES += sdk/component/common/drivers
 INCLUDES += sdk/component/common/drivers/wlan/realtek/include
@@ -63,7 +65,6 @@ INCLUDES += sdk/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_
 INCLUDES += sdk/component/common/network/ssl/polarssl-1.3.8/include
 INCLUDES += sdk/component/common/network/ssl/ssl_ram_map/rom
 INCLUDES += sdk/component/common/utilities
-INCLUDES += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/include
 INCLUDES += sdk/component/common/application/apple/WACServer/External/Curve25519
 INCLUDES += sdk/component/common/application/apple/WACServer/External/GladmanAES
 INCLUDES += sdk/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include
@@ -80,27 +81,22 @@ INCLUDES += sdk/component/common/application/xmodem
 # -------------------------------------------------------------------
 SRC_C =
 DRAM_C =
-#std_lib
-SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libc.c 
-SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libgloss_retarget.c
-SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_eabi_cast_ram.c
-SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_math_ram.c
 #cmsis
 SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/system_8195a.c
 
 #console
-#SRC_C += sdk/component/common/api/at_cmd/atcmd_ethernet.c
-#SRC_C += sdk/component/common/api/at_cmd/atcmd_lwip.c
-#SRC_C += sdk/component/common/api/at_cmd/atcmd_sys.c
-#SRC_C += sdk/component/common/api/at_cmd/atcmd_wifi.c
-#SRC_C += sdk/component/common/api/at_cmd/log_service.c
-SRC_C += sdk/component/soc/realtek/8195a/misc/driver/low_level_io.c
+DRAM_C += sdk/component/common/api/at_cmd/atcmd_ethernet.c
+DRAM_C += sdk/component/common/api/at_cmd/atcmd_lwip.c
+DRAM_C += sdk/component/common/api/at_cmd/atcmd_sys.c
+DRAM_C += sdk/component/common/api/at_cmd/atcmd_wifi.c
+SRC_C += sdk/component/common/api/at_cmd/log_service.c
+#SRC_C += sdk/component/soc/realtek/8195a/misc/driver/low_level_io.c
 #SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_consol.c
 
 #network - api
 SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_eap_config.c
-SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_p2p_config.c
-SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_wps_config.c
+#SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_p2p_config.c
+#SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_wps_config.c
 SRC_C += sdk/component/common/api/wifi/wifi_conf.c
 SRC_C += sdk/component/common/api/wifi/wifi_ind.c
 SRC_C += sdk/component/common/api/wifi/wifi_promisc.c
@@ -109,12 +105,12 @@ SRC_C += sdk/component/common/api/wifi/wifi_util.c
 SRC_C += sdk/component/common/api/lwip_netconf.c
 
 #network - app
-SRC_C += sdk/component/common/utilities/ssl_client.c
-SRC_C += sdk/component/common/utilities/ssl_client_ext.c
+#SRC_C += sdk/component/common/utilities/ssl_client.c
+#SRC_C += sdk/component/common/utilities/ssl_client_ext.c
 SRC_C += sdk/component/common/utilities/tcptest.c
 SRC_C += sdk/component/common/utilities/uart_ymodem.c
 SRC_C += sdk/component/common/utilities/update.c
-SRC_C += sdk/component/common/application/uart_adapter/uart_adapter.c
+#SRC_C += sdk/component/common/application/uart_adapter/uart_adapter.c
 SRC_C += sdk/component/common/api/network/src/wlan_network.c
 SRC_C += sdk/component/common/api/wifi_interactive_mode.c
 SRC_C += sdk/component/common/api/network/src/ping_test.c
@@ -158,10 +154,9 @@ SRC_C += sdk/component/common/drivers/wlan/realtek/src/osdep/lwip_intf.c
 SRC_C += sdk/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos/sys_arch.c
 SRC_C += sdk/component/common/network/dhcp/dhcps.c
 SRC_C += sdk/component/common/network/sntp/sntp.c
-SRC_C += sdk/component/common/network/netbios/netbios.c
 
 #network - mdns
-SRC_C += sdk/component/common/network/mDNS/mDNSPlatform.c
+#SRC_C += sdk/component/common/network/mDNS/mDNSPlatform.c
 
 #os - freertos
 SRC_C += sdk/component/os/freertos/freertos_v8.1.2/Source/portable/MemMang/heap_5.c
@@ -186,29 +181,29 @@ SRC_C += sdk/component/os/os_dep/tcm_heap.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/analogin_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/dma_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/efuse_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/ethernet_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/ethernet_api.c
 #SRC_C += sdk/component/common/drivers/ethernet_mii/ethernet_mii.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/flash_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/gpio_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/gpio_irq_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/i2c_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/i2c_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/i2s_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/log_uart_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/nfc_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/log_uart_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/nfc_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/pinmap.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/pinmap_common.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/port_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/pwmout_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/rtc_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/port_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/pwmout_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/rtc_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/serial_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/sleep.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/spdio_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/spi_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/spdio_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/spi_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/sys_api.c
-SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/timer_api.c
+#SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/timer_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/us_ticker.c
 SRC_C += sdk/component/common/mbed/common/us_ticker_api.c
-SRC_C += sdk/component/common/mbed/common/wait_api.c
+#SRC_C += sdk/component/common/mbed/common/wait_api.c
 SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/wdt_api.c
 
 #peripheral - hal
@@ -216,14 +211,14 @@ SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_32k.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_adc.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_gdma.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_gpio.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_i2c.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_i2c.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_i2s.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_mii.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_nfc.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_pcm.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_pwm.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_sdr_controller.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_ssi.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_mii.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_nfc.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_pcm.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_pwm.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_sdr_controller.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_ssi.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_timer.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_uart.c
 
@@ -234,12 +229,12 @@ SRC_C += sdk/component/os/freertos/freertos_pmu.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_adc.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_gdma.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_gpio.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_i2c.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_i2c.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_i2s.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_mii.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_nfc.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_pwm.c
-SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_ssi.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_mii.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_nfc.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_pwm.c
+#SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_ssi.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_timer.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_uart.c
 
@@ -247,85 +242,85 @@ SRC_C += sdk/component/soc/realtek/8195a/fwlib/rtl8195a/src/rtl8195a_uart.c
 #SRC_C += sdk/component/common/drivers/wlan/realtek/src/core/option/rtw_opt_skbuf.c
 
 #SDRAM
-DRAM_C += sdk/component/common/api/platform/stdlib_patch.c
+#DRAM_C += sdk/component/common/api/platform/stdlib_patch.c
 #SDRAM - polarssl
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/aes.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/aesni.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/arc4.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/asn1parse.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/asn1write.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/base64.c
-SRC_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/bignum.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/blowfish.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/camellia.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ccm.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/certs.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/cipher.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/cipher_wrap.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ctr_drbg.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/debug.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/des.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/dhm.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecp.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecp_curves.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecdh.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecdsa.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/entropy.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/entropy_poll.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/error.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/gcm.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/havege.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/hmac_drbg.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md_wrap.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md2.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md4.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md5.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/memory_buffer_alloc.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/net.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/oid.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/padlock.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pbkdf2.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pem.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkcs5.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkcs11.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkcs12.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pk.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pk_wrap.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkparse.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkwrite.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/platform.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ripemd160.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/rsa.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/sha1.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/sha256.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/sha512.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_cache.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_ciphersuites.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_cli.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_srv.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_tls.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/threading.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/timing.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/version.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/version_features.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_crt.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_crl.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_csr.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_create.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509write_crt.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509write_csr.c
-DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/xtea.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/aes.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/aesni.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/arc4.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/asn1parse.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/asn1write.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/base64.c
+#SRC_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/bignum.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/blowfish.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/camellia.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ccm.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/certs.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/cipher.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/cipher_wrap.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ctr_drbg.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/debug.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/des.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/dhm.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecp.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecp_curves.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecdh.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ecdsa.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/entropy.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/entropy_poll.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/error.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/gcm.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/havege.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/hmac_drbg.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md_wrap.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md2.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md4.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/md5.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/memory_buffer_alloc.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/net.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/oid.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/padlock.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pbkdf2.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pem.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkcs5.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkcs11.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkcs12.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pk.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pk_wrap.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkparse.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/pkwrite.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/platform.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ripemd160.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/rsa.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/sha1.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/sha256.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/sha512.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_cache.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_ciphersuites.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_cli.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_srv.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/ssl_tls.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/threading.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/timing.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/version.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/version_features.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_crt.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_crl.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_csr.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509_create.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509write_crt.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/x509write_csr.c
+#DRAM_C += sdk/component/common/network/ssl/polarssl-1.3.8/library/xtea.c
 
 #SDRAM - ssl_ram_map
 DRAM_C += sdk/component/common/network/ssl/ssl_ram_map/rom/rom_ssl_ram_map.c
 DRAM_C += sdk/component/common/network/ssl/ssl_ram_map/ssl_ram_map.c
 
 #SDRAM - wigadget
-DRAM_C += sdk/component/common/application/wigadget/cloud_link.c
-DRAM_C += sdk/component/common/application/wigadget/shtc1.c
-DRAM_C += sdk/component/common/application/wigadget/wigadget.c
+#DRAM_C += sdk/component/common/application/wigadget/cloud_link.c
+#DRAM_C += sdk/component/common/application/wigadget/shtc1.c
+#DRAM_C += sdk/component/common/application/wigadget/wigadget.c
 
 #utilities
 SRC_C += sdk/component/common/utilities/cJSON.c
@@ -359,23 +354,32 @@ ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_efuse.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_log_uart.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_pinmux.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_misc.c
-ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/startup.c 
-ADD_SRC_C += sdk/component/common/drivers/sdio/realtek/sdio_host/src/sd.c 
-ADD_SRC_C += sdk/component/common/drivers/sdio/realtek/sdio_host/src/sdio_host.c 
-ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_sdio_host.c
+#ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_spi_flash_ram.c
 # COMPONENTS
+ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/startup.c 
 ADD_SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/flash_eep.c 
+ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libc.c 
+ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_pvvx_libc.c 
+ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libgloss_retarget.c
+ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_eabi_cast_ram.c
+ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_math_ram.c
+ADD_SRC_C += component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.c
+ADD_SRC_C += component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.c 
 # -------------------------------------------------------------------
 # SAMPLES
 # -------------------------------------------------------------------
-ADD_SRC_C += sdk/component/common/example/cJSON/cJSON_example.c 
-ADD_SRC_C += sdk/component/common/example/googlenest/example_google.c  
-ADD_SRC_C += sdk/component/common/example/mdns/example_mdns.c
-ADD_SRC_C += sdk/component/common/example/socket_select/example_socket_select.c
+#ADD_SRC_C += sdk/component/common/example/cJSON/cJSON_example.c 
+#ADD_SRC_C += sdk/component/common/example/googlenest/example_google.c  
+#ADD_SRC_C += sdk/component/common/example/mdns/example_mdns.c
+#ADD_SRC_C += sdk/component/common/example/socket_select/example_socket_select.c
 ADD_SRC_C += sdk/component/common/example/uart_atcmd/example_uart_atcmd.c
 ADD_SRC_C += sdk/component/common/example/wlan_fast_connect/example_wlan_fast_connect.c
-ADD_SRC_C += sdk/component/common/example/xml/example_xml.c
+#ADD_SRC_C += sdk/component/common/example/xml/example_xml.c
 ADD_SRC_C += sdk/component/common/example/example_entry.c
+#ADD_SRC_C += sdk/component/common/drivers/sdio/realtek/sdio_host/src/sd.c 
+#ADD_SRC_C += sdk/component/common/drivers/sdio/realtek/sdio_host/src/sdio_host.c 
+#ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_sdio_host.c
+#ADD_SRC_C += sdk/component/common/file_system/fatfs/disk_if/src/sdcard.c
 #=============================================
 # PROGECT
 #=============================================
@@ -401,7 +405,6 @@ ADD_SRC_C += project/src/mad/stream.c
 
 #driver
 ADD_SRC_C += project/src/driver/i2s_freertos.c
-#ADD_SRC_C += project/src/driver/wifi_api.c
 ADD_SRC_C += project/src/driver/console_api.c
 
 #include

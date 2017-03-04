@@ -48,15 +48,15 @@ application: build_info $(SRC_O) $(DRAM_O)
 	@echo "Make BootLoader (ram_1.p.bin, ram_1.r.bin)"
 #	@echo "==========================================================="
 	@mkdir -p $(BIN_DIR) $(OBJ_DIR)
-	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.r.bin $(BIN_DIR)/ram_1.r.bin
-	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.p.bin $(BIN_DIR)/ram_1.p.bin
+##	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.r.bin $(BIN_DIR)/ram_1.r.bin
+##	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.p.bin $(BIN_DIR)/ram_1.p.bin
 #	@chmod 777 $(OBJ_DIR)/ram_1.r.bin
-	$(OBJCOPY) --rename-section .data=.loader.data,contents,alloc,load,readonly,data -I binary -O elf32-littlearm -B arm $(BIN_DIR)/ram_1.r.bin $(OBJ_DIR)/ram_1.r.o
+##	$(OBJCOPY) --rename-section .data=.loader.data,contents,alloc,load,readonly,data -I binary -O elf32-littlearm -B arm $(BIN_DIR)/ram_1.r.bin $(OBJ_DIR)/ram_1.r.o
 	@echo "==========================================================="
 	@echo "Link ($(TARGET))"
 #	@echo "==========================================================="
-	@$(file > $(OBJ_DIR)/obj_list.lst,$(OBJ_LIST))
-	@$(LD) $(LFLAGS) -o $(ELFFILE) @$(OBJ_DIR)/obj_list.lst $(OBJ_DIR)/ram_1.r.o $(LIBFLAGS) -T$(LDFILE)
+##	@$(LD) $(LFLAGS) -o $(ELFFILE) $(OBJ_LIST) $(OBJ_DIR)/ram_1.r.o $(LIBFLAGS) -T$(LDFILE)
+	@$(LD) $(LFLAGS) -o $(ELFFILE) $(OBJ_LIST) $(LIBFLAGS) -T$(LDFILE)
 	@$(OBJDUMP) -d $(ELFFILE) > $(OBJ_DIR)/$(TARGET).asm
 
 .PHONY:	prerequirement

@@ -178,14 +178,16 @@ HalRuartGenBaudRateRtl8195a(
     while ((min_err > pBaudSetting->max_err) && (div_res > 0)) {
         uart_ovsr = pBaudSetting->Ovsr_max;
         while(uart_ovsr >= pBaudSetting->Ovsr_min) {        
-            divisor_temp = (uart_clock/baud_rate)/uart_ovsr;
+//            divisor_temp = (uart_clock/baud_rate)/uart_ovsr;
+        	divisor_temp = div_u64(div_u64(uart_clock, baud_rate), uart_ovsr);
             max_jitter_temp = 0;    
             if (divisor_temp > 0) {
                 max_jitter_temp = 100000/uart_ovsr;
                 if (max_jitter_temp >= pBaudSetting->jitter_lim) {
                     err_temp = 100;
                 } else {
-                    err_temp = (uart_clock/divisor_temp)/((uart_ovsr/100)*100);
+//                    err_temp = (uart_clock/divisor_temp)/((uart_ovsr/100)*100);
+                    err_temp = div_u64(div_u64(uart_clock, divisor_temp), (uart_ovsr/100)*100);
                     if (err_temp > baud_rate) {
                         err_temp = (err_temp - baud_rate)*1000 / baud_rate;
                     } else {
@@ -217,7 +219,8 @@ HalRuartGenBaudRateRtl8195a(
     if (min_divisor == 0) {    
         min_divisor = 1;
     }
-    uart_ovsr_target = (uart_clock/baud_rate)/min_divisor;
+//    uart_ovsr_target = (uart_clock/baud_rate)/min_divisor;
+    uart_ovsr_target = div_u64(div_u64(uart_clock,baud_rate), min_divisor);
 
     ovsr_adj = 0;
     adj_bits = 0;

@@ -32,6 +32,8 @@ extern int inic_stop(void);
 #define printf(...)
 #endif
 
+#define sscanf	_sscanf
+
 #define SHOW_PRIVATE_OUT 1 // =0 - off, = 1 On
 
 /******************************************************

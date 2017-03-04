@@ -36,11 +36,9 @@
 
 #define DEBUG_MAIN_LEVEL 1
 
-//Priorities of the reader and the decoder thread. Higher = higher prio. (ESP8266!)
-//#define PRIO_READER (configMAX_PRIORITIES - 2) // (tskIDLE_PRIORITY + PRIORITIE_OFFSET)
-//#define PRIO_MAD (PRIO_READER - 1) // PRIO_READER + n; (TCPIP_THREAD_PRIO = (configMAX_PRIORITIES - 2))
-#define PRIO_MAD (tskIDLE_PRIORITY + 1 + PRIORITIE_OFFSET)
-#define PRIO_READER (PRIO_MAD + 7) // max 11 ?
+//Priorities of the reader and the decoder thread. Higher = higher prio.
+#define PRIO_MAD (tskIDLE_PRIORITY + 3 + PRIORITIE_OFFSET)
+#define PRIO_READER (PRIO_MAD + 1)
 
 
 #define mMIN(a, b)  ((a < b)? a : b)

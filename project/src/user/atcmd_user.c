@@ -126,7 +126,7 @@ void fATWS(int argc, char *argv[]){
 void fATST(void){
 		printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
 				HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
-#if CONFIG_DEBUG_LOG > 1
+#if 0 //CONFIG_DEBUG_LOG > 1
 		dump_mem_block_list();
 		tcm_heap_dump();
 #endif;
@@ -139,6 +139,19 @@ void fATST(void){
 		}
 		vPortFree(cBuffer);
 #endif
+#if defined(configUSE_TRACE_FACILITY) && (configUSE_TRACE_FACILITY == 1) && (configUSE_STATS_FORMATTING_FUNCTIONS == 1)
+	{
+		char * pcWriteBuffer = malloc(1024);
+		if(pcWriteBuffer) {
+			vTaskList((char*)pcWriteBuffer);
+			printf("\nTask List:\n");
+	        printf("==============================\n");
+	        printf("Name\t  Status Priority HighWaterMark TaskNumber\n%s\n", pcWriteBuffer);
+			free(pcWriteBuffer);
+		}
+	}
+#endif
+
 }
 
 void fATWC(int argc, char *argv[]){

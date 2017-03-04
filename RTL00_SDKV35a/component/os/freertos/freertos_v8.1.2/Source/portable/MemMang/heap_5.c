@@ -164,7 +164,9 @@ static size_t xMinimumEverFreeBytesRemaining = 0;
 member of an BlockLink_t structure is set then the block belongs to the
 application.  When the bit is free the block is still part of the free heap
 space. */
-static size_t xBlockAllocatedBit = 0;
+//static size_t xBlockAllocatedBit = 0;
+/* Work out the position of the top bit in a size_t variable. */
+#define xBlockAllocatedBit  (( ( size_t ) 1 ) << ( ( sizeof( size_t ) * heapBITS_PER_BYTE ) - 1 ))
 
 /* Realtek test code start */
 //TODO: remove section when combine BD and BF
@@ -175,7 +177,7 @@ SRAM_HEAP_SECTION
 unsigned char ucHeap[configTOTAL_HEAP_SIZE];
 
 //extern void * __sdram_bss_end__;
-extern void * __ram_heap1_start__, __ram_heap1_end__, __ram_heap2_start__, __sdram_data_start__;
+//extern void * __ram_heap1_start__, __ram_heap1_end__, __ram_heap2_start__, __sdram_data_start__;
 
 extern HeapRegion_t xHeapRegions[];
 
@@ -622,8 +624,6 @@ const HeapRegion_t *pxHeapRegion;
 	/* Check something was actually defined before it is accessed. */
 	configASSERT( xTotalHeapSize );
 
-	/* Work out the position of the top bit in a size_t variable. */
-	xBlockAllocatedBit = ( ( size_t ) 1 ) << ( ( sizeof( size_t ) * heapBITS_PER_BYTE ) - 1 );
 }
 
 void* pvPortReAlloc( void *pv,  size_t xWantedSize )

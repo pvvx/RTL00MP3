@@ -715,71 +715,19 @@ SECTIONS
 	/* RAM data used in ROM */
 	
 	__ram_image_start__ = 0x10000000;
-	NewVectorTable = 0x10000000;
-	UserIrqFunTable = 0x10000100;
-	UserIrqDataTable = 0x10000200;
 	__rom_bss_start__ = 0x10000300;
-	CfgSysDebugWarn = 0x10000300;
-	CfgSysDebugInfo = 0x10000304;
-	CfgSysDebugErr = 0x10000308;
-	ConfigDebugWarn = 0x1000030c;
-	ConfigDebugInfo = 0x10000310;
-	ConfigDebugErr = 0x10000314;
-	HalTimerOp = 0x10000318;
-	GPIOState = 0x10000334;		/* HalPinCtrlRtl8195A() */
-	gTimerRecord = 0x1000034c; /* HalGetTimerIdRtl8195a() */
-	SSI_DBG_CONFIG = 0x10000350; /* HalSsiPinmuxEnableRtl8195a() */
-	_pHAL_Gpio_Adapter = 0x10000354; /* GPIO_FuncOn_8195a() */
-	Timer2To7VectorTable = 0x10000358; /* HalTimerIrqUnRegisterRtl8195aV02() */
-	_rand_first = 0x10000370; /* Rand() */
-	_rand_z1 = 0x10000374; /* Rand() */
-	_rand_z2 = 0x10000378; /* Rand() */
-	_rand_z3 = 0x1000037C; /* Rand() */
-	_rand_z4 = 0x10000380; /* Rand() */
-	pUartLogCtl = 0x10000384; /* UartLogIrqHandle() */
-	UartLogBuf = 0x10000388; /* RtlConsolInit() */
-	UartLogCtl = 0x10000408; /* RtlConsolInit() */
-	UartLogHistoryBuf = 0x10000430; /*  */
-	ArgvArray = 0x100006ac; /* GetArgv() */ 
-	rom_wlan_ram_map = 0x100006d4; /* os_zalloc(), WPS_realloc(),.. */
-	FalseAlmCnt = 0x100006e0; /* ROM_odm_FalseAlarmCounterStatistics() */
-	ROMInfo = 0x10000720; /* ROM_odm_GetDefaultCrytaltalCap(), ROM_odm_SetCrystalCap(), ROM_ODM_CfoTrackingReset(),.. */
-	DM_CfoTrack = 0x10000738; /* ROM_odm_CfoTrackingFlow() */
-	rom_libgloss_ram_map = 0x10000760; /* _rtl_fstat_v1_00(), _rtl_lseek_v1_00(),.. */
-	__rtl_malloc_av_ = 0x10000780; /* __rom_mallocr_init_v1_00(), _rtl_free_r_v1_00().. */
-	__rtl_malloc_trim_threshold = 0x10000b88; /* __rom_mallocr_init_v1_00() */
-	__rtl_malloc_top_pad = 0x10000b8c; /* __rom_mallocr_init_v1_00() */
-	__rtl_malloc_sbrk_base = 0x10000b90; /* __rom_mallocr_init_v1_00() */
-	__rtl_malloc_max_sbrked_mem = 0x10000b94; /* __rom_mallocr_init_v1_00() */
-	__rtl_malloc_max_total_mem = 0x10000b98; /* __rom_mallocr_init_v1_00() */
-	__rtl_malloc_current_mallinfo = 0x10000b9c; /* __rom_mallocr_init_v1_00() */
-	__rtl_errno = 0x10000bc4; /* __rtl_sread_v1_00(), __rtl_write_v1_00(), __rtl_lseek_v1_00(), __rtl_close_v1_00(), __rtl_sbrk_v1_00().. */
 	__ram_start_table_start__ = 0x10000bc8;
 	__rom_bss_end__ = 0x10000bc8;
 
 	/* BOOT-LOADER */
 	
-	bootloader = 0x10000bc8; /* = gRamStartFun, HalResetVsr() */
-	gRamStartFun = 0x10000bc8; /* HalResetVsrV02(), HalResetVsr() */
+	gRamStartFun = 0x10000bc8;  /* HalResetVsrV02(), HalResetVsr() */
 	gRamPatchWAKE = 0x10000bcc; /* HalResetVsrV02(), HalResetVsr() */
 	gRamPatchFun0 = 0x10000bd0; /* HalResetVsrV02(), HalResetVsr() */
 	gRamPatchFun1 = 0x10000bd4; /* HalResetVsrV02(), HalResetVsr() */
 	gRamPatchFun2 = 0x10000bd8; /* HalResetVsrV02(), HalResetVsr() */
 	__image1_validate_code__ = 0x10000bdc; /* 8 bytes HalResetVsrV02(), HalResetVsr() */
-	RAM_IMG1_VALID_PATTEN = 0x10000bdc;
-	rand_x = 0x10000be4; /* ChangeRandSeed_rom().. Sdr_Rand2_rom() */
-	AvaWds = 0x10000be8; /* SdrCalibration_rom() */
-	SdrDramInfo = 0x10001be8; /* SdrCalibration_rom() */
-	SdrDramTiming = 0x10001bfc; /* SdrCalibration_rom() */
-	SdrDramModeReg = 0x10001c30; /* SdrCalibration_rom() */
-	SdrDramDev = 0x10001c4c; /* SdrCalibration_rom() */
-	/* 0x10000be8: buf 0x1000+ bytes SdrCalibration_rom() */
-	_rtl_impure_ptr = 0x10001c60; /* struct _reent * _rtl_impure_ptr = { &impure_reent } (for standard library) */
-	impure_reent = 0x10001c68; /* struct _reent */
-	_rom_unc_data = 0x10002090; /* ? u32 _rom_unc_data[9] */
-	_sdr_rnd2_y = 0x100020b4; /* Sdr_Rand2_rom().. ChangeRandSeed_rom() */
-	_sdr_rnd2_z = 0x100020b8; /* Sdr_Rand2_rom().. ChangeRandSeed_rom() */
-	_sdr_rnd2_c = 0x100020bc; /* Sdr_Rand2_rom().. ChangeRandSeed_rom() */
+
 	
 	__ram_image_end__ = 0x10002100;
 	

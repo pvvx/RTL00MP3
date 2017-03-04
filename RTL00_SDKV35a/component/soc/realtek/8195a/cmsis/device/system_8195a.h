@@ -68,7 +68,7 @@ extern void SystemInit (void);
  */
 extern void SystemCoreClockUpdate (void);
 extern u32 SystemGetCpuClk(void);
-extern u32 Rand2(void);
+extern _LONG_CALL_ u32 Rand2(void);
 
 #ifdef __cplusplus
 }
