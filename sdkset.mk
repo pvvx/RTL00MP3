@@ -363,8 +363,8 @@ ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_pvv
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libgloss_retarget.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_eabi_cast_ram.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_math_ram.c
-ADD_SRC_C += component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.c
-ADD_SRC_C += component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.c 
+ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.c
+ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.c 
 # -------------------------------------------------------------------
 # SAMPLES
 # -------------------------------------------------------------------
