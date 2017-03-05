@@ -18,7 +18,6 @@
 #include "wifi_conf.h"
 #include "rtl_consol.h"
 
-
 //#define INFRA_START_SECTION __attribute__((section(".infra.ram.start")))
 
 //-------------------------------------------------------------------------
@@ -28,7 +27,7 @@ extern void HalWdgIntrHandle(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
 extern void vPortSVCHandler(void);
-extern void ShowRamBuildInfo(void); // app_start.c: VOID ShowRamBuildInfo(VOID)
+//extern void ShowRamBuildInfo(void); // app_start.c: VOID ShowRamBuildInfo(VOID)
 void HalNMIHandler_Patch(void);
 void SDIO_Device_Off(void);
 void VectorTableOverrideRtl8195A(u32 StackP);
@@ -37,11 +36,10 @@ void SYSPlatformInit(void);
 //-------------------------------------------------------------------------
 // Data declarations
 extern u8 __bss_start__, __bss_end__;
+//extern HAL_TIMER_OP	HalTimerOp;
 
-IMAGE2_START_RAM_FUN_SECTION RAM_START_FUNCTION gImage2EntryFun0 = { InfraStart
-		+ 1 };
-
-// HAL_GPIO_ADAPTER PINMUX_RAM_DATA_SECTION gBoot_Gpio_Adapter;
+IMAGE2_START_RAM_FUN_SECTION RAM_START_FUNCTION gImage2EntryFun0 =
+	{ InfraStart + 1 };
 
 //----- HalNMIHandler_Patch
 void HalNMIHandler_Patch(void) {
@@ -50,21 +48,23 @@ void HalNMIHandler_Patch(void) {
 		HalWdgIntrHandle(); // ROM: HalWdgIntrHandle = 0x3485;
 }
 
+/*
 //----- VectorTableOverrideRtl8195A
 void INFRA_START_SECTION VectorTableOverrideRtl8195A(u32 StackP) {
 	NewVectorTable[2] = HalNMIHandler_Patch;
 }
+*/
 
 //----- SYSPlatformInit
 void INFRA_START_SECTION SYSPlatformInit(void) {
 	HAL_SYS_CTRL_WRITE32(REG_SYS_EFUSE_SYSCFG0,
 			(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_SYSCFG0)
 			& (~(BIT_MASK_SYS_EEROM_LDO_PAR_07_04 << BIT_SHIFT_SYS_EEROM_LDO_PAR_07_04)))
-				| BIT_SYS_EEROM_LDO_PAR_07_04(6)); // & 0xF0FFFFFF | 0x6000000
+			| BIT_SYS_EEROM_LDO_PAR_07_04(6)); // & 0xF0FFFFFF | 0x6000000
 	HAL_SYS_CTRL_WRITE32(REG_SYS_XTAL_CTRL1,
 			(HAL_SYS_CTRL_READ32(REG_SYS_XTAL_CTRL1)
 			& (~(BIT_MASK_SYS_XTAL_DRV_RF1 << BIT_SHIFT_SYS_XTAL_DRV_RF1)))
-				| BIT_SYS_XTAL_DRV_RF1(1)); //  & 0xFFFFFFE7 | 8;
+			| BIT_SYS_XTAL_DRV_RF1(1)); //  & 0xFFFFFFE7 | 8;
 }
 
 //----- SDIO_Device_Off
@@ -80,22 +80,67 @@ void INFRA_START_SECTION SDIO_Device_Off(void) {
 			& (~(BIT_HCI_SDIOD_PIN_EN)));
 }
 
+__weak void __low_level_init(void) {
+	// weak function
+}
+
+// weak main function !
+__weak int main(void) {
+	HalPinCtrlRtl8195A(JTAG, 0, 1);
+
+	DiagPrintf("\r\nRTL Console ROM: Start - press key 'Up', Help '?'\r\n");
+	while (pUartLogCtl->ExecuteEsc != 1);
+	pUartLogCtl->RevdNo = 0;
+	pUartLogCtl->BootRdy = 1;
+	DiagPrintf("\r<RTL8710AF>");
+	while (1) {
+		while (pUartLogCtl->ExecuteCmd != 1);
+		UartLogCmdExecute(pUartLogCtl);
+		DiagPrintf("\r<RTL8710AF>");
+		pUartLogCtl->ExecuteCmd = 0;
+	}
+
+	return 0;
+}
+
 //----- InfraStart
 void INFRA_START_SECTION InfraStart(void) {
 	NewVectorTable[2] = HalNMIHandler_Patch;
-	HAL_SYS_CTRL_WRITE32(REG_SYS_CLK_CTRL0,
-			HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL0) | BIT4);
-	if (HalCommonInit() != HAL_OK)
-		DBG_8195A("Hal Common Init Failed.\n");
+#ifdef CONFIG_TIMER_MODULE
+	HalTimerOpInit_Patch((VOID*) (&HalTimerOp));
+#endif
+//	HAL_SYS_CTRL_WRITE32(REG_SYS_CLK_CTRL0,	HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL0) | BIT4);
 	DBG_8195A("==!== Enter Image 2 ====\n");
-	ShowRamBuildInfo(); // app_start.c: VOID ShowRamBuildInfo(VOID)
+//	ShowRamBuildInfo(); // app_start.c: VOID ShowRamBuildInfo(VOID)
 	memset(&__bss_start__, 0, &__bss_end__ - &__bss_start__);
-	int clk = (HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL0)
-			>> BIT_SHIFT_PESOC_OCP_CPU_CK_SEL) & 1;
-	if (clk) {
+	int flash_en = HAL_PERI_ON_READ32(REG_SOC_FUNC_EN)
+			& (1 << BIT_SOC_FLASH_EN);
+	if (flash_en) {
+		if(!SpicCmpDataForCalibrationRtl8195A()) {
+			DBG_8195A("ReInit  SPIC...\n");
+			SpicInitRtl8195AV02(1,0);
+//			if(!SpicCmpDataForCalibrationRtl8195A()) {
+				// TODO: Spic Not Init!
+				// DBG_8195A("Spic error Init!\n");
+//			};
+		};
 		SpicNVMCalLoadAll();
 		SpicReadIDRtl8195A();
-	}
+	};
+    while(!(HAL_READ8(LOG_UART_REG_BASE, 0x14) & BIT6)); //	иначе глючит LogUART, если переключение CLK приходится на вывод символов !
+#if	CPU_CLOCK_SEL_DIV5_3
+	// 6 - 200000000 Hz, 7 - 10000000 Hz, 8 - 50000000 Hz, 9 - 25000000 Hz, 10 - 12500000 Hz, 11 - 4000000 Hz
+	HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
+	*((int *)(SYSTEM_CTRL_BASE+REG_SYS_SYSPLL_CTRL1)) |= (1<<17);// REG_SYS_SYSPLL_CTRL1 |= BIT_SYS_SYSPLL_DIV5_3
+#else
+	// 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
+	*((int *) (SYSTEM_CTRL_BASE + REG_SYS_SYSPLL_CTRL1)) &= ~(1 << 17); // REG_SYS_SYSPLL_CTRL1 &= ~BIT_SYS_SYSPLL_DIV5_3
+	HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
+#endif
+	HalReInitPlatformLogUartV02();
+/*	HAL_LOG_UART_ADAPTER pUartAdapter;
+	pUartAdapter.BaudRate = UART_BAUD_RATE_38400;
+	HalLogUartSetBaudRate(&pUartAdapter); */
 	SystemCoreClockUpdate();
 	SYSPlatformInit();
 	En32KCalibration();
@@ -103,8 +148,22 @@ void INFRA_START_SECTION InfraStart(void) {
 	SDIO_Device_Off();
 	VectorTableInitForOSRtl8195A(&vPortSVCHandler, &xPortPendSVHandler,
 			&xPortSysTickHandler);
-	if (clk)
+	if (flash_en)
 		SpicDisableRtl8195A();
-	_AppStart();
+#ifdef CONFIG_SDR_EN
+	// clear SDRAM bss
+	extern u8 __sdram_bss_start__[];
+	extern u8 __sdram_bss_end__[];
+	if((int)__sdram_bss_end__-(int)__sdram_bss_start__ > 0)
+	memset(__sdram_bss_start__, 0, (int)__sdram_bss_end__-(int)__sdram_bss_start__);
+#endif
+	// force SP align to 8 byte not 4 byte (initial SP is 4 byte align)
+	__asm(
+			"mov r0, sp\n"
+			"bic r0, r0, #7\n"
+			"mov sp, r0\n"
+	);
+	__low_level_init();
+	main();
 }
 

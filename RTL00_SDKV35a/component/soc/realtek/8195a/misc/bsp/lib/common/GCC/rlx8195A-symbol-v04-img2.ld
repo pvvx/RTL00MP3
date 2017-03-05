@@ -56,7 +56,7 @@ SECTIONS
 	{
 		/* __ram_start_table_start__ = .; */
 		__ram_image1_text_start__ = .;
-		KEEP(*(SORT(.start.ram.data*))) 
+		KEEP(*(.boot.start.ram.data*)) 
 		/* __image1_validate_code__	= .; */
 		KEEP(*(.image1.validate.rodata))
 	
@@ -67,18 +67,21 @@ SECTIONS
 		KEEP(*(.libc.reent)) 
 		KEEP(*(.rom.unc.data)) 
 		KEEP(*(.sdr.rand2.data))
-	    __ram_image_end__ = .;
-		/* 0x100020c0: end */
+
+	    PROVIDE (__ram_image_end__ = .);		/* 0x100020c0: end */
+
 		/* boot & images data */
+
 	    KEEP(*(.hal.ram.data))
 		KEEP(*(.hal.flash.data))
-		/* KEEP(*(.data));  ? */
-		build/obj/RTL00_SDKV35a/component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.o (.rodata*)
-		KEEP(*(.ram.boot.text))
-		build/obj/RTL00_SDKV35a/component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.o (.rodata*)
+		KEEP(*(.boot.rodata*))
+		KEEP(*(.boot.text*))
+		KEEP(*(.boot.data))
 	    __image1_bss_start__ = .;
+		KEEP(*(.boot.bss*))
 	    __image1_bss_end__ = .;
 		__ram_image1_text_end__ = .;
+
 	} > BOOT_RAM
 
 	.romheap :
@@ -249,4 +252,5 @@ SECTIONS
 	{
 		KEEP(*(.loader.head*))
 	}
+	ASSERT(__ram_image_end__ != 0x100020c0, "Error rom-bios-boot code & data!") 
 }

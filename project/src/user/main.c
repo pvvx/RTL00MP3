@@ -38,7 +38,7 @@
 
 //Priorities of the reader and the decoder thread. Higher = higher prio.
 #define PRIO_MAD (tskIDLE_PRIORITY + 3 + PRIORITIE_OFFSET)
-#define PRIO_READER (PRIO_MAD + 1)
+#define PRIO_READER (PRIO_MAD)
 
 
 #define mMIN(a, b)  ((a < b)? a : b)
@@ -467,7 +467,7 @@ void connect_start(void) {
 		//Fire up the reader task. The reader task will fire up the MP3 decoder as soon
 		//as it has read enough MP3 data.
 		tskreader_enable = 1;
-		if (xTaskCreate(tskreader, "tskreader", 300, NULL, PRIO_READER,	NULL) != pdPASS) {
+		if (xTaskCreate(tskreader, "tskreader", 320, NULL, PRIO_READER,	NULL) != pdPASS) {
 #if DEBUG_MAIN_LEVEL > 0
 			DBG_8195A("\n%s xTaskCreate(tskreader) failed!\n", __FUNCTION__);
 #endif
@@ -479,6 +479,13 @@ void connect_start(void) {
 		DBG_8195A("MP3: No set url!\n");
 	}
 #endif
+}
+
+/* RAM/TCM/Heaps info */
+void ShowMemInfo(void)
+{
+	printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
+			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 }
 
 /**
@@ -496,22 +503,7 @@ void main(void)
 	 CfgSysDebugInfo = -1;
 	 CfgSysDebugWarn = -1;
 #endif
-	 if(HalGetCpuClk() != PLATFORM_CLOCK) {
-#if	CPU_CLOCK_SEL_DIV5_3
-		// 6 - 200000000 Hz, 7 - 10000000 Hz, 8 - 50000000 Hz, 9 - 25000000 Hz, 10 - 12500000 Hz, 11 - 4000000 Hz
-		HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
-		*((int *)(SYSTEM_CTRL_BASE+REG_SYS_SYSPLL_CTRL1)) |= (1<<17); // REG_SYS_SYSPLL_CTRL1 |= BIT_SYS_SYSPLL_DIV5_3
-#else
-		// 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
-		*((int *)(SYSTEM_CTRL_BASE+REG_SYS_SYSPLL_CTRL1)) &= ~(1<<17); // REG_SYS_SYSPLL_CTRL1 &= ~BIT_SYS_SYSPLL_DIV5_3
-		HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
-#endif
-		HAL_LOG_UART_ADAPTER pUartAdapter;
-		pUartAdapter.BaudRate = UART_BAUD_RATE_38400;
-		HalLogUartSetBaudRate(&pUartAdapter);
-		SystemCoreClockUpdate();
-		En32KCalibration();
-	}
+
 #ifdef CONFIG_WDG_ON_IDLE
 	HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & 0x1FFFFF);
 	WDGInitial(CONFIG_WDG_ON_IDLE * 1000); // 5 s
@@ -526,13 +518,13 @@ void main(void)
 
 #if DEBUG_MAIN_LEVEL > 0
 	vPortFree(pvPortMalloc(4)); // Init RAM heap
-	fATST(); // RAM/TCM/Heaps info
+	ShowMemInfo(); // RAM/TCM/Heaps info
 #endif
 
 	start_init(); // in atcmd_user.c
 
 	/* pre-processor of application example */
-	pre_example_entry();
+	example_wlan_fast_connect(); // pre_example_entry();
 
 	/* wlan intialization */
 #if defined(CONFIG_WIFI_NORMAL) && defined(CONFIG_NETWORK)

@@ -20,7 +20,7 @@
 
 #include "lwip/tcp_impl.h"
 
-rtw_mode_t wifi_mode = RTW_MODE_STA;
+extern rtw_mode_t wifi_mode; // = RTW_MODE_STA;
 
 mp3_server_setings mp3_serv = {0,{0}}; //{ PLAY_PORT, { PLAY_SERVER }};
 
@@ -121,11 +121,18 @@ void fATWS(int argc, char *argv[]){
     	}
 }
 
+/* RAM/TCM/Heaps info */
+extern void ShowMemInfo(void);
+/*
+void ShowMemInfo(void)
+{
+	printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
+			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
+}
+ */
 // Mem info
-// Mem info
-void fATST(void){
-		printf("\nCLK CPU\t\t%d Hz\nRAM heap\t%d bytes\nTCM heap\t%d bytes\n",
-				HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
+void fATST(int argc, char *argv[]) {
+		ShowMemInfo();
 #if 0 //CONFIG_DEBUG_LOG > 1
 		dump_mem_block_list();
 		tcm_heap_dump();
@@ -151,7 +158,6 @@ void fATST(void){
 		}
 	}
 #endif
-
 }
 
 void fATWC(int argc, char *argv[]){

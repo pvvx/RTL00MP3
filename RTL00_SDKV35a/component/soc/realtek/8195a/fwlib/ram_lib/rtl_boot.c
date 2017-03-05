@@ -16,10 +16,10 @@
 
 #define DEFAULT_BAUDRATE UART_BAUD_RATE_38400
 
-#define BOOT_RAM_TEXT_SECTION __attribute__((section(".ram.boot.text")))
-//#define BOOT_RAM_RODATA_SECTION __attribute__((section(".ram.boot.rodata")))
-//#define BOOT_RAM_DATA_SECTION __attribute__((section(".ram.boot.data")))
-//#define BOOT_RAM_BSS_SECTION __attribute__((section(".ram.boot.bss")))
+#define BOOT_RAM_TEXT_SECTION // __attribute__((section(".boot.text")))
+//#define BOOT_RAM_RODATA_SECTION __attribute__((section(".boot.rodata")))
+//#define BOOT_RAM_DATA_SECTION __attribute__((section(".boot.data")))
+//#define BOOT_RAM_BSS_SECTION __attribute__((section(".boot.bss")))
 
 //-------------------------------------------------------------------------
 // Function declarations
@@ -32,13 +32,10 @@ extern _LONG_CALL_ VOID VectorTableInitRtl8195A(u32 StackP);
 extern _LONG_CALL_ VOID HalInitPlatformLogUartV02(VOID);
 extern _LONG_CALL_ VOID HalInitPlatformTimerV02(VOID);
 
-//#pragma arm section code = ".ram.boot.text";
-//#pragma arm section rodata = ".ram.boot.rodata", rwdata = ".ram.boot.data", zidata = ".ram.boot.bss";
+//#pragma arm section code = ".boot.text";
+//#pragma arm section rodata = ".boot.rodata", rwdata = ".boot.data", zidata = ".boot.bss";
 
 typedef void (*START_FUNC)(void);
-
-PRAM_FUNCTION_START_TABLE __attribute__((section(".data.pRamStartFun"))) pRamStartFun =
-		(PRAM_FUNCTION_START_TABLE) 0x10000BC8;
 
 /* Start table: */
 START_RAM_FUN_SECTION RAM_FUNCTION_START_TABLE __ram_start_table_start__ = {

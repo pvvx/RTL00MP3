@@ -10,7 +10,7 @@
  */
 
 #include "rtl_bios_data.h"
-
+extern void * UartLogRomCmdTable;
 /* ROM + startup.c */
 RAM_DEDECATED_VECTOR_TABLE_SECTION IRQ_FUN NewVectorTable[64];	// 10000000
 RAM_USER_IRQ_FUN_TABLE_SECTION IRQ_FUN UserIrqFunTable[64];		// 10000100
@@ -37,9 +37,29 @@ INFRA_RAM_BSS_SECTION u32 _rand_z4, _rand_z3, _rand_z2, _rand_z1, _rand_first; /
 /* ROM + RTL_CONSOL */
 MON_RAM_BSS_SECTION	u8 *ArgvArray[MAX_ARGV]; // 100006AC *ArgvArray[10] !
 MON_RAM_BSS_SECTION u8 UartLogHistoryBuf[UART_LOG_HISTORY_LEN][UART_LOG_CMD_BUFLEN]; // 10000430 UartLogHistoryBuf[5][127] !
-MON_RAM_BSS_SECTION volatile UART_LOG_CTL	UartLogCtl;		// 10000408
+MON_RAM_BSS_SECTION volatile UART_LOG_CTL UartLogCtl; // 10000408
+/*
+= {
+		.NewIdx = 0,
+		.SeeIdx = 0,
+		.RevdNo  = UART_LOG_HISTORY_LEN,
+		.EscSTS = 0,
+		.ExecuteCmd = 0,
+		.ExecuteEsc = 0,
+		.BootRdy = 0,
+		.Resvd = 0,
+		.pTmpLogBuf = &UartLogBuf,
+		.pfINPUT = (void*) &DiagPrintf,
+		.pCmdTbl = (PCOMMAND_TABLE) &UartLogRomCmdTable,
+		.CmdTblSz = 6,
+		.CRSTS = 0,
+		.pHistoryBuf = UartLogHistoryBuf,
+		.TaskRdy = 0
+//		.Sema
+};
+*/
 MON_RAM_BSS_SECTION UART_LOG_BUF			UartLogBuf;		// 10000388
-MON_RAM_BSS_SECTION volatile UART_LOG_CTL	*pUartLogCtl;	// 10000384
+MON_RAM_BSS_SECTION volatile UART_LOG_CTL	*pUartLogCtl = &UartLogCtl;	// 10000384
 /* ROM + LIB C */
 LIBC_RAM_BSS_SECTION int __rtl_errno;		// 10000bc4 __rtl_sread_v1_00(), __rtl_write_v1_00(), __rtl_lseek_v1_00(), __rtl_close_v1_00(), __rtl_sbrk_v1_00()..
 LIBC_RAM_BSS_SECTION struct mallinfo __rtl_malloc_current_mallinfo; // 10000b9c __rom_mallocr_init_v1_00()

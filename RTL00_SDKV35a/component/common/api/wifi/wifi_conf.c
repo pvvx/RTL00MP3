@@ -32,7 +32,7 @@ extern int inic_stop(void);
 #define printf(...)
 #endif
 
-#define sscanf	_sscanf
+//#define sscanf	_sscanf
 
 #define SHOW_PRIVATE_OUT 1 // =0 - off, = 1 On
 
@@ -62,6 +62,7 @@ extern int inic_stop(void);
  *               Variables Declarations
  ******************************************************/
 
+
 extern struct netif xnetif[NET_IF_NUM];
 
 /******************************************************
@@ -70,7 +71,8 @@ extern struct netif xnetif[NET_IF_NUM];
 static internal_scan_handler_t scan_result_handler_ptr = { 0, 0, 0, RTW_FALSE,
 		0, 0, 0, 0, 0 };
 static internal_join_result_t* join_user_data;
-extern rtw_mode_t wifi_mode;
+rtw_mode_t wifi_mode = RTW_MODE_NONE;
+//extern rtw_mode_t wifi_mode;
 int error_flag = RTW_UNKNOWN;
 uint32_t rtw_join_status;
 #if ATCMD_VER == ATVER_2

@@ -81,17 +81,24 @@ INCLUDES += sdk/component/common/application/xmodem
 # -------------------------------------------------------------------
 SRC_C =
 DRAM_C =
+BOOT_C =
+
+#bootloader
+SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.c
+BOOT_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.c 
+
 #cmsis
 SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/system_8195a.c
 
 #console
-DRAM_C += sdk/component/common/api/at_cmd/atcmd_ethernet.c
-DRAM_C += sdk/component/common/api/at_cmd/atcmd_lwip.c
-DRAM_C += sdk/component/common/api/at_cmd/atcmd_sys.c
-DRAM_C += sdk/component/common/api/at_cmd/atcmd_wifi.c
-SRC_C += sdk/component/common/api/at_cmd/log_service.c
+#DRAM_C += sdk/component/common/api/at_cmd/atcmd_ethernet.c
+#DRAM_C += sdk/component/common/api/at_cmd/atcmd_lwip.c
+#DRAM_C += sdk/component/common/api/at_cmd/atcmd_sys.c
+#DRAM_C += sdk/component/common/api/at_cmd/atcmd_wifi.c
+#SRC_C += sdk/component/common/api/at_cmd/log_service.c
 #SRC_C += sdk/component/soc/realtek/8195a/misc/driver/low_level_io.c
 #SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_consol.c
+SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_console_new.c
 
 #network - api
 SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_eap_config.c
@@ -346,7 +353,7 @@ SRC_C += sdk/component/common/application/xmodem/uart_fw_update.c
 # -------------------------------------------------------------------
 ADD_SRC_C = 
 # REVERSED 
-ADD_SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/app_start.c
+#ADD_SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/app_start.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_dac.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_common.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_soc_ps_monitor.c
@@ -363,8 +370,6 @@ ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_pvv
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libgloss_retarget.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_eabi_cast_ram.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_math_ram.c
-ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.c
-ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.c 
 # -------------------------------------------------------------------
 # SAMPLES
 # -------------------------------------------------------------------
@@ -372,10 +377,10 @@ ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.c
 #ADD_SRC_C += sdk/component/common/example/googlenest/example_google.c  
 #ADD_SRC_C += sdk/component/common/example/mdns/example_mdns.c
 #ADD_SRC_C += sdk/component/common/example/socket_select/example_socket_select.c
-ADD_SRC_C += sdk/component/common/example/uart_atcmd/example_uart_atcmd.c
 ADD_SRC_C += sdk/component/common/example/wlan_fast_connect/example_wlan_fast_connect.c
+#ADD_SRC_C += sdk/component/common/example/uart_atcmd/example_uart_atcmd.c
 #ADD_SRC_C += sdk/component/common/example/xml/example_xml.c
-ADD_SRC_C += sdk/component/common/example/example_entry.c
+#ADD_SRC_C += sdk/component/common/example/example_entry.c
 #ADD_SRC_C += sdk/component/common/drivers/sdio/realtek/sdio_host/src/sd.c 
 #ADD_SRC_C += sdk/component/common/drivers/sdio/realtek/sdio_host/src/sdio_host.c 
 #ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_sdio_host.c
@@ -405,7 +410,6 @@ ADD_SRC_C += project/src/mad/stream.c
 
 #driver
 ADD_SRC_C += project/src/driver/i2s_freertos.c
-ADD_SRC_C += project/src/driver/console_api.c
 
 #include
 INCLUDES += project/inc/mad
