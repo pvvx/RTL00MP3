@@ -6,7 +6,7 @@
 #include "rtl_bios_data.h"
 #include "va_list.h"
 
-#define NOT_CHECK_LIBC_INIT 1
+#define CHECK_LIBC_INIT 0
 
 //-------------------------------------------------------------------------
 // Function declarations
@@ -82,7 +82,7 @@ int rtl_snprintf(char *str, size_t size, const char *fmt, ...) {
 	int result;
 	int w;
 	FILE f;
-#if NOT_CHECK_LIBC_INIT
+#if CHECK_LIBC_INIT
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}
@@ -113,7 +113,7 @@ int rtl_snprintf(char *str, size_t size, const char *fmt, ...) {
 //----- rtl_sprintf()
 int rtl_sprintf(char *str, const char *fmt, ...) {
 	FILE f;
-#if NOT_CHECK_LIBC_INIT
+#if CHECK_LIBC_INIT
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}
@@ -134,7 +134,7 @@ int rtl_sprintf(char *str, const char *fmt, ...) {
 
 //----- rtl_printf()
 int rtl_printf(const char *fmt, ...) {
-#if NOT_CHECK_LIBC_INIT
+#if CHECK_LIBC_INIT
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}
@@ -150,7 +150,7 @@ int rtl_printf(const char *fmt, ...) {
 
 //----- rtl_vprintf()
 int rtl_vprintf(const char *fmt, void *param) {
-#if NOT_CHECK_LIBC_INIT
+#if CHECK_LIBC_INIT
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}
@@ -167,7 +167,7 @@ int rtl_vsnprintf(char *str, size_t size, const char *fmt, void *param) {
 	int w;
 	int v11;
 	FILE f;
-#if NOT_CHECK_LIBC_INIT
+#if CHECK_LIBC_INIT
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}
@@ -197,7 +197,7 @@ int rtl_vsnprintf(char *str, size_t size, const char *fmt, void *param) {
 
 //----- rtl_vfprintf()
 int rtl_vfprintf(FILE *fp, const char *fmt0, va_list ap) {
-#if NOT_CHECK_LIBC_INIT
+#if CHECK_LIBC_INIT
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}

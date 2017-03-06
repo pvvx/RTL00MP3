@@ -27,6 +27,7 @@ extern void HalWdgIntrHandle(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
 extern void vPortSVCHandler(void);
+extern void rtl_libc_init(void);
 //extern void ShowRamBuildInfo(void); // app_start.c: VOID ShowRamBuildInfo(VOID)
 void HalNMIHandler_Patch(void);
 void SDIO_Device_Off(void);
@@ -116,13 +117,17 @@ void INFRA_START_SECTION InfraStart(void) {
 	int flash_en = HAL_PERI_ON_READ32(REG_SOC_FUNC_EN)
 			& (1 << BIT_SOC_FLASH_EN);
 	if (flash_en) {
+		SPI_FLASH_PIN_FCTRL(ON);
 		if(!SpicCmpDataForCalibrationRtl8195A()) {
-			DBG_8195A("ReInit  SPIC...\n");
-			SpicInitRtl8195AV02(1,0);
-//			if(!SpicCmpDataForCalibrationRtl8195A()) {
+			DBG_8195A("ReInit Spic DIO...\n");
+			SpicInitRtl8195AV02(1, SpicDualBitMode);
+#if 0
+			SpicFlashInitRtl8195A(SpicDualBitMode);
+			if(!SpicCmpDataForCalibrationRtl8195A()) {
 				// TODO: Spic Not Init!
-				// DBG_8195A("Spic error Init!\n");
-//			};
+				 DBG_8195A("Spic error Init!\n"); while(1);
+			};
+#endif
 		};
 		SpicNVMCalLoadAll();
 		SpicReadIDRtl8195A();
@@ -149,7 +154,8 @@ void INFRA_START_SECTION InfraStart(void) {
 	VectorTableInitForOSRtl8195A(&vPortSVCHandler, &xPortPendSVHandler,
 			&xPortSysTickHandler);
 	if (flash_en)
-		SpicDisableRtl8195A();
+		SpicFlashInitRtl8195A(SpicDualBitMode); // DIO
+		SPI_FLASH_PIN_FCTRL(OFF);
 #ifdef CONFIG_SDR_EN
 	// clear SDRAM bss
 	extern u8 __sdram_bss_start__[];
@@ -163,6 +169,7 @@ void INFRA_START_SECTION InfraStart(void) {
 			"bic r0, r0, #7\n"
 			"mov sp, r0\n"
 	);
+	rtl_libc_init();
 	__low_level_init();
 	main();
 }
