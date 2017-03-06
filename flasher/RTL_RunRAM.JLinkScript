@@ -1,3 +1,7 @@
+r0
+trst0
+r1
+trst1
 h
 r
 loadbin build/bin/ram_1.bin 0x10000bc8
