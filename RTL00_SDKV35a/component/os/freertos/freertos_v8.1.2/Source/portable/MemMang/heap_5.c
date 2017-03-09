@@ -548,7 +548,9 @@ const HeapRegion_t *pxHeapRegion;
 //				DBG_8195A("ChipID: %p !\n", chip_id);
 		}
 		else {
+#if CONFIG_DEBUG_LOG > 2
 			DBG_8195A("Init Heap Region: %p[%d]\n", pxHeapRegion->pucStartAddress, pxHeapRegion->xSizeInBytes);
+#endif
 #if CONFIG_DEBUG_LOG > 4
 			rtl_memset(pxHeapRegion->pucStartAddress, 0, pxHeapRegion->xSizeInBytes);
 #endif

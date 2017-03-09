@@ -13,7 +13,6 @@
 
 #define IS_USE_FIXED_IP	0
 #define debug_dhcps 0
-#define DHCPS_IP_RANGE_FROM_1_to_255 1
 
 /* dhcp server states */
 #define DHCP_SERVER_STATE_OFFER 			(1)
@@ -97,11 +96,7 @@ static const uint8_t dhcp_option_lease_time_one_day[] = {0x00, 0x01, 0x51, 0x80}
 static const uint8_t dhcp_option_interface_mtu_576[] = {0x02, 0x40};
 
 struct table {
-#if DHCPS_IP_RANGE_FROM_1_to_255
 	uint32_t ip_range[8];
-#else
-	uint32_t ip_range[4];
-#endif
 };
 
 struct address_pool{
@@ -109,27 +104,9 @@ struct address_pool{
 	uint32_t end;
 };
 
-/* 01~32 */
-#define MARK_RANGE1_IP_BIT(table, ip)	((table.ip_range[0]) | (1 << ((ip) - 1)))	 
-/* 33~64 */
-#define MARK_RANGE2_IP_BIT(table, ip)	((table.ip_range[1]) | (1 << ((ip) - 1)))
-/* 65~96 */
-#define MARK_RANGE3_IP_BIT(table, ip)	((table.ip_range[2]) | (1 << ((ip) - 1)))
-/* 97~128 */
-#define MARK_RANGE4_IP_BIT(table, ip)	((table.ip_range[3]) | (1 << ((ip) - 1)))
-#if DHCPS_IP_RANGE_FROM_1_to_255
-/* 129~160 */
-#define MARK_RANGE5_IP_BIT(table, ip)	((table.ip_range[4]) | (1 << ((ip) - 1)))	 
-/* 161~192 */
-#define MARK_RANGE6_IP_BIT(table, ip)	((table.ip_range[5]) | (1 << ((ip) - 1)))
-/* 193~224 */
-#define MARK_RANGE7_IP_BIT(table, ip)	((table.ip_range[6]) | (1 << ((ip) - 1)))
-/* 225~255 */
-#define MARK_RANGE8_IP_BIT(table, ip)	((table.ip_range[7]) | (1 << ((ip) - 1)))
-#endif
-
 /* expose API */
-void dhcps_set_addr_pool(int addr_pool_set, struct ip_addr * addr_pool_start, struct ip_addr *addr_pool_end);
+
+extern uint8_t dhcps_ip4addr_pool_start, dhcps_ip4addr_pool_end;
 void dhcps_init(struct netif * pnetif);
 void dhcps_deinit(void);
 

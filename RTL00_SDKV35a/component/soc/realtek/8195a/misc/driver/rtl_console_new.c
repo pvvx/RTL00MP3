@@ -310,9 +310,10 @@ MON_RAM_TEXT_SECTION void console_init(void) {
 //<Return  >:  none
 //<Notes   >:
 //======================================================
+extern char str_rom_57ch3Dch0A[]; // "=========================================================\n" 57 шт
 _WEAK void console_help(int argc, char *argv[]) { 	// Help
 	DiagPrintf("CONSOLE COMMAND SET:\n");
-	DiagPrintf("==============================\n");
+	DiagPrintf(&str_rom_57ch3Dch0A[25]); //	DiagPrintf("==============================\n");
 	PCOMMAND_TABLE pcmdtab = UartLogRamCmdTable;
 	while(pcmdtab->cmd) {
 #ifdef USE_ROM_CONSOLE
@@ -322,7 +323,7 @@ _WEAK void console_help(int argc, char *argv[]) { 	// Help
 #endif
 		pcmdtab++;
 	}
-	DiagPrintf("==============================\n");
+	DiagPrintf(&str_rom_57ch3Dch0A[25]); //	DiagPrintf("==============================\n");
 }
 // (!) размещается в специальном сегменте '.mon.tab*' (см. *.ld файл)
 MON_RAM_TAB_SECTION COMMAND_TABLE console_commands[] = {

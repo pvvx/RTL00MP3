@@ -999,7 +999,7 @@ int wifi_on(rtw_mode_t mode) {
 int wifi_off(void) {
 //	int ret = 0;
 //pvvx	int timeout = 20; // 20 sec ?!
-	int timeout = wifi_test_timeout_ms / 10;
+	uint32 timeout = xTaskGetTickCount();
 
 	if ((rltk_wlan_running(WLAN0_IDX) == 0)
 			&& (rltk_wlan_running(WLAN1_IDX) == 0)) {
@@ -1020,18 +1020,15 @@ int wifi_off(void) {
 	while (1) {
 		if ((rltk_wlan_running(WLAN0_IDX) == 0)
 				&& (rltk_wlan_running(WLAN1_IDX) == 0)) {
-			info_printf("WIFI deinitialized\n");
+//			info_printf("WIFI deinitialized\n");
+			info_printf("WIFI deinitialized (%d ms)\n", xTaskGetTickCount() - timeout);
 			break;
 		}
-
-		if (timeout == 0) {
-			info_printf("ERROR: Deinit WIFI timeout!\n");
+		if(xTaskGetTickCount() - timeout > wifi_test_timeout_ms/portTICK_RATE_MS) {
+			error_printf("WIFI deinitialized timeout!\n");
 			break;
 		}
-
-//		vTaskDelay(1 * configTICK_RATE_HZ);
 		vTaskDelay(10 / portTICK_RATE_MS);
-		timeout--;
 	}
 
 	wifi_mode = RTW_MODE_NONE;
@@ -1544,10 +1541,12 @@ int wifi_get_setting(const char *ifname, rtw_wifi_setting_t *pSetting) {
 	return ret;
 }
 //----------------------------------------------------------------------------//
+extern char str_rom_57ch3Dch0A[]; // "=========================================================\n" 57 шт
 int wifi_show_setting(const char *ifname, rtw_wifi_setting_t *pSetting) {
 	int ret = 0;
 
-	printf("\nWIFI  %s Setting:\n==============================\n", ifname);
+	printf("\nWIFI '%s' Setting:\n", ifname);
+	printf(&str_rom_57ch3Dch0A[25]); // "================================\n"
 
 	switch (pSetting->mode) {
 	case RTW_MODE_AP:

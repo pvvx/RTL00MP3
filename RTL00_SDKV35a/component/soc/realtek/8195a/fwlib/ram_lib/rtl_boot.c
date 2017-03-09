@@ -47,7 +47,7 @@ START_RAM_FUN_SECTION RAM_FUNCTION_START_TABLE __ram_start_table_start__ = {
 
 /* Set Debug Flags */
 LOCAL void BOOT_RAM_TEXT_SECTION SetDebugFlgs() {
-#if CONFIG_DEBUG_LOG > 2
+#if CONFIG_DEBUG_LOG > 3
 	CfgSysDebugWarn = -1;
 	CfgSysDebugInfo = -1;
 	CfgSysDebugErr = -1;

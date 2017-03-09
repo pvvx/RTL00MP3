@@ -94,7 +94,7 @@ static rtw_result_t rtw_indicate_event_handle(int event_cmd, char *buf, int buf_
 extern gpio_t gpio_led;
 #endif
 
-void wifi_indication(WIFI_EVENT_INDICATE event, char *buf, int buf_len,
+void wifi_indication(WIFI_EVENT_INDICATE event, unsigned char *buf, int buf_len,
 		int flags) {
 	//
 	// If upper layer application triggers additional operations on receiving of wext_wlan_indicate,
@@ -105,7 +105,7 @@ void wifi_indication(WIFI_EVENT_INDICATE event, char *buf, int buf_len,
 	switch (event) {
 	case WIFI_EVENT_DISCONNECT:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: Disconnection indication received\n", __func__);
+		info_printf("%s(%d): Disconnection indication received\n", __func__, event);
 #endif
 		break;
 	case WIFI_EVENT_CONNECT:
@@ -117,25 +117,25 @@ void wifi_indication(WIFI_EVENT_INDICATE event, char *buf, int buf_len,
 		// Sample: return mac address
 		if (buf != NULL && buf_len == 6) {
 			info_printf(
-					"%s: Connect indication received: %02x:%02x:%02x:%02x:%02x:%02x\n",
-					__func__, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+					"%s(%d): Connect indication received: %02x:%02x:%02x:%02x:%02x:%02x\n",
+					__func__, event, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
 		}
 #endif
 		break;
 	case WIFI_EVENT_FOURWAY_HANDSHAKE_DONE:
 #if(WIFI_INDICATE_MSG>0)
 		if (buf != NULL)
-				info_printf("%s: %s\n", __func__, buf);
+				info_printf("%s(%d): %s\n", __func__, event, buf);
 #endif
 		break;
 	case WIFI_EVENT_SCAN_RESULT_REPORT:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: WIFI_EVENT_SCAN_RESULT_REPORT\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_SCAN_RESULT_REPORT\n", __func__, event);
 #endif
 		break;
 	case WIFI_EVENT_SCAN_DONE:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: WIFI_EVENT_SCAN_DONE\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_SCAN_DONE\n", __func__, event);
 //#if CONFIG_DEBUG_LOG > 3
 //			debug_printf("Time at start %d ms.\n", xTaskGetTickCount());
 //#endif
@@ -143,56 +143,56 @@ void wifi_indication(WIFI_EVENT_INDICATE event, char *buf, int buf_len,
 		break;
 	case WIFI_EVENT_RECONNECTION_FAIL:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: %s\n", __func__, buf);
+		info_printf("%s(%d): %s\n", __func__, event, buf);
 #endif
 		break;
 	case WIFI_EVENT_NO_NETWORK:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: %s\n", __func__, buf);
+		info_printf("%s(%d): %s\n", __func__, event, buf);
 #endif
 		break;
 #if CONFIG_ENABLE_P2P
 	case WIFI_EVENT_SEND_ACTION_DONE:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: %s\n", __func__);
+		info_printf("%s(%d): %s\n", __func__, event, buf);
 #endif
 		break;
 	case WIFI_EVENT_RX_MGNT:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: WIFI_EVENT_RX_MGNT\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_RX_MGNT\n", __func__, event);
 #endif
 		break;
 #endif //CONFIG_ENABLE_P2P
 	case WIFI_EVENT_STA_ASSOC:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: %s\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_STA_ASSOC\n", __func__, event);
 #endif
 		break;
 	case WIFI_EVENT_STA_DISASSOC:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: %s\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_STA_DISASSOC\n", __func__, event);
 #endif
 		break;
 #ifdef CONFIG_WPS
 		case WIFI_EVENT_STA_WPS_START:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: WIFI_EVENT_STA_WPS_START\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_STA_WPS_START\n", __func__, event);
 #endif
 		break;
 		case WIFI_EVENT_WPS_FINISH:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: WIFI_EVENT_WPS_FINISH\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_WPS_FINISH\n", __func__, event);
 #endif
 		break;
 		case WIFI_EVENT_EAPOL_RECVD:
 #if(WIFI_INDICATE_MSG>0)
-		info_printf("%s: WIFI_EVENT_EAPOL_RECVD\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_EAPOL_RECVD\n", __func__, event);
 #endif
 		break;
 #endif
 	case WIFI_EVENT_BEACON_AFTER_DHCP:
 #if(WIFI_INDICATE_MSG>1)
-		info_printf("%s: WIFI_EVENT_BEACON_AFTER_DHCP\n", __func__);
+		info_printf("%s(%d): WIFI_EVENT_BEACON_AFTER_DHCP\n", __func__, event);
 #endif
 #if 0 // test beacon
 		gpio_write(&gpio_led, 1);

@@ -91,7 +91,11 @@
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.gprof.494604134" name="Generate gprof information (-pg)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.gprof"/>
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.other.378060659" name="Other debugging flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.debugging.other"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.1171651449" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
-							<builder arguments="-s" buildPath="${workspace_loc:/${ProjName}/project/realtek_ameba1_va0_example/GCC-RELEASE}" command="mingw32-make.exe" enableAutoBuild="true" id="ilg.gnuarmeclipse.managedbuild.cross.builder.1928881956" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
+							<builder arguments="-s" buildPath="${workspace_loc:/${ProjName}/project/realtek_ameba1_va0_example/GCC-RELEASE}" command="mingw32-make.exe" enableAutoBuild="true" id="ilg.gnuarmeclipse.managedbuild.cross.builder.1928881956" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+								</outputEntries>
+							</builder>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1867136583" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.803936844" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1206727361" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
@@ -104,6 +108,62 @@
 									<listOptionValue builtIn="false" value="M3"/>
 									<listOptionValue builtIn="false" value="F_CPU=166666666L"/>
 								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1149179981" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/mad}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/os_dep/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/network/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/platform}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/google}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/codec}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/audio}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/xmodem}&quot;"/>
+								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1624349386" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1640084941" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
@@ -113,6 +173,62 @@
 									<listOptionValue builtIn="false" value="ARDUINO_SDK"/>
 									<listOptionValue builtIn="false" value="M3"/>
 									<listOptionValue builtIn="false" value="F_CPU=166666666L"/>
+								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1777779859" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/mad}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/os_dep/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/network/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/platform}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/google}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/codec}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/audio}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/xmodem}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.421691648" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -259,62 +375,58 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1191413676" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/os_dep/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/network/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/platform}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/iotdemokit}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/google}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/framework}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/test}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hci}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal/OUTSRC}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/utilities}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/codec}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/audio}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/xmodem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/mad}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/os_dep/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/network/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/platform}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/google}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/codec}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/audio}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/xmodem}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1929075018" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -329,62 +441,58 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1414265452" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/os_dep/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/network/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/platform}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/iotdemokit}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/google}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/framework}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/test}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hci}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal/OUTSRC}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/utilities}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/codec}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/audio}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/xmodem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/mad}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/os_dep/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/network/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/platform}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/google}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/codec}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/audio}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/xmodem}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.188668818" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -606,73 +714,65 @@
 							<builder arguments="-s" autoBuildTarget="all" buildPath="${workspace_loc:/rtl00TstMinAmebaV35a}/AutoMake" cleanBuildTarget="clean" command="mingw32-make.exe" id="org.eclipse.cdt.build.core.internal.builder.697587574" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="org.eclipse.cdt.build.core.internal.builder"/>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1889114087" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.527575306" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1893189760" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RTL00_SDKV35a}&quot;"/>
-								</option>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1893189760" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1712176846" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.119146776" name="Cross ARM C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.2057322667" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RTL00_SDKV35a}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/mad}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/os_dep/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/network/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/platform}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/iotdemokit}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/google}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/framework}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/test}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hci}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal/OUTSRC}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/utilities}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/codec}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/audio}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/xmodem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/os_dep/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/network/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/platform}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/google}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/codec}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/audio}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/xmodem}&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.871229625" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CONFIG_PLATFORM_8195A"/>
@@ -688,65 +788,60 @@
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1725581254" name="Cross ARM C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.622689061" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RTL00_SDKV35a}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/inc/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/os/os_dep/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/network/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/platform}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/iotdemokit}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/google}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/framework}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/api}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/test}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hci}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/wlan/realtek/src/hal/OUTSRC}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/utilities}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/media/codec}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/audio}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjSDK}/component/common/application/xmodem}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/project/src/mad}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/common/bsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/freertos/freertos_v8.1.2/Source/portable/GCC/ARM_CM3}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/os/os_dep/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/driver}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/network/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/platform}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/api/wifi/rtw_wpa_supplicant/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/google}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/framework}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/example/wlan_fast_connect}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/api}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/hal_ext}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/mbed/targets/hal/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/lwip}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/src/include/ipv4}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/lwip/lwip_v1.4.1/port/realtek}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/test}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/cmsis/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/rtl8195a}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/misc/rtl_std_lib/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/wlan/realtek/src/osdep}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/polarssl-1.3.8/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/network/ssl/ssl_ram_map/rom}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/utilities}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/Curve25519}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/apple/WACServer/External/GladmanAES}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/media/codec}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/host/uvc/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/usb_class/device/class}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/file_system/fatfs/r0.10c/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/sdio/realtek/sdio_host/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/audio}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/drivers/i2s}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/${ProjSDK}/component/common/application/xmodem}&quot;"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1034580488" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CONFIG_PLATFORM_8195A"/>

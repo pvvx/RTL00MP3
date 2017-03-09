@@ -12,7 +12,7 @@ typedef struct
 } event_list_elem_t;
 
 void init_event_callback_list(void);
-extern void wifi_indication( WIFI_EVENT_INDICATE event, char *buf, int buf_len, int flags);
+extern void wifi_indication( WIFI_EVENT_INDICATE event, unsigned char *buf, int buf_len, int flags);
 /** Register the event listener
  *
  * @param[in] event_cmds : The event command number indicated

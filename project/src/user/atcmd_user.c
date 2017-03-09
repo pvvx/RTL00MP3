@@ -14,112 +14,14 @@
 #include <wifi/wifi_util.h>
 #include "tcm_heap.h"
 #include "user/atcmd_user.h"
-#include "user/playerconfig.h"
 
 #include "sleep_ex_api.h"
 
 #include "lwip/tcp_impl.h"
 
-extern rtw_mode_t wifi_mode; // = RTW_MODE_STA;
+extern void wifi_run(void);
 
-mp3_server_setings mp3_serv = {0,{0}}; //{ PLAY_PORT, { PLAY_SERVER }};
-
-/* fastconnect use wifi AT command. Not init_wifi_struct when log service disabled
- * static initialize all values for using fastconnect when log service disabled
- */
-static rtw_network_info_t wifi = {
-	{0},    // ssid
-	{0},    // bssid
-	0,      // security
-	NULL,   // password
-	0,      // password len
-	-1      // key id
-};
-
-static rtw_ap_info_t ap = {0};
-static unsigned char password[65] = {0};
-
-_WEAK void connect_start(void)
-{
-#ifdef CONFIG_DEBUG_LOG
-	printf("Time at start %d ms.\n", xTaskGetTickCount());
-#endif
-}
-
-_WEAK void connect_close(void)
-{
-}
-
-static void init_wifi_struct(void)
-{
-	memset(wifi.ssid.val, 0, sizeof(wifi.ssid.val));
-	memset(wifi.bssid.octet, 0, ETH_ALEN);	
-	memset(password, 0, sizeof(password));
-	wifi.ssid.len = 0;
-	wifi.password = NULL;
-	wifi.password_len = 0;
-	wifi.key_id = -1;
-	memset(ap.ssid.val, 0, sizeof(ap.ssid.val));
-	ap.ssid.len = 0;
-	ap.password = NULL;
-	ap.password_len = 0;
-	ap.channel = 1;
-}
-
-static int mp3_cfg_read(void)
-{
-	bzero(&mp3_serv, sizeof(mp3_serv));
-	if(flash_read_cfg(mp3_serv, 0x5000, sizeof(mp3_serv.port) + 2) >= sizeof(mp3_serv.port) + 2) {
-		mp3_serv.port = PLAY_PORT;
-		strcpy(mp3_serv.url, PLAY_SERVER);
-	}
-	return mp3_serv.port;
-}
-
-void start_init(void)
-{
-	init_wifi_struct();
-	mp3_cfg_read();
-}
-
-// MP3 Set server, Close/Open connect
-void fATWS(int argc, char *argv[]){
-    	if (argc == 2) {
-    		StrUpr(argv[1]);
-    		if(argv[1][0] == '?') {
-			    printf("ATWS: %s,%d\n", mp3_serv.url, mp3_serv.port);
-    		    return;
-    		}
-    		else if(argv[1][0] == 'O') { // strcmp(argv[1], "open") == 0
-    		    printf("ATWS: open %s:%d\n", mp3_serv.url, mp3_serv.port);
-    			connect_close();
-    		    return;
-    		}
-    		else if(argv[1][0] == 'C') { // strcmp(argv[1], "close") == 0
-    		    printf("ATWS: close\n");
-    			connect_close();
-    		    return;
-    		}
-    		else if(argv[1][0] == 'R') { // strcmp(argv[1], "read") == 0
-    			mp3_cfg_read();
-    			connect_start();
-    		    return;
-    		}
-    		else if(argv[1][0] == 'S') { // strcmp(argv[1], "save") == 0
-			    printf("%s: %s,%d\n", argv[0], mp3_serv.url, mp3_serv.port);
-    			if(flash_write_cfg(&mp3_serv, 0x5000, strlen(mp3_serv.port) + strlen(mp3_serv.url)))
-    			    printf("ATWS: saved\n", mp3_serv.url, mp3_serv.port);
-    		    return;
-    		}
-    	}
-    	else if (argc >= 3 ) {
-    		strcpy((char *)mp3_serv.url, (char*)argv[1]);
-        	mp3_serv.port = atoi((char*)argv[2]);
-        	printf("%s: %s,%d\r\n", argv[0], mp3_serv.url, mp3_serv.port);
-        	connect_start();
-        	return;
-    	}
-}
+#define printf rtl_printf // DiagPrintf
 
 /* RAM/TCM/Heaps info */
 extern void ShowMemInfo(void);
@@ -160,129 +62,6 @@ void fATST(int argc, char *argv[]) {
 #endif
 }
 
-void fATWC(int argc, char *argv[]){
-	int mode, ret;
-	unsigned long tick1 = xTaskGetTickCount();
-	unsigned long tick2, tick3;
-	char empty_bssid[6] = {0}, assoc_by_bssid = 0;
-
-	if(argc > 1) {
-		if(argv[1][0] == '?') {
-			printf("Not released!\n");
-			return;
-		}
-		strcpy((char *)wifi.ssid.val, argv[1]);
-		wifi.ssid.len = strlen((char*)wifi.ssid.val);
-	}
-	if(argc > 2) {
-		strcpy((char *)password, argv[2]);
-		wifi.password = password;
-		wifi.password_len = strlen(password);
-	}
-	if(argc > 3) {
-		if((strlen(argv[3]) != 1 ) || (argv[3][0] <'0' || argv[3][0] >'3')) {
-			printf("%s: Wrong WEP key id. Must be one of 0,1,2, or 3.\n", argv[0]);
-			return;
-		}
-		wifi.key_id = atoi(argv[1]);
-	}
-	if(memcmp (wifi.bssid.octet, empty_bssid, 6))
-		assoc_by_bssid = 1;
-	else if(wifi.ssid.val[0] == 0){
-		printf("%s: Error: SSID can't be empty\n", argv[0]);
-		ret = RTW_BADARG;
-		goto EXIT;
-	}
-	if(wifi.password != NULL){
-		if((wifi.key_id >= 0)&&(wifi.key_id <= 3)) {
-			wifi.security_type = RTW_SECURITY_WEP_PSK;
-		}
-		else{
-			wifi.security_type = RTW_SECURITY_WPA2_AES_PSK;
-		}
-	}
-	else{
-		wifi.security_type = RTW_SECURITY_OPEN;
-	}
-	connect_close();
-	//Check if in AP mode
-	wext_get_mode(WLAN0_NAME, &mode);
-	if(mode == IW_MODE_MASTER) {
-		dhcps_deinit();
-		wifi_off();
-		vTaskDelay(wifi_test_timeout_step_ms/portTICK_RATE_MS);
-		if (wifi_on(RTW_MODE_STA) < 0){
-			printf("ERROR: Wifi on failed!\n");
-                        ret = RTW_ERROR;
-			goto EXIT;
-		}
-	}
-
-	///wifi_set_channel(1);
-
-	if(assoc_by_bssid){
-		printf("Joining BSS by BSSID "MAC_FMT" ...\n", MAC_ARG(wifi.bssid.octet));
-		ret = wifi_connect_bssid(wifi.bssid.octet, (char*)wifi.ssid.val, wifi.security_type, (char*)wifi.password, 
-						ETH_ALEN, wifi.ssid.len, wifi.password_len, wifi.key_id, NULL);		
-	} else {
-		printf("Joining BSS by SSID %s...\n", (char*)wifi.ssid.val);
-		ret = wifi_connect((char*)wifi.ssid.val, wifi.security_type, (char*)wifi.password, wifi.ssid.len,
-						wifi.password_len, wifi.key_id, NULL);
-	}
-	
-	if(ret!= RTW_SUCCESS){
-		printf("ERROR: Can't connect to AP\n");
-		goto EXIT;
-	}
-	tick2 = xTaskGetTickCount();
-	printf("Connected after %d ms\n", (tick2-tick1));
-	/* Start DHCPClient */
-	LwIP_DHCP(0, DHCP_START);
-	tick3 = xTaskGetTickCount();
-	printf("Got IP after %d ms\n\n", (tick3-tick1));
-	connect_start();
-EXIT:
-	init_wifi_struct( );
-}
-
-// WIFI Disconnect
-void fATWD(int argc, char *argv[]){
-	int timeout = wifi_test_timeout_ms/wifi_test_timeout_step_ms;;
-	char essid[33];
-	int ret = RTW_SUCCESS;
-
-	connect_close();
-	printf("Deassociating AP ...\n");
-	if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
-		printf("WIFI disconnected\n");
-		goto exit;
-	}
-
-	if((ret = wifi_disconnect()) < 0) {
-		printf("ERROR: Operation failed!\n");
-		goto exit;
-	}
-
-	while(1) {
-		if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
-			printf("WIFI disconnected\n");
-			break;
-		}
-
-		if(timeout == 0) {
-			printf("ERROR: Deassoc timeout!\n");
-			ret = RTW_TIMEOUT;
-			break;
-		}
-
-		vTaskDelay(wifi_test_timeout_step_ms/portTICK_RATE_MS);
-		timeout --;
-	}
-    printf("\n\r");
-exit:
-    init_wifi_struct( );
-	return;
-}
 
 /*-------------------------------------------------------------------------------------
  Копирует данные из области align(4) (flash, registers, ...) в область align(1) (ram)
@@ -344,16 +123,9 @@ int print_hex_dump(uint8_t *buf, int len, unsigned char k) {
 }
 
 extern char str_rom_hex_addr[]; // in *.ld "[Addr]   .0 .1 .2 .3 .4 .5 .6 .7 .8 .9 .A .B .C .D .E .F\n"
-// Dump byte register
-void fATSB(int argc, char *argv[])
+void dump_bytes(uint32 addr, int size)
 {
 	uint8 buf[17];
-	int size = 0;
-	int addr = Strtoul(argv[1],0,16);
-	if (argc > 2)
-		size = Strtoul(argv[2],0,10);
-	if (size <= 0 || size > 16384)
-		size = 1;
 	u32 symbs_line = sizeof(buf)-1;
 	printf(str_rom_hex_addr);
 	while (size) {
@@ -375,28 +147,35 @@ void fATSB(int argc, char *argv[])
 		size -= symbs_line;
 	}
 }
+// Dump byte register
+void fATSB(int argc, char *argv[])
+{
+	int size = 16;
+	uint32 addr = Strtoul(argv[1],0,16);
+	if (argc > 2) {
+		size = Strtoul(argv[2],0,10);
+		if (size <= 0 || size > 16384)
+			size = 16;
+	}
+	dump_bytes(addr, size);
+}
 
 // Dump dword register
 void fATSD(int argc, char *argv[])
 {
+/*
+	if (argc > 2) {
+		int size = Strtoul(argv[2],0,10);
+		if (size <= 0 || size > 16384)
+			argv[2] = "16";
+	}
+*/
 	CmdDumpWord(argc-1, (unsigned char**)(argv+1));
 }
 
 void fATSW(int argc, char *argv[])
 {
 	CmdWriteWord(argc-1, (unsigned char**)(argv+1));
-}
-
-// Close connections
-void fATOF(int argc, char *argv[])
-{
-	connect_close();
-}
-
-// Open connections
-void fATON(int argc, char *argv[])
-{
-	connect_start();
 }
 
 /* Get one byte from the 4-byte address */
@@ -517,17 +296,12 @@ void fATDS(int argc, char *argv[]) 	// Deep sleep
 }
 
 MON_RAM_TAB_SECTION COMMAND_TABLE console_commands1[] = {
-		{"ATPN", 1, fATWC, "=<SSID>[,<PASSPHRASE>[,WEPKEY]]: WIFI Connect to AP"},
-		{"ATWS", 1, fATWS, "=<URL,PORT>: MP3 Connect to URL\nATWS=<c>[lose]: Close MP3\nATWS=<r>[ead]: Read MP3 URL\nATWS=<s>[ave]: Save MP3 URL\nATWS=<?>: URL Info"},
-		{"ATWD", 0, fATWD, ": WIFI Disconnect"},
 		{"ATST", 0, fATST, ": Memory info"},
-		{"ATLW", 0, fATLW, ": Lwip Info"},
+		{"ATLW", 0, fATLW, ": LwIP Info"},
 		{"ATSB", 1, fATSB, "=<ADDRES(hex)>[,COUNT(dec)]: Dump byte register"},
 		{"ATSD", 1, fATSD, "=<ADDRES(hex)>[,COUNT(dec)]: Dump dword register"},
 		{"ATSW", 2, fATSW, "=<ADDRES(hex)>,<DATA(hex)>: Set register"},
 		{"ATDS", 0, fATDS, "=[TIME(ms)]: Deep sleep"},
-		{"ATON", 0, fATON, ": Open connections"},
-		{"ATOF", 0, fATOF, ": Close connections"}
 };
 
 #endif //#ifdef CONFIG_AT_USR

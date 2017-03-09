@@ -2112,7 +2112,7 @@ void fATPF(void *arg)
 		goto exit;
 	}
 
-	dhcps_set_addr_pool(1,&start_ip,&end_ip);
+	dhcps_set_addr_pool(&start_ip,&end_ip);
 
 	if(argv[3] != NULL){
 		ip_addr = inet_addr(argv[3]);
@@ -2141,7 +2141,7 @@ exit:
 	if(error_no==0)
 		at_printf("\r\n[ATPF] OK");
 	else
-		at_printf("\r\n[ATPF] ERROR:%d",error_no);
+		at_printf("\r\n[ATPF] ERROR:%d", error_no);
 
 	return;
 }

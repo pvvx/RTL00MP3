@@ -33,6 +33,7 @@
 #include "user/playerconfig.h"
 #include "user/atcmd_user.h"
 #include "main.h"
+#include "wifi_api.h"
 
 #define DEBUG_MAIN_LEVEL 1
 
@@ -63,6 +64,17 @@ static char sampDelCnt;
 static int sampCnt;
 #endif
 
+mp3_server_setings mp3_serv = {0,{0}}; //{ PLAY_PORT, { PLAY_SERVER }};
+
+static int mp3_cfg_read(void)
+{
+	bzero(&mp3_serv, sizeof(mp3_serv));
+	if(flash_read_cfg(mp3_serv, 0x5000, sizeof(mp3_serv.port) + 2) >= sizeof(mp3_serv.port) + 2) {
+		mp3_serv.port = PLAY_PORT;
+		strcpy(mp3_serv.url, PLAY_SERVER);
+	}
+	return mp3_serv.port;
+}
 
 // Called by the NXP modifications of libmad. It passes us (for the mono synth)
 // 32 16-bit samples.
@@ -521,20 +533,10 @@ void main(void)
 	ShowMemInfo(); // RAM/TCM/Heaps info
 #endif
 
-	start_init(); // in atcmd_user.c
+	mp3_cfg_read();
 
-	/* pre-processor of application example */
-	example_wlan_fast_connect(); // pre_example_entry();
-
-	/* wlan intialization */
-#if defined(CONFIG_WIFI_NORMAL) && defined(CONFIG_NETWORK)
-	wlan_network();
-#endif
-	/* Initialize log uart and at command service */
-	console_init();
-
-	/* Execute application example */
-//	example_entry();
+	/* wlan & user_start intialization */
+	xTaskCreate(wifi_init_thrd, "wc_start", 1024, NULL, tskIDLE_PRIORITY + 0 + PRIORITIE_OFFSET, NULL);
 
 	/*Enable Schedule, Start Kernel*/
 #if defined(CONFIG_KERNEL) && !TASK_SCHEDULER_DISABLED
@@ -545,3 +547,49 @@ void main(void)
 	RtlConsolTaskRom(NULL);
 #endif
 }
+
+//================================
+//--- CONSOLE ---
+
+// MP3 Set server, Close/Open connect
+void fATWS(int argc, char *argv[]){
+    	if (argc == 2) {
+    		StrUpr(argv[1]);
+    		if(argv[1][0] == '?') {
+			    printf("ATWS: %s,%d\n", mp3_serv.url, mp3_serv.port);
+    		    return;
+    		}
+    		else if(argv[1][0] == 'O') { // strcmp(argv[1], "open") == 0
+    		    printf("ATWS: open %s:%d\n", mp3_serv.url, mp3_serv.port);
+    			connect_close();
+    		    return;
+    		}
+    		else if(argv[1][0] == 'C') { // strcmp(argv[1], "close") == 0
+    		    printf("ATWS: close\n");
+    			connect_close();
+    		    return;
+    		}
+    		else if(argv[1][0] == 'R') { // strcmp(argv[1], "read") == 0
+    			mp3_cfg_read();
+    			connect_start();
+    		    return;
+    		}
+    		else if(argv[1][0] == 'S') { // strcmp(argv[1], "save") == 0
+			    printf("%s: %s,%d\n", argv[0], mp3_serv.url, mp3_serv.port);
+    			if(flash_write_cfg(&mp3_serv, 0x5000, strlen(mp3_serv.port) + strlen(mp3_serv.url)))
+    			    printf("ATWS: saved\n", mp3_serv.url, mp3_serv.port);
+    		    return;
+    		}
+    	}
+    	else if (argc >= 3 ) {
+    		strcpy((char *)mp3_serv.url, (char*)argv[1]);
+        	mp3_serv.port = atoi((char*)argv[2]);
+        	printf("%s: %s,%d\r\n", argv[0], mp3_serv.url, mp3_serv.port);
+        	connect_start();
+        	return;
+    	}
+}
+
+MON_RAM_TAB_SECTION COMMAND_TABLE console_commands_main[] = {
+		{"ATWS", 1, fATWS, "=<URL,PORT>: MP3 Connect to URL\nATWS=<c>[lose]: Close MP3\nATWS=<r>[ead]: Read MP3 URL\nATWS=<s>[ave]: Save MP3 URL\nATWS=<?>: URL Info"}
+};
