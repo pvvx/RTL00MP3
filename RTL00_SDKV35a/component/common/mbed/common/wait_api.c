@@ -94,14 +94,14 @@ void wait_us(int us) { // До 2.147483648 секунды!
 	uint32_t start;
 #ifdef WAIT_US_USE_CYCCNT
 	if(us < 1) return;
-	if (us < 255) { // G-timer  resolution is ~31 us (1/32K), use DWT->CYCCNT...
+	if (us < 327) { // G-timer  resolution is ~31 us (1/32K), use DWT->CYCCNT...
         if(!(DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk)) { // уже включен?
 			CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; // открыть доступ
             DWT->CYCCNT = 0; // обнулить и запустить
             DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk; // запустить счет
         }
-        start = DWT->CYCCNT + us * ( PLATFORM_CLOCK / 1000000 );
-        while ( ( ( int32_t )DWT->CYCCNT - start) < 0 );
+        start = DWT->CYCCNT + us * (PLATFORM_CLOCK / 1000000ul);
+        while ((int32_t)(start - DWT->CYCCNT) > 0);
 	}
 	else
 #endif
