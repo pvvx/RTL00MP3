@@ -21,7 +21,7 @@
     ip4_addr3(ipaddr), \
     ip4_addr4(ipaddr)
 
-extern char str_rom_57ch3Dch0A[]; // "=========================================================\n" 57 ��
+extern char str_rom_57ch3Dch0A[]; // "=========================================================\n" 57
 
 #define BID_WIFI_AP_CFG		(1 << 0)
 #define BID_WIFI_ST_CFG		(1 << 1)

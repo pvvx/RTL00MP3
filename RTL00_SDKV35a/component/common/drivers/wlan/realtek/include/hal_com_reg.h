@@ -199,7 +199,7 @@
 #define REG_BKQ_DESA					0x0338	/* TX BK Queue Descriptor Address */
 #define REG_RX_DESA						0x0340	/* RX Queue Descriptor Address */
 //sherry added for DBI Read/Write  20091126
-#define REG_DBI_WDATA					0x0348	/*  Backdoor REG for Access Configuration */
+#define REG_DBI_WDATA					0x0348	/* Backdoor REG for Access Configuration */
 #define REG_DBI_RDATA					0x034C	/* Backdoor REG for Access Configuration */
 #define REG_DBI_CTRL					0x0350	/* Backdoor REG for Access Configuration */
 #define REG_DBI_FLAG					0x0352	/* Backdoor REG for Access Configuration */
@@ -535,7 +535,7 @@
 #define MSR						(REG_CR + 2)		// Media Status register
 //#define ISR						REG_HISR
 
-#define TSFR						REG_TSFTR			// Timing Sync Function Timer Register.
+#define TSFR					REG_TSFTR			// Timing Sync Function Timer Register.
 #define TSFR1					REG_TSFTR1			// HW Port 1 TSF Register
 
 #define PBP						REG_PBP
@@ -747,11 +747,11 @@
 // ALL CCK Rate
 #define	RATE_ALL_CCK				RATR_1M|RATR_2M|RATR_55M|RATR_11M 
 #define	RATE_ALL_OFDM_AG			RATR_6M|RATR_9M|RATR_12M|RATR_18M|RATR_24M|\
-						RATR_36M|RATR_48M|RATR_54M	
+									RATR_36M|RATR_48M|RATR_54M
 #define	RATE_ALL_OFDM_1SS			RATR_MCS0|RATR_MCS1|RATR_MCS2|RATR_MCS3 |\
-						RATR_MCS4|RATR_MCS5|RATR_MCS6	|RATR_MCS7	
+									RATR_MCS4|RATR_MCS5|RATR_MCS6	|RATR_MCS7
 #define	RATE_ALL_OFDM_2SS			RATR_MCS8|RATR_MCS9	|RATR_MCS10|RATR_MCS11|\
-						RATR_MCS12|RATR_MCS13|RATR_MCS14|RATR_MCS15
+									RATR_MCS12|RATR_MCS13|RATR_MCS14|RATR_MCS15
 
 #define RATE_BITMAP_ALL			0xFFFFF
 

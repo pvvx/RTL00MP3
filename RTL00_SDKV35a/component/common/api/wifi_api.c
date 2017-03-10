@@ -187,6 +187,11 @@ rtw_result_t wifi_run_ap(void) {
 		if(wext_set_sta_num(wifi_ap_cfg.max_sta) != 0) { // Max number of STAs, should be 1..3, default is 3
 			error_printf("AP not set max connections %d!\n", wifi_ap_cfg.max_sta);
 		};
+/*
+		if( wext_set_txpower(wlan_ap_name, wifi_cfg.tx_pwr) != RTW_SUCCESS){
+			error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
+		};
+*/
 		ret = wifi_start_ap(wifi_ap_cfg.ssid,			//char  *ssid,
 				wifi_ap_cfg.security_type,	//rtw_security_t ecurity_type,
 				wifi_ap_cfg.password, 		//char *password,
@@ -288,6 +293,11 @@ rtw_result_t wifi_run_st(void) {
 		}
 #endif
 		info_printf("Connected to AP (%s, netif%d)...\n", wlan_st_name, wlan_st_netifn);
+/*
+		if( wext_set_txpower(wlan_st_name, wifi_cfg.tx_pwr) != RTW_SUCCESS){
+			error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
+		}
+*/
 		ret = wifi_connect(wifi_st_cfg.ssid, wifi_st_cfg.security_type,
 				wifi_st_cfg.password, strlen(wifi_st_cfg.ssid),
 				strlen(wifi_st_cfg.password), -1, NULL);
@@ -327,10 +337,12 @@ int _wifi_on(rtw_mode_t mode) {
 		event_init = 1;
 	}
 	wifi_mode = mode;
+	info_printf("Initializing WIFI...\n");
 	// set wifi mib
 	// adaptivity
 	wext_set_adaptivity(RTW_ADAPTIVITY_DISABLE);
-	info_printf("Initializing WIFI...\n");
+//	wext_set_adaptivity(RTW_ADAPTIVITY_NORMAL);
+//	wext_set_adaptivity(RTW_ADAPTIVITY_CARRIER_SENSE);
 
 	devnum = (mode == RTW_MODE_STA_AP);
 
@@ -428,28 +440,33 @@ int wifi_run(rtw_mode_t mode) {
 			if (_wifi_on(mode) < 0) {
 				error_printf("Wifi On failed!\n");
 				goto error_end;
-			}
+			};
 			wifi_mode =	mode;
 		};
+		if(wifi_set_country(wifi_cfg.country_code) != RTW_SUCCESS) {
+			error_printf("Error set tx country_code (%d)!", wifi_cfg.country_code);
+		};
+		if(wifi_set_txpower(wifi_cfg.tx_pwr) != RTW_SUCCESS) {
+			error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
+		};
 		debug_printf("mode == wifi_mode? (%d == %d?)\n", mode, wifi_mode);
-//		if(mode == wifi_mode) {
-				// wifi_set_country(wifi_cfg.country_code);
-				if((wifi_mode == RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP)) {
-					wifi_run_ap();
-				}
-				if((wifi_mode == RTW_MODE_STA) || (wifi_mode == RTW_MODE_STA_AP)) {
-					wifi_run_st();
-				}
-				//	wifi_config_autoreconnect(1,1,1);
+//		if(mode == wifi_mode)
+		{
+			if((wifi_mode == RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP)) {
+				wifi_run_ap();
+			};
+			if((wifi_mode == RTW_MODE_STA) || (wifi_mode == RTW_MODE_STA_AP)) {
+				wifi_run_st();
+			};
 #if CONFIG_INTERACTIVE_MODE
-				/* Initial uart rx swmaphore*/
-				vSemaphoreCreateBinary(uart_rx_interrupt_sema);
-				xSemaphoreTake(uart_rx_interrupt_sema, 1/portTICK_RATE_MS);
-				start_interactive_mode();
+			/* Initial uart rx swmaphore*/
+			vSemaphoreCreateBinary(uart_rx_interrupt_sema);
+			xSemaphoreTake(uart_rx_interrupt_sema, 1/portTICK_RATE_MS);
+			start_interactive_mode();
 #endif
-	//			if(wifi_run_mode == wifi_cfg.mode)
-				ret = 1;
-//		}
+//			if(wifi_run_mode == wifi_cfg.mode)
+			ret = 1;
+		};
 	} else {
 		ret = 1;
 error_end:
@@ -481,8 +498,6 @@ void wifi_init_thrd(void) {
 		wifi_manager_init();
 #endif
 		wifi_run(wifi_cfg.mode);
-
-//		if(wifi_run())
 	}
 	/* Initilaize the console stack */
 	console_init();
@@ -492,12 +507,12 @@ void wifi_init_thrd(void) {
 
 rtw_security_t translate_rtw_security(u8 security_type)
 {
-	rtw_security_t security_mode = RTW_SECURITY_UNKNOWN;
+	rtw_security_t security_mode = RTW_SECURITY_OPEN;
 
 	switch (security_type) {
-  	case RTW_ENCRYPTION_OPEN:
-    		security_mode = RTW_SECURITY_OPEN;
-    	break;
+//  	case RTW_ENCRYPTION_OPEN:
+//    		security_mode = RTW_SECURITY_OPEN;
+//    	break;
   	case RTW_ENCRYPTION_WEP40:
   	case RTW_ENCRYPTION_WEP104:
     		security_mode = RTW_SECURITY_WEP_PSK;
@@ -614,7 +629,7 @@ void fATPA(int argc, char *argv[]){
 				if(i > 7) {
 					wifi_ap_cfg.security_type = RTW_SECURITY_WPA2_AES_PSK;
 				}
-				else if(!i) {
+				else if(i == 0) {
 					wifi_ap_cfg.security_type = RTW_SECURITY_OPEN;
 				}
 				else {
@@ -632,7 +647,7 @@ void fATPA(int argc, char *argv[]){
 			if(argc > 4) {
 				wifi_ap_cfg.channel = atoi(argv[4]);
 			}
-//			else wifi_ap_cfg.channel = 1;
+			else wifi_ap_cfg.channel = 1;
 			if(argc > 5) {
 				wifi_ap_cfg.ssid_hidden = atoi(argv[5]);
 			}
@@ -652,7 +667,7 @@ void fATPA(int argc, char *argv[]){
 // WIFI Connect, Disconnect
 void fATWR(int argc, char *argv[]){
 	rtw_mode_t mode = RTW_MODE_NONE;
-	if(argc) mode = atoi(argv[1]);
+	if(argc > 1) mode = atoi(argv[1]);
 	wifi_run(mode);
 }
 

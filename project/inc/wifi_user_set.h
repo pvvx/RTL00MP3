@@ -13,10 +13,10 @@
 #define DEF_WIFI_MODE 		RTW_MODE_STA // RTW_MODE_STA_AP, RTW_MODE_AP, RTW_MODE_STA
 #define DEF_WIFI_AP_STATIONS 3  // Max number of STAs, should be 1..3, default is 3
 #define DEF_WIFI_COUNTRY	RTW_COUNTRY_RU
-#define DEF_WIFI_TX_PWR		RTW_TX_PWR_PERCENTAGE_100
+#define DEF_WIFI_TX_PWR		RTW_TX_PWR_PERCENTAGE_50 // RTW_TX_PWR_PERCENTAGE_75 // RTW_TX_PWR_PERCENTAGE_100
 #define DEF_WIFI_BGN		RTW_NETWORK_BGN		// rtw_network_mode_t
 #define DEF_WIFI_ST_SLEEP	0 	// 0 - none, 1 - on
-#define USE_NETBIOS			3	// 0 - off, 1 - ST, 2 - AP, 3 - AP+ST
+//#define USE_NETBIOS			3	// 0 - off, 1 - ST, 2 - AP, 3 - AP+ST
 #define DEF_LOAD_CFG ( 0 \
 	| BID_WIFI_AP_CFG \
 	| BID_WIFI_ST_CFG \
@@ -34,7 +34,7 @@
 //==== Interface 0 - wlan0 = AP ===========
 #define DEF_AP_SSID			"RTL871X"
 #define DEF_AP_PASSWORD		"0123456789"
-#define DEF_AP_SECURITY		RTW_SECURITY_OPEN
+#define DEF_AP_SECURITY		RTW_SECURITY_WPA2_AES_PSK // RTW_SECURITY_OPEN, RTW_SECURITY_WEP_PSK
 #define DEF_AP_BEACON		100 // 100...6000 ms
 #define DEF_AP_CHANNEL		1	// 1..14
 #define DEF_AP_CHANNEL		1	// 1..14

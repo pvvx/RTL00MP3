@@ -19,7 +19,7 @@
 
 #include "lwip/tcp_impl.h"
 
-extern void wifi_run(void);
+extern char str_rom_57ch3Dch0A[]; // "=========================================================\n" 57
 
 #define printf rtl_printf // DiagPrintf
 
@@ -38,7 +38,7 @@ void fATST(int argc, char *argv[]) {
 #if 0 //CONFIG_DEBUG_LOG > 1
 		dump_mem_block_list();
 		tcm_heap_dump();
-#endif;
+#endif
 		printf("\n");
 #if (configGENERATE_RUN_TIME_STATS == 1)
 		char *cBuffer = pvPortMalloc(512);
@@ -54,7 +54,7 @@ void fATST(int argc, char *argv[]) {
 		if(pcWriteBuffer) {
 			vTaskList((char*)pcWriteBuffer);
 			printf("\nTask List:\n");
-	        printf("==============================\n");
+			printf(&str_rom_57ch3Dch0A[7]); // "==========================================\n"
 	        printf("Name\t  Status Priority HighWaterMark TaskNumber\n%s\n", pcWriteBuffer);
 			free(pcWriteBuffer);
 		}

@@ -859,6 +859,7 @@ int wext_set_forwarding(const char *ifname, char flg) {
 	iwr.u.essid.length = cmd_len + 1;
 	return iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr);
 }
+
 int wext_enable_forwarding(const char *ifname) {
 	return wext_set_forwarding(ifname, '1');
 }
