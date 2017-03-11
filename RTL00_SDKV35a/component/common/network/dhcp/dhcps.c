@@ -481,6 +481,12 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
 		pbuf_free(udp_packet_buffer);
 }
 
+void dhcps_set_addr_pool(int addr_pool_set, struct ip_addr * addr_pool_start, struct ip_addr *addr_pool_end)
+{
+	dhcps_ip4addr_pool_start = ip4_addr4(addr_pool_start);
+	dhcps_ip4addr_pool_end = ip4_addr4(addr_pool_end);
+}
+
 /** 
   * @brief  Initialize dhcp server.
   * @param  None.

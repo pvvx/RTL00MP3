@@ -16,7 +16,7 @@
 #include <wifi/wifi_conf.h>
 #include <wifi/wifi_util.h>
 
-rtw_mode_t wifi_mode = RTW_MODE_STA;
+extern rtw_mode_t wifi_mode; // = RTW_MODE_STA;
 
 #endif
 

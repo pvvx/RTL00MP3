@@ -36,7 +36,7 @@
 #include "rtl8195a/rtl_common.h"
 #include "rtl8195a.h"
 
-#include "lwip/opt.h"
+//#include "lwip/opt.h"
 #include "netbios/netbios.h"
 
 #if LWIP_UDP  /* don't build if not configured for use in lwipopts.h */
@@ -52,9 +52,9 @@
 #define NETBIOS_CODE_ATTR
 #define NETBIOS_DATA_ATTR
 
-//extern struct netif xnetif[NET_IF_NUM];
+extern struct netif xnetif[NET_IF_NUM];
 
-#define NBS_DEF_NAME	"rtl871x"
+#define NBS_DEF_NAME	DEF_HOSTNAME
 
 /** This is an example implementation of a NetBIOS name server.
  * It responds to name queries for a configurable name.
@@ -162,6 +162,10 @@ PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES
 #  include "arch/epstruct.h"
 #endif
+
+//#define toupper(CH) \
+//  (((CH) >= 'a' && (CH) <= 'z') ? ((CH) - 'a' + 'A') : (CH))
+
 
 /** NetBIOS decoding name */
 static int8_t NETBIOS_CODE_ATTR NBNS_decode(char *dst, char *src)
@@ -346,41 +350,30 @@ bool NETBIOS_CODE_ATTR netbios_off(void) {
 
 void NETBIOS_CODE_ATTR netbios_init(void) {
 	struct udp_pcb *pcb;
-	char buf[] = "a"NBS_DEF_NAME;
-#if NET_IF_NUM > 0
-	if (netbios_name[0][0] == 0) {
-		buf[0] = 'a'; // SoftAP
-		netbios_set_name(0, buf);
-	}
-#endif
-#if	NET_IF_NUM > 1
-	if (netbios_name[1][0] == 0) {
-		buf[0] = 's'; // Station
-		netbios_set_name(1, buf);
-	}
-#endif
-#if	NET_IF_NUM > 2
-	if (netbios_name[2][0] == 0) {
-		buf[0] = 'e'; // Ethernet
-		netbios_set_name(2, buf);
-	}
-#endif
-#if	NET_IF_NUM > 3
-#error "NBNS: Add NETBIOS Name!"
-#endif
+	char buf[NETBIOS_NAME_LEN];
 	if (netbios_pcb() != NULL)
 		return;
 
-#if DEBUGSOO > 1
-#if	NET_IF_NUM > 2
-//	os_printf("NetBIOS init, name AP: '%s', ST: '%s', Eth: '%s'\n", netbios_name[0], netbios_name[1], netbios_name[2]);
-	os_printf("NetBIOS init, interface 0: '%s', 1: '%s', 2: '%s'\n", netbios_name[0], netbios_name[1], netbios_name[2]);
-#elif	NET_IF_NUM > 1
-//	os_printf("NetBIOS init, name AP: '%s', ST: '%s'\n", netbios_name[0], netbios_name[1]);
-	os_printf("NetBIOS init, interface 0: '%s',  1: '%s'\n", netbios_name[0], netbios_name[1]);
-#else
-	os_printf("NetBIOS init\n");
+	for(int i = 0; i < NET_IF_NUM; i++) {
+		if (netbios_name[i][0] == 0) {
+#if LWIP_NETIF_HOSTNAME
+			if(xnetif[i].hostname != 0) {
+				netbios_set_name(i, xnetif[i].hostname);
+			}
+			else 
 #endif
+			{
+				sprintf(buf, NBS_DEF_NAME "%d", i);
+				netbios_set_name(i, buf);
+			};
+		};
+	};
+
+#if DEBUGSOO > 1
+	os_printf("NetBIOS init, interface ");
+	for(int i = 0; i < NET_IF_NUM; i++) {
+		os_printf("%d: '%s' ", i, netbios_name[i]);
+	}
 #endif
 
 	pcb = udp_new();

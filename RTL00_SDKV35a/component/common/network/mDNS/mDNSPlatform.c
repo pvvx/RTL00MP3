@@ -25,12 +25,12 @@ uint32_t mDNSPlatformInetAddr(char *cp)
 
 // Mandatory function to get hostname
 // called when mDNS initialization
-char *mDNSPlatformHostname(void)
+_WEAK char *mDNSPlatformHostname(void)
 {
 #if LWIP_NETIF_HOSTNAME
 	return xnetif[0].hostname;
 #else
-	return "ameba";
+	return DEF_HOSTNAME;
 #endif
 }
 

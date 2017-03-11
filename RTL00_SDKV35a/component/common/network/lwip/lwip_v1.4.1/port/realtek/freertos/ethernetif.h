@@ -2,8 +2,16 @@
 #define __ETHERNETIF_H__
 
 
+#include "autoconf.h"
 #include "lwip/err.h"
 #include "lwip/netif.h"
+
+#if LWIP_NETIF_HOSTNAME
+#ifndef LWIP_NETIF_HOSTNAME_SIZE
+#define LWIP_NETIF_HOSTNAME_SIZE 16
+#endif
+extern char lwip_host_name[NET_IF_NUM][LWIP_NETIF_HOSTNAME_SIZE];
+#endif
 
 //----- ------------------------------------------------------------------
 // Ethernet Buffer

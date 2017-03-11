@@ -292,14 +292,15 @@ int sscanf(const char *buf, const char *fmt, ...) {
 	return i;
 }
 
-#define TOUPPER(CH) \
-  (((CH) >= 'a' && (CH) <= 'z') ? ((CH) - 'a' + 'A') : (CH))
+char toupper(char ch) {
+ 	return  ((ch >= 'a' && ch <= 'z') ? ch - 'a' + 'A' : ch);
+};
 
 int _stricmp (const char *s1, const char *s2)
 {
-  while (*s2 != 0 && TOUPPER (*s1) == TOUPPER (*s2))
+  while (*s2 != 0 && toupper(*s1) == toupper(*s2))
     s1++, s2++;
-  return (int) (TOUPPER (*s1) - TOUPPER (*s2));
+  return (int) (toupper(*s1) - toupper(*s2));
 }
 
 unsigned long long __aeabi_llsr(unsigned long long val, unsigned int shift)

@@ -1,6 +1,8 @@
 #ifndef __NETBIOS_H__
 #define __NETBIOS_H__
 
+#include "lwip/opt.h"
+
 /** default port number for "NetBIOS Name service */
 #define NETBIOS_PORT     137
 
@@ -15,7 +17,9 @@
 extern "C" {
 #endif
 
+//#if LWIP_NETIF_HOSTNAME
 extern char netbios_name[NET_IF_NUM][NETBIOS_NAME_LEN + 1]; // default netifs/interfacenum: 0 - SoftAP, 1 - Station, 2 - Ethernet
+//#endif
 
 // struct udp_pcb * netbios_pcb(void);
 void netbios_init(void);

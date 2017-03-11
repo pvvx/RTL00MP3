@@ -65,6 +65,17 @@
 #define ARP_QUEUEING            0
 
 /**
+ * LWIP_NETIF_HOSTNAME==1: use DHCP_OPTION_HOSTNAME with netif's hostname
+ * field.
+ */
+#define LWIP_NETIF_HOSTNAME		1
+#define LWIP_NETIF_HOSTNAME_SIZE 16
+/**
+ *  netif0: DEF_HOSTNAME "0", netif1: DEF_HOSTNAME "1", ..
+ */
+#define DEF_HOSTNAME "rtl871x"
+
+/**
  * NO_SYS==1: Provides VERY minimal functionality. Otherwise,
  * use lwIP facilities.
  */

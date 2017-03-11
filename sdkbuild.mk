@@ -50,7 +50,7 @@ application: build_info $(SRC_O) $(DRAM_O) $(BOOT_O)
 #	@echo "==========================================================="
 	@mkdir -p $(BIN_DIR) $(OBJ_DIR)
 ##	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.r.bin $(BIN_DIR)/ram_1.r.bin
-##	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.p.bin $(BIN_DIR)/ram_1.p.bin
+	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.p.bin $(BIN_DIR)/ram_1.p.bin
 #	@chmod 777 $(OBJ_DIR)/ram_1.r.bin
 ##	$(OBJCOPY) --rename-section .data=.loader.data,contents,alloc,load,readonly,data -I binary -O elf32-littlearm -B arm $(BIN_DIR)/ram_1.r.bin $(OBJ_DIR)/ram_1.r.o
 	@echo "==========================================================="
