@@ -437,6 +437,7 @@ prvDiagSPrintf(
 #define DBG_TCM_HEAP_ERR(...)
 #define DBG_RAM_HEAP_ERR(...)
 #define DBG_FEEP_ERR(...)
+#define DBG_MISC_ERR(...)
 
 #endif  // end of else of "#if CONFIG_DEBUG_ERROR"
 

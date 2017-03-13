@@ -10,16 +10,15 @@ int iw_ioctl(const char * ifname, unsigned long request, struct iwreq * pwrq) {
 	memcpy(pwrq->ifr_name, ifname, 5);
 	int ret = rltk_wlan_control(request, (void *) pwrq);
 #if	CONFIG_DEBUG_LOG > 3
-	if (ret < 0)
-		error_printf("ioctl[%p, '%s', %02x %02x %02x %02x ...] error (%d)!\n",
+	debug_printf("ioctl[%p, '%s', %02x %02x %02x %02x ...] = %d\n",
 				request, ifname, pwrq->u.name[0], pwrq->u.name[1],
 				pwrq->u.name[2], pwrq->u.name[3], ret);
 #endif
 #if	CONFIG_DEBUG_LOG > 4
-	else
-		debug_printf("ioctl[%p, '%s', %02x %02x %02x %02x ...] = %d\n",
-				request, ifname, pwrq->u.name[0], pwrq->u.name[1],
-				pwrq->u.name[2], pwrq->u.name[3], ret);
+		if (pwrq->u.data.length) {
+			extern void dump_bytes(uint32 addr, int size);
+			dump_bytes(pwrq->u.data.pointer, pwrq->u.data.length);
+		}
 #endif
 	return ret;
 }
@@ -118,8 +117,9 @@ int wext_set_key_ext(const char *ifname, __u16 alg, const __u8 *addr,
 		vPortFree(ext);
 	}
 #if	CONFIG_DEBUG_LOG > 3
-	else
+	else {
 		error_printf("%s: Can't malloc memory!\n", __func__);
+	}
 #endif
 	return ret;
 }
@@ -146,8 +146,9 @@ int wext_get_enc_ext(const char *ifname, __u16 *alg, __u8 *key_idx,
 		vPortFree(ext);
 	}
 #if	CONFIG_DEBUG_LOG > 3
-	else
+	else {
 		error_printf("%s: Can't malloc memory!\n", __func__);
+	}	
 #endif
 	return ret;
 }
@@ -358,19 +359,21 @@ int wext_get_tx_power(const char *ifname, __u8 *poweridx) {
 		vPortFree(para);
 	}
 #if	CONFIG_DEBUG_LOG > 3
-	else
+	else {
 		error_printf("%s: Can't malloc memory!\n", __func__);
+	}
 #endif
 	return ret;
 }
 
-#if 1 // work ?
+#if 0 // work ?
 int wext_set_txpower(const char *ifname, int poweridx) {
 	int ret;
-	char buf[24];
+	char buf[32];
 
 	memset(buf, 0, sizeof(buf));
-	snprintf(buf, 24, "txpower patha=%d", poweridx);
+//	snprintf(buf, 24, "txpower patha=%d", poweridx);
+	snprintf(buf, sizeof(buf), "txpower patha=%d,pathb=%d", poweridx, poweridx);
 	ret = wext_private_command(ifname, buf, 0);
 
 	return ret;
@@ -471,8 +474,9 @@ int wext_set_pscan_channel(const char *ifname, __u8 *ch, __u8 *pscan_config,
 		vPortFree(para);
 	}
 #if	CONFIG_DEBUG_LOG > 3
-	else
+	else {
 		error_printf("%s: Can't malloc memory!\n", __func__);
+	}
 #endif
 	return ret;
 }
@@ -513,7 +517,7 @@ int wext_set_scan(const char *ifname, char *buf, __u16 buf_len, __u16 flags) {
 	memset(&iwr, 0, sizeof(iwr));
 #if 0 //for scan_with_ssid	
 	if(buf)
-	memset(buf, 0, buf_len);
+		memset(buf, 0, buf_len);
 #endif
 	iwr.u.data.pointer = buf;
 	iwr.u.data.flags = flags;
@@ -539,6 +543,7 @@ int wext_private_command_with_retval(const char *ifname, char *cmd,
 	char *buf;
 
 	buf_size = 128;
+
 	if (strlen(cmd) >= buf_size)
 		buf_size = strlen(cmd) + 1;	// 1 : '\0'
 	buf = (char*) pvPortMalloc(buf_size);
@@ -558,8 +563,9 @@ int wext_private_command_with_retval(const char *ifname, char *cmd,
 		vPortFree(buf);
 	}
 #if	CONFIG_DEBUG_LOG > 3
-	else
+	else {
 		error_printf("%s: Can't malloc memory!\n", __func__);
+	}
 #endif
 	return ret;
 }
@@ -595,16 +601,18 @@ int wext_private_command(const char *ifname, char *cmd, int show_msg) {
 		ret = iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr);
 		if (ret >= 0 && show_msg && iwr.u.data.length) {
 #if	CONFIG_DEBUG_LOG > 3
-			if (iwr.u.data.length > buf_size)
+			if (iwr.u.data.length > buf_size) {
 				error_printf("%s: Can't malloc memory!\n", __func__);
+			}
 			info_printf("Private Message: %s\n", (char * ) iwr.u.data.pointer);
 #endif
 		}
 		vPortFree(buf);
 	}
 #if	CONFIG_DEBUG_LOG > 3
-	else
+	else {
 		error_printf("%s: Can't malloc memory!\n", __func__);
+	}
 #endif
 	return ret;
 }
@@ -760,8 +768,9 @@ int wext_get_drv_ability(const char *ifname, __u32 *ability) {
 		vPortFree(buf);
 	}
 #if	CONFIG_DEBUG_LOG > 3
-	else
+	else {
 		error_printf("%s: Can't malloc memory!\n", __func__);
+	}
 #endif
 	return ret;
 }
@@ -793,8 +802,9 @@ int wext_add_custom_ie(const char *ifname, void *cus_ie, int ie_num) {
 			vPortFree(para);
 		}
 #if	CONFIG_DEBUG_LOG > 3
-		else
+		else {
 			error_printf("%s: Can't malloc memory!\n", __func__);
+		}
 #endif
 	}
 	return ret;
@@ -826,8 +836,9 @@ int wext_update_custom_ie(const char *ifname, void * cus_ie, int ie_index) {
 			vPortFree(para);
 		}
 #if	CONFIG_DEBUG_LOG > 3
-		else
+		else {
 			error_printf("%s: Can't malloc memory!\n", __func__);
+		}
 #endif
 	}
 	return ret;
@@ -941,7 +952,9 @@ int wext_init_mac_filter(void) {
 			ret = 0;
 		}
 #if	CONFIG_DEBUG_LOG > 3
-		else error_printf("%s: Can't malloc memory!\n", __func__);
+		else { 
+			error_printf("%s: Can't malloc memory!\n", __func__);
+		}
 #endif
 	}
 	return ret;
@@ -978,7 +991,9 @@ int wext_add_mac_filter(unsigned char* hwaddr) {
 			ret = 0;
 		}
 #if	CONFIG_DEBUG_LOG > 3
-		else error_printf("%s: Can't malloc memory!\n", __func__);
+		else {
+			error_printf("%s: Can't malloc memory!\n", __func__);
+		}
 #endif
 	}
 	return ret;

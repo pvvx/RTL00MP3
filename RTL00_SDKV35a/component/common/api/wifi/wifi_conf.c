@@ -34,7 +34,7 @@ extern int inic_stop(void);
 
 //#define sscanf	_sscanf
 
-#define SHOW_PRIVATE_OUT 1 // =0 - off, = 1 On
+#define SHOW_PRIVATE_OUT 0 // =0 - off, = 1 On
 
 /******************************************************
  *                    Constants
@@ -794,15 +794,16 @@ int wifi_disable_powersave(void) {
 	return wext_disable_powersave(WLAN0_NAME);
 }
 
-#if 1 //Not ready
+#if 0 //Not ready
 //----------------------------------------------------------------------------//
 int wifi_get_txpower(int *poweridx) {
 	int ret;
-	char buf[11];
+	//	char buf[11];
+	char buf[64];
 
 	rtw_memset(buf, 0, sizeof(buf));
 	rtw_memcpy(buf, "txpower", 11);
-	ret = wext_private_command_with_retval(WLAN0_NAME, buf, buf, 11);
+	ret = wext_private_command_with_retval(WLAN0_NAME, buf, buf, sizeof(buf));
 #if SHOW_PRIVATE_OUT
 	rtl_printf("%s\n", buf);
 #endif

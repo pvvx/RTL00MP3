@@ -28,6 +28,8 @@
 #include "ethernet_mii/ethernet_mii.h"
 #endif
 
+#include "wlan_lib.h"
+
 #include "flash_eep.h"
 #include "feep_config.h"
 
@@ -187,11 +189,6 @@ rtw_result_t wifi_run_ap(void) {
 		if(wext_set_sta_num(wifi_ap_cfg.max_sta) != 0) { // Max number of STAs, should be 1..3, default is 3
 			error_printf("AP not set max connections %d!\n", wifi_ap_cfg.max_sta);
 		};
-/*
-		if( wext_set_txpower(wlan_ap_name, wifi_cfg.tx_pwr) != RTW_SUCCESS){
-			error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
-		};
-*/
 		ret = wifi_start_ap(wifi_ap_cfg.ssid,			//char  *ssid,
 				wifi_ap_cfg.security_type,	//rtw_security_t ecurity_type,
 				wifi_ap_cfg.password, 		//char *password,
@@ -293,11 +290,6 @@ rtw_result_t wifi_run_st(void) {
 		}
 #endif
 		info_printf("Connected to AP (%s, netif%d)...\n", wlan_st_name, wlan_st_netifn);
-/*
-		if( wext_set_txpower(wlan_st_name, wifi_cfg.tx_pwr) != RTW_SUCCESS){
-			error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
-		}
-*/
 		ret = wifi_connect(wifi_st_cfg.ssid, wifi_st_cfg.security_type,
 				wifi_st_cfg.password, strlen(wifi_st_cfg.ssid),
 				strlen(wifi_st_cfg.password), -1, NULL);
@@ -446,9 +438,12 @@ int wifi_run(rtw_mode_t mode) {
 		if(wifi_set_country(wifi_cfg.country_code) != RTW_SUCCESS) {
 			error_printf("Error set tx country_code (%d)!", wifi_cfg.country_code);
 		};
-		if(wifi_set_txpower(wifi_cfg.tx_pwr) != RTW_SUCCESS) {
-			error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
-		};
+//	extern uint8_t rtw_power_percentage_idx;
+		if(rtw_power_percentage_idx != wifi_cfg.tx_pwr) {
+			if(rltk_set_tx_power_percentage(wifi_cfg.tx_pwr) != RTW_SUCCESS) {
+				error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
+			};
+		}
 		debug_printf("mode == wifi_mode? (%d == %d?)\n", mode, wifi_mode);
 //		if(mode == wifi_mode)
 		{
@@ -714,11 +709,44 @@ void fATWI(int argc, char *argv[]) {
 	}
 }
 
+void fATWT(int argc, char *argv[]) {
+	if(argc > 1) {
+		int txpwr = atoi(argv[1]);
+		debug_printf("set tx power (%d)...\n", txpwr);
+		if(rltk_set_tx_power_percentage(txpwr) != RTW_SUCCESS) {
+			error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
+		}
+	}
+	printf("TX power = %d\n", rtw_power_percentage_idx);
+}
+
+//-- Test tsf (64-bits counts, 1 us step) ---
+
+#include "hal_com_reg.h"
+
+#define ReadTSF_Lo32() (*((volatile unsigned int *)(WIFI_REG_BASE + REG_TSFTR)))
+#define ReadTSF_Hi32() (*((volatile unsigned int *)(WIFI_REG_BASE + REG_TSFTR1)))
+
+uint64_t get_tsf(void)
+{
+	return *((uint64_t *)(WIFI_REG_BASE + REG_TSFTR));
+}
+
+void fATSF(int argc, char *argv[])
+{
+	uint64_t tsf = get_tsf();
+	printf("\nTSF: %08x%08x\n", (uint32_t)(tsf>>32), (uint32_t)(tsf));
+}
+
 MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"ATPN", 1, fATPN, "=<SSID>[,password[,encryption[,auto-reconnect[,reconnect pause]]]: WIFI Connect to AP"},
 		{"ATPA", 1, fATPA, "=<SSID>[,password[,encryption[,channel[,hidden[,max connections]]]]]: Start WIFI AP"},
 		{"ATWR", 0, fATWR, ": WIFI Connect, Disconnect"},
 		{"ATON", 0, fATON, ": Open connections"},
 		{"ATOF", 0, fATOF, ": Close connections"},
-		{"ATWI", 0, fATWI, ": WiFi Info"}
+		{"ATWI", 0, fATWI, ": WiFi Info"},
+#if CONFIG_DEBUG_LOG > 3
+		{"ATWT", 1, fATWT, "=<tx_power>: WiFi tx power: 0 - 100%, 1 - 75%, 2 - 50%, 3 - 25%, 4 - 12.5%"},
+		{"ATSF", 0, fATSF, ": Test TSF value"},
+#endif
 };

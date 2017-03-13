@@ -730,7 +730,7 @@ SECTIONS
 	__image1_validate_code__ = 0x10000bdc; /* 8 bytes HalResetVsrV02(), HalResetVsr() */
 
 	
-	__ram_image_end__ = 0x10002100;
+/*	__ram_image_end__ = 0x10002100; */
 	
 	/* End RAM data used in ROM */
 

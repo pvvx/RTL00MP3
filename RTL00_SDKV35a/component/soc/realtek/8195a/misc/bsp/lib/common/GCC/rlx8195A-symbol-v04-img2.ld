@@ -252,5 +252,5 @@ SECTIONS
 	{
 		KEEP(*(.loader.head*))
 	}
-	ASSERT(__ram_image_end__ != 0x100020c0, "Error rom-bios-boot code & data!") 
+	ASSERT(__ram_image_end__ == 0x100020c0, "Error rom-bios-boot code & data!")
 }
