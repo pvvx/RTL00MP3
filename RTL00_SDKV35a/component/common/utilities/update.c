@@ -38,9 +38,11 @@
   * ---------------------------------------------------*/
 // This signature can be used to verify the correctness of the image
 // It will be located in fixed location in application image
+/* Moved in main.c
 #include "section_config.h"
 SECTION(".custom.validate.rodata")
 const unsigned char cus_sig[32] = "Customer Signature-modelxxx";
+*/
 #endif
 
 #else

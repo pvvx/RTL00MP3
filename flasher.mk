@@ -192,8 +192,8 @@ ifdef COMPILED_BOOT_BIN
 	$(OBJCOPY) --change-section-address .boot.head=0x10000ba8 -j .boot.head -j .bootloader -Obinary $(ELFFILE) $(RAM1P_IMAGE)
 else
 	$(OBJCOPY) -j .rom_ram -Obinary $(ELFFILE) $(RAM_IMAGE)
-	$(OBJCOPY) -j .ram.start.table -j .ram_image1.text -Obinary $(ELFFILE) $(RAM1_IMAGE)
-	$(PICK) 0x$(RAM1_START_ADDR) 0x$(RAM1_END_ADDR) $(RAM1_IMAGE) $(RAM1R_IMAGE) head+reset_offset 0x0B000
+	$(OBJCOPY) -j .ram.start.table -j .ram_image1.text -Obinary $(ELFFILE) $(RAM1R_IMAGE)
+	$(PICK) 0x$(RAM1_START_ADDR) 0x$(RAM1_END_ADDR) $(RAM1R_IMAGE) $(RAM1P_IMAGE) head+reset_offset 0x0B000
 endif
 else 
 	$(error "BOOT-image size = 0")

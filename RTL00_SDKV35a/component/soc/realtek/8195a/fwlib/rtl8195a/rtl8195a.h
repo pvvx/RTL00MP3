@@ -166,6 +166,8 @@
 #define	IMG_SIGN2_RUN	0x31313738	// "8711"
 #define	IMG_SIGN2_SWP	IMG_SIGN2_RUN	// "8711"
 #define IMG2_SIGN_TXT	"RTKWin"
+#define IMG2_SIGN_DW1_TXT	0x574b5452 	// "RTKW"
+#define IMG2_SIGN_SW2_TXT	0x6e69 		// "in"
 
 typedef struct _RAM_FUNCTION_START_TABLE_ {
     VOID (*RamStartFun) (VOID);		// Run for Init console, Run if ( v40000210 & 0x4000000 )

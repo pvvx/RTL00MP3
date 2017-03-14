@@ -42,6 +42,7 @@ extern u8 __bss_start__, __bss_end__;
 IMAGE2_START_RAM_FUN_SECTION RAM_START_FUNCTION gImage2EntryFun0 =
 	{ InfraStart + 1 };
 
+/*
 //----- HalNMIHandler_Patch
 void HalNMIHandler_Patch(void) {
 	DBG_8195A_HAL("%s:NMI Error!\n", __func__);
@@ -49,7 +50,6 @@ void HalNMIHandler_Patch(void) {
 		HalWdgIntrHandle(); // ROM: HalWdgIntrHandle = 0x3485;
 }
 
-/*
 //----- VectorTableOverrideRtl8195A
 void INFRA_START_SECTION VectorTableOverrideRtl8195A(u32 StackP) {
 	NewVectorTable[2] = HalNMIHandler_Patch;
@@ -100,20 +100,32 @@ __weak int main(void) {
 		DiagPrintf("\r<RTL8710AF>");
 		pUartLogCtl->ExecuteCmd = 0;
 	}
-
 	return 0;
 }
 
+extern const unsigned char cus_sig[32];
 //----- InfraStart
 void INFRA_START_SECTION InfraStart(void) {
-	NewVectorTable[2] = HalNMIHandler_Patch;
+//	NewVectorTable[2] = HalNMIHandler_Patch;
+//	HAL_SYS_CTRL_WRITE32(REG_SYS_CLK_CTRL0,	HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL0) | BIT4);
+	DBG_8195A("===== Enter Image: %s ====\n", cus_sig);
+#if	CONFIG_DEBUG_LOG > 3
+	DBG_8195A("\rCPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(), HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
+#endif
 #ifdef CONFIG_TIMER_MODULE
 	HalTimerOpInit_Patch((VOID*) (&HalTimerOp));
 #endif
-//	HAL_SYS_CTRL_WRITE32(REG_SYS_CLK_CTRL0,	HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL0) | BIT4);
-	DBG_8195A("==!== Enter Image 2 ====\n");
 //	ShowRamBuildInfo(); // app_start.c: VOID ShowRamBuildInfo(VOID)
 	memset(&__bss_start__, 0, &__bss_end__ - &__bss_start__);
+
+//- Должно быть в boot !?
+extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
+	memset(&gBoot_Gpio_Adapter, 0, sizeof(gBoot_Gpio_Adapter));
+	_pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
+//-
+
+	rtl_libc_init(); // ROM Lib C init
+
 	int flash_en = HAL_PERI_ON_READ32(REG_SOC_FUNC_EN)
 			& (1 << BIT_SOC_FLASH_EN);
 	if (flash_en) {
@@ -129,6 +141,7 @@ void INFRA_START_SECTION InfraStart(void) {
 			};
 #endif
 		};
+		// Load SpicInitParaAllClk table
 		SpicNVMCalLoadAll();
 		SpicReadIDRtl8195A();
 	};
@@ -142,20 +155,17 @@ void INFRA_START_SECTION InfraStart(void) {
 	*((int *) (SYSTEM_CTRL_BASE + REG_SYS_SYSPLL_CTRL1)) &= ~(1 << 17); // REG_SYS_SYSPLL_CTRL1 &= ~BIT_SYS_SYSPLL_DIV5_3
 	HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
 #endif
+	SDIO_Device_Off();
 	HalReInitPlatformLogUartV02();
-/*	HAL_LOG_UART_ADAPTER pUartAdapter;
-	pUartAdapter.BaudRate = UART_BAUD_RATE_38400;
-	HalLogUartSetBaudRate(&pUartAdapter); */
 	SystemCoreClockUpdate();
 	SYSPlatformInit();
 	En32KCalibration();
 	InitSoCPM();
-	SDIO_Device_Off();
 	VectorTableInitForOSRtl8195A(&vPortSVCHandler, &xPortPendSVHandler,
 			&xPortSysTickHandler);
 	if (flash_en)
 		SpicFlashInitRtl8195A(SpicDualBitMode); // DIO
-		SPI_FLASH_PIN_FCTRL(OFF);
+	SPI_FLASH_PIN_FCTRL(OFF);
 #ifdef CONFIG_SDR_EN
 	// clear SDRAM bss
 	extern u8 __sdram_bss_start__[];
@@ -169,7 +179,6 @@ void INFRA_START_SECTION InfraStart(void) {
 			"bic r0, r0, #7\n"
 			"mov sp, r0\n"
 	);
-	rtl_libc_init();
 	__low_level_init();
 	main();
 }

@@ -35,6 +35,14 @@
 #include "main.h"
 #include "wifi_api.h"
 
+/* ---------------------------------------------------
+  *  Customized Signature (Image Name)
+  * ---------------------------------------------------*/
+#include "section_config.h"
+SECTION(".custom.validate.rodata")
+const unsigned char cus_sig[32] = "MP3 Stereo";
+
+
 #define DEBUG_MAIN_LEVEL 1
 
 //Priorities of the reader and the decoder thread. Higher = higher prio.
