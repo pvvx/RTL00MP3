@@ -103,7 +103,7 @@ typedef struct _DRAM_DEVICE_INFO_ {
   DRAM_TIMING_INFO   *Timing;
   u32                DdrPeriodPs;
   DFI_RATIO_TYPE     *DfiRate; 
-}DRAM_DEVICE_INFO;
+} DRAM_DEVICE_INFO, *PDRAM_DEVICE_INFO;
 
 
 //======================================================

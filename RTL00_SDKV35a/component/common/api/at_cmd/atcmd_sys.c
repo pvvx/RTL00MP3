@@ -146,12 +146,12 @@ void fATSR(void *arg)
 #if CONFIG_UART_XMODEM
 void fATSY(void *arg)
 {
-#ifdef RTL8710AF
-	OTU_FW_Update(0, 0, 115200);
-#else
-	// use xmodem to update, RX: PA_6, TX: PA_7, baudrate: 1M
-	OTU_FW_Update(0, 2, 115200);
-#endif
+	if (HalGetChipId() < CHIP_ID_8195AM) {
+		OTU_FW_Update(0, 0, 115200);
+	} else {
+		// use xmodem to update, RX: PA_6, TX: PA_7, baudrate: 1M
+		OTU_FW_Update(0, 2, 115200);
+	}
 }
 #endif
 
@@ -1166,17 +1166,18 @@ void fATSL(void *arg) {
 #if CONFIG_UART_XMODEM
 void fATSX(void *arg)
 {
-#ifdef RTL8710AF
-	// use xmodem to update, RX: PC_0, TX: PC_3, baudrate: 1M
+	if (HalGetChipId() < CHIP_ID_8195AM) {
+
+		// use xmodem to update, RX: PC_0, TX: PC_3, baudrate: 1M
 		OTU_FW_Update(0, 0, 115200);
-	// use xmodem to update, RX: PE_3, TX: PE_0, baudrate: 1M
-	//  JTAG Off!
-	//	OTU_FW_Update(0, 1, 115200);
-#else
-//#error "Set OTU_FW_Update UARTx pins!"
-	// use xmodem to update, RX: PA_6, TX: PA_7, baudrate: 1M
-	OTU_FW_Update(0, 2, 115200);
-#endif
+		// use xmodem to update, RX: PE_3, TX: PE_0, baudrate: 1M
+		//  JTAG Off!
+		//	OTU_FW_Update(0, 1, 115200);
+	}
+	else {	
+		// use xmodem to update, RX: PA_6, TX: PA_7, baudrate: 1M
+		OTU_FW_Update(0, 2, 115200);
+	};
 	at_printf("\r\n[ATSX] OK");
 }
 #endif

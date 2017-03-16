@@ -208,7 +208,7 @@ extern DRAM_MODE_REG_INFO SdrDramModeReg;	// 10001c30
   0 }   /* Mode2Cwl */
 extern DRAM_INFO SdrDramDev;				// 10001c4c
 #define DRAM_INFO_INIT() {  DRAM_INFO_TYPE, DRAM_INFO_COL_ADDR_WTH,DRAM_INFO_BANK_SZ, DRAM_INFO_DQ_WTH }
-//extern SPIC_INIT_PARA SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // SpicInitParaAllClk[3][6] !
+extern SPIC_INIT_PARA SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // 100021ec [144=0x90]
 
 /* ROM + "C" standard library */
 extern struct _reent * _rtl_impure_ptr;		// 10001c60 = { &impure_reent };

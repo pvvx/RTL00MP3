@@ -138,11 +138,11 @@ _WEAK int main(void)
 	while(pUartLogCtl->ExecuteEsc != 1);
 	pUartLogCtl->RevdNo = 0;
 	pUartLogCtl->BootRdy = 1;
-    DiagPrintf("\r<RTL8710AF>");
+    DiagPrintf("\r<RTL871xAx>");
     while(1) {
     	while(pUartLogCtl->ExecuteCmd != 1 );
     	UartLogCmdExecute(pUartLogCtl);
-        DiagPrintf("\r<RTL8710AF>");
+        DiagPrintf("\r<RTL871xAx>");
         pUartLogCtl->ExecuteCmd = 0;
     }
     

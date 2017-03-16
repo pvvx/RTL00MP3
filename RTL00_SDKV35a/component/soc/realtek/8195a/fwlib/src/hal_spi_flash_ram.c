@@ -86,7 +86,7 @@ SECTION SPIC_INIT_PARA SpicInitParaAllClk[CPU_CLK_TYPE_NO] =    {{0,0,0,0},
                                                          {0,0,0,0},
                                                          {0,0,0,0},};
 #else
-extern HAL_FLASH_DATA_SECTION
+extern // HAL_FLASH_DATA_SECTION
 SPIC_INIT_PARA SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // in rtl_bios_data.c
 #endif
 

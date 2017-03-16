@@ -47,12 +47,12 @@ HAL_Pwm_Init(
     pPwmAdapt->sel = sel;
     timer_id = PWMTimerIdx[pwm_id];
     pPwmAdapt->gtimer_id = timer_id;
-
+/*
     if (_FALSE == FunctionChk((pPwmAdapt->pwm_id + PWM0), pPwmAdapt->sel)) {
     	DBG_PWM_WARN("HAL_Pwm_Init: Warning for RTL8710AF\n");
 	     // return HAL_ERR_HW;
     }
-
+*/
 #ifndef CONFIG_CHIP_E_CUT
     return HAL_Pwm_Init_8195a(pPwmAdapt);
 #else

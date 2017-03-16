@@ -305,8 +305,8 @@ SECTIONS
 	HalTimerIrq2To7Handle = 0xee59;
 	HalGetTimerIdRtl8195a = 0xef09;
 	HalTimerInitRtl8195a = 0xef3d;
-	HalTimerDisRtl8195a = 0xf069;
-	HalTimerEnRtl8195a = 0xf089;
+	HalTimerDisRtl8195a = 0xf069;	/* error! */
+	HalTimerEnRtl8195a = 0xf089;	/* error! */
 	HalTimerReadCountRtl8195a = 0xf0a9;
 	HalTimerIrqClearRtl8195a = 0xf0bd;
 	HalTimerDumpRegRtl8195a = 0xf0d1;
@@ -624,7 +624,7 @@ SECTIONS
 	rom_wps_rcons = 0x35d88;
 	rom_wps_Td4s = 0x35d94;
 	rom_wps_Td0 = 0x35e94;
-	str_rom_57ch3Dch0A = 0x3ed05;
+	str_rom_57ch3Dch0A = 0x3ed05; /* "========================================================\n" */
 	str_rom_0123456789ABCDEF = 0x3ec24; /* "0123456789ABCDEF" */
 	str_rom_hex_addr = 0x442D6; /* "[Addr]   .0 .1 .2 .3 .4 .5 .6 .7 .8 .9 .A .B .C .D .E .F\r\n" */
 	str_rom_0123456789abcdef = 0x44660; /* "0123456789abcdef" */

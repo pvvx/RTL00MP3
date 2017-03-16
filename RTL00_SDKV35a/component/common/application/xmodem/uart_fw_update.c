@@ -226,11 +226,7 @@ u32 xModem_Frame_Img2(char *ptr,  unsigned int frame_num, unsigned int frame_siz
             return rx_len;
         }
 */
-#ifdef RTL8710AF
-        if (fw_img2_size > (0x80000-0x0B000)) {
-#else
-        if (fw_img2_size > (2*1024*1024)) {
-#endif
+        if (fw_img2_size > ((HalGetChipId() < CHIP_ID_8195AM) ? (0x80000-0x0B000) : (2*1024*1024))) {
             DBG_MISC_ERR("OTU: fw_img2_addr=0x%x fw_img2_size(%d) to Big!\n", fw_img2_addr, fw_img2_size);
             fw_img1_size = 0;
             fw_img2_size = 0;
@@ -307,11 +303,7 @@ u32 xModem_Frame_Img2(char *ptr,  unsigned int frame_num, unsigned int frame_siz
                 return rx_len;
             }
 */
-#ifdef RTL8710AF
-            if (fw_img2_size > (0x80000 - fw_img3_addr)) {
-#else
-        	if (fw_img2_size > (2*1024*1024)) {
-#endif
+        	if (fw_img2_size > ((HalGetChipId() < CHIP_ID_8195AM) ? (0x80000 - fw_img3_addr) : (2*1024*1024))) {
                 DBG_MISC_ERR("OTU: fw_img3_addr=0x%x fw_img2_size(%d) to Big!\n", fw_img3_addr, fw_img3_size);
                 fw_img3_size = 0;
                 return rx_len;

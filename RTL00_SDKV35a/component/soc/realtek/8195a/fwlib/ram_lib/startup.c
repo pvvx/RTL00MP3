@@ -56,6 +56,15 @@ void INFRA_START_SECTION VectorTableOverrideRtl8195A(u32 StackP) {
 }
 */
 
+/*
+ *  16 bytes FIFO ... 16*11/38400 = 0.004583 sec
+ *  (0.005/5)*166666666 = 166666.666
+ */
+LOCAL void INFRA_START_SECTION loguart_wait_tx_fifo_empty(void) {
+	int x = 16384;
+	while((!(HAL_READ8(LOG_UART_REG_BASE, 0x14) & BIT6)) && x--);
+}
+
 //----- SYSPlatformInit
 void INFRA_START_SECTION SYSPlatformInit(void) {
 	HAL_SYS_CTRL_WRITE32(REG_SYS_EFUSE_SYSCFG0,
@@ -66,6 +75,23 @@ void INFRA_START_SECTION SYSPlatformInit(void) {
 			(HAL_SYS_CTRL_READ32(REG_SYS_XTAL_CTRL1)
 			& (~(BIT_MASK_SYS_XTAL_DRV_RF1 << BIT_SHIFT_SYS_XTAL_DRV_RF1)))
 			| BIT_SYS_XTAL_DRV_RF1(1)); //  & 0xFFFFFFE7 | 8;
+	if(HalGetCpuClk() != PLATFORM_CLOCK) {
+		//----- CLK CPU
+		loguart_wait_tx_fifo_empty(); //	иначе глючит LogUART, если переключение CLK приходится на вывод символов !
+#if	CPU_CLOCK_SEL_DIV5_3
+		// 6 - 200000000 Hz, 7 - 10000000 Hz, 8 - 50000000 Hz, 9 - 25000000 Hz, 10 - 12500000 Hz, 11 - 4000000 Hz
+		HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
+		*((int *)(SYSTEM_CTRL_BASE+REG_SYS_SYSPLL_CTRL1)) |= (1<<17);// REG_SYS_SYSPLL_CTRL1 |= BIT_SYS_SYSPLL_DIV5_3
+#else
+		// 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
+		*((int *) (SYSTEM_CTRL_BASE + REG_SYS_SYSPLL_CTRL1)) &= ~(1 << 17); // REG_SYS_SYSPLL_CTRL1 &= ~BIT_SYS_SYSPLL_DIV5_3
+		HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
+#endif // CPU_CLOCK_SEL_DIV5_3
+		//----- System
+		VectorTableInitRtl8195A(STACK_TOP);	// 0x1FFFFFFC
+		HalInitPlatformLogUartV02(); // Show "<RTL8195A>"... :(
+		HalInitPlatformTimerV02();
+	};
 }
 
 //----- SDIO_Device_Off
@@ -93,11 +119,11 @@ __weak int main(void) {
 	while (pUartLogCtl->ExecuteEsc != 1);
 	pUartLogCtl->RevdNo = 0;
 	pUartLogCtl->BootRdy = 1;
-	DiagPrintf("\r<RTL8710AF>");
+	DiagPrintf("\r<RTL>");
 	while (1) {
 		while (pUartLogCtl->ExecuteCmd != 1);
 		UartLogCmdExecute(pUartLogCtl);
-		DiagPrintf("\r<RTL8710AF>");
+		DiagPrintf("\r<RTL>");
 		pUartLogCtl->ExecuteCmd = 0;
 	}
 	return 0;
@@ -107,72 +133,65 @@ extern const unsigned char cus_sig[32];
 //----- InfraStart
 void INFRA_START_SECTION InfraStart(void) {
 //	NewVectorTable[2] = HalNMIHandler_Patch;
-//	HAL_SYS_CTRL_WRITE32(REG_SYS_CLK_CTRL0,	HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL0) | BIT4);
 	DBG_8195A("===== Enter Image: %s ====\n", cus_sig);
-#if	CONFIG_DEBUG_LOG > 3
-	DBG_8195A("\rCPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(), HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
-#endif
-#ifdef CONFIG_TIMER_MODULE
-	HalTimerOpInit_Patch((VOID*) (&HalTimerOp));
-#endif
-//	ShowRamBuildInfo(); // app_start.c: VOID ShowRamBuildInfo(VOID)
+	//	ShowRamBuildInfo(); // app_start.c: VOID ShowRamBuildInfo(VOID)
 	memset(&__bss_start__, 0, &__bss_end__ - &__bss_start__);
-
-//- Должно быть в boot !?
+	rtl_libc_init(); // ROM Lib C init (rtl_printf!)
+//- Должно быть в boot
 extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
 	memset(&gBoot_Gpio_Adapter, 0, sizeof(gBoot_Gpio_Adapter));
 	_pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
-//-
-
-	rtl_libc_init(); // ROM Lib C init
-
-	int flash_en = HAL_PERI_ON_READ32(REG_SOC_FUNC_EN)
-			& (1 << BIT_SOC_FLASH_EN);
-	if (flash_en) {
-		SPI_FLASH_PIN_FCTRL(ON);
-		if(!SpicCmpDataForCalibrationRtl8195A()) {
-			DBG_8195A("ReInit Spic DIO...\n");
-			SpicInitRtl8195AV02(1, SpicDualBitMode);
-#if 0
-			SpicFlashInitRtl8195A(SpicDualBitMode);
-			if(!SpicCmpDataForCalibrationRtl8195A()) {
-				// TODO: Spic Not Init!
-				 DBG_8195A("Spic error Init!\n"); while(1);
-			};
-#endif
-		};
-		// Load SpicInitParaAllClk table
-		SpicNVMCalLoadAll();
-		SpicReadIDRtl8195A();
-	};
-    while(!(HAL_READ8(LOG_UART_REG_BASE, 0x14) & BIT6)); //	иначе глючит LogUART, если переключение CLK приходится на вывод символов !
-#if	CPU_CLOCK_SEL_DIV5_3
-	// 6 - 200000000 Hz, 7 - 10000000 Hz, 8 - 50000000 Hz, 9 - 25000000 Hz, 10 - 12500000 Hz, 11 - 4000000 Hz
-	HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
-	*((int *)(SYSTEM_CTRL_BASE+REG_SYS_SYSPLL_CTRL1)) |= (1<<17);// REG_SYS_SYSPLL_CTRL1 |= BIT_SYS_SYSPLL_DIV5_3
-#else
-	// 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
-	*((int *) (SYSTEM_CTRL_BASE + REG_SYS_SYSPLL_CTRL1)) &= ~(1 << 17); // REG_SYS_SYSPLL_CTRL1 &= ~BIT_SYS_SYSPLL_DIV5_3
-	HalCpuClkConfig(CPU_CLOCK_SEL_VALUE);
-#endif
 	SDIO_Device_Off();
-	HalReInitPlatformLogUartV02();
-	SystemCoreClockUpdate();
 	SYSPlatformInit();
+	HalTimerOpInit_Patch((VOID*) (&HalTimerOp));
+//-
+	SystemCoreClockUpdate();
 	En32KCalibration();
+
+#if	CONFIG_DEBUG_LOG > 2
+	DBG_8195A("\rCPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(), HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
+#endif
+	_memset(SpicInitParaAllClk, 0, sizeof(SpicInitParaAllClk));
+	*(uint32 *)(&SpicInitParaAllClk[0][0].BaudRate) = 0x1311301; // patch
+	*(uint32 *)(&SpicInitParaAllClk[1][0].BaudRate) = 0x1311301; // patch
+	SPI_FLASH_PIN_FCTRL(ON);
+	uint8 SpicBaudRate = CPU_CLK_TYPE_NO - 1 - ((HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL1) >> 4) & 7);
+	SpicInitRtl8195AV02(SpicBaudRate, SpicDualBitMode);
+	if(!SpicCmpDataForCalibrationRtl8195A()) {
+			DBG_8195A("ReInit Spic to SIO...\n");
+			SpicInitRtl8195AV02(SpicBaudRate, SpicOneBitMode);
+			if(!SpicCmpDataForCalibrationRtl8195A()) {
+				DBG_8195A("Error Init Spic!\n");
+			};
+	};
+	SpicFlashInitRtl8195A(SpicDualBitMode); //	SpicReadIDRtl8195A(); SpicDualBitMode
+	uint8 ChipId = HalGetChipId();
+	if (ChipId >= CHIP_ID_8195AM) {
+#ifdef CONFIG_SDR_EN
+		if((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // уже загружена?
+			SdrCtrlInit();
+			if(SdrControllerInit()) {
+				DBG_8195A("SDR Controller Init fail!\n");
+			};
+		};
+#endif
+		// clear SDRAM bss
+		extern uint8 __sdram_bss_start__[];
+		extern uint8 __sdram_bss_end__[];
+		if((uint32)__sdram_bss_end__-(uint32)__sdram_bss_start__ > 0)
+			memset(__sdram_bss_start__, 0, (uint32)__sdram_bss_end__-(uint32)__sdram_bss_start__);
+	}
+	else
+	{
+		//----- SDRAM Off
+		SDR_PIN_FCTRL(OFF);
+		LDO25M_CTRL(OFF);
+		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Off
+	};
+	SPI_FLASH_PIN_FCTRL(OFF);
 	InitSoCPM();
 	VectorTableInitForOSRtl8195A(&vPortSVCHandler, &xPortPendSVHandler,
 			&xPortSysTickHandler);
-	if (flash_en)
-		SpicFlashInitRtl8195A(SpicDualBitMode); // DIO
-	SPI_FLASH_PIN_FCTRL(OFF);
-#ifdef CONFIG_SDR_EN
-	// clear SDRAM bss
-	extern u8 __sdram_bss_start__[];
-	extern u8 __sdram_bss_end__[];
-	if((int)__sdram_bss_end__-(int)__sdram_bss_start__ > 0)
-	memset(__sdram_bss_start__, 0, (int)__sdram_bss_end__-(int)__sdram_bss_start__);
-#endif
 	// force SP align to 8 byte not 4 byte (initial SP is 4 byte align)
 	__asm(
 			"mov r0, sp\n"

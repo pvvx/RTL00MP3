@@ -169,7 +169,7 @@ __attribute__((__section__(".sdr.rand2.data"))) u32 _sdr_rnd2_c = 7654321, _sdr_
 // 100020BC, 100020B8, 100020B4
 
 HAL_GPIO_ADAPTER PINMUX_RAM_DATA_SECTION gBoot_Gpio_Adapter; // 100020C0 [300=0x12c]
-// SPIC_INIT_PARA HAL_FLASH_DATA_SECTION SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // 100021ec [144=0x90]
+//SPIC_INIT_PARA HAL_FLASH_DATA_SECTION SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // 100021ec [144=0x90]
 
 #ifndef PRESENT_IMAGE2
 IMAGE2_START_RAM_FUN_SECTION RAM_START_FUNCTION gImage2EntryFun0; //=	{ InfraStart + 1 };

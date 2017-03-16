@@ -21,7 +21,7 @@
 #include "flash_api.h"
 
 extern u32 ConfigDebugInfo;
-extern SPIC_INIT_PARA SpicInitParaAllClk[3][CPU_CLK_TYPE_NO];
+extern SPIC_INIT_PARA SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // SpicMaxMode = 3, CPU_CLK_TYPE_NO = 6 !
 
 _LONG_CALL_
 extern VOID SpicWaitBusyDoneRtl8195A(VOID);

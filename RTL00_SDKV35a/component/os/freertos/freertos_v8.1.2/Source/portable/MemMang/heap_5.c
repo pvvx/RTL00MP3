@@ -538,7 +538,7 @@ const HeapRegion_t *pxHeapRegion;
 
 	pxHeapRegion = &( pxHeapRegions[ xDefinedRegions ] );
 
-	int chip_id = HalGetChipId();
+	uint8 chip_id = HalGetChipId();
 	while( pxHeapRegion->xSizeInBytes > 0 )
 	{
 		if(pxHeapRegion->pucStartAddress > 0x20000000

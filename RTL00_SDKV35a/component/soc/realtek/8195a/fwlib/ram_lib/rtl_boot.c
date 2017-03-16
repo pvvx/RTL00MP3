@@ -1,5 +1,5 @@
 /* 
- *  (SRAM) Debug BootLoader
+ *  BootLoader
  *  Created on: 12/02/2017
  *      Author: pvvx
  */
@@ -11,15 +11,30 @@
 
 //-------------------------------------------------------------------------
 // Data declarations
-//extern u32 STACK_TOP;
-//extern volatile UART_LOG_CTL * pUartLogCtl;
 
 #define DEFAULT_BAUDRATE UART_BAUD_RATE_38400
+
+/* 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000? Hz,
+   6 - 200000000 Hz, 7 - 10000000 Hz, 8 - 50000000 Hz, 9 - 25000000 Hz, 10 - 12500000 Hz, 11 - 4000000? Hz */
+#define DEFAULT_BOOT_CLK_CPU 1 // Warning! If Start CLK > 100 MHz -> Errors SPIC function in Ameba SDK!
+
+#ifdef DEFAULT_BOOT_CLK_CPU
+#if DEFAULT_BOOT_CLK_CPU < 6
+#define DEFAULT_BOOT_CPU_CLOCK_SEL_DIV5_3		0
+#define DEFAULT_BOOT_CPU_CLOCK_SEL_VALUE DEFAULT_BOOT_CLK_CPU
+#else
+#define DEFAULT_BOOT_CPU_CLOCK_SEL_DIV5_3		1
+#define DEFAULT_BOOT_CPU_CLOCK_SEL_VALUE (DEFAULT_BOOT_CLK_CPU-6)
+#endif
+#endif // DEFAULT_BOOT_CLK_CPU
 
 #define BOOT_RAM_TEXT_SECTION // __attribute__((section(".boot.text")))
 //#define BOOT_RAM_RODATA_SECTION __attribute__((section(".boot.rodata")))
 //#define BOOT_RAM_DATA_SECTION __attribute__((section(".boot.data")))
 //#define BOOT_RAM_BSS_SECTION __attribute__((section(".boot.bss")))
+
+//extern u32 STACK_TOP;
+//extern volatile UART_LOG_CTL * pUartLogCtl;
 
 //-------------------------------------------------------------------------
 typedef struct _seg_header {
@@ -42,29 +57,37 @@ typedef struct _img2_header {
 //-------------------------------------------------------------------------
 // Function declarations
 LOCAL void RtlBootToFlash(void); // image1
-LOCAL void RtlBootToSram(void); // image1
-LOCAL void EnterImage15(void); // image1
-LOCAL void JtagOn(void); // image1
+LOCAL void RtlBoot1ToSram(void); // image1
+LOCAL void RtlBoot2ToSram(void); // image1
+LOCAL void RtlBoot3ToSram(void); // image1
+LOCAL void RtlBoot4ToSram(void); // image1
+//LOCAL void EnterImage15(void); // image1
+//LOCAL void JtagOn(void); // image1
 
-extern _LONG_CALL_ VOID HalCpuClkConfig(unsigned char CpuType);
+//extern _LONG_CALL_ VOID HalCpuClkConfig(unsigned char CpuType);
 extern _LONG_CALL_ VOID VectorTableInitRtl8195A(u32 StackP);
 extern _LONG_CALL_ VOID HalInitPlatformLogUartV02(VOID);
 extern _LONG_CALL_ VOID HalInitPlatformTimerV02(VOID);
+//extern _LONG_CALL_ VOID DramInit_rom(IN DRAM_DEVICE_INFO *DramInfo);
+//extern _LONG_CALL_ u32 SdrCalibration_rom(VOID);
+extern _LONG_CALL_ int SdrControllerInit_rom(PDRAM_DEVICE_INFO pDramInfo);
 
 //#pragma arm section code = ".boot.text";
 //#pragma arm section rodata = ".boot.rodata", rwdata = ".boot.data", zidata = ".boot.bss";
 
 typedef void (*START_FUNC)(void);
 
+//-------------------------------------------------------------------------
 /* Start table: */
 START_RAM_FUN_SECTION RAM_FUNCTION_START_TABLE __ram_start_table_start__ = {
 		RtlBootToFlash + 1,	// StartFun(),	Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x80000000 )
-		RtlBootToSram + 1,	// PatchWAKE(),	Run if ( v40000210 & 0x20000000 )
-		RtlBootToSram + 1,	// PatchFun0(), Run if ( v40000210 & 0x10000000 )
-		RtlBootToSram + 1,// PatchFun1(), Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x8000000 )
-		RtlBootToFlash + 1 };// PatchFun2(), Run for Init console, if ( v40000210 & 0x4000000 )
-//		EnterImage15 + 1};	// PatchFun2(), Run for Init console, if ( v40000210 & 0x4000000 )
+		RtlBoot1ToSram + 1,	// PatchWAKE(),	Run if ( v40000210 & 0x20000000 )
+		RtlBoot2ToSram + 1,	// PatchFun0(), Run if ( v40000210 & 0x10000000 )
+		RtlBoot3ToSram + 1,	// PatchFun1(), Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x8000000 )
+		RtlBoot4ToSram + 1 };// PatchFun2(), Run for Init console, if ( v40000210 & 0x4000000 )
+//test		RtlBootToFlash + 1 };// PatchFun2(), Run for Init console, if ( v40000210 & 0x4000000 )
 
+//-------------------------------------------------------------------------
 /* Set Debug Flags */
 LOCAL void BOOT_RAM_TEXT_SECTION SetDebugFlgs() {
 #if CONFIG_DEBUG_LOG > 3
@@ -98,15 +121,6 @@ LOCAL void BOOT_RAM_TEXT_SECTION SetDebugFlgs() {
 #endif
 }
 
-/* RTL Console ROM */
-LOCAL void BOOT_RAM_TEXT_SECTION RtlConsolRam(void) {
-//	DiagPrintf("\r\nRTL Console ROM\r\n");
-	pUartLogCtl->pTmpLogBuf->UARTLogBuf[0] = '?';
-	pUartLogCtl->pTmpLogBuf->BufCount = 1;
-	pUartLogCtl->ExecuteCmd = 1;
-	RtlConsolTaskRom(pUartLogCtl);
-}
-
 /* JTAG On */
 LOCAL void BOOT_RAM_TEXT_SECTION JtagOn(void) {
 	ACTCK_VENDOR_CCTRL(ON);
@@ -114,44 +128,92 @@ LOCAL void BOOT_RAM_TEXT_SECTION JtagOn(void) {
 	HalPinCtrlRtl8195A(JTAG, 0, 1);
 }
 
-/* Enter Image 1.5 */
-LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(void) {
-	SetDebugFlgs();
-	DBG_8195A(
-			"\n===== Enter SRAM-Boot ====\nImg Sign: %s, Go @ 0x%08x\r\n",
-			&__image2_validate_code__, __image2_entry_func__);
-#if CONFIG_DEBUG_LOG > 2
-	DBG_8195A("CPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(),
-			HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
-#endif
-	if (_strcmp((const char *) &__image2_validate_code__, IMG2_SIGN_TXT)) {
-		DBG_MISC_ERR("Invalid Image Signature!\n");
-		RtlConsolRam();
-	}
-	__image2_entry_func__();
+/* GetChipId() */
+LOCAL uint8 INFRA_START_SECTION _Get_ChipId() {
+	uint8 ChipId = CHIP_ID_8710AF;
+	if (HALEFUSEOneByteReadROM(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_CTRL), 0xF8,
+			&ChipId, L25EOUTVOLTAGE) != 1)
+		DBG_8195A("Get Chip ID Failed\r");
+	return ChipId;
 }
 
-/* RtlBootToSram */
-LOCAL void BOOT_RAM_TEXT_SECTION RtlBootToSram(void) {
-	JtagOn(); /* JTAG On */
-	_memset(&__rom_bss_start__, 0, &__rom_bss_end__ - &__rom_bss_start__);
+/*
+ *  16 bytes FIFO ... 16*11/38400 = 0.004583 sec
+ *  (0.005/5)*166666666 = 166666.666 Tcpu
+ */
+LOCAL void INFRA_START_SECTION loguart_wait_tx_fifo_empty(void) {
+	if (HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT_SOC_LOG_UART_EN) {
+		int x = 16384;
+		while ((!(HAL_READ8(LOG_UART_REG_BASE, 0x14) & BIT6)) && x--)
+			; //	иначе глючит LogUART, если переключение CLK приходится на вывод символов !
+	}
+}
+
+extern SPIC_INIT_PARA SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // 100021ec [144=0x90]
+/*
+ LOCAL uint32 _SpicInitParaAllClk[SpicMaxMode * CPU_CLK_TYPE_NO] = {
+ 0x01310202, 0x011420C2,
+ 0x03310002, 0x011420C2,
+ 0x05310002, 0x011420C2,
+ 0x07310002, 0x011420C2,
+ 0x09310002, 0x011420C2,
+ 0x0B310002, 0x011420C2,
+
+ 0x11311301, 0x011420C2,
+ 0x13311201, 0x011420C2,
+ 0x15311101, 0x011420C2,
+ 0x17311101, 0x011420C2,
+ 0x19311101, 0x011420C2,
+ 0x1B311101, 0x011420C2,
+
+ 0x21311301, 0x011420C2,
+ 0x23311201, 0x011420C2,
+ 0x25311101, 0x011420C2,
+ 0x27311101, 0x011420C2,
+ 0x29311101, 0x011420C2,
+ 0x2B311101, 0x011420C2
+ };
+ */
+
+/* SYSPlatformInit */
+LOCAL void INFRA_START_SECTION SYSPlatformInit(void) {
 	__asm__ __volatile__ ("cpsid f\n");
-	HAL_SYS_CTRL_WRITE32(REG_SYS_SYSPLL_CTRL1,
-			HAL_SYS_CTRL_READ32(REG_SYS_SYSPLL_CTRL1) & ( ~BIT_SYS_SYSPLL_DIV5_3));
-	HalCpuClkConfig(2); // 41.666666 MHz
-//	HAL_SYS_CTRL_WRITE32(REG_SYS_SYSPLL_CTRL1, HAL_SYS_CTRL_READ32(REG_SYS_SYSPLL_CTRL1) | BIT_SYS_SYSPLL_DIV5_3); // 50.000 MHz
+	JtagOn();
+	SetDebugFlgs();
+	//----- SYS Init
+	HAL_SYS_CTRL_WRITE32(REG_SYS_EFUSE_SYSCFG0,
+			(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_SYSCFG0) & (~(BIT_MASK_SYS_EEROM_LDO_PAR_07_04 << BIT_SHIFT_SYS_EEROM_LDO_PAR_07_04))) | BIT_SYS_EEROM_LDO_PAR_07_04(6)); // & 0xF0FFFFFF | 0x6000000
+	HAL_SYS_CTRL_WRITE32(REG_SYS_XTAL_CTRL1,
+			(HAL_SYS_CTRL_READ32(REG_SYS_XTAL_CTRL1) & (~(BIT_MASK_SYS_XTAL_DRV_RF1 << BIT_SHIFT_SYS_XTAL_DRV_RF1))) | BIT_SYS_XTAL_DRV_RF1(1)); //  & 0xFFFFFFE7 | 8;
+	//----- SDIO_Device_Off
+	HAL_PERI_ON_WRITE32(REG_PESOC_HCI_CLK_CTRL0,
+			HAL_PERI_ON_READ32(REG_PESOC_HCI_CLK_CTRL0) & (~BIT_SOC_ACTCK_SDIO_DEV_EN));
+	HAL_PERI_ON_WRITE32(REG_SOC_HCI_COM_FUNC_EN,
+			HAL_PERI_ON_READ32(REG_SOC_HCI_COM_FUNC_EN) & (~(BIT_SOC_HCI_SDIOD_ON_EN | BIT_SOC_HCI_SDIOD_OFF_EN)));
+	HAL_PERI_ON_WRITE32(REG_HCI_PINMUX_CTRL,
+			HAL_PERI_ON_READ32(REG_HCI_PINMUX_CTRL) & (~(BIT_HCI_SDIOD_PIN_EN)));
+	//----- GPIO Adapter
+	extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
+	_memset(&gBoot_Gpio_Adapter, 0, sizeof(gBoot_Gpio_Adapter));
+	_pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
+#ifdef DEFAULT_BOOT_CLK_CPU
+	//----- CLK CPU
+	loguart_wait_tx_fifo_empty(); //	иначе глючит LogUART, если переключение CLK приходится на вывод символов !
+#if	DEFAULT_BOOT_CPU_CLOCK_SEL_DIV5_3
+	// 6 - 200000000 Hz, 7 - 10000000 Hz, 8 - 50000000 Hz, 9 - 25000000 Hz, 10 - 12500000 Hz, 11 - 4000000 Hz
+	HalCpuClkConfig(DEFAULT_BOOT_CPU_CLOCK_SEL_VALUE);
+	*((int *)(SYSTEM_CTRL_BASE+REG_SYS_SYSPLL_CTRL1)) |= (1<<17);// REG_SYS_SYSPLL_CTRL1 |= BIT_SYS_SYSPLL_DIV5_3
+#else
+	// 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000 Hz
+	*((int *) (SYSTEM_CTRL_BASE + REG_SYS_SYSPLL_CTRL1)) &= ~(1 << 17); // REG_SYS_SYSPLL_CTRL1 &= ~BIT_SYS_SYSPLL_DIV5_3
+	HalCpuClkConfig(DEFAULT_BOOT_CPU_CLOCK_SEL_VALUE);
+#endif // CPU_CLOCK_SEL_DIV5_3
+#endif // DEFAULT_CLK_CPU
+	//----- System
 	VectorTableInitRtl8195A(STACK_TOP);	// 0x1FFFFFFC
-	HalInitPlatformLogUartV02();
+	HalInitPlatformLogUartV02(); // Show "<RTL8195A>"... :(
 	HalInitPlatformTimerV02();
 	__asm__ __volatile__ ("cpsie f\n");
-	//	SdrPowerOff();
-	SDR_PIN_FCTRL(OFF);
-	LDO25M_CTRL(OFF);
-	HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN,
-			HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21));
-
-	SpicInitRtl8195AV02(1, 0); // StartupSpicBaudRate InitBaudRate 1, SpicBitMode 1 StartupSpicBitMode
-	EnterImage15();
 }
 
 /*-------------------------------------------------------------------------------------
@@ -265,7 +327,9 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION load_segs(uint32 faddr, PIMG2HEAD hdr,
 	uint8 segnum = 0;
 	while (1) {
 		uint32 seg_id = get_seg_id(hdr->seg.ldaddr, hdr->seg.size);
-		if (flgload && (seg_id == SEG_ID_SRAM || seg_id == SEG_ID_TCM)) {
+		if (flgload
+				&& (seg_id == SEG_ID_SRAM || seg_id == SEG_ID_TCM
+						|| seg_id == SEG_ID_SDRAM)) {
 #if CONFIG_DEBUG_LOG > 1
 			DBG_8195A("Load Flash seg%d: 0x%08x -> %s: 0x%08x, size: %d\n",
 					segnum, faddr, txt_tab_seg[seg_id], hdr->seg.ldaddr,
@@ -327,10 +391,7 @@ LOCAL int BOOT_RAM_TEXT_SECTION loadUserImges(int imgnum) {
 	};
 	return imagenum;
 }
-;
 
-extern PHAL_GPIO_ADAPTER _pHAL_Gpio_Adapter;
-extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
 //----- IsForceLoadDefaultImg2
 LOCAL uint8 BOOT_RAM_TEXT_SECTION IsForceLoadDefaultImg2(void) {
 	uint8 gpio_pin[4];
@@ -338,7 +399,7 @@ LOCAL uint8 BOOT_RAM_TEXT_SECTION IsForceLoadDefaultImg2(void) {
 	HAL_GPIO_PIN_STATE flg;
 	int result = 0;
 	flashcpy(FLASH_SYSTEM_DATA_ADDR + 0x08, &gpio_pin, sizeof(gpio_pin)); // config data + 8
-	_pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
+//	_pHAL_Gpio_Adapter = &gBoot_Gpio_Adapter;
 	for (int i = 1; i; i--) {
 		uint8 x = gpio_pin[i];
 		result <<= 1;
@@ -358,29 +419,112 @@ LOCAL uint8 BOOT_RAM_TEXT_SECTION IsForceLoadDefaultImg2(void) {
 			HAL_GPIO_DeInit_8195a(&GPIO_Pin);
 		}
 	}
-	_pHAL_Gpio_Adapter->IrqHandle.IrqFun = NULL;
+//	_pHAL_Gpio_Adapter->IrqHandle.IrqFun = NULL;
 	return result;
 }
 
-LOCAL void BOOT_RAM_TEXT_SECTION RtlBootToFlash(void) {
+/* RTL Console ROM */
+LOCAL void BOOT_RAM_TEXT_SECTION RtlConsolRam(void) {
+//	DiagPrintf("\r\nRTL Console ROM\r\n");
+	pUartLogCtl->pTmpLogBuf->UARTLogBuf[0] = '?';
+	pUartLogCtl->pTmpLogBuf->BufCount = 1;
+	pUartLogCtl->ExecuteCmd = 1;
+	RtlConsolTaskRom(pUartLogCtl);
+}
 
-	JtagOn(); /* JTAG On */
-	SetDebugFlgs();
-	DBG_8195A("===== Enter FLASH-Boot ====\n");
-	if (HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & (1 << BIT_SOC_FLASH_EN)) {
-		SPI_FLASH_PIN_FCTRL(ON);
-		/*
-		 if(!SpicCmpDataForCalibrationRtl8195A()) {
-		 DBG_8195A("ReInit Spic DIO...\n");
-		 SpicInitRtl8195AV02(1, SpicDualBitMode);
-		 }
-		 */
-		loadUserImges(IsForceLoadDefaultImg2() + 1);
+/* Enter Image 1.5 */
+LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
+
+	if (flg)
+		_memset(&__rom_bss_start__, 0, &__rom_bss_end__ - &__rom_bss_start__);
+
+	SYSPlatformInit();
+
+	if (!flg)
+		DBG_8195A("\r===== Enter FLASH-Boot ====\n");
+	else
+		DBG_8195A("\r===== Enter SRAM-Boot %d ====\n", flg);
+
+#if CONFIG_DEBUG_LOG > 2
+	DBG_8195A("CPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(),
+			HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
+#endif
+	uint8 ChipId = _Get_ChipId();
+	if (ChipId < CHIP_ID_8195AM) {
+		//----- SDRAM Off
+		SDR_PIN_FCTRL(OFF);
+		LDO25M_CTRL(OFF);
+		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Off
+	} else {
+		//----- SDRAM On
+		LDO25M_CTRL(ON);
+		HAL_SYS_CTRL_WRITE32(REG_SYS_REGU_CTRL0,
+				(HAL_SYS_CTRL_READ32(REG_SYS_REGU_CTRL0) & 0xfffff) | BIT_SYS_REGU_LDO25M_ADJ(0x0e));
+		SDR_PIN_FCTRL(ON);
 	};
-	if (_strcmp((const char *) &__image2_validate_code__, IMG2_SIGN_TXT)) {
-		DBG_8195A("Invalid Image Signature!\n");
+	SPI_FLASH_PIN_FCTRL(ON);
+	*(uint32 *)(&SpicInitParaAllClk[0][0].BaudRate) = 0x1311301; // patch
+	*(uint32 *)(&SpicInitParaAllClk[1][0].BaudRate) = 0x1311301; // patch
+	SpicInitRtl8195AV02(CPU_CLK_TYPE_NO - 1 - ((HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL1) >> 4) & 7),
+			SpicDualBitMode);
+	if (!SpicCmpDataForCalibrationRtl8195A()) {
+		DBG_8195A("Error Init Spic DIO!\n");
 		RtlConsolRam();
-	} else
-		DBG_8195A("Go @ 0x%08x\r\n", __image2_entry_func__);
+	}
+	if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // уже загружена?
+//		extern DRAM_DEVICE_INFO SdrDramInfo_rom;  // 50 MHz
+		if (!SdrControllerInit_rom(&SdrDramInfo)) { // 100 MHz
+			DBG_8195A("SDR Controller Init fail!\n");
+			RtlConsolRam();
+		}
+#if 0 // Test SDRAM
+		else {
+			uint32 *ptr = SDR_SDRAM_BASE;
+			uint32 tt = 0x55AA55AA;
+			for (int i = 0; i < 512 * 1024; i++) {
+				ptr[i] = tt++;
+			};
+			tt = 0x55AA55AA;
+			for (int i = 0; i < 512 * 1024; i++) {
+				if (ptr[i] != tt) {
+					DBG_8195A("SDR err %p %p != %p!\n", &ptr[i], ptr[i], tt);
+					RtlConsolRam();
+				}
+				tt++;
+			};
+			DBG_8195A("SDR tst end\n");
+		};
+#endif // test
+		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21));
+	};
+	if (!flg)
+		loadUserImges(IsForceLoadDefaultImg2() + 1);
+	if (_strcmp((const char *) &__image2_validate_code__, IMG2_SIGN_TXT)) {
+		DBG_MISC_ERR("Invalid Image Signature!\n");
+		RtlConsolRam();
+	}
+	DBG_8195A("Img Sign: %s, Go @ 0x%08x\r\n", &__image2_validate_code__,
+			__image2_entry_func__);
 	__image2_entry_func__();
+}
+
+/* RtlBootToSram */
+LOCAL void BOOT_RAM_TEXT_SECTION RtlBoot1ToSram(void) {
+	EnterImage15(1);
+}
+/* RtlBootToSram */
+LOCAL void BOOT_RAM_TEXT_SECTION RtlBoot2ToSram(void) {
+	EnterImage15(2);
+}
+/* RtlBootToSram */
+LOCAL void BOOT_RAM_TEXT_SECTION RtlBoot3ToSram(void) {
+	EnterImage15(3);
+}
+/* RtlBootToSram */
+LOCAL void BOOT_RAM_TEXT_SECTION RtlBoot4ToSram(void) {
+	EnterImage15(4);
+}
+
+LOCAL void BOOT_RAM_TEXT_SECTION RtlBootToFlash(void) {
+	EnterImage15(0);
 }

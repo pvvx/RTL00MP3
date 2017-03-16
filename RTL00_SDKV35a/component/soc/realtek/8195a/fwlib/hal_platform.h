@@ -7,7 +7,6 @@
  *  possession or use of this module requires written permission of RealTek.
  */
 
-
 #ifndef _HAL_PLATFORM_
 #define _HAL_PLATFORM_
 
@@ -15,7 +14,6 @@
 #define ROMINFORMATION (ROMVERSION)
 
 #define SYSTEM_CLK                  PLATFORM_CLOCK
-
 
 #define PERIPHERAL_IRQ_STATUS       0x04
 #define PERIPHERAL_IRQ_MODE         0x08
