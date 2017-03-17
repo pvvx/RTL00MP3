@@ -38,8 +38,7 @@ INFRA_RAM_BSS_SECTION u32 _rand_z4, _rand_z3, _rand_z2, _rand_z1, _rand_first; /
 MON_RAM_BSS_SECTION	u8 *ArgvArray[MAX_ARGV]; // 100006AC *ArgvArray[10] !
 MON_RAM_BSS_SECTION u8 UartLogHistoryBuf[UART_LOG_HISTORY_LEN][UART_LOG_CMD_BUFLEN]; // 10000430 UartLogHistoryBuf[5][127] !
 MON_RAM_BSS_SECTION volatile UART_LOG_CTL UartLogCtl; // 10000408
-/*
-= {
+/* = {
 		.NewIdx = 0,
 		.SeeIdx = 0,
 		.RevdNo  = UART_LOG_HISTORY_LEN,
@@ -53,11 +52,10 @@ MON_RAM_BSS_SECTION volatile UART_LOG_CTL UartLogCtl; // 10000408
 		.pCmdTbl = (PCOMMAND_TABLE) &UartLogRomCmdTable,
 		.CmdTblSz = 6,
 		.CRSTS = 0,
-		.pHistoryBuf = UartLogHistoryBuf,
+		.pHistoryBuf = &UartLogHistoryBuf,
 		.TaskRdy = 0
 //		.Sema
-};
-*/
+}; */
 MON_RAM_BSS_SECTION UART_LOG_BUF			UartLogBuf;		// 10000388
 MON_RAM_BSS_SECTION volatile UART_LOG_CTL	*pUartLogCtl = &UartLogCtl;	// 10000384
 /* ROM + LIB C */

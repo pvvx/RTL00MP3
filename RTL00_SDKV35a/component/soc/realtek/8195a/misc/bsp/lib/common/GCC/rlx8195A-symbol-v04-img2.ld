@@ -76,7 +76,7 @@ SECTIONS
 		KEEP(*(.hal.flash.data))
 		KEEP(*(.boot.rodata*))
 		KEEP(*(.boot.text*))
-		KEEP(*(.boot.data))
+		KEEP(*(.boot.data*))
 	    __image1_bss_start__ = .;
 		KEEP(*(.boot.bss*))
 	    __image1_bss_end__ = .;

@@ -187,7 +187,8 @@ char i2sSetRate(int mask, int rate) {
 //at least the current sample rate. You can also call it quicker: it will suspend the calling
 //thread if the buffer is full and resume when there's room again.
 u32 i2sPushPWMSamples(u32 sample) {
-	for(int i = 0; i < MAX_I2S_OBJS; i++) {
+	int i;
+	for(i = 0; i < MAX_I2S_OBJS; i++) {
 		PI2S_OBJS pi2s_cur = pi2s[i];
 		PHAL_I2S_ADAPTER I2SAdapter = &pi2s_cur->i2s_obj.I2SAdapter;
 		while(pi2s_cur->currDMABuff == NULL){
@@ -242,7 +243,7 @@ u32 i2sPushPWMSamples(u32 sample) {
 		pi2s_cur->currDMABuffPos += 4;
 	}
 	portENTER_CRITICAL();
-	for(int i = 0; i < MAX_I2S_OBJS; i++) {
+	for(i = 0; i < MAX_I2S_OBJS; i++) {
 		PI2S_OBJS pi2s_cur = pi2s[i];
 		if (pi2s_cur->currDMABuffPos > pi2s_cur->i2s_obj.InitDat.I2SPageSize) {
 #if USE_RTL_I2S_API

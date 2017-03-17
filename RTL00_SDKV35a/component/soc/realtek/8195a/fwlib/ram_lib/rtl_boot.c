@@ -1,5 +1,5 @@
 /* 
- *  BootLoader
+ *  BootLoader Ver 0.2
  *  Created on: 12/02/2017
  *      Author: pvvx
  */
@@ -8,6 +8,8 @@
 #include "rtl_bios_data.h"
 #include "diag.h"
 #include "rtl8195a/rtl8195a_sys_on.h"
+
+#include "hal_spi_flash.h"
 
 //-------------------------------------------------------------------------
 // Data declarations
@@ -29,12 +31,6 @@
 #endif // DEFAULT_BOOT_CLK_CPU
 
 #define BOOT_RAM_TEXT_SECTION // __attribute__((section(".boot.text")))
-//#define BOOT_RAM_RODATA_SECTION __attribute__((section(".boot.rodata")))
-//#define BOOT_RAM_DATA_SECTION __attribute__((section(".boot.data")))
-//#define BOOT_RAM_BSS_SECTION __attribute__((section(".boot.bss")))
-
-//extern u32 STACK_TOP;
-//extern volatile UART_LOG_CTL * pUartLogCtl;
 
 //-------------------------------------------------------------------------
 typedef struct _seg_header {
@@ -61,16 +57,18 @@ LOCAL void RtlBoot1ToSram(void); // image1
 LOCAL void RtlBoot2ToSram(void); // image1
 LOCAL void RtlBoot3ToSram(void); // image1
 LOCAL void RtlBoot4ToSram(void); // image1
-//LOCAL void EnterImage15(void); // image1
-//LOCAL void JtagOn(void); // image1
 
-//extern _LONG_CALL_ VOID HalCpuClkConfig(unsigned char CpuType);
+extern _LONG_CALL_ VOID HalCpuClkConfig(unsigned char CpuType);
 extern _LONG_CALL_ VOID VectorTableInitRtl8195A(u32 StackP);
 extern _LONG_CALL_ VOID HalInitPlatformLogUartV02(VOID);
 extern _LONG_CALL_ VOID HalInitPlatformTimerV02(VOID);
 //extern _LONG_CALL_ VOID DramInit_rom(IN DRAM_DEVICE_INFO *DramInfo);
 //extern _LONG_CALL_ u32 SdrCalibration_rom(VOID);
 extern _LONG_CALL_ int SdrControllerInit_rom(PDRAM_DEVICE_INFO pDramInfo);
+extern _LONG_CALL_ u32 SpicCmpDataForCalibrationRtl8195A(void); // compare read_data and golden_data
+//extern _LONG_CALL_ VOID SpicWaitWipDoneRtl8195A(SPIC_INIT_PARA SpicInitPara);		// wait spi-flash status register[0] = 0
+//extern _LONG_CALL_ VOID SpicLoadInitParaFromClockRtl8195A(u8 CpuClkMode, u8 BaudRate, PSPIC_INIT_PARA pSpicInitPara);
+//extern _LONG_CALL_ VOID RtlConsolInit(IN u32 Boot, IN u32 TBLSz, IN VOID *pTBL);
 
 //#pragma arm section code = ".boot.text";
 //#pragma arm section rodata = ".boot.rodata", rwdata = ".boot.data", zidata = ".boot.bss";
@@ -85,8 +83,6 @@ START_RAM_FUN_SECTION RAM_FUNCTION_START_TABLE __ram_start_table_start__ = {
 		RtlBoot2ToSram + 1,	// PatchFun0(), Run if ( v40000210 & 0x10000000 )
 		RtlBoot3ToSram + 1,	// PatchFun1(), Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x8000000 )
 		RtlBoot4ToSram + 1 };// PatchFun2(), Run for Init console, if ( v40000210 & 0x4000000 )
-//test		RtlBootToFlash + 1 };// PatchFun2(), Run for Init console, if ( v40000210 & 0x4000000 )
-
 //-------------------------------------------------------------------------
 /* Set Debug Flags */
 LOCAL void BOOT_RAM_TEXT_SECTION SetDebugFlgs() {
@@ -150,30 +146,144 @@ LOCAL void INFRA_START_SECTION loguart_wait_tx_fifo_empty(void) {
 }
 
 extern SPIC_INIT_PARA SpicInitParaAllClk[SpicMaxMode][CPU_CLK_TYPE_NO]; // 100021ec [144=0x90]
-/*
- LOCAL uint32 _SpicInitParaAllClk[SpicMaxMode * CPU_CLK_TYPE_NO] = {
- 0x01310202, 0x011420C2,
- 0x03310002, 0x011420C2,
- 0x05310002, 0x011420C2,
- 0x07310002, 0x011420C2,
- 0x09310002, 0x011420C2,
- 0x0B310002, 0x011420C2,
+LOCAL uint32 InitTabParaAllClk[3 * CPU_CLK_TYPE_NO] = {
+		// SIO
+		0x01310102,	// 72t/byte
+		0x03310101, // 0201 - 40t, 0101 - 39t, 0102 - 72t, 0103 - 104t
+		0x05310001, // 39t
+		0x07310001,
+		0x09310001,
+		0x0B310001,
+		// DIO
+		0x11311301,	// BaudRate = 1, RdDummyCyle = 19, DelayLine = 63, DIO
+		0x13311201, // 1201 - 36t
+		0x15311101, // 1101 - 35t
+		0x17311101,
+		0x19311101,
+		0x1B311101
+		// QIO
+/* MXIC Flash only DIO!
+		0x21311301,	// BaudRate = 1, RdDummyCyle = 19, DelayLine = 63, DIO
+		0x23311201, // 1201 - 36t
+		0x25311101, // 1101 - 35t
+		0x27311101,
+		0x29311101,
+		0x2B311101
+*/
+};
 
- 0x11311301, 0x011420C2,
- 0x13311201, 0x011420C2,
- 0x15311101, 0x011420C2,
- 0x17311101, 0x011420C2,
- 0x19311101, 0x011420C2,
- 0x1B311101, 0x011420C2,
+struct spic_table_flash_type {
+	uint8	cmd[12];
+	uint8 	strlr2;
+	uint8 	fbaud;
+	uint8 	addrlen;
+	uint8 	fsize;
+	uint32	contrl;
+	uint16 	validcmd[3];
+	uint8	manufacturerid;
+	uint8	memorytype;
+};
 
- 0x21311301, 0x011420C2,
- 0x23311201, 0x011420C2,
- 0x25311101, 0x011420C2,
- 0x27311101, 0x011420C2,
- 0x29311101, 0x011420C2,
- 0x2B311101, 0x011420C2
- };
- */
+//PSPIC_INIT_PARA pSpicInitPara;
+
+struct spic_table_flash_type spic_table_flash = {
+	{	// for FLASH MX25L8006E/1606E
+	 	FLASH_CMD_FREAD,	// REG_SPIC_READ_FAST_SINGLE 		0x400060E0 0x0B
+		FLASH_CMD_DREAD,	// REG_SPIC_READ_DUAL_DATA 			0x400060E4 0x3B
+		FLASH_CMD_DREAD,   	// REG_SPIC_READ_DUAL_ADDR_DATA 	0x400060E8 0x3B ?
+		FLASH_CMD_QREAD,   	// REG_SPIC_READ_QUAD_DATA 			0x400060EC 0x6B
+		FLASH_CMD_4READ,	// REG_SPIC_READ_QUAD_ADDR_DATA 	0x400060F0 0xEB ?
+		FLASH_CMD_PP,   	// REG_SPIC_WRITE_SIGNLE 			0x400060F4 0x02
+		FLASH_CMD_DPP,   	// REG_SPIC_WRITE_DUAL_DATA 		0x400060F8 0xA2
+		FLASH_CMD_DPP,		// REG_SPIC_WRITE_DUAL_ADDR_DATA 	0x400060FC 0xA2 ?
+		FLASH_CMD_QPP,   	// REG_SPIC_WRITE_QUAD_DATA 		0x40006100 0x32
+		FLASH_CMD_4PP,   	// REG_SPIC_WRITE_QUAD_ADDR_DATA 	0x40006104 0x38
+		FLASH_CMD_WREN,   	// REG_SPIC_WRITE_ENABLE 			0x40006108 0x06
+		FLASH_CMD_RDSR   	// REG_SPIC_READ_STATUS 			0x4000610C 0x05
+	},
+		BIT_FIFO_ENTRY(5) | BIT_SO_DUM,	// REG_SPIC_CTRLR2 		0x40006110 0x51
+		BIT_FSCKDV(1),   				// REG_SPIC_FBAUDR 		0x40006114 0x01
+		BIT_ADDR_PHASE_LENGTH(3),		// REG_SPIC_ADDR_LENGTH 0x40006118 0x03
+		BIT_FLASE_SIZE(0x0F),			// REG_SPIC_FLASE_SIZE	0x40006124 0x0E ?
+	    BIT_CS_H_WR_DUM_LEN(2)| BIT_AUTO_ADDR__LENGTH(3) | BIT_RD_DUMMY_LENGTH(0x0), // REG_SPIC_AUTO_LENGTH 0x4000611C 0x20030001 ?
+	{
+		BIT_WR_BLOCKING, 	// REG_SPIC_VALID_CMD	0x40006120 0x200 SpicOneBitMode
+		BIT_WR_BLOCKING | BIT_RD_DUAL_I, 	// REG_SPIC_VALID_CMD	0x40006120 0x200 SpicOneBitMode
+		BIT_WR_BLOCKING | BIT_RD_QUAD_O, 	// REG_SPIC_VALID_CMD	0x40006120 0x200 SpicOneBitMode
+	},
+		0xC2, 0x20 // MX25L8006/MX25L1606
+};
+
+LOCAL int BOOT_RAM_TEXT_SECTION SetSpicBitMode(uint8 BitMode) {
+	PSPIC_INIT_PARA pspic = &SpicInitParaAllClk[BitMode][((HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL1) >> 4) & 7)];
+	if(pspic->Mode.Valid) {
+	    // Disable SPI_FLASH User Mode
+	    HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0);
+		HAL_SPI_WRITE32(REG_SPIC_VALID_CMD, spic_table_flash.validcmd[pspic->Mode.BitMode]);
+		HAL_SPI_WRITE32(REG_SPIC_AUTO_LENGTH, (HAL_SPI_READ32(REG_SPIC_AUTO_LENGTH) & 0xFFFF0000) | pspic->RdDummyCyle);
+		HAL_SPI_WRITE32(REG_SPIC_BAUDR, pspic->BaudRate);
+		FLASH_DDL_FCTRL(pspic->DelayLine);	 		// SPI_DLY_CTRL_ADDR [7:0]
+		// Enable SPI_FLASH  User Mode
+	    HAL_SPI_WRITE32(REG_SPIC_SSIENR, BIT_SPIC_EN);
+	}
+	SPI_FLASH_PIN_FCTRL(ON);
+    // Test Read Pattern
+    if(!SpicCmpDataForCalibrationRtl8195A()) {
+    	FLASH_DDL_FCTRL(0x31);	 		// SPI_DLY_CTRL_ADDR [7:0]
+    	for(uint8 i = 1; i < 4; i++) {
+    		for(uint8 x = 0; x < 63; x++) {
+    			// Disable SPI_FLASH User Mode
+    		    HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0);
+    			HAL_SPI_WRITE32(REG_SPIC_AUTO_LENGTH, (HAL_SPI_READ32(REG_SPIC_AUTO_LENGTH) & 0xFFFF0000) | x);
+    			HAL_SPI_WRITE32(REG_SPIC_BAUDR, i);
+    		    // Enable SPI_FLASH  User Mode
+    		    HAL_SPI_WRITE32(REG_SPIC_SSIENR, BIT_SPIC_EN);
+//    	    	HAL_SPI_WRITE32(REG_SPIC_FLUSH_FIFO, 1);
+    	    	if(SpicCmpDataForCalibrationRtl8195A()) {
+    	    		DiagPrintf("Spic reinit %d:%d\n", i, x);
+    	    		pspic->BaudRate = i;
+    	    		pspic->RdDummyCyle = x;
+    	    		pspic->DelayLine = 0x31;
+    	    		pspic->Mode.Valid = 1;
+    	    	    return 1;
+    	    	};
+   	    	};
+		};
+	    return 0;
+	};
+    return 1;
+}
+
+void BOOT_RAM_TEXT_SECTION InitSpicFlashType(struct spic_table_flash_type *ptable_flash) {
+	u8 * ptrb = &ptable_flash->cmd;
+	volatile u32 * ptrreg = (volatile u32 *)(SPI_FLASH_CTRL_BASE + REG_SPIC_READ_FAST_SINGLE);// 0x400060E0
+    HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0); // Disable SPI_FLASH User Mode
+	do	{
+		*ptrreg++ = *ptrb++;
+	} while(ptrb < (u8 *)(&ptable_flash->fsize));
+	ptrreg[0] = ptable_flash->contrl;
+	ptrreg[1] = ptable_flash->validcmd[SpicOneBitMode];
+	ptrreg[2] = ptable_flash->fsize;
+    HAL_SPI_WRITE32(REG_SPIC_SER, BIT_SER);
+}
+
+LOCAL int BOOT_RAM_TEXT_SECTION InitSpic(uint8 SpicBitMode) {
+	_memset(SpicInitParaAllClk, 0, sizeof(SpicInitParaAllClk));
+	uint32 * ptr = InitTabParaAllClk;
+	uint8 x;
+	for(x = 0; x < SpicMaxMode; x++) {
+		*(uint32 *)&SpicInitParaAllClk[SpicOneBitMode][x].BaudRate = ptr[0];
+		*(uint32 *)&SpicInitParaAllClk[SpicDualBitMode][x].BaudRate = ptr[CPU_CLK_TYPE_NO];
+		*(uint32 *)&SpicInitParaAllClk[SpicQuadBitMode][x].BaudRate = ptr[CPU_CLK_TYPE_NO];
+		ptr++;
+	}
+	ACTCK_FLASH_CCTRL(1);
+    SLPCK_FLASH_CCTRL(1);
+    HalPinCtrlRtl8195A(SPI_FLASH, 0, 1);
+    InitSpicFlashType(&spic_table_flash);
+    return SetSpicBitMode(SpicBitMode);
+}
+
 
 /* SYSPlatformInit */
 LOCAL void INFRA_START_SECTION SYSPlatformInit(void) {
@@ -422,10 +532,12 @@ LOCAL uint8 BOOT_RAM_TEXT_SECTION IsForceLoadDefaultImg2(void) {
 //	_pHAL_Gpio_Adapter->IrqHandle.IrqFun = NULL;
 	return result;
 }
-
 /* RTL Console ROM */
 LOCAL void BOOT_RAM_TEXT_SECTION RtlConsolRam(void) {
 //	DiagPrintf("\r\nRTL Console ROM\r\n");
+//	RtlConsolInit(ROM_STAGE, (u32) 6, (void*) &UartLogRomCmdTable);
+	pUartLogCtl->RevdNo = UART_LOG_HISTORY_LEN;
+	pUartLogCtl->BootRdy = 1;
 	pUartLogCtl->pTmpLogBuf->UARTLogBuf[0] = '?';
 	pUartLogCtl->pTmpLogBuf->BufCount = 1;
 	pUartLogCtl->ExecuteCmd = 1;
@@ -445,7 +557,7 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 	else
 		DBG_8195A("\r===== Enter SRAM-Boot %d ====\n", flg);
 
-#if CONFIG_DEBUG_LOG > 2
+#if CONFIG_DEBUG_LOG > 1
 	DBG_8195A("CPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(),
 			HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
 #endif
@@ -462,15 +574,10 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 				(HAL_SYS_CTRL_READ32(REG_SYS_REGU_CTRL0) & 0xfffff) | BIT_SYS_REGU_LDO25M_ADJ(0x0e));
 		SDR_PIN_FCTRL(ON);
 	};
-	SPI_FLASH_PIN_FCTRL(ON);
-	*(uint32 *)(&SpicInitParaAllClk[0][0].BaudRate) = 0x1311301; // patch
-	*(uint32 *)(&SpicInitParaAllClk[1][0].BaudRate) = 0x1311301; // patch
-	SpicInitRtl8195AV02(CPU_CLK_TYPE_NO - 1 - ((HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL1) >> 4) & 7),
-			SpicDualBitMode);
-	if (!SpicCmpDataForCalibrationRtl8195A()) {
-		DBG_8195A("Error Init Spic DIO!\n");
+	if (!InitSpic(SpicDualBitMode)) {
+		DBG_8195A("Spic Init Error!\n");
 		RtlConsolRam();
-	}
+	};
 	if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // уже загружена?
 //		extern DRAM_DEVICE_INFO SdrDramInfo_rom;  // 50 MHz
 		if (!SdrControllerInit_rom(&SdrDramInfo)) { // 100 MHz
@@ -500,7 +607,7 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 	if (!flg)
 		loadUserImges(IsForceLoadDefaultImg2() + 1);
 	if (_strcmp((const char *) &__image2_validate_code__, IMG2_SIGN_TXT)) {
-		DBG_MISC_ERR("Invalid Image Signature!\n");
+		DBG_8195A("Invalid Image Signature!\n");
 		RtlConsolRam();
 	}
 	DBG_8195A("Img Sign: %s, Go @ 0x%08x\r\n", &__image2_validate_code__,

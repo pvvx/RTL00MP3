@@ -75,6 +75,7 @@ void INFRA_START_SECTION SYSPlatformInit(void) {
 			(HAL_SYS_CTRL_READ32(REG_SYS_XTAL_CTRL1)
 			& (~(BIT_MASK_SYS_XTAL_DRV_RF1 << BIT_SHIFT_SYS_XTAL_DRV_RF1)))
 			| BIT_SYS_XTAL_DRV_RF1(1)); //  & 0xFFFFFFE7 | 8;
+/*
 	if(HalGetCpuClk() != PLATFORM_CLOCK) {
 		//----- CLK CPU
 		loguart_wait_tx_fifo_empty(); //	иначе глючит LogUART, если переключение CLK приходится на вывод символов !
@@ -92,6 +93,7 @@ void INFRA_START_SECTION SYSPlatformInit(void) {
 		HalInitPlatformLogUartV02(); // Show "<RTL8195A>"... :(
 		HalInitPlatformTimerV02();
 	};
+*/
 }
 
 //----- SDIO_Device_Off
@@ -151,11 +153,15 @@ extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
 #if	CONFIG_DEBUG_LOG > 2
 	DBG_8195A("\rCPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(), HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
 #endif
-	_memset(SpicInitParaAllClk, 0, sizeof(SpicInitParaAllClk));
-	*(uint32 *)(&SpicInitParaAllClk[0][0].BaudRate) = 0x1311301; // patch
-	*(uint32 *)(&SpicInitParaAllClk[1][0].BaudRate) = 0x1311301; // patch
+//	_memset(SpicInitParaAllClk, 0, sizeof(SpicInitParaAllClk));
+	*(uint32 *)(&SpicInitParaAllClk[0][0].BaudRate) = 0x01310202; // patch
+	*(uint32 *)(&SpicInitParaAllClk[1][0].BaudRate) = 0x11311301; // patch
+//	*(uint32 *)(&SpicInitParaAllClk[2][0].BaudRate) = 0x21311301; // patch
 	SPI_FLASH_PIN_FCTRL(ON);
-	uint8 SpicBaudRate = CPU_CLK_TYPE_NO - 1 - ((HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL1) >> 4) & 7);
+/*
+//	uint8 SpicBaudRate = CPU_CLK_TYPE_NO - 1 - ((HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL1) >> 4) & 7);
+	uint8 SpicBaudRate = 3; // HAL_SYS_CTRL_READ32(REG_SYS_CLK_CTRL1) >> 4) & 7;
+	DBG_8195A("SpicBaudRate = %d\n", SpicBaudRate);
 	SpicInitRtl8195AV02(SpicBaudRate, SpicDualBitMode);
 	if(!SpicCmpDataForCalibrationRtl8195A()) {
 			DBG_8195A("ReInit Spic to SIO...\n");
@@ -164,7 +170,8 @@ extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
 				DBG_8195A("Error Init Spic!\n");
 			};
 	};
-	SpicFlashInitRtl8195A(SpicDualBitMode); //	SpicReadIDRtl8195A(); SpicDualBitMode
+*/
+//	SpicFlashInitRtl8195A(SpicDualBitMode); //	SpicReadIDRtl8195A(); SpicDualBitMode
 	uint8 ChipId = HalGetChipId();
 	if (ChipId >= CHIP_ID_8195AM) {
 #ifdef CONFIG_SDR_EN
