@@ -10,30 +10,31 @@
 
 //-------------------------------------------------------------------------
 // Function declarations
-
-//void rtl_libc_init();
-//int rtl_snprintf(char *str, size_t size, const char *fmt, ...);
-//int rtl_sprintf(char *str, const char *fmt, ...);
-//int rtl_printf(const char *fmt, ...);
-//int rtl_vprintf(const char *fmt, void *param);
-//int rtl_vsnprintf(char *str, size_t size, const char *fmt, void *param);
-//int rtl_vfprintf(FILE *fp, const char *fmt0, va_list ap);
-//int rtl_memchr(const void *src_void, int c, size_t length);
-//int rtl_memcmp(const void *m1, const void *m2, size_t n);
-//int rtl_memcpy(void *dst0, const void *src0, size_t len0);
-//int rtl_memmove(void *dst_void, const void *src_void, size_t length);
-//int rtl_memset(void *m, int c, size_t n);
-//char * rtl_strcat(char *s1, const char *s2);
-//char * rtl_strchr(const char *s1, int i);
-//int rtl_strcmp(const char *s1, const char *s2);
-//char * rtl_strcpy(char *dst0, const char *src0);
-//int rtl_strlen(const char *str);
-//char * rtl_strncat(char *s1, const char *s2, size_t n);
-//int rtl_strncmp(const char *s1, const char *s2, size_t n);
-//char * rtl_strncpy(char *dst0, const char *src0, size_t count);
-//char * rtl_strstr(const char *searchee, const char *lookfor);
-//char * rtl_strsep(char **source_ptr, const char *delim);
-//char * rtl_strtok(char *s, const char *delim);
+#if 0
+void rtl_libc_init(void);
+int rtl_snprintf(char *str, size_t size, const char *fmt, ...);
+int rtl_sprintf(char *str, const char *fmt, ...);
+int rtl_printf(const char *fmt, ...);
+int rtl_vprintf(const char *fmt, void *param);
+int rtl_vsnprintf(char *str, size_t size, const char *fmt, void *param);
+int rtl_vfprintf(FILE *fp, const char *fmt0, va_list ap);
+void * rtl_memchr(const void * src_void , int c , size_t length);
+int rtl_memcmp(const void *m1, const void *m2, size_t n);
+void * rtl_memcpy(void *dst0, const void *src0, size_t len0);
+void * rtl_memmove(void *dst_void, const void *src_void, size_t length);
+void * rtl_memset(void *m, int c, size_t n);
+char * rtl_strcat(char *s1, const char *s2);
+char * rtl_strchr(const char *s1, int i);
+int rtl_strcmp(const char *s1, const char *s2);
+char * rtl_strcpy(char *dst0, const char *src0);
+size_t rtl_strlen(const char *str);
+char * rtl_strncat(char *s1, const char *s2, size_t n);
+int rtl_strncmp(const char *s1, const char *s2, size_t n);
+char * rtl_strncpy(char *dst0, const char *src0, size_t count);
+char * rtl_strstr(const char *searchee, const char *lookfor);
+char * rtl_strsep(char **source_ptr, const char *delim);
+char * rtl_strtok(char *s, const char *delim);
+#endif
 // Extern Calls:
 // extern int init_rom_libgloss_ram_map(_DWORD)
 // extern int _rom_mallocr_init_v1_00(void)
@@ -149,20 +150,20 @@ int rtl_printf(const char *fmt, ...) {
 }
 
 //----- rtl_vprintf()
-int rtl_vprintf(const char *fmt, void *param) {
+int rtl_vprintf(const char *fmt, va_list param) {
 #if CHECK_LIBC_INIT
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}
 #endif	
 	int result = __rtl_vfprintf_r_v1_00(_rtl_impure_ptr,
-			_rtl_impure_ptr->_stdout, fmt, *(va_list *)param);
+			_rtl_impure_ptr->_stdout, fmt, param);
 	__rtl_fflush_r_v1_00(_rtl_impure_ptr, _rtl_impure_ptr->_stdout);
 	return result;
 }
 
 //----- rtl_vsnprintf()
-int rtl_vsnprintf(char *str, size_t size, const char *fmt, void *param) {
+int rtl_vsnprintf(char *str, size_t size, const char *fmt, va_list param) {
 	int result;
 	int w;
 	int v11;
@@ -183,7 +184,7 @@ int rtl_vsnprintf(char *str, size_t size, const char *fmt, void *param) {
 		f._w = w;
 		f._bf._size = w;
 		f._file = -1;
-		result = __rtl_vfprintf_r_v1_00(_rtl_impure_ptr, &f, fmt, *(va_list *)param);
+		result = __rtl_vfprintf_r_v1_00(_rtl_impure_ptr, &f, fmt, param);
 		if (result + 1 < 0)
 			_rtl_impure_ptr->_errno = 139;
 		if (size)

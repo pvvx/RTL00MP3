@@ -367,38 +367,40 @@ extern int lwip_init_done;
 
 void _LwIP_Init(void)
 {
-	int idx;
-	debug_printf("LwIP Init (%d)\n", wifi_mode);
-	/* Create tcp_ip stack thread */
-	tcpip_init( NULL, NULL );
+	if(!lwip_init_done) {
+		int idx;
+		debug_printf("LwIP Init (%d)\n", wifi_mode);
+		/* Create tcp_ip stack thread */
+		tcpip_init( NULL, NULL );
 
-	chk_ap_netif_num(); // Исполняется после _wifi_on()
-	for(int idx = 0; idx < NET_IF_NUM; idx++) {
-		xnetif[idx].name[0] = 'r';
-		xnetif[idx].name[1] = '0' + idx;
+		chk_ap_netif_num(); // Исполняется после _wifi_on()
+		for(int idx = 0; idx < NET_IF_NUM; idx++) {
+			xnetif[idx].name[0] = 'r';
+			xnetif[idx].name[1] = '0' + idx;
+		}
+		netif_add(&xnetif[WLAN_ST_NETIF_NUM], (struct netif *)&wifi_st_dhcp.ip, (struct netif *)&wifi_st_dhcp.mask, (struct netif *)&wifi_st_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
+		netif_add(&xnetif[WLAN_AP_NETIF_NUM], (struct netif *)&wifi_ap_dhcp.ip, (struct netif *)&wifi_ap_dhcp.mask, (struct netif *)&wifi_ap_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
+	#if CONFIG_ETHERNET // && NET_IF_NUM > 2
+		{
+				struct ip_addr ipaddr;
+				struct ip_addr netmask;
+				struct ip_addr gw;
+				ipaddr.addr = DEF_EH_IP;
+				netmask.addr = DEF_EH_MSK;
+				gw.addr = DEF_EH_GW;
+				netif_add(&xnetif[2], &ipaddr, &netmask, &gw, NULL, &ethernetif_mii_init, &tcpip_input);
+		}
+	#endif
+		/*  Registers the default network interface. */
+		netif_set_default(&xnetif[0]);
+		/*  When the netif is fully configured this function must be called.*/
+		for(idx = 0; idx < NET_IF_NUM; idx++) {
+			netif_set_up(&xnetif[idx]);
+		}
+		info_printf("interface %d is initialized\n", idx);
+		wifi_mode = 0;
+		lwip_init_done = 1;
 	}
-	netif_add(&xnetif[WLAN_ST_NETIF_NUM], (struct netif *)&wifi_st_dhcp.ip, (struct netif *)&wifi_st_dhcp.mask, (struct netif *)&wifi_st_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
-	netif_add(&xnetif[WLAN_AP_NETIF_NUM], (struct netif *)&wifi_ap_dhcp.ip, (struct netif *)&wifi_ap_dhcp.mask, (struct netif *)&wifi_ap_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
-#if CONFIG_ETHERNET // && NET_IF_NUM > 2
-	{
-			struct ip_addr ipaddr;
-			struct ip_addr netmask;
-			struct ip_addr gw;
-			ipaddr.addr = DEF_EH_IP;
-			netmask.addr = DEF_EH_MSK;
-			gw.addr = DEF_EH_GW;
-			netif_add(&xnetif[2], &ipaddr, &netmask, &gw, NULL, &ethernetif_mii_init, &tcpip_input);
-	}
-#endif
-	/*  Registers the default network interface. */
-	netif_set_default(&xnetif[0]);
-	/*  When the netif is fully configured this function must be called.*/
-	for(idx = 0; idx < NET_IF_NUM; idx++) {
-		netif_set_up(&xnetif[idx]);
-	}
-	info_printf("interface %d is initialized\n", idx);
-	wifi_mode = 0;
-	lwip_init_done = 1;
 }
 
 int wifi_run(rtw_mode_t mode) {
@@ -406,6 +408,9 @@ int wifi_run(rtw_mode_t mode) {
 #if CONFIG_DEBUG_LOG > 4
 	debug_printf("\n%s(%d), %d\n", __func__, mode, wifi_run_mode);
 #endif
+	if(mode != RTW_MODE_NONE) {
+		_LwIP_Init();
+	};
 	if(wifi_run_mode & RTW_MODE_AP) {
 		info_printf("Deinit old AP...\n");
 		LwIP_DHCP(WLAN_AP_NETIF_NUM, DHCP_STOP);
@@ -414,12 +419,12 @@ int wifi_run(rtw_mode_t mode) {
 #endif
 		dhcps_deinit();
 		wifi_run_mode &= ~RTW_MODE_AP;
-	}
+	};
 	if(wifi_run_mode & RTW_MODE_STA) {
 		info_printf("Deinit old ST...\n");
 		LwIP_DHCP(WLAN_ST_NETIF_NUM, DHCP_STOP);
 		wifi_run_mode &= ~RTW_MODE_STA;
-	}
+	};
 //	if(mode != wifi_mode)
 //	wifi_mode = mode;
 //	chk_ap_netif_num();
@@ -469,7 +474,7 @@ error_end:
 		connect_close();
 #endif
 		wifi_off();
-	}
+	};
 	chk_ap_netif_num();
 	return ret;
 }
@@ -484,10 +489,6 @@ void wifi_init_thrd(void) {
 	p_wlan_autoreconnect_hdl = NULL;
 	if (wifi_cfg.mode != RTW_MODE_NONE) {
 		wifi_mode = wifi_cfg.mode;
-		if(!lwip_init_done) {
-		/* Initilaize the LwIP stack */
-			_LwIP_Init();
-		};
 		user_start();
 #if CONFIG_WIFI_IND_USE_THREAD
 		wifi_manager_init();

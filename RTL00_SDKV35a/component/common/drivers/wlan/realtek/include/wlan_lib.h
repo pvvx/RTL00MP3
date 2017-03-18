@@ -245,7 +245,7 @@ extern u8 rtw_cancel_timer(_timer *ptimer);
 extern BOOL rltk_get_idx_bydev(struct net_device *dev);
 extern int rltk_wlan_init(int idx_wlan, rtw_mode_t mode); 
 extern void rltk_wlan_deinit(); 
-extern void rltk_wlan_start(int idx_wlan);
+extern int rltk_wlan_start(int idx_wlan);
 extern int rltk_wlan_check_isup(int idx);
 extern void rltk_wlan_tx_inc(int idx); 
 extern void rltk_wlan_tx_dec(int idx); 

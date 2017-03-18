@@ -1,6 +1,6 @@
 # FLAGS
 # -------------------------------------------------------------------
-CFLAGS = -DM3 -DCONFIG_PLATFORM_8195A -DGCC_ARMCM3 -DARDUINO_SDK -DF_CPU=166666666L
+CFLAGS = -DM3 -DCONFIG_PLATFORM_8195A -DGCC_ARMCM3 -DARDUINO_SDK -DF_CPU=166666666L -DNDEBUG
 CFLAGS += -mcpu=cortex-m3 -mthumb -g2 -Os -std=gnu99 
 CFLAGS += -fno-common -fmessage-length=0 -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums -fsigned-char 
 CFLAGS += -w -Wno-pointer-sign    
@@ -97,8 +97,9 @@ SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/system_8195a.c
 #DRAM_C += sdk/component/common/api/at_cmd/atcmd_wifi.c
 #SRC_C += sdk/component/common/api/at_cmd/log_service.c
 #SRC_C += sdk/component/soc/realtek/8195a/misc/driver/low_level_io.c
-#SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_consol.c
+#console new/old
 SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_console_new.c
+#SRC_C += sdk/component/soc/realtek/8195a/misc/driver/rtl_consol.c
 
 #network - api
 SRC_C += sdk/component/common/api/wifi/rtw_wpa_supplicant/wpa_supplicant/wifi_eap_config.c
@@ -114,13 +115,13 @@ SRC_C += sdk/component/common/api/lwip_netconf.c
 #network - app
 #SRC_C += sdk/component/common/utilities/ssl_client.c
 #SRC_C += sdk/component/common/utilities/ssl_client_ext.c
-SRC_C += sdk/component/common/utilities/tcptest.c
-SRC_C += sdk/component/common/utilities/uart_ymodem.c
+#SRC_C += sdk/component/common/utilities/tcptest.c
+#SRC_C += sdk/component/common/utilities/uart_ymodem.c
 #SRC_C += sdk/component/common/utilities/update.c
 #SRC_C += sdk/component/common/application/uart_adapter/uart_adapter.c
 SRC_C += sdk/component/common/api/network/src/wlan_network.c
-SRC_C += sdk/component/common/api/wifi_interactive_mode.c
-SRC_C += sdk/component/common/api/network/src/ping_test.c
+#SRC_C += sdk/component/common/api/wifi_interactive_mode.c
+#SRC_C += sdk/component/common/api/network/src/ping_test.c
 
 #network - lwip
 SRC_C += sdk/component/common/network/lwip/lwip_v1.4.1/src/api/api_lib.c
@@ -160,7 +161,7 @@ SRC_C += sdk/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos/eth
 SRC_C += sdk/component/common/drivers/wlan/realtek/src/osdep/lwip_intf.c
 SRC_C += sdk/component/common/network/lwip/lwip_v1.4.1/port/realtek/freertos/sys_arch.c
 SRC_C += sdk/component/common/network/dhcp/dhcps.c
-SRC_C += sdk/component/common/network/sntp/sntp.c
+#SRC_C += sdk/component/common/network/sntp/sntp.c
 
 #network - mdns
 #SRC_C += sdk/component/common/network/mDNS/mDNSPlatform.c
@@ -330,11 +331,11 @@ DRAM_C += sdk/component/common/network/ssl/ssl_ram_map/ssl_ram_map.c
 #DRAM_C += sdk/component/common/application/wigadget/wigadget.c
 
 #utilities
-SRC_C += sdk/component/common/utilities/cJSON.c
-SRC_C += sdk/component/common/utilities/http_client.c
-SRC_C += sdk/component/common/utilities/uart_socket.c
-SRC_C += sdk/component/common/utilities/webserver.c
-SRC_C += sdk/component/common/utilities/xml.c
+#SRC_C += sdk/component/common/utilities/cJSON.c
+#SRC_C += sdk/component/common/utilities/http_client.c
+#SRC_C += sdk/component/common/utilities/uart_socket.c
+#SRC_C += sdk/component/common/utilities/webserver.c
+#SRC_C += sdk/component/common/utilities/xml.c
 
 #utilities - FatFS
 SRC_C += sdk/component/common/file_system/fatfs/fatfs_ext/src/ff_driver.c
@@ -344,10 +345,7 @@ SRC_C += sdk/component/common/file_system/fatfs/r0.10c/src/option/ccsbcs.c
 SRC_C += sdk/component/common/file_system/fatfs/disk_if/src/sdcard.c
 
 #utilities - xmodem update
-SRC_C += sdk/component/common/application/xmodem/uart_fw_update.c
-#user 
-#SRC_C += project/src/main.c
-
+#SRC_C += sdk/component/common/application/xmodem/uart_fw_update.c
 # -------------------------------------------------------------------
 # My Source file list
 # -------------------------------------------------------------------
@@ -366,10 +364,13 @@ ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_misc.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/startup.c 
 ADD_SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/flash_eep.c 
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libc.c 
-ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_pvvx_libc.c 
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libgloss_retarget.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_eabi_cast_ram.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_math_ram.c
+#if +- nostdlib..
+ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_pvvx_libc.c 
+#if c_printf() float
+#ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/c_stdio.c
 # -------------------------------------------------------------------
 # SAMPLES
 # -------------------------------------------------------------------

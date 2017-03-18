@@ -1,10 +1,27 @@
+/******************************************************************************
+ *
+ * Copyright(c) 2007 - 2012 Realtek Corporation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
+ ******************************************************************************
+ *  Wrapper provide a linux-like interface 
+ ************************************************************************/
 #ifndef __WRAPPER_H__
 #define __WRAPPER_H__
-/**************************************************************************
-  *  Wrapper provide a linux-like interface 
-  *
-  *  Copyright (c) 2013 Realtek Semiconductor Corp.
-  ************************************************************************/
+
 
 //----- ------------------------------------------------------------------
 // Include Files
@@ -13,8 +30,11 @@
 #include <string.h>
 #include "wireless.h"
 #include <skbuff.h>
+#ifdef PLATFORM_FREERTOS
 #include "freertos_service.h"
-
+#elif defined(PLATFORM_CMSIS_RTOS)
+#include "rtx_service.h"
+#endif
 #ifndef __LIST_H
 #warning "DLIST_NOT_DEFINE!!!!!!"
 //----- ------------------------------------------------------------------
@@ -392,27 +412,27 @@ struct net_device_stats {
 };
 
 struct net_device {
-	char			name[16];		//+0
-	void			*priv;			//+16 _adapter /* pointer to private data */
-	unsigned char	dev_addr[6];	//+20 /* set during bootup */
-	int (*init)(void);				//+28
-	int (*open)(struct net_device *dev);	//+32
-	int (*stop)(struct net_device *dev);	//+36
-	int (*hard_start_xmit)(struct sk_buff *skb, struct net_device *dev); //+40
-	int (*do_ioctl)(struct net_device *dev, struct iwreq *ifr, int cmd); //+44
-	struct net_device_stats* (*get_stats)(struct net_device *dev);	//+48
+	char			name[16];
+	void			*priv;		/* pointer to private data */
+	unsigned char		dev_addr[6];	/* set during bootup */
+	int (*init)(void);
+	int (*open)(struct net_device *dev);
+	int (*stop)(struct net_device *dev);
+	int (*hard_start_xmit)(struct sk_buff *skb, struct net_device *dev);
+	int (*do_ioctl)(struct net_device *dev, struct iwreq *ifr, int cmd);
+	struct net_device_stats* (*get_stats)(struct net_device *dev);
 };
 
 typedef struct {
-	struct net_device *dev;		//+0 /* Binding wlan driver netdev */
-	void *skb;					//+4 /* pending Rx packet */
-	unsigned int tx_busy;		//+8
-	unsigned int rx_busy;		//+12
-	unsigned char enable;		//+16
-	unsigned char mac[6];		//+17..23
+	struct net_device *dev;		/* Binding wlan driver netdev */
+	void *skb;			/* pending Rx packet */
+	unsigned int tx_busy;
+	unsigned int rx_busy;
+	unsigned char enable;
+	unsigned char mac[6];
 } Rltk_wlan_t;
 
-#define netdev_priv(dev)	dev->priv
+#define netdev_priv(dev)		dev->priv
 
 extern struct net_device *alloc_etherdev(int sizeof_priv);
 void free_netdev(struct net_device *dev);
@@ -424,13 +444,13 @@ int dev_alloc_name(struct net_device *net_dev, const char *ifname);
 //----- ------------------------------------------------------------------
 void init_timer(struct timer_list *timer);
 void mod_timer(struct timer_list *timer, u32 delay_time_ms);
-void cancel_timer_ex(struct timer_list * timer);
+void  cancel_timer_ex(struct timer_list * timer);
 void del_timer_sync(struct timer_list * timer);
 void init_timer_wrapper(void);
 void deinit_timer_wrapper(void);
 
 void	rtw_init_timer(_timer *ptimer, void *adapter, TIMER_FUN pfunc,void* cntx, const char *name);
-void	rtw_set_timer(_timer *ptimer, u32 delay_time);
+void	rtw_set_timer(_timer *ptimer,u32 delay_time);
 u8		rtw_cancel_timer(_timer *ptimer);
 void	rtw_del_timer(_timer *ptimer);
 

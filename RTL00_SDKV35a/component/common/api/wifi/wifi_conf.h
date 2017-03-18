@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------//
-#ifndef __WIFI_API_H
-#define __WIFI_API_H
+#ifndef __WIFI_CONF_API_H
+#define __WIFI_CONF_API_H
 
 #include "FreeRTOS.h"
 #include "wifi_constants.h"   
@@ -705,6 +705,6 @@ int wifi_remove_packet_filter(unsigned char filter_id);
   }
 #endif
 
-#endif // __WIFI_API_H
+#endif // __WIFI_CONF_API_H
 
 //----------------------------------------------------------------------------//

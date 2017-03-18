@@ -15,6 +15,7 @@ typedef enum _WIFI_EVENT_INDICATE{
 	WIFI_EVENT_DISCONNECT = 1,
 	WIFI_EVENT_FOURWAY_HANDSHAKE_DONE = 2,
 }WIFI_EVENT_INDICATE;
+rtw_event_indicate_t
 
 int wext_get_ssid(const char *ifname, __u8 *ssid);
 int wext_set_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len);

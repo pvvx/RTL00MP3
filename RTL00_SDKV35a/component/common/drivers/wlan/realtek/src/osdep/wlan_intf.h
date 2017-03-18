@@ -1,3 +1,18 @@
+/******************************************************************************
+ * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 #ifndef __WLAN_INTF_H__
 #define __WLAN_INTF_H__
 
@@ -37,15 +52,13 @@ struct sk_buff {
 */
 /************************************************************/
 
-// #include "wrapper.h"
-//extern Rltk_wlan_t rltk_wlan_info[2];
-
 //----- ------------------------------------------------------------------
 // Wlan Interface opened for upper layer
 //----- ------------------------------------------------------------------
 int rltk_wlan_init(int idx_wlan, rtw_mode_t mode);				//return 0: success. -1:fail
 void rltk_wlan_deinit(void);
-void rltk_wlan_start(int idx_wlan);
+void rltk_wlan_deinit_fastly(void);
+int rltk_wlan_start(int idx_wlan);
 void rltk_wlan_statistic(unsigned char idx);
 unsigned char rltk_wlan_running(unsigned char idx);		// interface is up. 0: interface is down
 int rltk_wlan_control(unsigned long cmd, void *data);
@@ -57,6 +70,7 @@ int rltk_wlan_wireless_mode(unsigned char mode);
 int rltk_wlan_set_wps_phase(unsigned char is_trigger_wps);
 int rtw_ps_enable(int enable);
 int rltk_wlan_is_connected_to_ap(void);
+
 
 #ifdef	__cplusplus
 }
