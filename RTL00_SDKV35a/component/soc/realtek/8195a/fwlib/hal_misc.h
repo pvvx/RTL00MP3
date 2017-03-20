@@ -20,7 +20,7 @@
 #define CHIP_ID_8710AM      0xFA
 
 enum _HAL_RESET_REASON{
-	REASON_DEFAULT_RST = 0,         /**< normal startup by power on */
+	REASON_DEFAULT_RST = 0,     /**< normal startup by power on */
 	REASON_WDT_RST,             /**< hardware watch dog reset */
 	REASON_EXCEPTION_RST,       /**< exception reset, GPIO status won't change */
 	REASON_SOFT_WDT_RST,        /**< software watch dog reset, GPIO status won't change */

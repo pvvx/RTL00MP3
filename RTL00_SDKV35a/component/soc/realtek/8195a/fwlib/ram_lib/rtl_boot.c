@@ -230,19 +230,19 @@ LOCAL int BOOT_RAM_TEXT_SECTION SetSpicBitMode(uint8 BitMode) {
     // Test Read Pattern
     if(!SpicCmpDataForCalibrationRtl8195A()) {
     	FLASH_DDL_FCTRL(0x31);	 		// SPI_DLY_CTRL_ADDR [7:0]
-    	for(uint8 i = 1; i < 4; i++) {
-    		for(uint8 x = 0; x < 63; x++) {
+    	for(uint8 BaudRate = 1; BaudRate < 4; BaudRate++) {
+    		for(uint8 RdDummyCyle = 0; RdDummyCyle < 63; RdDummyCyle++) {
     			// Disable SPI_FLASH User Mode
     		    HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0);
-    			HAL_SPI_WRITE32(REG_SPIC_AUTO_LENGTH, (HAL_SPI_READ32(REG_SPIC_AUTO_LENGTH) & 0xFFFF0000) | x);
-    			HAL_SPI_WRITE32(REG_SPIC_BAUDR, i);
+    			HAL_SPI_WRITE32(REG_SPIC_AUTO_LENGTH, (HAL_SPI_READ32(REG_SPIC_AUTO_LENGTH) & 0xFFFF0000) | RdDummyCyle);
+    			HAL_SPI_WRITE32(REG_SPIC_BAUDR, BaudRate);
     		    // Enable SPI_FLASH  User Mode
     		    HAL_SPI_WRITE32(REG_SPIC_SSIENR, BIT_SPIC_EN);
 //    	    	HAL_SPI_WRITE32(REG_SPIC_FLUSH_FIFO, 1);
     	    	if(SpicCmpDataForCalibrationRtl8195A()) {
-    	    		DiagPrintf("Spic reinit %d:%d\n", i, x);
-    	    		pspic->BaudRate = i;
-    	    		pspic->RdDummyCyle = x;
+    	    		DiagPrintf("Spic reinit %d:%d\n", BaudRate, RdDummyCyle);
+    	    		pspic->BaudRate = BaudRate;
+    	    		pspic->RdDummyCyle = RdDummyCyle;
     	    		pspic->DelayLine = 0x31;
     	    		pspic->Mode.Valid = 1;
     	    	    return 1;
@@ -532,6 +532,7 @@ LOCAL uint8 BOOT_RAM_TEXT_SECTION IsForceLoadDefaultImg2(void) {
 //	_pHAL_Gpio_Adapter->IrqHandle.IrqFun = NULL;
 	return result;
 }
+
 /* RTL Console ROM */
 LOCAL void BOOT_RAM_TEXT_SECTION RtlConsolRam(void) {
 //	DiagPrintf("\r\nRTL Console ROM\r\n");
@@ -556,7 +557,6 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 		DBG_8195A("\r===== Enter FLASH-Boot ====\n");
 	else
 		DBG_8195A("\r===== Enter SRAM-Boot %d ====\n", flg);
-
 #if CONFIG_DEBUG_LOG > 1
 	DBG_8195A("CPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(),
 			HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
@@ -604,12 +604,15 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 #endif // test
 		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21));
 	};
+
 	if (!flg)
 		loadUserImges(IsForceLoadDefaultImg2() + 1);
+
 	if (_strcmp((const char *) &__image2_validate_code__, IMG2_SIGN_TXT)) {
 		DBG_8195A("Invalid Image Signature!\n");
 		RtlConsolRam();
 	}
+
 	DBG_8195A("Img Sign: %s, Go @ 0x%08x\r\n", &__image2_validate_code__,
 			__image2_entry_func__);
 	__image2_entry_func__();

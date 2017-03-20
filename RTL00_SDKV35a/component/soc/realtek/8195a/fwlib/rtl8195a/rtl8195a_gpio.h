@@ -103,7 +103,7 @@ typedef enum
 typedef struct {
 	GPIOMode_TypeDef	GPIO_Mode;      /*!< Specifies the operating mode for the selected pins. */
 	GPIOPuPd_TypeDef	GPIO_PuPd;     /*!< Specifies the operating Pull-up/Pull down for the selected pins. */
-	GPIOIT_LevelType		GPIO_ITTrigger;  /**< Interrupt mode is level or edge trigger */    
+	GPIOIT_LevelType	GPIO_ITTrigger;  /**< Interrupt mode is level or edge trigger */
 	GPIOIT_PolarityType	GPIO_ITPolarity; /**< Interrupt mode is high or low active trigger */
 	GPIOIT_DebounceType	GPIO_ITDebounce; /**< Enable or disable de-bounce for interrupt */
 	u32 GPIO_Pin;    // Pin: [7:5]: port number, [4:0]: pin number
