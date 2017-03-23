@@ -204,7 +204,7 @@ SECTIONS
 		*(.hal.gpio.data*)
 		*(.fwu.data*)
 		*(.bdsram.data*)
-	*(.bfsram.data*)
+		*(.bfsram.data*)
 		*(COMMON)
 		*(.bss*)
 		*(.sdram.bss*)

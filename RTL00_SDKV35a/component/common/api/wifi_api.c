@@ -489,11 +489,11 @@ void wifi_init_thrd(void) {
 	p_wlan_autoreconnect_hdl = NULL;
 	if (wifi_cfg.mode != RTW_MODE_NONE) {
 		wifi_mode = wifi_cfg.mode;
-		user_start();
 #if CONFIG_WIFI_IND_USE_THREAD
 		wifi_manager_init();
 #endif
 		wifi_run(wifi_cfg.mode);
+		user_start();
 	}
 	/* Initilaize the console stack */
 	console_init();

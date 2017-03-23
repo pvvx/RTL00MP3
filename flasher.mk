@@ -5,7 +5,7 @@
 #FLASHER = stlink-v2-1
 #FLASHER = stlink-v2
 FLASHER ?= Jlink
-JLINK_PATH ?= D:/MCU/SEGGER/JLink_V610a/
+JLINK_PATH ?= D:/MCU/SEGGER/JLink_V612i/
 #---------------------------
 # Default
 #---------------------------

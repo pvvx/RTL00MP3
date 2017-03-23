@@ -53,7 +53,7 @@ readfullflash:
 
 .PHONY:	prerequirement
 prerequirement:
-#	@$(file >DEPENDENCY_LIST.txt,$(DEPENDENCY_LIST))
+	@$(file >DEPENDENCY_LIST.txt,$(DEPENDENCY_LIST))
 	
-TARGETTYPE := APP
-TARGETNAME := build\obj\build.axf
+#TARGETTYPE := APP
+#TARGETNAME := build\obj\build.axf
