@@ -66,7 +66,7 @@ NMAPFILE = $(OBJ_DIR)/$(TARGET).nmap
 
 #FLASHER_PATH ?= flasher/
 
-RAM_IMAGE?= $(BIN_DIR)/ram.bin
+#RAM_IMAGE?= $(BIN_DIR)/ram.bin
 
 RAM1_IMAGE ?= $(BIN_DIR)/ram_1.bin
 RAM1P_IMAGE ?= $(BIN_DIR)/ram_1.p.bin
@@ -91,17 +91,11 @@ TST_IMAGE = $(BIN_DIR)/ram_2.bin
 LD_ADDRESS = 0x1000B000
 ST_ADDRESS = 0x10006068
 
-.PHONY: copybin1 genbin1 genbin23 flashburn reset test readfullflash
-.NOTPARALLEL: all mp copybin1 genbin1 genbin23 flashburn reset test readfullflash _endgenbin
+.PHONY: genbin1 genbin23 flashburn reset test readfullflash
+.NOTPARALLEL: all mp genbin1 genbin23 flashburn reset test readfullflash _endgenbin
 
 all: $(ELFFILE) $(OTA_IMAGE) $(FLASH_IMAGE) _endgenbin
 mp: $(ELFFILE) $(OTA_IMAGE) $(FLASH_IMAGE) _endgenbin
-
-copybin1:
-#	cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.r.bin $(BIN_DIR)/ram_1.r.bin
-	cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.p.bin $(BIN_DIR)/ram_1.p.bin
-#	@chmod 777 $(OBJ_DIR)/ram_1.r.bin
-#	@$(OBJCOPY) --rename-section .data=.loader.data,contents,alloc,load,readonly,data -I binary -O elf32-littlearm -B arm $(BIN_DIR)/ram_1.r.bin $(OBJ_DIR)/ram_1.r.o
 
 genbin1: $(ELFFILE) $(RAM1P_IMAGE) 
 
@@ -191,7 +185,7 @@ ifeq ($(RAM1_START_ADDR),$(RAM1_END_ADDR))
 ifdef COMPILED_BOOT_BIN
 	$(OBJCOPY) --change-section-address .boot.head=0x10000ba8 -j .boot.head -j .bootloader -Obinary $(ELFFILE) $(RAM1P_IMAGE)
 else
-	$(OBJCOPY) -j .rom_ram -Obinary $(ELFFILE) $(RAM_IMAGE)
+#	$(OBJCOPY) -j .rom_ram -Obinary $(ELFFILE) $(RAM_IMAGE)
 	$(OBJCOPY) -j .ram.start.table -j .ram_image1.text -Obinary $(ELFFILE) $(RAM1R_IMAGE)
 	$(PICK) 0x$(RAM1_START_ADDR) 0x$(RAM1_END_ADDR) $(RAM1R_IMAGE) $(RAM1P_IMAGE) head+reset_offset 0x0B000
 endif

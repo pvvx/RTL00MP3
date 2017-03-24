@@ -207,9 +207,10 @@ struct spic_table_flash_type spic_table_flash = {
 		BIT_FLASE_SIZE(0x0F),			// REG_SPIC_FLASE_SIZE	0x40006124 0x0E ?
 	    BIT_CS_H_WR_DUM_LEN(2)| BIT_AUTO_ADDR__LENGTH(3) | BIT_RD_DUMMY_LENGTH(0x0), // REG_SPIC_AUTO_LENGTH 0x4000611C 0x20030001 ?
 	{
-		BIT_WR_BLOCKING, 	// REG_SPIC_VALID_CMD	0x40006120 0x200 SpicOneBitMode
-		BIT_WR_BLOCKING | BIT_RD_DUAL_I, 	// REG_SPIC_VALID_CMD	0x40006120 0x200 SpicOneBitMode
-		BIT_WR_BLOCKING | BIT_RD_QUAD_O, 	// REG_SPIC_VALID_CMD	0x40006120 0x200 SpicOneBitMode
+		BIT_WR_BLOCKING, 	// REG_SPIC_VALID_CMD					0x40006120 0x200 SpicOneBitMode
+		BIT_WR_BLOCKING | BIT_RD_DUAL_I, 	// REG_SPIC_VALID_CMD	0x40006120 0x202 SpicDualBitMode
+		BIT_WR_BLOCKING | BIT_RD_DUAL_I, 	// REG_SPIC_VALID_CMD	0x40006120 0x202 SpicDualBitMode
+//		BIT_WR_BLOCKING | BIT_RD_QUAD_O, 	// REG_SPIC_VALID_CMD	0x40006120 0x208 SpicQuadBitMode MXIC not QIO
 	},
 		0xC2, 0x20 // MX25L8006/MX25L1606
 };
@@ -274,7 +275,7 @@ LOCAL int BOOT_RAM_TEXT_SECTION InitSpic(uint8 SpicBitMode) {
 	for(x = 0; x < SpicMaxMode; x++) {
 		*(uint32 *)&SpicInitParaAllClk[SpicOneBitMode][x].BaudRate = ptr[0];
 		*(uint32 *)&SpicInitParaAllClk[SpicDualBitMode][x].BaudRate = ptr[CPU_CLK_TYPE_NO];
-		*(uint32 *)&SpicInitParaAllClk[SpicQuadBitMode][x].BaudRate = ptr[CPU_CLK_TYPE_NO];
+		*(uint32 *)&SpicInitParaAllClk[SpicQuadBitMode][x].BaudRate = ptr[CPU_CLK_TYPE_NO]; //  MXIC not QIO
 		ptr++;
 	}
 	ACTCK_FLASH_CCTRL(1);

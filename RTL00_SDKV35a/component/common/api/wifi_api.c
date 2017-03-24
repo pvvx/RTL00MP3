@@ -374,7 +374,7 @@ void _LwIP_Init(void)
 		tcpip_init( NULL, NULL );
 
 		chk_ap_netif_num(); // Исполняется после _wifi_on()
-		for(int idx = 0; idx < NET_IF_NUM; idx++) {
+		for(idx = 0; idx < NET_IF_NUM; idx++) {
 			xnetif[idx].name[0] = 'r';
 			xnetif[idx].name[1] = '0' + idx;
 		}
@@ -728,7 +728,7 @@ void fATWT(int argc, char *argv[]) {
 #define ReadTSF_Lo32() (*((volatile unsigned int *)(WIFI_REG_BASE + REG_TSFTR)))
 #define ReadTSF_Hi32() (*((volatile unsigned int *)(WIFI_REG_BASE + REG_TSFTR1)))
 
-uint64_t get_tsf(void)
+LOCAL uint64_t get_tsf(void)
 {
 	return *((uint64_t *)(WIFI_REG_BASE + REG_TSFTR));
 }

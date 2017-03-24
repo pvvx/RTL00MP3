@@ -7,7 +7,6 @@ set $rtl8710_flasher_auto_erase = 1
 set $rtl8710_flasher_auto_verify = 1
 set $rtl8710_flasher_firmware_ptr = 0x10001000
 set $rtl8710_flasher_buffer = 0x10008000
-#262144
 set $rtl8710_flasher_buffer_size = 421888
 set $rtl8710_flasher_sector_size = 4096
 set $rtl8710_flasher_auto_erase_sector = 0xFFFFFFFF

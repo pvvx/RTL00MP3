@@ -46,17 +46,9 @@ build_info:
 .PHONY:	application 
 application: build_info $(SRC_O) $(DRAM_O) $(BOOT_O)
 	@echo "==========================================================="
-	@echo "Make BootLoader (ram_1.p.bin, ram_1.r.bin)"
-#	@echo "==========================================================="
-	@mkdir -p $(BIN_DIR) $(OBJ_DIR)
-##	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.r.bin $(BIN_DIR)/ram_1.r.bin
-##	@cp $(patsubst sdk/%,$(SDK_PATH)%,$(BOOTS))/ram_1.p.bin $(BIN_DIR)/ram_1.p.bin
-#	@chmod 777 $(OBJ_DIR)/ram_1.r.bin
-##	$(OBJCOPY) --rename-section .data=.loader.data,contents,alloc,load,readonly,data -I binary -O elf32-littlearm -B arm $(BIN_DIR)/ram_1.r.bin $(OBJ_DIR)/ram_1.r.o
-	@echo "==========================================================="
 	@echo "Link ($(TARGET))"
 #	@echo "==========================================================="
-##	@$(LD) $(LFLAGS) -o $(ELFFILE) $(OBJ_LIST) $(OBJ_DIR)/ram_1.r.o $(LIBFLAGS) -T$(LDFILE)
+	@mkdir -p $(BIN_DIR) $(OBJ_DIR)
 	@$(LD) $(LFLAGS) -o $(ELFFILE) $(OBJ_LIST) $(LIBFLAGS) -T$(LDFILE)
 	@$(OBJDUMP) -d $(ELFFILE) > $(OBJ_DIR)/$(TARGET).asm
 
@@ -96,7 +88,5 @@ VPATH:=$(OBJ_DIR) $(SDK_PATH)
 #.PHONY: clean
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR) $(OBJ_DIR)/$(SDK_PATH) 
-#	@rm -f $(patsubst %.c,%.d,$(SRC_C_LIST))
-#	@rm -f $(patsubst %.c,%.o,$(SRC_C_LIST))
 	
 	
