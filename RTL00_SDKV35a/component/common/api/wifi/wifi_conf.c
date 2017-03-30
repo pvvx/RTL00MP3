@@ -1466,15 +1466,16 @@ int wifi_scan_networks(rtw_scan_result_handler_t results_handler,
 
 	return RTW_SUCCESS;
 
-	error1_with_result_ptr:
+error1_with_result_ptr:
 	rtw_free((u8*)scan_result_handler_ptr.pap_details);
 	scan_result_handler_ptr.pap_details = NULL;
 
-	error2_with_result_ptr:
+error2_with_result_ptr:
 	rtw_free((u8*)scan_result_handler_ptr.ap_details);
 	scan_result_handler_ptr.ap_details = NULL;
 
-	err_exit: rtw_memset((void *) &scan_result_handler_ptr, 0,
+err_exit:
+	rtw_memset((void *) &scan_result_handler_ptr, 0,
 			sizeof(scan_result_handler_ptr));
 	return RTW_ERROR;
 }

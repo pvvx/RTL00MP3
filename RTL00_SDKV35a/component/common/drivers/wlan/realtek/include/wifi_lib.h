@@ -3433,5 +3433,68 @@ struct _TxPowerInfo24G {
 typedef struct _TxPowerInfo24G TxPowerInfo24G;
 typedef struct _TxPowerInfo24G *PTxPowerInfo24G;
 
+/*
+
+enum rtw_bss_type_t // __int32
+{
+  RTW_BSS_TYPE_INFRASTRUCTURE = 0x0,
+  RTW_BSS_TYPE_ADHOC = 0x1,
+  RTW_BSS_TYPE_ANY = 0x2,
+  RTW_BSS_TYPE_UNKNOWN = 0xFFFFFFFF,
+};
+
+enum rtw_security_t // __int32
+{
+  RTW_SECURITY_OPEN = 0x0,
+  RTW_SECURITY_WEP_PSK = 0x1,
+  RTW_SECURITY_WEP_SHARED = 0x8001,
+  RTW_SECURITY_WPA_TKIP_PSK = 0x200002,
+  RTW_SECURITY_WPA_AES_PSK = 0x200004,
+  RTW_SECURITY_WPA2_AES_PSK = 0x400004,
+  RTW_SECURITY_WPA2_TKIP_PSK = 0x400002,
+  RTW_SECURITY_WPA2_MIXED_PSK = 0x400006,
+  RTW_SECURITY_WPA_WPA2_MIXED = 0x600000,
+  RTW_SECURITY_WPS_OPEN = 0x10000000,
+  RTW_SECURITY_WPS_SECURE = 0x10000004,
+  RTW_SECURITY_UNKNOWN = 0xFFFFFFFF,
+  RTW_SECURITY_FORCE_32_BIT = 0x7FFFFFFF,
+};
+
+enum rtw_802_11_band_t // __int32
+{
+  RTW_802_11_BAND_5GHZ = 0x0,
+  RTW_802_11_BAND_2_4GHZ = 0x1,
+};
+
+
+struct rtw_ssid
+{
+  unsigned int8_t len;
+  unsigned int8_t val[33];
+};
+
+typedef rtw_ssid rtw_ssid_t;
+
+struct rtw_mac
+{
+  unsigned int8_t octet[6];
+};
+
+typedef rtw_mac rtw_mac_t;
+
+struct rtw_scan_result
+{
+  rtw_ssid_t SSID;
+  rtw_mac_t BSSID;
+  sint16_t signal_strength;
+  enum rtw_bss_type_t bss_type;
+  enum rtw_security_t security;
+  enum rtw_wps_type_t wps_type;
+  unsigned int channel;
+  enum rtw_802_11_band_t band;
+};
+
+*/
+
 #endif // _WLAN_LIB_H
 

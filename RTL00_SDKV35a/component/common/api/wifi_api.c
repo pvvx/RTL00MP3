@@ -739,6 +739,88 @@ void fATSF(int argc, char *argv[])
 	printf("\nTSF: %08x%08x\n", (uint32_t)(tsf>>32), (uint32_t)(tsf));
 }
 
+/* --------  WiFi Scan ------------------------------- */
+unsigned char *tab_txt_rtw_secyrity[] = {
+		"OPEN  ",
+		"WEP   ",
+		"WPA TKIP",
+		"WPA AES",
+		"WPA2 AES",
+		"WPA2 TKIP",
+		"WPA2 Mixed",
+		"WPA/WPA2 AES",
+		"Unknown"
+};
+unsigned int *tab_code_rtw_secyrity[] = {
+		RTW_SECURITY_OPEN,
+		RTW_SECURITY_WEP_PSK,
+		RTW_SECURITY_WPA_TKIP_PSK,
+		RTW_SECURITY_WPA_AES_PSK,
+		RTW_SECURITY_WPA2_AES_PSK,
+		RTW_SECURITY_WPA2_TKIP_PSK,
+		RTW_SECURITY_WPA2_MIXED_PSK,
+		RTW_SECURITY_WPA_WPA2_MIXED,
+		RTW_SECURITY_UNKNOWN
+};
+
+volatile uint8_t scan_end;
+
+/* --------  WiFi Scan ------------------------------- */
+static rtw_result_t _scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
+{
+	if (malloced_scan_result->scan_complete != RTW_TRUE) {
+		rtw_scan_result_t* record = &malloced_scan_result->ap_details;
+		record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
+		if(scan_end == 1) {
+			printf("\nScan networks:\n\n");
+			printf("N\tType\tMAC\t\t\tSignal\tCh\tWPS\tSecyrity\tSSID\n\n");
+		};
+		printf("%d\t", scan_end++);
+	    printf("%s\t", (record->bss_type == RTW_BSS_TYPE_ADHOC)? "Adhoc": "Infra");
+	    printf(MAC_FMT, MAC_ARG(record->BSSID.octet));
+	    printf("\t%d\t", record->signal_strength);
+	    printf("%d\t", record->channel);
+	    printf("%d\t", record->wps_type);
+	    int i = 0;
+	    for(; record->security != tab_code_rtw_secyrity[i] && tab_code_rtw_secyrity[i] != RTW_SECURITY_UNKNOWN; i++);
+	    printf("%s \t", tab_txt_rtw_secyrity[i]);
+	    printf("%s\n", record->SSID.val);
+	} else {
+		scan_end = 0;
+		printf("\n");
+	}
+	return RTW_SUCCESS;
+}
+/* --------  WiFi Scan ------------------------------- */
+#define scan_channels 14
+void fATSN(int argc, char *argv[])
+{
+	int i;
+	u8 *channel_list = (u8*)pvPortMalloc(scan_channels*2);
+	if(channel_list) {
+		scan_end = 1;
+		u8 * pscan_config = &channel_list[scan_channels];
+		//parse command channel list
+		for(i = 1; i <= scan_channels; i++){
+			*(channel_list + i - 1) = i;
+			*(pscan_config + i - 1) = PSCAN_ENABLE;
+		};
+		if(wifi_set_pscan_chan(channel_list, pscan_config, scan_channels) < 0){
+		    printf("ERROR: wifi set partial scan channel fail\n");
+		} else if(wifi_scan_networks(_scan_result_handler, NULL ) != RTW_SUCCESS){
+			printf("ERROR: wifi scan failed\n");
+		} else {
+			i = 300;
+			while(i-- && scan_end) {
+				vTaskDelay(10);
+			};
+		};
+		vPortFree(channel_list);
+	} else {
+		printf(" ERROR: Can't malloc memory for channel list\n");
+	};
+}
+
 MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"ATPN", 1, fATPN, "=<SSID>[,password[,encryption[,auto-reconnect[,reconnect pause]]]: WIFI Connect to AP"},
 		{"ATPA", 1, fATPA, "=<SSID>[,password[,encryption[,channel[,hidden[,max connections]]]]]: Start WIFI AP"},
@@ -750,4 +832,5 @@ MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"ATWT", 1, fATWT, "=<tx_power>: WiFi tx power: 0 - 100%, 1 - 75%, 2 - 50%, 3 - 25%, 4 - 12.5%"},
 		{"ATSF", 0, fATSF, ": Test TSF value"},
 #endif
+		{"ATSN", 0, fATSN, ": Scan networks"}
 };
