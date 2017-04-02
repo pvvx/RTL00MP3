@@ -741,8 +741,8 @@ void fATSF(int argc, char *argv[])
 
 /* --------  WiFi Scan ------------------------------- */
 unsigned char *tab_txt_rtw_secyrity[] = {
-		"OPEN  ",
-		"WEP   ",
+		"OPEN   ",
+		"WEP    ",
 		"WPA TKIP",
 		"WPA AES",
 		"WPA2 AES",
@@ -817,7 +817,7 @@ void fATSN(int argc, char *argv[])
 		};
 		vPortFree(channel_list);
 	} else {
-		printf(" ERROR: Can't malloc memory for channel list\n");
+		printf("ERROR: Can't malloc memory for channel list\n");
 	};
 }
 

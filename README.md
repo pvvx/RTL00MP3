@@ -49,7 +49,8 @@ JTAG/SWD Drivers:<br>
 * [SEEGER J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink)<br>
 * [Converting ST-LINK on-board into a J-Link](https://www.segger.com/jlink-st-link.html)<br>
 System:<br>
-* [MinGW](https://sourceforge.net/projects/mingw-w64/)<br>
+* [MinGW64](https://sourceforge.net/projects/mingw-w64/)<br>
+* [Minimalist GNU for Windows](http://www.mingw.org/wiki/msys)<br>
 * [GNU ARM Embedded Toolchain](https://launchpad.net/gcc-arm-embedded/+download)<br>
 * [OpenOCD: Open On-Chip Debugger](https://sourceforge.net/projects/gnuarmeclipse/files/OpenOCD/)<br>
 Eclipse:<br>
