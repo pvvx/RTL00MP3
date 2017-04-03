@@ -374,8 +374,8 @@ void NETBIOS_CODE_ATTR netbios_init(void) {
 	for(int i = 0; i < NET_IF_NUM; i++) {
 		os_printf("%d: '%s' ", i, netbios_name[i]);
 	}
+	os_printf("\n");
 #endif
-
 	pcb = udp_new();
 	if (pcb != NULL) {
 		/* we have to be allowed to send broadcast packets! */

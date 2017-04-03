@@ -7,11 +7,13 @@
 
 #ifndef _WIFI_API_H_
 #define _WIFI_API_H_
+#include "wifi_constants.h"
+#include "wifi_conf.h"
 
-#define ip4_addr1(ipaddr) (((u8_t*)(ipaddr))[0])
-#define ip4_addr2(ipaddr) (((u8_t*)(ipaddr))[1])
-#define ip4_addr3(ipaddr) (((u8_t*)(ipaddr))[2])
-#define ip4_addr4(ipaddr) (((u8_t*)(ipaddr))[3])
+#define ip4_addr1(ipaddr) (((uint8_t*)(ipaddr))[0])
+#define ip4_addr2(ipaddr) (((uint8_t*)(ipaddr))[1])
+#define ip4_addr3(ipaddr) (((uint8_t*)(ipaddr))[2])
+#define ip4_addr4(ipaddr) (((uint8_t*)(ipaddr))[3])
 
 #define IPSTR "%d.%d.%d.%d"
 
@@ -97,6 +99,19 @@ typedef struct _dhcp_config {
 	unsigned char mode; // =0 dhcp off, =1 - dhcp on, =2 Static ip, =3 - auto
 } DHCP_CONFIG, *PDHCP_CONFIG;
 
+
+extern WIFI_CONFIG wifi_cfg;
+extern SOFTAP_CONFIG wifi_ap_cfg;
+extern DHCP_CONFIG wifi_ap_dhcp;
+extern STATION_CONFIG wifi_st_cfg;
+extern DHCP_CONFIG wifi_st_dhcp;
+extern rtw_mode_t wifi_run_mode;
+extern char wlan_st_name[];
+extern char wlan_ap_name[];
+extern char wlan_st_netifn;
+extern char wlan_ap_netifn;
+
+
 void show_wifi_ap_ip(void);
 void show_wifi_st_ip(void);
 void show_wifi_cfg(void);
@@ -105,6 +120,8 @@ void show_wifi_ap_cfg(void);
 uint32 read_wifi_cfg(uint32 flg);
 uint32 write_wifi_cfg(uint32 flg);
 int wifi_run(rtw_mode_t mode);
-void wifi_init_thrd(void);
+void wifi_init(void);
+
+void _LwIP_Init(void);
 
 #endif // _WIFI_API_H_

@@ -393,6 +393,7 @@ ADD_SRC_C += sdk/component/common/api/wifi_api.c
 #user main
 ADD_SRC_C += project/src/user/main.c
 # components
+ADD_SRC_C += project/src/user/wifi_console.c
 ADD_SRC_C += project/src/user/atcmd_user.c
 ADD_SRC_C += project/src/user/spiram_fifo.c
 

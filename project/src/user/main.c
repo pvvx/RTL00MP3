@@ -508,6 +508,19 @@ void ShowMemInfo(void)
 			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 }
 
+
+void user_init_thrd(void) {
+
+	wifi_init();
+
+	/* Initilaize the console stack */
+	console_init();
+
+	/* Kill init thread after all init tasks done */
+	vTaskDelete(NULL);
+}
+
+
 /**
  * @brief  Main program.
  * @param  None
@@ -544,7 +557,7 @@ void main(void)
 	mp3_cfg_read();
 
 	/* wlan & user_start intialization */
-	xTaskCreate(wifi_init_thrd, "wc_start", 1024, NULL, tskIDLE_PRIORITY + 0 + PRIORITIE_OFFSET, NULL);
+	xTaskCreate(user_init_thrd, "user_init", 1024, NULL, tskIDLE_PRIORITY + 0 + PRIORITIE_OFFSET, NULL);
 
 	/*Enable Schedule, Start Kernel*/
 #if defined(CONFIG_KERNEL) && !TASK_SCHEDULER_DISABLED

@@ -88,11 +88,9 @@ mp: FLASH_IMAGE = $(BIN_DIR)/ram_all_mp.bin
 mp: OTA_IMAGE = $(BIN_DIR)/ota_mp.bin
 
 TST_IMAGE = $(BIN_DIR)/ram_2.bin
-LD_ADDRESS = 0x1000B000
-ST_ADDRESS = 0x10006068
 
-.PHONY: genbin1 genbin23 flashburn reset test readfullflash
-.NOTPARALLEL: all mp genbin1 genbin23 flashburn reset test readfullflash _endgenbin
+.PHONY: genbin1 genbin23 flashburn reset test readfullflash flashwebfs flash_OTA
+.NOTPARALLEL: all mp genbin1 genbin23 flashburn reset test readfullflash _endgenbin flashwebfs flash_OTA
 
 all: $(ELFFILE) $(OTA_IMAGE) $(FLASH_IMAGE) _endgenbin
 mp: $(ELFFILE) $(OTA_IMAGE) $(FLASH_IMAGE) _endgenbin
@@ -101,35 +99,92 @@ genbin1: $(ELFFILE) $(RAM1P_IMAGE)
 
 genbin23: $(ELFFILE) $(OTA_IMAGE) $(FLASH_IMAGE) _endgenbin 
 
+
 _endgenbin:
 	@echo "-----------------------------------------------------------"
 	@echo "Image ($(OTA_IMAGE)) size $(shell printf '%d\n' $$(( $$(stat --printf="%s" $(OTA_IMAGE)) )) ) bytes"
 	@echo "Image ($(FLASH_IMAGE)) size $(shell printf '%d\n' $$(( $$(stat --printf="%s" $(FLASH_IMAGE)) )) ) bytes"
 	@echo "==========================================================="  
 
-flashburn:
-	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "adapter_khz $(FLASHER_SPEED)" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "reset halt" -c "rtl8710_flash_auto_erase 1" -c "rtl8710_flash_auto_verify 1" -c "rtl8710_flash_write $(FLASH_IMAGE) 0" -c "rtl8710_reboot" -c "reset run" -c shutdown
-#	@$(JLINK_PATH)$(JLINK_GDB)
-	
+ifeq ($(FLASHER_TYPE), Jlink)
+
 reset:
-	@$(JLINK_PATH)$(JLINK_EXE) -Device CORTEX-M3 -If SWD -Speed $(FLASHER_SPEED) flasher/RTLreset.JLinkScript
-#	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "adapter_khz $(FLASHER_SPEED)" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "reset halt" -c "rtl8710_reboot" -c shutdown
+	@start $(JLINK_PATH)$(JLINK_EXE) -Device CORTEX-M3 -If SWD -Speed 1000 $(FLASHER_PATH)RTL_Reset.JLinkScript
 
 runram:
-	@start $(JLINK_PATH)$(JLINK_GDB) -device Cortex-M3 -if SWD -ir -endian little -speed $(FLASHER_SPEED)
-	@$(GDB) -x flasher/gdb_run_ram.jlink
-	@taskkill.exe -F -IM $(JLINK_GDB)
+	@start $(JLINK_PATH)$(JLINK_EXE) -Device CORTEX-M3 -If SWD -Speed 1000 $(FLASHER_PATH)RTL_RunRAM.JLinkScript
 
-test:
-	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "adapter_khz $(FLASHER_SPEED)" -f $(FLASHER_PATH)rtl8710.ocd -f $(FLASHER_PATH)cortex.ocd -c "init" -c "reset halt" -c "load_image $(TST_IMAGE) $(LD_ADDRESS) bin" -c "cortex_bootstrap $(ST_ADDRESS)" -c "shutdown"
-	
 readfullflash:
-	@rm -f $(BIN_DIR)/fullflash.bin
-	@start $(JLINK_PATH)$(JLINK_GDB) -device Cortex-M3 -if SWD -ir -endian little -speed $(FLASHER_SPEED)
-	@$(GDB) -x flasher/gdb_rdflash.jlink
-	@taskkill.exe -F -IM $(JLINK_GDB)
-#	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "adapter_khz $(FLASHER_SPEED)" -f $(FLASHER_PATH)rtl8710.ocd -f $(FLASHER_PATH)cortex.ocd -c "init" -c "reset halt" -c "rtl8710_flash_read_id" -c "rtl8710_flash_read $(BIN_DIR)/fullflash.bin 0 1048576" -c "reset run" -c "shutdown"
-	if [ -s $(BIN_DIR)/fullflash.bin ]; then echo FullFlash = $(BIN_DIR)/fullflash.bin; fi 
+	@start $(JLINK_PATH)$(JLINK_EXE) -Device CORTEX-M3 -If SWD -Speed 1000 $(FLASHER_PATH)RTL_FFlash.JLinkScript
+	
+
+flashburn:
+	@echo define call1>$(FLASHER_PATH)flash_file.jlink
+	@echo SetFirwareSize build/bin/ram_all.bin>>$(FLASHER_PATH)flash_file.jlink
+	@echo end>>$(FLASHER_PATH)flash_file.jlink
+	@echo define call2>>$(FLASHER_PATH)flash_file.jlink
+	@echo FlasherWrite build/bin/ram_all.bin 0 '$$'Image1Size>>$(FLASHER_PATH)flash_file.jlink
+	@echo end>>$(FLASHER_PATH)flash_file.jlink
+	@echo define call3>>$(FLASHER_PATH)flash_file.jlink
+	@echo FlasherWrite build/bin/ram_all.bin '$$'Image2Addr '$$'Image2Size>>$(FLASHER_PATH)flash_file.jlink
+	@echo end>>$(FLASHER_PATH)flash_file.jlink
+	@start $(JLINK_PATH)$(JLINK_GDBSRV) -device Cortex-M3 -if SWD -ir -endian little -speed 1000 
+	@$(GDB) -x $(FLASHER_PATH)gdb_wrflash.jlink
+	@taskkill /F /IM $(JLINK_GDBSRV)
+
+flashwebfs:
+	@echo set '$$'ImageSize = $(shell printf '0x%X\n' $$(stat --printf="%s" $(BIN_DIR)/webpages.espfs))>$(FLASHER_PATH)file_info.jlink
+	@echo set '$$'ImageAddr = 0x0D0000>>$(FLASHER_PATH)file_info.jlink
+	@echo define call1>>$(FLASHER_PATH)file_info.jlink
+	@echo FlasherWrite $(BIN_DIR)/webpages.espfs '$$'ImageAddr '$$'ImageSize>>$(FLASHER_PATH)file_info.jlink
+	@echo end>>$(FLASHER_PATH)file_info.jlink
+	@start $(JLINK_PATH)$(JLINK_GDBSRV) -device Cortex-M3 -if SWD -ir -endian little -speed 1000 
+	@$(GDB) -x $(FLASHER_PATH)gdb_wrfile.jlink
+	@taskkill /F /IM $(JLINK_GDBSRV)
+
+flash_OTA:
+	@start $(JLINK_PATH)$(JLINK_GDBSRV) -device Cortex-M3 -if SWD -ir -endian little -speed 1000 
+	@$(GDB) -x $(FLASHER_PATH)gdb_ota.jlink
+	@taskkill /F /IM $(JLINK_GDBSRV)
+
+else
+
+flashburn:
+	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
+	-c "rtl8710_flash_auto_erase 1" -c "rtl8710_flash_auto_verify 1" \
+	-c "rtl8710_flash_write $(RAM1P_IMAGE) 0" \
+	-c "rtl8710_flash_write $(RAM2P_IMAGE) 0xb000" \
+	-c "rtl8710_reboot" -c "reset run" -c shutdown
+
+flashimage2p: 
+	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
+	-c "rtl8710_flash_auto_erase 1" -c "rtl8710_flash_auto_verify 1" \
+	-c "rtl8710_flash_write $(RAM2P_IMAGE) 0xb000" \
+	-c "rtl8710_reboot" -c "reset run" -c shutdown
+	
+flashwebfs:
+	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
+	-c "rtl8710_flash_auto_erase 1" -c "rtl8710_flash_auto_verify 1" \
+	-c "rtl8710_flash_write $(BIN_DIR)/webpages.espfs 0xd0000" \
+	-c "rtl8710_reboot" -c "reset run" -c shutdown
+
+	
+reset:
+#	@$(JLINK_PATH)$(JLINK_EXE) -Device CORTEX-M3 -If SWD -Speed $(FLASHER_SPEED) flasher/RTLreset.JLinkScript
+	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
+	-c "rtl8710_reboot" -c shutdown
+
+runram:
+#	@start $(JLINK_PATH)$(JLINK_GDB) -device Cortex-M3 -if SWD -ir -endian little -speed $(FLASHER_SPEED)
+#	@$(GDB) -x flasher/gdb_run_ram.jlink
+#	@taskkill.exe -F -IM $(JLINK_GDB)
+	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
+	-c "load_image $(RAM1R_IMAGE) 0x10000bc8 bin" \
+	-c "load_image $(RAM2_IMAGE) 0x10006000 bin" \
+	-c "mww 0x40000210 0x20200113" \
+	-c "reset run" -c shutdown
+
+endif
 
 $(NMAPFILE): $(ELFFILE)
 	@echo "==========================================================="

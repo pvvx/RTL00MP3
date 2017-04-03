@@ -36,11 +36,12 @@ if $rtl8710_flasher_capacity == 0
  monitor go
  FlasherWait
  set $id = {int}($rtl8710_flasher_buffer + 0x0C)
- set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
  if ($id == 0x1420c2) 
+  set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
   printf "Flash ID = 0x%08x : MX25L8006E (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
  else 
-  printf "Flash ID = 0x%08x : (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
+  set $rtl8710_flasher_capacity = 1024*1024)
+  error "Flash ID = 0x%08x : ?\n", $id
  end
  printf "RTL8710 flasher initialized\n"
 else
@@ -106,9 +107,9 @@ while $offset < $size
  end
  set $flash_offset = $arg1 + $offset
  printf "write offset 0x%08x\n", $flash_offset
- set $parms1 = $rtl8710_flasher_buffer + 0x20 - $flash_offset
- set $parms2 = $flash_offset
- set $parms3 = $flash_offset + $len
+ set $parms1 = $rtl8710_flasher_buffer + 0x20 - $offset
+ set $parms2 = $offset
+ set $parms3 = $offset + $len
  restore $arg0 binary $parms1 $parms2 $parms3
  if $rtl8710_flasher_auto_erase != 0
   set $count_i = $flash_offset
@@ -134,31 +135,22 @@ end
 end
 #########################################
 source -v flasher/gdb_flasher.jlink
-source -v flasher/flash_file.jlink
+source -v flasher/file_info.jlink
 InitJlink
 SystemInit
-SetClk166MHz
+SetClk83MHz
 SPI_Init
-FlashImagesInfo
-#SetFirwareSize $wr_flile
-call1
-if $FirmwareSize == 0
- error "FirmwareSize = 0!"
-end
 FlasherInit
 FlasherLoad flasher/rtl8710_flasher.bin
-if $Image1Size != 0
- printf "Write Image1 size %d to Flash addr 0x00000000:\n", $Image1Size
- #FlasherWrite $wr_flile 0 $Image1Size
- call2
- if $Image2Size != 0 && $Image2Addr >= $Image1Size 
-  printf "Write Image2 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
-  #FlasherWrite $wr_flile $Image2Addr $Image2Size
-  call3
- end
+if $ImageSize != 0  
+set $ImageEnd = $ImageSize + $ImageAddr + 0x4000
+if $rtl8710_flasher_capacity >= $ImageEnd
+ printf "Write Image size %d to Flash addr 0x%08x:\n", $ImageSize, $ImageAddr
+ call1
+else   
+ printf "Error: Image size is too big!\n"
 end
-FlashImagesInfo
-monitor reset
-SetBootFlash
-monitor go
+else   
+ printf "Error: Image size is zero!\n"
+end
 quit
