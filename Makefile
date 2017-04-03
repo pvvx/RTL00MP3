@@ -18,11 +18,9 @@ ram_all_mp:
 .PHONY: clean  clean_all
 clean:
 	@$(MAKE) -f sdkbuild.mk clean
-	@$(MAKE) -f webfs.mk clean
 
 clean_all:
 	@$(MAKE) -f sdkbuild.mk clean_all
-	@$(MAKE) -f webfs.mk clean
 	
 .PHONY: flashburn runram reset test readfullflash flashwebfs
 flashburn: 
@@ -50,8 +48,8 @@ test:
 	#@make -f flasher.mk test 
 
 readfullflash:
-	JLink-RdFullFlash.bat
-	#@make -f flasher.mk readfullflash 
+	#JLink-RdFullFlash.bat
+	@$(MAKE) -f flasher.mk readfullflash 
 
 .PHONY:	prerequirement
 prerequirement:

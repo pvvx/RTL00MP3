@@ -170,14 +170,10 @@ flashwebfs:
 
 	
 reset:
-#	@$(JLINK_PATH)$(JLINK_EXE) -Device CORTEX-M3 -If SWD -Speed $(FLASHER_SPEED) flasher/RTLreset.JLinkScript
 	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
 	-c "rtl8710_reboot" -c shutdown
 
 runram:
-#	@start $(JLINK_PATH)$(JLINK_GDB) -device Cortex-M3 -if SWD -ir -endian little -speed $(FLASHER_SPEED)
-#	@$(GDB) -x flasher/gdb_run_ram.jlink
-#	@taskkill.exe -F -IM $(JLINK_GDB)
 	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
 	-c "load_image $(RAM1R_IMAGE) 0x10000bc8 bin" \
 	-c "load_image $(RAM2_IMAGE) 0x10006000 bin" \
