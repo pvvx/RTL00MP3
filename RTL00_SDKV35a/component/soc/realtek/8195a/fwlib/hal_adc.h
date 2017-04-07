@@ -39,7 +39,6 @@ typedef enum _ADC_DBG_LVL_ {
     VERI_ADC_LVL        =   0x04,
 }ADC_DBG_LVL,*PADC_DBG_LVL;
 
-#if CONFIG_DEBUG_LOG > 0
 #ifdef CONFIG_DEBUG_LOG_ADC_HAL
 
     #define DBG_8195A_ADC(...)  do{ \
@@ -57,7 +56,6 @@ typedef enum _ADC_DBG_LVL_ {
     #define DBG_ADC_LOG_PERD    100
     #define DBG_8195A_ADC(...)
     #define DBG_8195A_ADC_LVL(...)
-#endif
 #endif
 
 
@@ -292,8 +290,8 @@ RtkADCIdxChk(
 #endif
 
 #if !ADC3_USED
-        if (ADCIdx == ADC3_SEL)
-            return _EXIT_FAILURE;
+    if (ADCIdx == ADC3_SEL)
+        return _EXIT_FAILURE;
 #endif
 	ADCIdx++; //for compile warning.
     return _EXIT_SUCCESS;

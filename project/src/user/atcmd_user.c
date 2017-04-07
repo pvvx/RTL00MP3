@@ -32,13 +32,15 @@ void ShowMemInfo(void)
 			HalGetCpuClk(), xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 }
  */
-// Mem info
-void fATST(int argc, char *argv[]) {
+//------------------------------------------------------------------------------
+// Mem, Tasks info
+//------------------------------------------------------------------------------
+LOCAL void fATST(int argc, char *argv[]) {
 		ShowMemInfo();
 #if 0 //CONFIG_DEBUG_LOG > 1
 		dump_mem_block_list();
 		tcm_heap_dump();
-#endif
+#endif;
 		printf("\n");
 #if (configGENERATE_RUN_TIME_STATS == 1)
 		char *cBuffer = pvPortMalloc(512);
@@ -61,8 +63,6 @@ void fATST(int argc, char *argv[]) {
 	}
 #endif
 }
-
-
 /*-------------------------------------------------------------------------------------
  Копирует данные из области align(4) (flash, registers, ...) в область align(1) (ram)
 --------------------------------------------------------------------------------------*/
@@ -147,8 +147,10 @@ void dump_bytes(uint32 addr, int size)
 		size -= symbs_line;
 	}
 }
+//------------------------------------------------------------------------------
 // Dump byte register
-void fATSB(int argc, char *argv[])
+//------------------------------------------------------------------------------
+LOCAL void fATSB(int argc, char *argv[])
 {
 	int size = 16;
 	uint32 addr = Strtoul(argv[1],0,16);
@@ -160,8 +162,10 @@ void fATSB(int argc, char *argv[])
 	dump_bytes(addr, size);
 }
 
+//------------------------------------------------------------------------------
 // Dump dword register
-void fATSD(int argc, char *argv[])
+//------------------------------------------------------------------------------
+LOCAL void fATSD(int argc, char *argv[])
 {
 /*
 	if (argc > 2) {
@@ -172,8 +176,10 @@ void fATSD(int argc, char *argv[])
 */
 	CmdDumpWord(argc-1, (unsigned char**)(argv+1));
 }
-
-void fATSW(int argc, char *argv[])
+//------------------------------------------------------------------------------
+// Write dword register
+//------------------------------------------------------------------------------
+LOCAL void fATSW(int argc, char *argv[])
 {
 	CmdWriteWord(argc-1, (unsigned char**)(argv+1));
 }
@@ -226,7 +232,7 @@ void print_udp_pcb(void)
   for(pcb = udp_pcbs; pcb != NULL; pcb = pcb->next) {
 	  rtl_printf("flg:%02x\t" IPSTR ":%d\t" IPSTR ":%d\trecv:%p\n", pcb->flags, IP2STR(&pcb->local_ip), pcb->local_port, IP2STR(&pcb->remote_ip), pcb->remote_port, pcb->recv );
 	  prt_none = false;
-  }
+  };
   if(prt_none) rtl_printf("none\n");
 }
 /******************************************************************************
@@ -242,21 +248,21 @@ void print_tcp_pcb(void)
   for(pcb = tcp_active_pcbs; pcb != NULL; pcb = pcb->next) {
      rtl_printf("Port %d|%d\tflg:%02x\ttmr:%p\t%s\n", pcb->local_port, pcb->remote_port, pcb->flags, pcb->tmr, tcp_state_str[pcb->state]);
      prt_none = false;
-  }
+  };
   if(prt_none) rtl_printf("none\n");
   rtl_printf("Listen PCB states:\n");
   prt_none = true;
   for(pcb = (struct tcp_pcb *)tcp_listen_pcbs.pcbs; pcb != NULL; pcb = pcb->next) {
     rtl_printf("Port %d|%d\tflg:%02x\ttmr:%p\t%s\n", pcb->local_port, pcb->remote_port, pcb->flags, pcb->tmr, tcp_state_str[pcb->state]);
     prt_none = false;
-  }
+  };
   if(prt_none) rtl_printf("none\n");
   rtl_printf("TIME-WAIT PCB states:\n");
   prt_none = true;
   for(pcb = tcp_tw_pcbs; pcb != NULL; pcb = pcb->next) {
     rtl_printf("Port %d|%d\tflg:%02x\ttmr:%p\t%s\n", pcb->local_port, pcb->remote_port, pcb->flags, pcb->tmr, tcp_state_str[pcb->state]);
     prt_none = false;
-  }
+  };
   if(prt_none) rtl_printf("none\n");
 }
 /******************************************************************************
@@ -264,40 +270,56 @@ void print_tcp_pcb(void)
  * Parameters   :
  * Returns      :
 *******************************************************************************/
-//------------------------------------------------------------------------------
-void fATLW(int argc, char *argv[]) 	// Info Lwip
+LOCAL void fATLW(int argc, char *argv[]) 	// Info Lwip
 {
 	print_udp_pcb();
 	print_tcp_pcb();
 }
-
-void fATDS(int argc, char *argv[]) 	// Deep sleep
+//------------------------------------------------------------------------------
+// Deep sleep
+//------------------------------------------------------------------------------
+LOCAL void fATDS(int argc, char *argv[])
 {
-	uint32 sleep_ms = 10000;
-	if(argc > 2) sleep_ms = atoi(argv[1]);
-#if 0
-	// turn off log uart
-    sys_log_uart_off();
-    // initialize wakeup pin at PB_1
-    gpio_t gpio_wake;
-    gpio_init(&gpio_wake, PB_1);
-    gpio_dir(&gpio_wake, PIN_INPUT);
-    gpio_mode(&gpio_wake, PullDown);
+    uint32 sleep_ms = 10000;
+    if(argc > 1) sleep_ms = atoi(argv[1]);
+#if 0    
+    if(argc > 2) {
+            printf("%u ms waiting low level on PB_1 before launching Deep-Sleep...\n", sleep_ms);
+            // turn off log uart
+            HalDeinitLogUart(); // sys_log_uart_off();
 
-    // enter deep sleep
-    deepsleep_ex(DSLEEP_WAKEUP_BY_GPIO | DSLEEP_WAKEUP_BY_TIMER, 10000); */
-	//	standby_wakeup_event_add(STANDBY_WAKEUP_BY_STIMER, 10000, 0);
-//  deepstandby_ex();
-//  sleep_ex(SLEEP_WAKEUP_BY_STIMER, 8000); // sleep_ex can't be put in irq handler
-//	release_wakelock(WAKELOCK_OS);
+           // initialize wakeup pin
+           gpio_t gpio_wake;
+           gpio_init(&gpio_wake, PB_1);
+           gpio_dir(&gpio_wake, PIN_INPUT);
+           gpio_mode(&gpio_wake, PullDown);
+           TickType_t sttime = xTaskGetTickCount();
+
+           do {
+              if(gpio_read(&gpio_wake) == 0) {
+                   // Enter deep sleep... Wait give rising edge at PB_1 to wakeup system.
+                   deepsleep_ex(DSLEEP_WAKEUP_BY_GPIO, 0);
+              };
+              vTaskDelay(1);
+           } while(xTaskGetTickCount() - sttime < sleep_ms);
+           HalInitLogUart(); // sys_log_uart_on();
+            printf("No set pin low in deep sleep!\n");
+    }
+    else {
+        printf("Deep-Sleep %u ms\n", sleep_ms);
+        HalLogUartWaitTxFifoEmpty();
+        // Enter deep sleep... Wait timer ms
+        deepsleep_ex(DSLEEP_WAKEUP_BY_TIMER, sleep_ms);
+    }
 #else
+    HalLogUartWaitTxFifoEmpty();
     deepsleep_ex(DSLEEP_WAKEUP_BY_TIMER, sleep_ms);
-#endif
+#endif    
 }
 /*------------------------------------------------------------------------------
  * power saving mode
  *----------------------------------------------------------------------------*/
-void fATSP(int argc, char *argv[])
+LOCAL void fATSP(int argc, char *argv[])
 {
 	if(argc > 2) {
 		switch (argv[1][0]) {
@@ -311,12 +333,13 @@ void fATSP(int argc, char *argv[])
 			release_wakelock(atoi(argv[2]));
 			break;
 		}
-		}
-	}
+		};
+	};
 	printf("WakeLock Status %d\n", get_wakelock_status());
 }
-
-MON_RAM_TAB_SECTION COMMAND_TABLE console_commands1[] = {
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+MON_RAM_TAB_SECTION COMMAND_TABLE console_commands_at[] = {
 		{"ATST", 0, fATST, ": Memory info"},
 		{"ATLW", 0, fATLW, ": LwIP Info"},
 		{"ATSB", 1, fATSB, "=<ADDRES(hex)>[,COUNT(dec)]: Dump byte register"},

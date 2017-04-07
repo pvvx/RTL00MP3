@@ -259,7 +259,8 @@ VOID HalADCOpInit(
 // Author:
 // 		By Jason Deng, 2014-04-02.
 //
-//--------------------------------------------------------------------------------------------------- 
+//---------------------------------------------------------------------------------------------------
+#define sizealign4(x) ((sizeof(x) + 3) & (~3))
 PSAL_ADC_MNGT_ADPT
 RtkADCGetMngtAdpt(
     IN  u8  ADCIdx
@@ -269,6 +270,40 @@ RtkADCGetMngtAdpt(
 
     /* If the kernel is available, Memory-allocation is used. */
 #if (!ADC_STATIC_ALLOC)
+#if 1 // pvvx
+    pSalADCMngtAdpt = (PSAL_ADC_MNGT_ADPT)RtlZmalloc(
+    		sizealign4(SAL_ADC_MNGT_ADPT)
+    		+ sizealign4(SAL_ADC_HND_PRIV)
+			+ sizealign4(HAL_ADC_INIT_DAT)
+			+ sizealign4(HAL_ADC_OP)
+			+ sizealign4(IRQ_HANDLE)
+			+ sizealign4(SAL_ADC_USER_CB)
+			+ sizealign4(HAL_GDMA_ADAPTER)
+			+ sizealign4(HAL_GDMA_OP)
+			+ sizealign4(IRQ_HANDLE)
+			+ (sizealign4(SAL_ADC_USERCB_ADPT)*SAL_ADC_USER_CB_NUM));
+    if(!pSalADCMngtAdpt) {
+    	return pSalADCMngtAdpt;
+    };
+    unsigned char *ptr = (unsigned char *)pSalADCMngtAdpt + sizeof(SAL_ADC_MNGT_ADPT);
+    pSalADCMngtAdpt->pSalHndPriv    = (PSAL_ADC_HND_PRIV)ptr;
+    ptr += sizealign4(SAL_ADC_HND_PRIV);
+    pSalADCMngtAdpt->pHalInitDat    = (PHAL_ADC_INIT_DAT)ptr;
+    ptr += sizealign4(HAL_ADC_INIT_DAT);
+    pSalADCMngtAdpt->pHalOp         = (PHAL_ADC_OP)ptr;
+    ptr += sizealign4(HAL_ADC_OP);
+    pSalADCMngtAdpt->pIrqHnd        = (PIRQ_HANDLE)ptr;
+    ptr += sizealign4(IRQ_HANDLE);
+    pSalADCMngtAdpt->pUserCB        = (PSAL_ADC_USER_CB)ptr;
+    ptr += sizealign4(SAL_ADC_USER_CB);
+    pSalADCMngtAdpt->pHalGdmaAdp    = (PHAL_GDMA_ADAPTER)ptr;
+    ptr += sizealign4(HAL_GDMA_ADAPTER);
+    pSalADCMngtAdpt->pHalGdmaOp     = (PHAL_GDMA_OP)ptr;
+    ptr += sizealign4(HAL_GDMA_OP);
+    pSalADCMngtAdpt->pIrqGdmaHnd    = (PIRQ_HANDLE)ptr;
+    ptr += sizealign4(IRQ_HANDLE);
+    pSalADCUserCBAdpt               = (PSAL_ADC_USERCB_ADPT)ptr;
+#else
     pSalADCMngtAdpt = (PSAL_ADC_MNGT_ADPT)RtlZmalloc(sizeof(SAL_ADC_MNGT_ADPT));
     pSalADCMngtAdpt->pSalHndPriv    = (PSAL_ADC_HND_PRIV)RtlZmalloc(sizeof(SAL_ADC_HND_PRIV));
     pSalADCMngtAdpt->pHalInitDat    = (PHAL_ADC_INIT_DAT)RtlZmalloc(sizeof(HAL_ADC_INIT_DAT));
@@ -279,6 +314,7 @@ RtkADCGetMngtAdpt(
     pSalADCMngtAdpt->pHalGdmaOp     = (PHAL_GDMA_OP)RtlZmalloc(sizeof(HAL_GDMA_OP));
     pSalADCMngtAdpt->pIrqGdmaHnd    = (PIRQ_HANDLE)RtlZmalloc(sizeof(IRQ_HANDLE));
     pSalADCUserCBAdpt               = (PSAL_ADC_USERCB_ADPT)RtlZmalloc((sizeof(SAL_ADC_USERCB_ADPT)*SAL_ADC_USER_CB_NUM));
+#endif
 #else
     switch (ADCIdx){
         case ADC0_SEL:
@@ -408,6 +444,19 @@ RtkADCFreeMngtAdpt(
     IN  PSAL_ADC_MNGT_ADPT  pSalADCMngtAdpt
 ){
 #ifdef CONFIG_KERNEL
+#if 1 // pvvx
+	RtlMfree((u8 *)pSalADCMngtAdpt,
+			sizealign4(SAL_ADC_MNGT_ADPT)
+    		+ sizealign4(SAL_ADC_HND_PRIV)
+			+ sizealign4(HAL_ADC_INIT_DAT)
+			+ sizealign4(HAL_ADC_OP)
+			+ sizealign4(IRQ_HANDLE)
+			+ sizealign4(SAL_ADC_USER_CB)
+			+ sizealign4(HAL_GDMA_ADAPTER)
+			+ sizealign4(HAL_GDMA_OP)
+			+ sizealign4(IRQ_HANDLE)
+			+ (sizealign4(SAL_ADC_USERCB_ADPT)*SAL_ADC_USER_CB_NUM));
+#else
     RtlMfree((u8 *)pSalADCMngtAdpt->pUserCB->pTXCB, (sizeof(SAL_ADC_USERCB_ADPT)*SAL_ADC_USER_CB_NUM));
     RtlMfree((u8 *)pSalADCMngtAdpt->pIrqGdmaHnd, sizeof(IRQ_HANDLE));
     RtlMfree((u8 *)pSalADCMngtAdpt->pHalGdmaOp, sizeof(HAL_GDMA_OP));
@@ -418,6 +467,7 @@ RtkADCFreeMngtAdpt(
     RtlMfree((u8 *)pSalADCMngtAdpt->pHalInitDat, sizeof(HAL_ADC_INIT_DAT));
     RtlMfree((u8 *)pSalADCMngtAdpt->pSalHndPriv, sizeof(SAL_ADC_HND_PRIV));    
     RtlMfree((u8 *)pSalADCMngtAdpt, sizeof(SAL_ADC_MNGT_ADPT));
+#endif
 #else
     ;
 #endif

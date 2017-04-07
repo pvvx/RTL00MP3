@@ -978,7 +978,7 @@
 		<buildTargets>
 			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>mingw32-make.exe</buildCommand>
-				<buildArguments>-s -j</buildArguments>
+				<buildArguments>-s -j 4</buildArguments>
 				<buildTarget>all</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>

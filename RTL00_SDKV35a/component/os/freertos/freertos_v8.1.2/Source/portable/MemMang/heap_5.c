@@ -680,6 +680,15 @@ void* pvPortReAlloc( void *pv,  size_t xWantedSize )
 	return NULL;
 }
 
+extern _LONG_CALL_ROM_ void *_memset( void *s, int c, SIZE_T n );
+
+void *pvPortZalloc( size_t xWantedSize )
+{
+	void * prt = pvPortMalloc(xWantedSize);
+	if(prt) _memset(prt, 0, xWantedSize);
+	return prt;
+}
+
 /*
 #ifdef  ARDUINO_SDK
 int vPortAddHeapRegion(uint8_t *addr, size_t size)

@@ -10,6 +10,8 @@
 //#undef free
 #define free(pbuf)              vPortFree(pbuf)
 
+#define atoi(str)               prvAtoi(str)
+
 #define calloc(nelements, elementSize) calloc_freertos(nelements, elementSize)
 
 #define snprintf	rtl_snprintf	

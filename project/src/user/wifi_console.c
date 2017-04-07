@@ -23,7 +23,7 @@ extern struct netif xnetif[NET_IF_NUM];
 //--- CONSOLE --------------------------
 
 // ATPN=<SSID>[,password[,encryption[,auto reconnect[,reconnect pause]]]: WIFI Connect to AP
-void fATPN(int argc, char *argv[]){
+LOCAL void fATPN(int argc, char *argv[]){
 	if(argc > 1) {
 		if(argv[1][0] == '?') {
 			show_wifi_st_cfg();
@@ -66,7 +66,7 @@ void fATPN(int argc, char *argv[]){
 }
 
 // ATPA=<SSID>[,password[,encryption[,channel[,hidden[,max connections]]]]]: Start WIFI AP
-void fATPA(int argc, char *argv[]){
+LOCAL void fATPA(int argc, char *argv[]){
 	if(argc > 1) {
 		if(argv[1][0] == '?') {
 			show_wifi_ap_cfg();
@@ -115,23 +115,23 @@ void fATPA(int argc, char *argv[]){
 }
 
 // WIFI Connect, Disconnect
-void fATWR(int argc, char *argv[]){
+LOCAL void fATWR(int argc, char *argv[]){
 	rtw_mode_t mode = RTW_MODE_NONE;
 	if(argc > 1) mode = atoi(argv[1]);
 	wifi_run(mode);
 }
 
 // Close connections
-void fATOF(int argc, char *argv[]){
+LOCAL void fATOF(int argc, char *argv[]){
 	connect_close();
 }
 
 // Open connections
-void fATON(int argc, char *argv[]){
+LOCAL void fATON(int argc, char *argv[]){
 	connect_start();
 }
 
-void fATWI(int argc, char *argv[]) {
+LOCAL void fATWI(int argc, char *argv[]) {
 	rtw_wifi_setting_t Setting;
 	if((wifi_run_mode & RTW_MODE_AP)
 		&& wifi_get_setting(wlan_ap_name, &Setting) == 0) {
@@ -155,18 +155,27 @@ void fATWI(int argc, char *argv[]) {
 	printf(&str_rom_57ch3Dch0A[25]); // "================================\n"
 	show_wifi_st_cfg();
 	printf("\n");
-	if(argc > 1
-			&& (argv[1][0] == 's'
-					|| argv[1][0] == 'S')) {
-		int i = atoi(argv[2]);
-		printf("Save configs(%d)..\n", i);
-		write_wifi_cfg(atoi(argv[2]));
+#if 1
+	if(argc > 2) {
+		uint8_t c = argv[1][0] | 0x20;
+		if(c == 's') {
+			int i = atoi(argv[2]);
+			printf("Save configs(%d)..\n", i);
+			write_wifi_cfg(atoi(argv[2]));
+		}
+		else if(c == 'l') {
+			wifi_cfg.load_flg = atoi(argv[2]);
+		}
+		else if(c == 'm') {
+			wifi_cfg.mode = atoi(argv[2]);
+		}
 	}
+#endif
 }
 
 extern uint8_t rtw_power_percentage_idx;
 
-void fATWT(int argc, char *argv[]) {
+LOCAL void fATWT(int argc, char *argv[]) {
 	if(argc > 1) {
 		int txpwr = atoi(argv[1]);
 		debug_printf("set tx power (%d)...\n", txpwr);
@@ -189,7 +198,7 @@ LOCAL uint64_t get_tsf(void)
 	return *((uint64_t *)(WIFI_REG_BASE + REG_TSFTR));
 }
 
-void fATSF(int argc, char *argv[])
+LOCAL void fATSF(int argc, char *argv[])
 {
 	uint64_t tsf = get_tsf();
 	printf("\nTSF: %08x%08x\n", (uint32_t)(tsf>>32), (uint32_t)(tsf));
@@ -222,7 +231,7 @@ unsigned int *tab_code_rtw_secyrity[] = {
 volatile uint8_t scan_end;
 
 /* --------  WiFi Scan ------------------------------- */
-static rtw_result_t _scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
+LOCAL rtw_result_t _scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
 {
 	if (malloced_scan_result->scan_complete != RTW_TRUE) {
 		rtw_scan_result_t* record = &malloced_scan_result->ap_details;
@@ -249,7 +258,7 @@ static rtw_result_t _scan_result_handler( rtw_scan_handler_result_t* malloced_sc
 }
 /* --------  WiFi Scan ------------------------------- */
 #define scan_channels 14
-void fATSN(int argc, char *argv[])
+LOCAL void fATSN(int argc, char *argv[])
 {
 	int i;
 	u8 *channel_list = (u8*)pvPortMalloc(scan_channels*2);
@@ -281,9 +290,9 @@ MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"ATPN", 1, fATPN, "=<SSID>[,password[,encryption[,auto-reconnect[,reconnect pause]]]: WIFI Connect to AP"},
 		{"ATPA", 1, fATPA, "=<SSID>[,password[,encryption[,channel[,hidden[,max connections]]]]]: Start WIFI AP"},
 		{"ATWR", 0, fATWR, ": WIFI Connect, Disconnect"},
-		{"ATON", 0, fATON, ": Open connections"},
-		{"ATOF", 0, fATOF, ": Close connections"},
-		{"ATWI", 0, fATWI, "=[s]: WiFi Info, s - save"},
+//		{"ATON", 0, fATON, ": Open connections"},
+//		{"ATOF", 0, fATOF, ": Close connections"},
+		{"ATWI", 0, fATWI, ": WiFi Info"},
 #if CONFIG_DEBUG_LOG > 3
 		{"ATWT", 1, fATWT, "=<tx_power>: WiFi tx power: 0 - 100%, 1 - 75%, 2 - 50%, 3 - 25%, 4 - 12.5%"},
 		{"ATSF", 0, fATSF, ": Test TSF value"},

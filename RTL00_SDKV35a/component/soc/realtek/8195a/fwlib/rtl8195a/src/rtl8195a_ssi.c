@@ -111,7 +111,7 @@ VOID _SsiWriteInterruptRtl8195a(VOID *Adapter)
     if (pHalSsiAdapter->TxLength == 0) {
         pHalSsiAdapter->InterruptMask &= ~(BIT_IMR_TXEIM);
         HalSsiSetInterruptMaskRtl8195a((VOID*)pHalSsiAdapter);
-        for (i=0;i<1000000;i++) {            
+        for (i=0;i<1000000;i++) {
             bus_busy = HAL_SSI_READ32(Index, REG_DW_SSI_SR) & BIT_SR_BUSY;
             if (!bus_busy) {
                 break;  // break the for loop

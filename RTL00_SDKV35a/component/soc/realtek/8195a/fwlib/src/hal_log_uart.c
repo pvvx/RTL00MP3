@@ -50,6 +50,14 @@ extern VOID UartLogIrqHandleRam(VOID * Data);
 // extern ConfigDebugInfo;
 // extern UartLogIrqHandleRam;
 //-------------------------------------------------------------------------
+/*
+ *  16 bytes FIFO ... 16*11/38400 = 0.004583 sec
+ *  (0.005/5)*166666666 = 166666.666
+ */
+VOID HalLogUartWaitTxFifoEmpty(VOID) {
+	int x = 16384;
+	while((!(HAL_READ8(LOG_UART_REG_BASE, 0x14) & BIT6)) && x--);
+}
 
 //----- HalLogUartIrqRxRdyHandle
 void HalLogUartIrqRxRdyHandle(HAL_LOG_UART_ADAPTER *pUartAdapter) {
@@ -427,8 +435,7 @@ void HalInitLogUart(void) {
 
 //----- HalDeinitLogUart
 void HalDeinitLogUart(void) {
-	while (!(HAL_UART_READ32(UART_LINE_STATUS_REG_OFF) & LSR_TEMT)) // 40003014 & 0x40
-		HalDelayUs(20);
+	HalLogUartWaitTxFifoEmpty();
 	HalPinCtrlRtl8195A(LOG_UART, 0, 0);
 }
 

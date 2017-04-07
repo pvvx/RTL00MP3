@@ -146,5 +146,6 @@ VOID HalLogUartAbortIntRecv(HAL_LOG_UART_ADAPTER *pUartAdapter);
 HAL_Status HalLogUartRstFIFO(HAL_LOG_UART_ADAPTER *pUartAdapter, u8 RstCtrl);
 VOID HalLogUartEnable(HAL_LOG_UART_ADAPTER *pUartAdapter);
 VOID HalLogUartDisable(HAL_LOG_UART_ADAPTER *pUartAdapter);
+VOID HalLogUartWaitTxFifoEmpty(VOID);
 
 #endif

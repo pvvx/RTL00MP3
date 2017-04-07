@@ -1520,7 +1520,7 @@ SleepCG(
         //Enable wake event
         WakeEvent |= BIT28;
     }
-
+/*
     while(1) {
 
         HalDelayUs(100);
@@ -1530,7 +1530,8 @@ SleepCG(
             break;
         }
     }
-
+*/
+    HalLogUartWaitTxFifoEmpty();
     //Set Event
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_SLP_WAKE_EVENT_MSK0, WakeEvent);
 
@@ -1636,8 +1637,7 @@ SleepPG(
         //Enable wake event
         WakeEvent |= BIT28;
     }
-
-    while(1) {
+/*    while(1) {
 
         HalDelayUs(100);
         
@@ -1645,7 +1645,8 @@ SleepPG(
             
             break;
         }
-    }
+    } */
+    HalLogUartWaitTxFifoEmpty();
 
     //Set Event
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_SLP_WAKE_EVENT_MSK0, WakeEvent);
