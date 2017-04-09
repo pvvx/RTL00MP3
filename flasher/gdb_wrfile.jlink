@@ -36,12 +36,11 @@ if $rtl8710_flasher_capacity == 0
  monitor go
  FlasherWait
  set $id = {int}($rtl8710_flasher_buffer + 0x0C)
+ set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
  if ($id == 0x1420c2) 
-  set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
   printf "Flash ID = 0x%08x : MX25L8006E (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
  else 
-  set $rtl8710_flasher_capacity = 1024*1024)
-  error "Flash ID = 0x%08x : ?\n", $id
+  printf "Flash ID = 0x%08x : (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
  end
  printf "RTL8710 flasher initialized\n"
 else
@@ -142,15 +141,16 @@ SetClk83MHz
 SPI_Init
 FlasherInit
 FlasherLoad flasher/rtl8710_flasher.bin
-if $ImageSize != 0  
+call1
+if $ImageSize != 0
 set $ImageEnd = $ImageSize + $ImageAddr + 0x4000
 if $rtl8710_flasher_capacity >= $ImageEnd
  printf "Write Image size %d to Flash addr 0x%08x:\n", $ImageSize, $ImageAddr
- call1
-else   
+ call2
+else
  printf "Error: Image size is too big!\n"
 end
-else   
+else
  printf "Error: Image size is zero!\n"
 end
 quit
