@@ -3,7 +3,7 @@
 CFLAGS = -DM3 -DCONFIG_PLATFORM_8195A -DGCC_ARMCM3 -DARDUINO_SDK -DF_CPU=166666666L -DNDEBUG
 CFLAGS += -mcpu=cortex-m3 -mthumb -g2 -Os -std=gnu99 
 CFLAGS += -fno-common -fmessage-length=0 -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums -fsigned-char 
-CFLAGS += -w -Wno-pointer-sign    
+CFLAGS += -w -Wno-pointer-sign
 LFLAGS = -mcpu=cortex-m3 -mthumb -g -Os -nostartfiles -nostdlib
 #--specs=nano.specs
 LFLAGS += -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning -Wl,-nostdlib
@@ -67,7 +67,7 @@ INCLUDES += sdk/component/common/network/ssl/ssl_ram_map/rom
 INCLUDES += sdk/component/common/utilities
 INCLUDES += sdk/component/common/application/apple/WACServer/External/Curve25519
 INCLUDES += sdk/component/common/application/apple/WACServer/External/GladmanAES
-INCLUDES += sdk/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include
+#INCLUDES += sdk/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include
 INCLUDES += sdk/component/common/media/codec
 INCLUDES += sdk/component/common/drivers/usb_class/host/uvc/inc
 INCLUDES += sdk/component/common/drivers/usb_class/device
@@ -86,6 +86,9 @@ BOOT_C =
 #bootloader
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_bios_data.c
 BOOT_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/rtl_boot.c 
+
+#startup
+SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/startup.c 
 
 #cmsis
 SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/system_8195a.c
@@ -361,7 +364,6 @@ ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_pinmux.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_misc.c
 #ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_spi_flash_ram.c
 # COMPONENTS
-ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/ram_lib/startup.c 
 ADD_SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/flash_eep.c 
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libc.c 
 ADD_SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libgloss_retarget.c
