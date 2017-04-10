@@ -165,6 +165,7 @@ LOCAL void fATSB(int argc, char *argv[])
 //------------------------------------------------------------------------------
 // Dump dword register
 //------------------------------------------------------------------------------
+extern u32 CmdDumpWord(IN u16 argc, IN u8 *argv[]);
 LOCAL void fATSD(int argc, char *argv[])
 {
 /*
@@ -179,6 +180,7 @@ LOCAL void fATSD(int argc, char *argv[])
 //------------------------------------------------------------------------------
 // Write dword register
 //------------------------------------------------------------------------------
+extern u32 CmdWriteWord(IN u16 argc, IN u8 *argv[]);
 LOCAL void fATSW(int argc, char *argv[])
 {
 	CmdWriteWord(argc-1, (unsigned char**)(argv+1));

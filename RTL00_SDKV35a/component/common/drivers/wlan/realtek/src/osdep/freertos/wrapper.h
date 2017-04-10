@@ -414,7 +414,7 @@ struct net_device_stats {
 struct net_device {
 	char			name[16];
 	void			*priv;		/* pointer to private data */
-	unsigned char		dev_addr[6];	/* set during bootup */
+	unsigned char	dev_addr[6];	/* set during bootup */
 	int (*init)(void);
 	int (*open)(struct net_device *dev);
 	int (*stop)(struct net_device *dev);
@@ -448,6 +448,8 @@ void  cancel_timer_ex(struct timer_list * timer);
 void del_timer_sync(struct timer_list * timer);
 void init_timer_wrapper(void);
 void deinit_timer_wrapper(void);
+
+typedef void (*TIMER_FUN)(void *context);
 
 void	rtw_init_timer(_timer *ptimer, void *adapter, TIMER_FUN pfunc,void* cntx, const char *name);
 void	rtw_set_timer(_timer *ptimer,u32 delay_time);

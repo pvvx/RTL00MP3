@@ -169,7 +169,6 @@ space. */
 #define xBlockAllocatedBit  (( ( size_t ) 1 ) << ( ( sizeof( size_t ) * heapBITS_PER_BYTE ) - 1 ))
 
 /* Realtek test code start */
-//TODO: remove section when combine BD and BF
 #if (defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B))
 #include "section_config.h"
 SRAM_HEAP_SECTION
@@ -541,7 +540,7 @@ const HeapRegion_t *pxHeapRegion;
 	uint8 chip_id = HalGetChipId();
 	while( pxHeapRegion->xSizeInBytes > 0 )
 	{
-		if(pxHeapRegion->pucStartAddress > 0x20000000
+		if(pxHeapRegion->pucStartAddress > (uint8_t *)0x20000000
 		&& chip_id >= CHIP_ID_8711AN && chip_id <= CHIP_ID_8711AF) {
 //				pxHeapRegion->pucStartAddress = 0;
 //				pxHeapRegion->xSizeInBytes = 0;

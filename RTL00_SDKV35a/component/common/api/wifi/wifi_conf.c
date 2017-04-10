@@ -22,6 +22,8 @@
 extern int inic_start(void);
 extern int inic_stop(void);
 #endif
+#include "wifi_api.h"
+
 #include "wlan_lib.h"
 
 #if CONFIG_DEBUG_LOG > 0
@@ -872,23 +874,17 @@ int wifi_get_drv_ability(uint32_t *ability) {
 
 //----------------------------------------------------------------------------//
 int wifi_set_country(rtw_country_code_t country_code) {
-	int ret;
-
-	ret = wext_set_country(WLAN0_NAME, country_code);
-
-	return ret;
+	return wext_set_country(WLAN0_NAME, country_code);
 }
 
 //----------------------------------------------------------------------------//
 int wifi_set_channel_plan(uint8_t channel_plan) {
 	const char * ifname = WLAN0_NAME;
-	int ret = 0;
 	char buf[24];
 
 	rtw_memset(buf, 0, sizeof(buf));
 	snprintf(buf, 24, "set_ch_plan %x", channel_plan);
-	ret = wext_private_command(ifname, buf, SHOW_PRIVATE_OUT);
-	return ret;
+	return wext_private_command(ifname, buf, SHOW_PRIVATE_OUT);
 }
 
 //----------------------------------------------------------------------------//
@@ -922,16 +918,12 @@ void wifi_set_mib(void) {
 
 //----------------------------------------------------------------------------//
 int wifi_rf_on(void) {
-	int ret;
-	ret = rltk_wlan_rf_on();
-	return ret;
+	return rltk_wlan_rf_on();
 }
 
 //----------------------------------------------------------------------------//
 int wifi_rf_off(void) {
-	int ret;
-	ret = rltk_wlan_rf_off();
-	return ret;
+	return rltk_wlan_rf_off();
 }
 
 //----------------------------------------------------------------------------//
@@ -1077,6 +1069,59 @@ int wifi_get_last_error(void) {
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
 int wpas_wps_init(const char* ifname);
 #endif
+
+int wifi_start_ap_s(PSOFTAP_CONFIG p) {
+	const char *ifname = WLAN0_NAME;
+	int ret = 0;
+
+	if (wifi_mode == RTW_MODE_STA_AP) {
+		ifname = WLAN1_NAME;
+	}
+
+	if (is_promisc_enabled())
+		promisc_set(0, NULL, 0);
+
+	wifi_reg_event_handler(WIFI_EVENT_STA_ASSOC, wifi_ap_sta_assoc_hdl, NULL);
+	wifi_reg_event_handler(WIFI_EVENT_STA_DISASSOC, wifi_ap_sta_disassoc_hdl,
+	NULL);
+
+	ret = wext_set_mode(ifname, IW_MODE_MASTER);
+	if (ret < 0)
+		goto exit;
+	ret = wext_set_channel(ifname, p->channel);	//Set channel before starting ap
+	if (ret < 0)
+		goto exit;
+
+	switch (p->security_type) {
+	case RTW_SECURITY_OPEN:
+		break;
+	case RTW_SECURITY_WPA2_AES_PSK:
+		ret = wext_set_auth_param(ifname, IW_AUTH_80211_AUTH_ALG,
+		IW_AUTH_ALG_OPEN_SYSTEM);
+		if (ret == 0)
+			ret = wext_set_key_ext(ifname, IW_ENCODE_ALG_CCMP, NULL, 0, 0, 0, 0,
+			NULL, 0);
+		if (ret == 0)
+			ret = wext_set_passphrase(ifname, (u8*) p->password, strlen(p->password));
+		break;
+	default:
+		ret = -1;
+		printf("WIFICONF: security type is not supported\n");
+		break;
+	}
+	if (ret < 0)
+		goto exit;
+	if(p->ssid_hidden) {
+		ret = set_hidden_ssid(ifname, 1);
+		if (ret < 0)
+			goto exit;
+	}
+	ret = wext_set_ap_ssid(ifname, (u8*) p->ssid, strlen(p->ssid));
+#if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
+	wpas_wps_init(ifname);
+#endif
+exit: return ret;
+}
 
 int wifi_start_ap(char *ssid, rtw_security_t security_type, char *password,
 		int ssid_len, int password_len, int channel) {

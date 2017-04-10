@@ -68,13 +68,15 @@ struct simple_config_lib_config {
 
 };
 
-#pragma pack(1)
+
+#pragma pack(push, 1)
 struct rtk_test_sc {
 	/* API exposed to user */
 	unsigned char		ssid[32];
 	unsigned char		password[65];	
 	unsigned int		ip_addr;
 };
+#pragma pack(pop)
 
 /* expose data */
 extern s32 is_promisc_callback_unlock;

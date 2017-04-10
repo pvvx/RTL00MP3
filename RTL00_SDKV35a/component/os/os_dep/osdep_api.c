@@ -22,6 +22,7 @@
 #define _OSDEP_API_C_
 
 #include <osdep_api.h>
+#include <task.h>
 
 extern _LONG_CALL_ char *_strcpy(char *dest, const char *src);
 extern _LONG_CALL_ VOID *_memset(void *dst0, int Val,SIZE_T length);

@@ -142,6 +142,8 @@ HalRuartResetTRxFifoRtl8195a(
     return HAL_OK;
 }
 
+extern u64 div_u64(u64 dividend, u32 divisor);
+
 HAL_Status 
 HalRuartGenBaudRateRtl8195a(
     IN RUART_SPEED_SETTING *pBaudSetting
@@ -152,7 +154,7 @@ HalRuartGenBaudRateRtl8195a(
     u32 min_err=0xffffffff;
     u32 uart_ovsr;
     u32 uart_ovsr_mod;
-    u32 min_uart_ovsr;  // ovsr with mini err
+    u32 min_uart_ovsr =0;  // ovsr with mini err
     u32 min_uart_ovsr_mod;
     u64 uart_clock;
     u32 divisor_temp;

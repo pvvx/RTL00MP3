@@ -173,6 +173,8 @@ uint8 chk_ap_netif_num(void)
 	return wlan_ap_netifn;
 }
 
+extern int wifi_start_ap_s(PSOFTAP_CONFIG p);
+
 rtw_result_t wifi_run_ap(void) {
 	chk_ap_netif_num();
 
@@ -184,12 +186,7 @@ rtw_result_t wifi_run_ap(void) {
 		if(wext_set_sta_num(wifi_ap_cfg.max_sta) != 0) { // Max number of STAs, should be 1..3, default is 3
 			error_printf("AP not set max connections %d!\n", wifi_ap_cfg.max_sta);
 		};
-		ret = wifi_start_ap(wifi_ap_cfg.ssid,			//char  *ssid,
-				wifi_ap_cfg.security_type,	//rtw_security_t ecurity_type,
-				wifi_ap_cfg.password, 		//char *password,
-				strlen(wifi_ap_cfg.ssid),			//int ssid_len,
-				strlen(wifi_ap_cfg.password), 	//int password_len,
-				wifi_ap_cfg.channel);			//int channel
+		ret = wifi_start_ap_s(&wifi_ap_cfg);
 		wifi_run_mode |= RTW_MODE_AP;
 		if (ret != RTW_SUCCESS) {
 			error_printf("Error(%d): Start AP failed!\n\n", ret);;
@@ -438,12 +435,16 @@ int wifi_run(rtw_mode_t mode) {
 		if(wifi_set_country(wifi_cfg.country_code) != RTW_SUCCESS) {
 			error_printf("Error set tx country_code (%d)!", wifi_cfg.country_code);
 		};
-//	extern uint8_t rtw_power_percentage_idx;
+//	extern uint8_t rtw_power_percentage_idx; // rtw_tx_pwr_percentage_t
+#if 1 // rltk_set_tx_power_percentage() return all = 0 !
+		rltk_set_tx_power_percentage(wifi_cfg.tx_pwr);
+#else
 		if(rtw_power_percentage_idx != wifi_cfg.tx_pwr) {
 			if(rltk_set_tx_power_percentage(wifi_cfg.tx_pwr) != RTW_SUCCESS) {
 				error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
 			};
 		}
+#endif
 		debug_printf("mode == wifi_mode? (%d == %d?)\n", mode, wifi_mode);
 //		if(mode == wifi_mode)
 		{

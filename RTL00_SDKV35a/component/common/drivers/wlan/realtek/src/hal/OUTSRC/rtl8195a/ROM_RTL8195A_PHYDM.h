@@ -20,6 +20,7 @@
 #ifndef	__ROM_RTL8195A_PHYDM_H__
 #define __ROM_RTL8195A_PHYDM_H__
 
+#ifndef _RTL_BIOS_DATA_H_
 typedef struct _FALSE_ALARM_STATISTICS{
 	u4Byte	Cnt_Parity_Fail;
 	u4Byte	Cnt_Rate_Illegal;
@@ -56,16 +57,19 @@ typedef struct _CFO_TRACKING_
 	u1Byte			CFO_TH_ATC;
 }CFO_TRACKING, *PCFO_TRACKING;
 
+
+extern FALSE_ALARM_STATISTICS 	FalseAlmCnt;
+extern CFO_TRACKING    			DM_CfoTrack;
+
 typedef struct _ROM_INFO{
 	u1Byte	EEPROMVersion;
 	u1Byte	CrystalCap;
 	u8Byte	DebugComponents;
 	u4Byte	DebugLevel;
-}ROM_INFO, *PROM_INFO;
+} ROM_INFO, *PROM_INFO;
 
-extern FALSE_ALARM_STATISTICS 	FalseAlmCnt;
-extern CFO_TRACKING    			DM_CfoTrack;
 extern ROM_INFO					ROMInfo;
+#endif
 
 u1Byte
 ROM_odm_QueryRxPwrPercentage(

@@ -181,6 +181,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* Support Multicast */
 #define LWIP_IGMP		1
+extern __attribute__ ((long_call)) unsigned int Rand(void);
 #define LWIP_RAND()		Rand()
 
 /* Support TCP Keepalive */

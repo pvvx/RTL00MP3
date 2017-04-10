@@ -481,13 +481,13 @@ typedef struct _RT_CHANNEL_INFO
 extern int rtw_is_channel_set_contains_channel(RT_CHANNEL_INFO *channel_set, const u32 channel_num, int *pchannel_idx);
 
 #ifdef CONFIG_CUSTOM_IE
-#ifndef _CUS_IE_
-#define _CUS_IE_
-typedef struct _cus_ie
+#ifndef __CUS_IE_
+#define __CUS_IE_
+typedef struct __cus_ie
 {
 	u8 *ie;
 	u8 type;
-}rtw_custom_ie_t, *p_rtw_custom_ie_t;
+} rtw_custom_ie_t, *p_rtw_custom_ie_t;
 #endif /* _CUS_IE_ */
 #endif
 

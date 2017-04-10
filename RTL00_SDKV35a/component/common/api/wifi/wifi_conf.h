@@ -3,10 +3,10 @@
 #define __WIFI_CONF_API_H
 
 #include "FreeRTOS.h"
-#include "wifi_constants.h"   
+#include "wifi_constants.h"
 #include "wifi_structures.h"  
 #include "wifi_util.h"    
-#include "wifi_ind.h"    
+#include "wifi_ind.h"
 #include <platform/platform_stdlib.h>
 
 #ifdef __cplusplus

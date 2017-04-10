@@ -21,7 +21,7 @@ extern struct netif xnetif[NET_IF_NUM];
 
 //==========================================================
 //--- CONSOLE --------------------------
-
+extern rtw_security_t translate_rtw_security(u8 security_type);
 // ATPN=<SSID>[,password[,encryption[,auto reconnect[,reconnect pause]]]: WIFI Connect to AP
 LOCAL void fATPN(int argc, char *argv[]){
 	if(argc > 1) {
@@ -216,7 +216,7 @@ unsigned char *tab_txt_rtw_secyrity[] = {
 		"WPA/WPA2 AES",
 		"Unknown"
 };
-unsigned int *tab_code_rtw_secyrity[] = {
+int *tab_code_rtw_secyrity[] = {
 		RTW_SECURITY_OPEN,
 		RTW_SECURITY_WEP_PSK,
 		RTW_SECURITY_WPA_TKIP_PSK,

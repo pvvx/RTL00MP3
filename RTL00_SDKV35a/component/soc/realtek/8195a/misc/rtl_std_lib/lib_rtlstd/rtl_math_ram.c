@@ -20,25 +20,28 @@ float rtl_sin_f32(float a);
 // int __rtl_cos_f32_v1_00();
 // int __rtl_sin_f32_v1_00();
 
-
+extern _LONG_CALL_ float __rtl_fabsf_v1_00(float a);
 //----- rtl_fabsf()
 float rtl_fabsf(float a)
 {
   return __rtl_fabsf_v1_00(a);
 }
 
+extern _LONG_CALL_ double __rtl_fabs_v1_00(double number);
 //----- rtl_fabs()
 int rtl_fabs(double a)
 {
   return __rtl_fabs_v1_00(a);
 }
 
+extern _LONG_CALL_ float __rtl_cos_f32_v1_00(float a);
 //----- rtl_cos_f32()
 float rtl_cos_f32(float a)
 {
   return __rtl_cos_f32_v1_00(a);
 }
 
+extern _LONG_CALL_ float __rtl_sin_f32_v1_00(float a);
 //----- rtl_sin_f32()
 float rtl_sin_f32(float a)
 {

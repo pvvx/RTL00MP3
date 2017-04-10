@@ -234,7 +234,7 @@ struct hal_ops {
 	void	(*disable_interrupt)(_adapter *padapter);
 
 	s32		(*interrupt_handler)(_adapter *padapter);
-	void	(*clear_interrupt)(_adapter *padapter);
+//	void	(*clear_interrupt)(_adapter *padapter); // None SDK3.5a
 	
 #ifdef CONFIG_WOWLAN
 	void	(*disable_interrupt_but_cpwm2)(_adapter *padapter);
