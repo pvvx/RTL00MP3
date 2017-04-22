@@ -650,7 +650,7 @@ RtkADCPinMuxInit(
     ADCLocalTemp |= BIT25;
 
     /* To release DAC delta sigma clock gating */
-    HAL_WRITE32(SYSTEM_CTRL_BASE,REG_SYS_SYSPLL_CTRL2,ADCLocalTemp);
+    HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_SYSPLL_CTRL2, ADCLocalTemp);
 
     /* Turn on DAC active clock */
     ACTCK_ADC_CCTRL(ON);
@@ -1267,12 +1267,14 @@ RtkADCReceive(
         pHALADCGdmaAdpt->MuliBlockCunt      = 0;
         
         pHALADCGdmaOp->HalGdmaChSeting(pHALADCGdmaAdpt);
-        pHALADCGdmaOp->HalGdmaChEn(pHALADCGdmaAdpt);
 
-        pSalADCHND->DevSts  = ADC_STS_RX_ING;
         AdcTempDat  =   HAL_ADC_READ32(REG_ADC_POWER);
         AdcTempDat  |=  BIT_ADC_PWR_AUTO;
         HAL_ADC_WRITE32(REG_ADC_POWER, AdcTempDat);
+
+        pHALADCGdmaOp->HalGdmaChEn(pHALADCGdmaAdpt);
+
+        pSalADCHND->DevSts  = ADC_STS_RX_ING;
         return _EXIT_SUCCESS;
     }
     return _EXIT_FAILURE;
@@ -1288,9 +1290,6 @@ RtkADCReceiveBuf(
     PSAL_ADC_HND        pSalADCHND          = (PSAL_ADC_HND) Data;
     PSAL_ADC_HND_PRIV   pSalADCHNDPriv      = NULL;
     PSAL_ADC_MNGT_ADPT  pSalADCMngtAdpt     = NULL;
-
-
-
     PHAL_ADC_OP         pHalADCOP           = NULL;    
 
     //PIRQ_HANDLE         pIrqHandleADCGdma   = NULL;
@@ -1299,13 +1298,8 @@ RtkADCReceiveBuf(
     /* To Get the SAL_I2C_MNGT_ADPT Pointer */
     pSalADCHNDPriv  = CONTAINER_OF(pSalADCHND, SAL_ADC_HND_PRIV, SalADCHndPriv);
     pSalADCMngtAdpt = CONTAINER_OF(pSalADCHNDPriv->ppSalADCHnd, SAL_ADC_MNGT_ADPT, pSalHndPriv);
-    
 
-
-
-	pHalADCOP           = pSalADCMngtAdpt->pHalOp; 
-
-    
+    pHalADCOP           = pSalADCMngtAdpt->pHalOp;
     
     /* Clear ADC Status */
 	//HAL_ADC_READ32(REG_ADC_INTR_STS);
@@ -1315,11 +1309,12 @@ RtkADCReceiveBuf(
 	//DBG_8195A(">>INTR:%x\n",AdcTempDat);
 
     ADCFullStsFlag = 0;
-    HalDelayUs(2000);
+///    HalDelayUs(2000); ?
+    HalDelayUs(20);
 
 	DBG_ADC_INFO("RtkADCReceiveBuf, Check to enable ADC manully or not\n");
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_POWER);
-	if (unlikely((AdcTempDat & 0x00000008) == 0)) {
+	if (unlikely((AdcTempDat & BIT_ADC_ISO_MANUAL) == 0)) {
 		;
 	}
 	else {
@@ -1329,23 +1324,22 @@ RtkADCReceiveBuf(
 		//AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_POWER);
 	}
 
-
     pSalADCHND->pInitDat->ADCIntrMSK  =  (BIT_ADC_FIFO_FULL_EN);
     pHalADCOP->HalADCIntrCtrl(pSalADCHND->pInitDat);
 	pSalADCHND->DevSts = ADC_STS_IDLE;
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 
-	if ((AdcTempDat & 0x00000001) == 0){
+	if ((AdcTempDat & BIT_ADC_EN_MANUAL) == 0){
         AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD1);
 		DBG_ADC_INFO("RtkADCReceiveBuf, Before set, Reg AD1:%x\n", AdcTempDat);
-		AdcTempDat |= (0x01);
+		AdcTempDat |= BIT_ADC_EN_MANUAL;
 		HAL_ADC_WRITE32(REG_ADC_ANAPAR_AD1, AdcTempDat);
 		AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD1);
 		DBG_ADC_INFO("RtkADCReceiveBuf, After set, Reg AD1:%x\n", AdcTempDat);
 
 		AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 		DBG_ADC_INFO("RtkADCReceiveBuf, Before set, Reg AD0:%x\n", AdcTempDat);
-		AdcTempDat |= (0x01);
+		AdcTempDat |= BIT_ADC_EN_MANUAL;
 		HAL_ADC_WRITE32(REG_ADC_ANAPAR_AD0, AdcTempDat);
 		AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 		DBG_ADC_INFO("RtkADCReceiveBuf, After set, Reg AD0:%x\n", AdcTempDat);
@@ -1359,14 +1353,14 @@ RtkADCReceiveBuf(
 
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 	DBG_ADC_INFO("RtkADCReceiveBuf, End of ADC, Before set, AD0:%x\n", AdcTempDat);
-	AdcTempDat &= (~0x01);
+	AdcTempDat &= (~BIT_ADC_EN_MANUAL);
 	HAL_ADC_WRITE32(REG_ADC_ANAPAR_AD0, AdcTempDat);
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 	DBG_ADC_INFO("RtkADCReceiveBuf, End of ADC, After set, AD0:%x\n", AdcTempDat);
 
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD1);
 	DBG_ADC_INFO("RtkADCReceiveBuf, End of ADC, Before set, AD1:%x\n", AdcTempDat);
-	AdcTempDat &= (~0x01);
+	AdcTempDat &= (~BIT_ADC_EN_MANUAL);
 	HAL_ADC_WRITE32(REG_ADC_ANAPAR_AD1, AdcTempDat);
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD1);
 	DBG_ADC_INFO("RtkADCReceiveBuf, End of ADC, After set, AD1:%x\n", AdcTempDat);
@@ -1410,7 +1404,7 @@ RtkADCRxManualRotate(
     
 	DBG_ADC_INFO("RtkADCRxManualRotate, Check to enable ADC manully or not\n");
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_POWER);
-	if (unlikely((AdcTempDat & 0x00000008) == 0)) {
+	if (unlikely((AdcTempDat & BIT_ADC_ISO_MANUAL) == 0)) {
 		;
 	}
 	else {
@@ -1426,7 +1420,7 @@ RtkADCRxManualRotate(
 	pSalADCHND->DevSts = ADC_STS_IDLE;
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 
-	if ((AdcTempDat & 0x00000001) == 0){
+	if ((AdcTempDat & BIT_ADC_EN_MANUAL) == 0){
         AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD1);
 		DBG_ADC_INFO("RtkADCRxManualRotate, Before set, Reg AD1:%x\n", AdcTempDat);
 		/* Clear for manual rotrate first*/
@@ -1435,7 +1429,7 @@ RtkADCRxManualRotate(
 		AdcTempDat |= (BIT0);
 
         /* Enable manual mode, this is to turn cali. off */
-        AdcTempDat &= ~(BIT11);
+//        AdcTempDat &= ~(BIT11);
 		AdcTempDat |= (BIT11);
 		
 		/* Set rotation to default state
@@ -1476,7 +1470,7 @@ RtkADCRxManualRotate(
 
     /* Read Content */
     for (tempcnt=0; tempcnt<16; tempcnt++){
-        ADCDatBuf[0]    = (u32)HAL_ADC_READ32(REG_ADC_FIFO_READ);            
+        ADCDatBuf[0] = (u32)HAL_ADC_READ32(REG_ADC_FIFO_READ);
     }
     
     /* Close ADC */ 
@@ -1507,7 +1501,7 @@ RtkADCRxManualRotate(
 	
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 	DBG_ADC_INFO("RtkADCRxManualRotate, Before set, Reg AD0:%x\n", AdcTempDat);
-	AdcTempDat |= (0x01);
+	AdcTempDat |= BIT_ADC_EN_MANUAL;
 	HAL_ADC_WRITE32(REG_ADC_ANAPAR_AD0, AdcTempDat);
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 	DBG_ADC_INFO("RtkADCRxManualRotate, After set, Reg AD0:%x\n", AdcTempDat);
@@ -1537,14 +1531,14 @@ RtkADCRxManualRotate(
     /* Close ADC */	
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 	DBG_ADC_INFO("RtkADCRxManualRotate, End of ADC, Before set, AD0:%x\n", AdcTempDat);
-	AdcTempDat &= (~0x01);
+	AdcTempDat &= (~BIT_ADC_EN_MANUAL);
 	HAL_ADC_WRITE32(REG_ADC_ANAPAR_AD0, AdcTempDat);
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD0);
 	DBG_ADC_INFO("RtkADCRxManualRotate, End of ADC, After set, AD0:%x\n", AdcTempDat);
 
 	AdcTempDat  = (u32)HAL_ADC_READ32(REG_ADC_ANAPAR_AD1);
 	DBG_ADC_INFO("RtkADCRxManualRotate, End of ADC, Before set, AD1:%x\n", AdcTempDat);
-	AdcTempDat &= (~0x01);
+	AdcTempDat &= (~BIT0);
 
     /* Disable manual mode */
     AdcTempDat &= (~BIT11);

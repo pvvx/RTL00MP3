@@ -7,13 +7,7 @@
 
 #include "osdep_service.h"
 #include "freertos/wrapper.h"
-//#include "wlan_bssdef.h"
-//#include "wifi_simple_config_parser.h"
-//#include "rtw_rf.h"
 #include "rtl_bios_data.h"
-#include "drv_types.h"
-#include "wlan/realtek/src/hal/hal_data.h"
-//#include "phydm.h"
 
 #define _atr_aligned2_ __attribute__((aligned(2)))
 #define _atr_aligned4_ __attribute__((aligned(4)))
@@ -60,16 +54,16 @@ typedef uint8_t BOOLEAN;
 
 typedef uint8_t u1Byte;
 typedef uint16_t u2Byte;
-//typedef uint32_t u4Byte;
+typedef uint32_t u4Byte;
 typedef uint64_t u8Byte;
 typedef uint64_t __attribute__((aligned(4))) _u8Byte;
-//typedef sint8_t s1Byte;
+typedef sint8_t s1Byte;
 typedef sint16_t s2Byte;
-//typedef sint32_t s4Byte;
-//typedef sint8_t *ps1Byte;
+typedef sint32_t s4Byte;
+typedef sint8_t *ps1Byte;
 typedef uint8_t *pu1Byte;
 typedef uint16_t *pu2Byte;
-//typedef uint32_t *pu4Byte;
+typedef uint32_t *pu4Byte;
 
 typedef uint32_t sizetype;
 typedef struct _ADAPTER _adapter;
@@ -81,7 +75,6 @@ typedef void *_mutex;
 
 typedef int (*init_done_ptr)(void);
 
-/* rtw_efuse.h
 enum _EFUSE_DEF_TYPE // : sint32_t
 {
 	TYPE_EFUSE_MAX_SECTION = 0x0,
@@ -97,9 +90,7 @@ enum _IFACE_TYPE //: sint32_t
 {
 	IFACE_PORT0 = 0x0, IFACE_PORT1 = 0x1, MAX_IFACE_PORT = 0x2,
 };
-*/
 
-/* rtl8195a_pmu_task.h
 enum _FW_ERR0_STATUS_ //: sint32_t
 {
 	FES0_H2C_CMDID = 0x1,
@@ -363,7 +354,7 @@ struct atomic_t {
  _lock lock;
  };
  */
-/* osdep_intf.h
+
 struct iw_request_info {
 	uint16_t cmd;
 	uint16_t flags;
@@ -371,9 +362,7 @@ struct iw_request_info {
 
 typedef int (*iw_handler)(struct net_device *, struct iw_request_info *,
 		union iwreq_data *, char *);
-*/
 
-/* wlan_bssdef.h
 struct _NDIS_802_11_SSID {
 	uint32_t SsidLength;
 	uint8_t Ssid[36];
@@ -466,7 +455,6 @@ struct wlan_network {
 	WLAN_BSSID_EX network;
 	WLAN_BCN_INFO BcnInfo;
 };
-*/
 
 /* osdep_service.h
  typedef void *_timerHandle;
@@ -479,13 +467,12 @@ struct wlan_network {
  };
 
  typedef struct timer_list _timer;
-*/
-/* rtw_qos.h
+ */
+
 struct qos_priv {
 	uint32_t qos_option;
 };
- */
-/* wifi.h
+
 struct __attribute__((packed)) _atr_aligned2_ rtw_ieee80211_ht_cap {
 	uint16_t cap_info;
 	uint8_t ampdu_params_info;
@@ -494,9 +481,7 @@ struct __attribute__((packed)) _atr_aligned2_ rtw_ieee80211_ht_cap {
 	uint32_t tx_BF_cap_info;
 	uint8_t antenna_selection_info;
 };
-*/
 
-/* rtw_ht.h
 struct ht_priv {
 	uint32_t ht_option;
 	uint32_t ampdu_enable;
@@ -508,8 +493,7 @@ struct ht_priv {
 	uint8_t stbc_cap;
 	struct rtw_ieee80211_ht_cap ht_cap;
 };
-*/
-/* rtw_mlme.h
+
 struct _atr_aligned4_ _RT_LINK_DETECT_T {
 	uint32_t NumTxOkInPeriod;
 	uint32_t NumRxOkInPeriod;
@@ -522,6 +506,7 @@ struct _atr_aligned4_ _RT_LINK_DETECT_T {
 	BOOLEAN bHigherBusyTxTraffic;
 };
 typedef struct _RT_LINK_DETECT_T RT_LINK_DETECT_T;
+
 enum _RT_SCAN_TYPE //: sint32_t
 {
 	SCAN_PASSIVE = 0x0, SCAN_ACTIVE = 0x1, SCAN_MIX = 0x2
@@ -584,8 +569,7 @@ struct mlme_priv {
 	uint8_t scanning_via_buddy_intf;
 	struct recv_frame *p_copy_recv_frame;
 };
-*/
-/* rtw_mlme_ext.h
+
 struct _atr_aligned4_ _RT_CHANNEL_INFO {
 	uint8_t ChannelNum;
 	RT_SCAN_TYPE ScanType; // uint8_t ScanType; //  byte/dword?
@@ -600,8 +584,7 @@ struct ss_res {
 	int scan_mode;
 	NDIS_802_11_SSID ssid[1];
 };
-*/
-/* wifi.h
+
 struct __attribute__((packed)) __attribute__((aligned(1))) ADDBA_request {
 	uint8_t dialog_token;
 	uint16_t BA_para_set;
@@ -640,8 +623,7 @@ struct HT_info_element {
 	uint8_t infos[5];
 	uint8_t MCS_rate[16];
 };
-*/
-/* rtw_mlme_ext.h
+
 struct FW_Sta_Info {
 	struct sta_info *psta;
 	uint32_t status;
@@ -690,17 +672,16 @@ struct mlme_ext_info {
 	struct HT_info_element HT_info;
 	struct FW_Sta_Info FW_sta_info[5];
 };
-*/
-/*
+
 #ifndef _CUS_IE_
 #define _CUS_IE_
 typedef struct _cus_ie{
 	__u8 *ie;
 	__u8 type;
 } cus_ie, *p_cus_ie;
-#endif */
+#endif /* _CUS_IE_ */
 // typedef struct _cus_ie *p_cus_ie;
-/* rtw_mlme_ext.h
+
 struct mlme_ext_priv { //__attribute__((packed))?
 	_adapter *padapter; //+0 padapter+1256 [912]
 	uint8_t mlmeext_init;
@@ -744,9 +725,7 @@ struct mlme_ext_priv { //__attribute__((packed))?
 	uint8_t bChDeauthDisabled;
 	uint8_t bConcurrentFlushingSTA;
 };
-*/
 
-/* rtw_cmd.h
 struct cmd_priv {
 	_queue cmd_queue;
 	uint8_t cmdthd_running;
@@ -758,27 +737,6 @@ struct evt_priv {
 	uint8_t *evt_buf;
 	uint8_t *evt_allocated_buf;
 	uint32_t evt_done_cnt;
-};
-*/
-/* drv_types.h
-struct dvobj_priv
-{
-  void *if1;
-  void *if2;
-  void *padapters[2];
-  uint8_t iface_nums;
-  uint8_t RtOutPipe[3];
-  uint8_t Queue2Pipe[8];
-  uint8_t irq_alloc;
-  uint8_t irq_enabled;
-  _lock irq_th_lock;
-};
-*/
-/* trw_io.h
-
-struct fifo_more_data {
-	uint32_t more_data;
-	uint32_t len;
 };
 
 struct _io_ops {
@@ -798,8 +756,7 @@ struct _io_ops {
 struct io_priv {
 	struct _io_ops io_ops;
 };
-*/
-/* rtw_xmit.h
+
 struct rtw_tx_ring {
 	struct tx_buf_desc *desc;
 	dma_addr_t dma;
@@ -845,8 +802,7 @@ struct _atr_aligned8_ xmit_priv {
 	uint32_t free_xmit_extbuf_cnt;
 	uint16_t nqos_ssn;
 };
-*/
-/* trw_recv.h
+
 struct rtw_rx_ring {
 	struct recv_buf_stat *desc;
 	dma_addr_t dma;
@@ -909,8 +865,7 @@ struct _atr_aligned8_ recv_priv {
 	uint16_t promisc_bk_rxfltmap2;
 	uint8_t promisc_mgntframe_enabled;
 };
-*/
-/* sta_info.h
+
 struct _atr_aligned4_ sta_priv {
 	uint8_t *pallocated_stainfo_buf;
 	uint32_t allocated_stainfo_size;
@@ -934,12 +889,13 @@ struct _atr_aligned4_ sta_priv {
 	uint16_t tim_bitmap;
 	uint16_t max_num_sta;
 };
-*/
-/* trw_security.h
+
 union Keytype {
 	uint8_t skey[16];
 	uint32_t lkey[4];
 };
+
+
 
 union pn48 {
 	u8Byte val;
@@ -954,9 +910,7 @@ union pn48 {
 		uint8_t TSC7;
 	}_byte_;
 };
-*/
 
-/* wlan_bssdef.h
 struct _NDIS_802_11_WEP {
 	uint32_t Length;
 	uint32_t KeyIndex;
@@ -964,9 +918,7 @@ struct _NDIS_802_11_WEP {
 	uint8_t KeyMaterial[16];
 };
 typedef struct _NDIS_802_11_WEP NDIS_802_11_WEP;
-*/
 
-/* rtw_psk.h
 struct $D75518714447A990003EBC933C23F70E {
 	uint32_t HighPart;
 	uint32_t LowPart;
@@ -1027,9 +979,7 @@ struct _wpa_global_info {
 typedef struct _wpa_global_info WPA_GLOBAL_INFO;
 
 typedef struct _wpa_sta_info WPA_STA_INFO;
-*/
 
-/* rtw_security.h
 struct _atr_aligned4_ security_priv {
 	uint32_t dot11AuthAlgrthm;
 	uint32_t dot11PrivacyAlgrthm;
@@ -1073,8 +1023,7 @@ struct _atr_aligned4_ security_priv {
 	uint8_t wpa_passphrase[65];
 	uint8_t wps_phase;
 };
-*/
-/* derv_types.h
+
 struct _atr_aligned4_ registry_priv {
 	uint8_t chip_version;
 	uint8_t hci;
@@ -1118,8 +1067,7 @@ struct _atr_aligned4_ registry_priv {
 	uint8_t adaptivity_dc_backoff;
 	int8_t adaptivity_th_l2h_ini;
 };
-*/
-/* trw_powerctrl.h
+
 typedef void *_sema;
 
 typedef _sema _pwrlock;
@@ -1190,8 +1138,7 @@ struct _atr_aligned4_ pwrctrl_priv {
 	uint8_t tdma_rfon_period_len_3;
 	uint8_t lps_dtim;
 };
-*/
-/* rtw_eeprom.h
+
 struct _atr_aligned2_ eeprom_priv { // __attribute__((packed))!?
 	uint8_t bautoload_fail_flag;
 	uint8_t mac_addr[6];
@@ -1201,8 +1148,7 @@ struct _atr_aligned2_ eeprom_priv { // __attribute__((packed))!?
 	uint8_t EEPROMRFGainOffset;
 	uint8_t EEPROMRFGainVal;
 };
-*/
-/* rtw_rf.h
+
 enum _CHANNEL_WIDTH // : sint32_t
 {
 	CHANNEL_WIDTH_20 = 0x0,
@@ -1213,9 +1159,7 @@ enum _CHANNEL_WIDTH // : sint32_t
 	CHANNEL_WIDTH_MAX = 0x5,
 };
 typedef enum _CHANNEL_WIDTH CHANNEL_WIDTH;
-*/
 
-/* hal_intf.h
 enum _HAL_DEF_VARIABLE // : sint32_t
 {
 	HAL_DEF_UNDERCORATEDSMOOTHEDPWDB = 0x0,
@@ -1252,11 +1196,11 @@ enum _HAL_ODM_VARIABLE // : sint32_t
 	HAL_ODM_REGULATION = 0x4,
 };
 typedef enum _HAL_ODM_VARIABLE HAL_ODM_VARIABLE;
-*/
-/* freertos_service.h
+
 typedef void *_thread_hdl_;
-*/
-/* osdep_service.h
+
+/*
+ // osdep_service.h
  struct task_struct
  {
  const char *task_name;
@@ -1282,7 +1226,19 @@ typedef struct net_device *_nic_hdl;
  uint32_t rx_overflow;
  };
  */
-/* rtw_recv.h
+
+struct dvobj_priv {
+	void *if1;
+	void *if2;
+	void *padapters[2];
+	uint8_t iface_nums;
+	uint8_t RtOutPipe[3];
+	uint8_t Queue2Pipe[8];
+	uint8_t irq_alloc;
+	uint8_t irq_enabled;
+	_lock irq_th_lock;
+};
+
 struct phy_info {
 	uint8_t RxPWDBAll;
 	uint8_t SignalQuality;
@@ -1358,7 +1314,7 @@ union {
 	uint32_t mem[32];
 	};
 };
-
+/*
 union $AB04817EA6EB89125E28056B7464A4D7 {
 	_list list;
 	struct recv_frame_hdr hdr;
@@ -1369,7 +1325,8 @@ union recv_frame {
 	union $AB04817EA6EB89125E28056B7464A4D7 u;
 };
 */
-/* skbuff.h
+/*
+ // skbuff.h
  struct sk_buff
  {
  struct sk_buff *next;
@@ -1390,7 +1347,7 @@ union recv_frame {
  uint32_t qlen;
  };
  */
-/* rtw_xmit.h
+
 struct tx_servq {
 	_list tx_pending;
 	_queue sta_pending;
@@ -1409,12 +1366,6 @@ struct sta_xmit_priv {
 	_list apsd;
 	uint16_t txseq_tid[16];
 };
-*/
-/* rtw_recv.h
-struct recv_buf_stat {
-	uint32_t rxdw0;
-	uint32_t rxdw1;
-};
 
 struct stainfo_rxcache {
 	uint16_t tid_rxseq[16];
@@ -1426,9 +1377,8 @@ struct sta_recv_priv {
 	_queue defrag_q;
 	struct stainfo_rxcache rxcache;
 };
-*/
-/* sta_info.h
- struct stainfo_stats {
+
+struct stainfo_stats {
 	u8Byte rx_mgnt_pkts;
 	u8Byte rx_ctrl_pkts;
 	u8Byte rx_data_pkts;
@@ -1525,15 +1475,20 @@ struct sta_info {
 	uint8_t RXEVM[4];
 	uint8_t RXSNR[4];
 };
-*/
-/* wifi_conf.h
+/*
+ // wifi_conf.h
  struct _atr_aligned4_ _cus_ie
  {
  uint8_t *ie;
  uint8_t type;
  };
  */
-/* rtw_xmit.h
+
+struct fifo_more_data {
+	uint32_t more_data;
+	uint32_t len;
+};
+
 struct hw_xmit {
 	_queue *sta_queue;
 	int accnt;
@@ -1549,8 +1504,12 @@ struct tx_buf_desc {
 	uint32_t txdw6;
 	uint32_t txdw7;
 };
-*/
-/* rtw_psk.h
+
+struct recv_buf_stat {
+	uint32_t rxdw0;
+	uint32_t rxdw1;
+};
+
 struct _wpa_sta_info {
 	int state;
 	int gstate;
@@ -1577,8 +1536,7 @@ struct _wpa_sta_info {
 	int clientGkeyUpdate;
 	LARGE_INTEGER clientMICReportReplayCounter;
 };
-*/
-/* rtw_xmit.h
+
 struct pkt_attrib {
 	uint8_t type;
 	uint8_t subtype;
@@ -1669,7 +1627,6 @@ struct submit_ctx {
 	uint32_t timeout_ms;
 	int status;
 };
-*/
 /*
  // wrapper.h
  struct net_device
@@ -1755,15 +1712,12 @@ struct submit_ctx {
  union iwreq_data u;
  };
  */
-/* drv_types.h
 struct co_data_priv {
 	uint8_t co_ch;
 	uint8_t co_bw;
 	uint8_t co_ch_offset;
 	uint8_t rsvd;
 };
-*/
-/* hal_intf.h
 
 enum _HARDWARE_TYPE // : sint32_t
 {
@@ -1805,8 +1759,7 @@ enum _HARDWARE_TYPE // : sint32_t
 	HARDWARE_TYPE_RTL8188FS = 0x23,
 	HARDWARE_TYPE_MAX = 0x24,
 };
-*/
-/* hal_phy.h
+
 struct RF_Shadow_Compare_Map {
 	uint32_t Value;
 	uint8_t Compare;
@@ -1815,8 +1768,7 @@ struct RF_Shadow_Compare_Map {
 	uint8_t Driver_Write;
 };
 typedef struct RF_Shadow_Compare_Map RF_SHADOW_T;
-*/
-/* rtw_powerctrl.h
+
 enum _PS_BBRegBackup_ // : sint32_t
 {
 	PSBBREG_RF0 = 0x0,
@@ -1825,8 +1777,9 @@ enum _PS_BBRegBackup_ // : sint32_t
 	PSBBREG_AFE0 = 0x3,
 	PSBBREG_TOTALCNT = 0x4,
 };
-*/
-/* hal_irqn.h
+
+/*
+ // hal_irqn.h
  enum _IRQn_Type_ // : sint32_t
  {
  NonMaskableInt_IRQn = 0xFFFFFFF2,
@@ -1899,8 +1852,9 @@ enum _PS_BBRegBackup_ // : sint32_t
  uint32_t Priority;
  };
  typedef struct _IRQ_HANDLE_ IRQ_HANDLE;
-*/
-/* hal_soc_ps_monitor.h
+ */
+/*
+ // hal_soc_ps_monitor.h
  struct _power_state_
  {
  uint8_t FuncIdx;
@@ -1922,9 +1876,9 @@ enum _PS_BBRegBackup_ // : sint32_t
  BOOL SleepFlag;
  };
  typedef struct _power_mgn_ Power_Mgn;
-*/
 
- /* hal_gpio.h
+ /*
+ // hal_gpio.h
  enum $E1AD70AB12E7AA6E98B8D89D9B965EB5 //: sint32_t
  {
  _PORT_A = 0x0,
@@ -1959,7 +1913,7 @@ enum _PS_BBRegBackup_ // : sint32_t
  };
  typedef struct _HAL_GPIO_ADAPTER_ *PHAL_GPIO_ADAPTER;
  */
-/* hal_intf.h
+
 struct hal_ops {
 	uint32_t (*hal_power_on)(_adapter *);
 	uint32_t (*hal_init)(_adapter *);
@@ -2022,8 +1976,66 @@ struct hal_ops {
 			uint8_t);
 	uint8_t (*hal_get_tx_buff_rsvd_page_num)(_adapter *, bool);
 };
-*/
-/* HalVerDef.h
+
+struct _atr_aligned4_ _ADAPTER {
+	uint16_t HardwareType;
+	uint16_t interface_type;	//+2
+	uint32_t work_mode;
+	struct dvobj_priv *dvobj;	//+8
+	struct mlme_priv mlmepriv; //+12 [1244]
+	struct mlme_ext_priv mlmeextpriv; //+1256 [912]
+	struct cmd_priv cmdpriv; //+2168
+	struct evt_priv evtpriv; //+
+	struct io_priv iopriv;
+	struct xmit_priv xmitpriv; //+2248
+	struct recv_priv recvpriv; //+2752
+	struct sta_priv stapriv; //+3024 [164]
+	struct security_priv securitypriv;
+	struct registry_priv registrypriv;
+	struct pwrctrl_priv pwrctrlpriv; // pwrctrlpriv.bInternalAutoSuspend //+5061
+	struct eeprom_priv eeprompriv;
+	PVOID HalData;
+	uint32_t hal_data_sz;
+	struct hal_ops HalFunc;
+	int32_t bDriverStopped;		//+5880
+	int32_t bSurpriseRemoved;	//+5884
+	int32_t bCardDisableWOHSM;	//+5888
+	uint8_t RxStop;				//+5892
+	uint32_t IsrContent;
+	uint32_t ImrContent;
+	uint8_t EepromAddressSize;
+	uint8_t hw_init_completed;	//+5905
+	uint8_t bDriverIsGoingToUnload;
+	uint8_t init_adpt_in_progress;
+	uint8_t bMpDriver;
+	uint8_t bForwardingDisabled;
+	struct task_struct isrThread;	//+5888
+	struct task_struct cmdThread;   //+5920
+	struct task_struct recvtasklet_thread; //+5952
+	struct task_struct xmittasklet_thread; //+5984
+	void (*intf_start)(_adapter *); //+6008
+	void (*intf_stop)(_adapter *); //+6012
+	_nic_hdl pnetdev;	//+6016
+	int bup;			//+6020
+	struct net_device_stats stats;
+	uint8_t net_closed; //+6052
+	uint8_t bFWReady;
+	uint8_t bLinkInfoDump;
+	uint8_t bRxRSSIDisplay;
+	_adapter *pbuddy_adapter; //+6056
+	_mutex *hw_init_mutex;	//+6060
+	uint8_t isprimary;		//+6064
+	uint8_t adapter_type; 	//+6065
+	uint8_t iface_type;		//+6056
+	_mutex *ph2c_fwcmd_mutex; //+6068
+	_mutex *psetch_mutex;	//+6072
+	_mutex *psetbw_mutex;	//+6076
+	struct co_data_priv *pcodatapriv; //+6080
+	uint8_t fix_rate; //+6084
+}; // [6088] (!)
+typedef struct _ADAPTER *PADAPTER;
+// if sizeof(struct _ADAPTER) != 6088 #error "Check aligned struct!" !
+
 enum tag_HAL_IC_Type_Definition // : sint32_t
 {
 	CHIP_8192S = 0x0,
@@ -2092,8 +2104,7 @@ struct _atr_aligned4_ tag_HAL_VERSION {
 	uint8_t ROMVer;
 };
 typedef struct tag_HAL_VERSION HAL_VERSION;
-*/
-/* hal_intf.h
+
 enum _HW_VARIABLES //: sint32_t
 {
 	HW_VAR_MEDIA_STATUS = 0x0,
@@ -2178,15 +2189,13 @@ enum _HW_VARIABLES //: sint32_t
 	HW_VAR_ASIX_IOT = 0x4F,
 	HW_VAR_PROMISC = 0x50,
 };
-*/
-/* hal_phy.h
+
 enum _BAND_TYPE // : sint32_t
 {
 	BAND_ON_2_4G = 0x0, BAND_ON_5G = 0x1, BAND_ON_BOTH = 0x2, BANDMAX = 0x3,
 };
 typedef enum _BAND_TYPE BAND_TYPE;
-*/
-/* hal_com_phycfg.h
+
 struct _BB_REGISTER_DEFINITION {
 	uint32_t rfintfs;
 	uint32_t rfintfo;
@@ -2197,8 +2206,7 @@ struct _BB_REGISTER_DEFINITION {
 	uint32_t rfLSSIReadBackPi;
 };
 typedef struct _BB_REGISTER_DEFINITION BB_REGISTER_DEFINITION_T;
-*/
-/* rtw_mlme.h
+
 enum dot11AuthAlgrthmNum //: sint32_t
 {
 	dot11AuthAlgrthm_Open = 0x0,
@@ -2208,8 +2216,7 @@ enum dot11AuthAlgrthmNum //: sint32_t
 	dot11AuthAlgrthm_WAPI = 0x4,
 	dot11AuthAlgrthm_MaxNum = 0x5,
 };
-*/
-/* rtw_mlme_ext.h
+
 enum _RT_CHANNEL_DOMAIN //: sint32_t
 {
 	RT_CHANNEL_DOMAIN_FCC = 0x0,
@@ -2276,8 +2283,7 @@ enum _RT_CHANNEL_DOMAIN //: sint32_t
 	RT_CHANNEL_DOMAIN_MAX = 0x59,
 	RT_CHANNEL_DOMAIN_REALTEK_DEFINE = 0x7F,
 };
-*/
-/* freertos_intfs.h
+
 struct _driver_priv {
 	int drv_registered;
 	_mutex hw_init_mutex;
@@ -2286,9 +2292,7 @@ struct _driver_priv {
 	_mutex setbw_mutex;
 };
 typedef struct _driver_priv drv_priv;
-*/
 
-/* PhyDM_Adaptivity.h
 struct _ADAPTIVITY_STATISTICS {
 	s1Byte TH_L2H_ini_mode2;
 	s1Byte TH_EDCCA_HL_diff_mode2;
@@ -2305,14 +2309,12 @@ struct _ADAPTIVITY_STATISTICS {
 	u1Byte AdajustIGILevel;
 };
 typedef struct _ADAPTIVITY_STATISTICS ADAPTIVITY_STATISTICS;
-*/
-/* phydm_NoiseMonitor.h
+
 struct _ODM_NOISE_MONITOR_ {
 	s1Byte noise[1];
 	s2Byte noise_all;
 };
 typedef struct _ODM_NOISE_MONITOR_ ODM_NOISE_MONITOR;
-*/
 /* in rtl_bios_data.h
 struct _FALSE_ALARM_STATISTICS {
 	u4Byte Cnt_Parity_Fail;
@@ -2333,13 +2335,13 @@ struct _FALSE_ALARM_STATISTICS {
 };
 typedef struct _FALSE_ALARM_STATISTICS FALSE_ALARM_STATISTICS;
 */
-/* phydm.h
+
 enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE //: sint32_t
 {
 	PHY_REG_PG_RELATIVE_VALUE = 0x0, PHY_REG_PG_EXACT_VALUE = 0x1,
 };
 typedef enum _BASEBAND_CONFIG_PHY_REG_PG_VALUE_TYPE PHY_REG_PG_TYPE;
-*/
+
 /* in rtl_bios_data.h
 struct _atr_aligned4_ _CFO_TRACKING_ {
 	BOOLEAN bATCStatus;
@@ -2368,13 +2370,11 @@ struct _atr_aligned8_ _ROM_INFO {
 };
 typedef struct _ROM_INFO ROM_INFO;
 */
-/* ROM_RTL8195A_PHYDM.h
+
 typedef struct _ROM_INFO *PROM_INFO;
-*/
-/* phydm_types.h
+
 typedef struct sta_info *PSTA_INFO_T;
-*/
-/* phydm.h
+
 struct _ODM_Phy_Dbg_Info_ {
 	s1Byte RxSNRdB[4];
 	u4Byte NumQryPhyStatus;
@@ -2717,73 +2717,7 @@ struct _atr_aligned8_ ODM_RF_Calibration_Structure {
 	u4Byte DpkThermal[4];
 };
 typedef struct ODM_RF_Calibration_Structure ODM_RF_CAL_T;
-*/
-/* drv_types.h
-#include "ieee80211.h"
-#include "rtw_cmd.h"
 
-struct _atr_aligned4_ _ADAPTER {
-	uint16_t HardwareType;
-	uint16_t interface_type;	//+2
-	uint32_t work_mode;
-	struct dvobj_priv *dvobj;	//+8
-	struct mlme_priv mlmepriv; //+12 [1244]
-	struct mlme_ext_priv mlmeextpriv; //+1256 [912]
-	struct cmd_priv cmdpriv; //+2168
-	struct evt_priv evtpriv; //+
-	struct io_priv iopriv;
-	struct xmit_priv xmitpriv; //+2248
-	struct recv_priv recvpriv; //+2752
-	struct sta_priv stapriv; //+3024 [164]
-	struct security_priv securitypriv;
-	struct registry_priv registrypriv;
-	struct pwrctrl_priv pwrctrlpriv; // pwrctrlpriv.bInternalAutoSuspend //+5061
-	struct eeprom_priv eeprompriv;
-	PVOID HalData;
-	uint32_t hal_data_sz;
-	struct hal_ops HalFunc;
-	int32_t bDriverStopped;		//+5880
-	int32_t bSurpriseRemoved;	//+5884
-	int32_t bCardDisableWOHSM;	//+5888
-	uint8_t RxStop;				//+5892
-	uint32_t IsrContent;
-	uint32_t ImrContent;
-	uint8_t EepromAddressSize;
-	uint8_t hw_init_completed;	//+5905
-	uint8_t bDriverIsGoingToUnload;
-	uint8_t init_adpt_in_progress;
-	uint8_t bMpDriver;
-	uint8_t bForwardingDisabled;
-	struct task_struct isrThread;	//+5888
-	struct task_struct cmdThread;   //+5920
-	struct task_struct recvtasklet_thread; //+5952
-	struct task_struct xmittasklet_thread; //+5984
-	void (*intf_start)(_adapter *); //+6008
-	void (*intf_stop)(_adapter *); //+6012
-	_nic_hdl pnetdev;	//+6016
-	int bup;			//+6020
-	struct net_device_stats stats;
-	uint8_t net_closed; //+6052
-	uint8_t bFWReady;
-	uint8_t bLinkInfoDump;
-	uint8_t bRxRSSIDisplay;
-	_adapter *pbuddy_adapter; //+6056
-	_mutex *hw_init_mutex;	//+6060
-	uint8_t isprimary;		//+6064
-	uint8_t adapter_type; 	//+6065
-	uint8_t iface_type;		//+6056
-	_mutex *ph2c_fwcmd_mutex; //+6068
-	_mutex *psetch_mutex;	//+6072
-	_mutex *psetbw_mutex;	//+6076
-	struct co_data_priv *pcodatapriv; //+6080
-	uint8_t fix_rate; //+6084
-}; // [6088] (!)
-typedef struct _ADAPTER *PADAPTER;
-// if sizeof(struct _ADAPTER) != 6088 #error "Check aligned struct!" !
-
-*/
-
-/* phydm.h
 struct _atr_aligned8_ DM_Out_Source_Dynamic_Mechanism_Structure {
 	PADAPTER Adapter;
 	BOOLEAN odm_ready;
@@ -2953,8 +2887,7 @@ struct _atr_aligned8_ DM_Out_Source_Dynamic_Mechanism_Structure {
 };
 typedef struct DM_Out_Source_Dynamic_Mechanism_Structure DM_ODM_T;
 typedef struct DM_Out_Source_Dynamic_Mechanism_Structure *PDM_ODM_T;
-*/
-/* halphy
+
 enum _PWRTRACK_CONTROL_METHOD //: sint32_t
 {
 	BBSWING = 0x0, TXAGC = 0x1, MIX_MODE = 0x2,
@@ -3006,9 +2939,7 @@ struct _H2CParam_RsvdPage_ {
 };
 typedef struct _H2CParam_RsvdPage_ H2CParam_RsvdPage;
 typedef struct _H2CParam_RsvdPage_ *PH2CParam_RsvdPage;
-*/
 
-/* wlan_bssdef.h
 struct _NDIS_802_11_VARIABLE_IEs {
 	uint8_t ElementID;
 	uint8_t Length;
@@ -3046,7 +2977,6 @@ enum _NDIS_802_11_WEP_STATUS //: sint32_t
 	Ndis802_11_EncrypteionWAPI = 0x8,
 };
 typedef enum _NDIS_802_11_WEP_STATUS NDIS_802_11_WEP_STATUS;
-*/
 
 struct __attribute__((packed)) __attribute__((aligned(1))) rtk_sc {
 	u8 pattern_type;
@@ -3093,7 +3023,7 @@ struct pattern_ops {
 	sc_decode_profile_call_back decode_profile;
 	sc_get_tlv_info_call_back get_tlv_info;
 };
-/* halpower
+
 struct _atr_aligned2_ _WL_PWR_CFG_ { // __attribute__((packed))!?
 	uint16_t offset;
 	uint8_t cut_msk;
@@ -3105,21 +3035,17 @@ struct _atr_aligned2_ _WL_PWR_CFG_ { // __attribute__((packed))!?
 	uint8_t value;
 };
 typedef struct _WL_PWR_CFG_ WLAN_PWR_CFG;
-*/
 
-/* rtw_mlme.h
 struct cmd_hdl {
 	uint32_t parmsize;
 	uint8_t (*h2cfuns)(struct _ADAPTER *, uint8_t *);
 };
-*/
-/* rtw_cmd.h
+
 struct _cmd_callback {
 	uint32_t cmd_code;
 	void (*callback)(_adapter *, struct cmd_obj *);
 };
-*/
-/* phydm.h
+
 enum _ODM_Common_Info_Definition //: sint32_t
 {
 	ODM_CMNINFO_PLATFORM = 0x0,
@@ -3225,15 +3151,13 @@ enum _ODM_Support_Ability_Definition // : sint32_t
 	ODM_RF_RX_GAIN_TRACK = 0x2000000,
 	ODM_RF_CALIBRATION = 0x4000000,
 };
-*/
-/* hal_phy.h
+
 enum _RF_PATH //: sint32_t
 {
 	RF_PATH_A = 0x0, RF_PATH_B = 0x1, RF_PATH_C = 0x2, RF_PATH_D = 0x3,
 };
 typedef enum _RF_PATH RF_PATH;
-*/
-/* rtw_cmd.h
+
 enum _EXTCHNL_OFFSET //: sint32_t
 {
 	EXTCHNL_OFFSET_NO_EXT = 0x0,
@@ -3332,8 +3256,7 @@ enum MGN_RATE //: sint32_t
 	MGN_VHT4SS_MCS9 = 0xC7,
 	MGN_UNKNOWN = 0xC8,
 };
-*/
-/* rtw_mlme.h  rtw_mlme_ext.h
+
 struct _RT_CHANNEL_PLAN_2G {
 	uint8_t Channel[14];
 	uint8_t Len;
@@ -3353,14 +3276,12 @@ struct mlme_handler {
 	uint32_t num;
 	uint32_t (*func)(_adapter *, struct recv_frame *);
 };
-*/
-/* rtw_event.h
+
 struct fwevent {
 	uint32_t parmsize;
 	void (*event_callback)(_adapter *, uint8_t *);
 };
-*/
-/* rtw_recv.h
+
 struct recv_buf {
 	_list list;
 	PADAPTER adapter;
@@ -3381,8 +3302,7 @@ struct recv_reorder_ctrl {
 	_queue pending_recvframe_queue;
 	_timer reordering_ctrl_timer;
 };
-*/
-/* phydm.h
+
 enum _ODM_RF_RADIO_PATH // : sint32_t
 {
 	ODM_RF_PATH_A = 0x0,
@@ -3483,8 +3403,7 @@ enum _ODM_FW_Config_Type //: sint32_t
 	CONFIG_FW_BT = 0x7,
 };
 typedef enum _ODM_FW_Config_Type ODM_FW_Config_Type;
-*/
-/* hal_com_phycfg.h
+
 enum _RATE_SECTION //: sint32_t
 {
 	CCK = 0x0,
@@ -3499,8 +3418,12 @@ enum _RATE_SECTION //: sint32_t
 	VHT_4SSMCS0_4SSMCS9 = 0x9,
 };
 typedef enum _RATE_SECTION RATE_SECTION;
-*/
-/* hal_pg.h
+
+struct map_mask_s {
+	uint16_t mask_start;
+	uint16_t mask_end;
+};
+
 struct _TxPowerInfo24G {
 	uint8_t IndexCCK_Base[1][6];
 	uint8_t IndexBW40_Base[1][6];
@@ -3509,69 +3432,6 @@ struct _TxPowerInfo24G {
 };
 typedef struct _TxPowerInfo24G TxPowerInfo24G;
 typedef struct _TxPowerInfo24G *PTxPowerInfo24G;
-*/
-/* wifi_constants.h
-enum rtw_bss_type_t // __int32
-{
-  RTW_BSS_TYPE_INFRASTRUCTURE = 0x0,
-  RTW_BSS_TYPE_ADHOC = 0x1,
-  RTW_BSS_TYPE_ANY = 0x2,
-  RTW_BSS_TYPE_UNKNOWN = 0xFFFFFFFF,
-};
-
-enum rtw_security_t // __int32
-{
-  RTW_SECURITY_OPEN = 0x0,
-  RTW_SECURITY_WEP_PSK = 0x1,
-  RTW_SECURITY_WEP_SHARED = 0x8001,
-  RTW_SECURITY_WPA_TKIP_PSK = 0x200002,
-  RTW_SECURITY_WPA_AES_PSK = 0x200004,
-  RTW_SECURITY_WPA2_AES_PSK = 0x400004,
-  RTW_SECURITY_WPA2_TKIP_PSK = 0x400002,
-  RTW_SECURITY_WPA2_MIXED_PSK = 0x400006,
-  RTW_SECURITY_WPA_WPA2_MIXED = 0x600000,
-  RTW_SECURITY_WPS_OPEN = 0x10000000,
-  RTW_SECURITY_WPS_SECURE = 0x10000004,
-  RTW_SECURITY_UNKNOWN = 0xFFFFFFFF,
-  RTW_SECURITY_FORCE_32_BIT = 0x7FFFFFFF,
-};
-
-enum rtw_802_11_band_t // __int32
-{
-  RTW_802_11_BAND_5GHZ = 0x0,
-  RTW_802_11_BAND_2_4GHZ = 0x1,
-};
-
-*/
-/* wifi_structures.h
-struct rtw_ssid
-{
-  unsigned int8_t len;
-  unsigned int8_t val[33];
-};
-
-typedef rtw_ssid rtw_ssid_t;
-
-struct rtw_mac
-{
-  unsigned int8_t octet[6];
-};
-
-typedef rtw_mac rtw_mac_t;
-
-struct rtw_scan_result
-{
-  rtw_ssid_t SSID;
-  rtw_mac_t BSSID;
-  sint16_t signal_strength;
-  enum rtw_bss_type_t bss_type;
-  enum rtw_security_t security;
-  enum rtw_wps_type_t wps_type;
-  unsigned int channel;
-  enum rtw_802_11_band_t band;
-};
-
-*/
 
 #endif // _WLAN_LIB_H
 

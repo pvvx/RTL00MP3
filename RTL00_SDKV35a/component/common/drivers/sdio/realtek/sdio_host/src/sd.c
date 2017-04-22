@@ -108,7 +108,7 @@ SD_RESULT SD_GetCapacity(uint32_t *sector_count) {
 
 //----- SD_ReadBlocks
 SD_RESULT SD_ReadBlocks(u32 sector, u8 *data, u32 count) {
-	int rd_count = 0;
+	int rd_count;
 	unsigned char * buf;
 
 	if ((u32) data & 3) {
@@ -144,7 +144,7 @@ SD_RESULT SD_ReadBlocks(u32 sector, u8 *data, u32 count) {
 
 //----- SD_WriteBlocks
 SD_RESULT SD_WriteBlocks(u32 sector, const u8 *data, u32 count) {
-	int wr_count = 0;
+	int wr_count;
 	unsigned char * buf;
 
 	if ((u32) data & 3) {

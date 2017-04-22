@@ -62,7 +62,8 @@ char * rtl_strtok(char *s, const char *delim);
 
 extern struct _reent * _rtl_impure_ptr;
 
-int libc_has_init;
+char libc_has_init;
+char print_off;
 // extern rtl_impure_ptr
 // extern impure_ptr
 
@@ -139,14 +140,17 @@ int rtl_printf(const char *fmt, ...) {
 	if (!libc_has_init) {
 		rtl_libc_init();
 	}
-#endif	
-	va_list args;
-	va_start (args, fmt);
-	int result = __rtl_vfprintf_r_v1_00(_rtl_impure_ptr,
-			_rtl_impure_ptr->_stdout, fmt, args);
-	__rtl_fflush_r_v1_00(_rtl_impure_ptr, _rtl_impure_ptr->_stdout);
-	//	va_end (args);
-	return result;
+#endif
+	if(!print_off) {
+		va_list args;
+		va_start (args, fmt);
+		int result = __rtl_vfprintf_r_v1_00(_rtl_impure_ptr,
+				_rtl_impure_ptr->_stdout, fmt, args);
+		__rtl_fflush_r_v1_00(_rtl_impure_ptr, _rtl_impure_ptr->_stdout);
+		//	va_end (args);
+		return result;
+	}
+	else return 0;
 }
 
 //----- rtl_vprintf()

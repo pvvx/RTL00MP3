@@ -158,12 +158,10 @@ void sys_log_uart_off(void)
 
 void sys_adc_calibration(u8 write, u16 *offset, u16 *gain)
 {
-    flash_t		flash;
-    u8*			pbuf;
-
+extern flash_t	flash;
     if(write){
     	// backup
-    	pbuf = RtlMalloc(FLASH_SECTOR_SIZE);
+        u8 *pbuf = RtlMalloc(FLASH_SECTOR_SIZE);
     	if(!pbuf) return;
 		device_mutex_lock(RT_DEV_LOCK_FLASH);
     	flash_stream_read(&flash, FLASH_SYSTEM_DATA_ADDR, FLASH_SECTOR_SIZE, pbuf);
@@ -172,7 +170,7 @@ void sys_adc_calibration(u8 write, u16 *offset, u16 *gain)
     	flash_erase_sector(&flash, FLASH_RESERVED_DATA_BASE);
     	flash_stream_write(&flash, FLASH_RESERVED_DATA_BASE, FLASH_SECTOR_SIZE, pbuf);
     	// Write
-    	flash_stream_read(&flash, FLASH_RESERVED_DATA_BASE, FLASH_SECTOR_SIZE, pbuf);
+//    	flash_stream_read(&flash, FLASH_RESERVED_DATA_BASE, FLASH_SECTOR_SIZE, pbuf);
     	flash_erase_sector(&flash, FLASH_SYSTEM_DATA_ADDR);
     	flash_stream_write(&flash, FLASH_SYSTEM_DATA_ADDR, FLASH_SECTOR_SIZE, pbuf);
 		device_mutex_unlock(RT_DEV_LOCK_FLASH);

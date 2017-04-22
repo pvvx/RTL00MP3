@@ -7,17 +7,18 @@
 #define ICACHE_FLASH_ATTR
 #define ICACHE_RODATA_ATTR
 #define DATA_IRAM_ATTR
+#define ICACHE_RAM_ATTR
 
 #define os_printf(...) rtl_printf(__VA_ARGS__)
 #define os_printf_plus(...) rtl_printf(__VA_ARGS__)
 #define os_sprintf_fd(...) rtl_sprintf(__VA_ARGS__)
 #define ets_sprintf(...) rtl_sprintf(__VA_ARGS__)
-/*
+#ifndef os_malloc
 #define os_malloc   pvPortMalloc
 #define os_zalloc   pvPortZalloc
 #define os_calloc   pvPortCalloc
 #define os_realloc  pvPortRealloc
-*/
+#endif
 #undef os_free
 #define os_free     vPortFree
 #define system_get_free_heap_size xPortGetFreeHeapSize
@@ -51,6 +52,7 @@
 #define os_strncpy rtl_strncpy
 #define os_strstr rtl_strstr
 #define os_random Rand
+
 //extern uint32 phy_get_rand(void);
 #define system_get_os_print() 1
 
@@ -102,7 +104,6 @@ extern SpiFlashChip * flashchip; // in RAM-BIOS: 0x3fffc714
 #define spi_flash_read(faddr, pbuf, size) flash_stream_read(&flashobj, faddr, size, (uint8_t *)pbuf)
 #define spi_flash_erase_block(blk) flash_erase_block(&flashobj, (blk)<<16);
 
-
 #define ip4_addr1(ipaddr) (((u8_t*)(ipaddr))[0])
 #define ip4_addr2(ipaddr) (((u8_t*)(ipaddr))[1])
 #define ip4_addr3(ipaddr) (((u8_t*)(ipaddr))[2])
@@ -121,6 +122,13 @@ extern SpiFlashChip * flashchip; // in RAM-BIOS: 0x3fffc714
 
 #define IPSTR "%d.%d.%d.%d"
 
+#ifndef MAC2STR
+#define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
+#define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
+#endif
+
+
+#ifndef DEBUGSOO
 /* CONFIG_DEBUG_LOG:
 =0 Off all diag/debug msg,
 =1 Only errors,
@@ -135,5 +143,12 @@ extern SpiFlashChip * flashchip; // in RAM-BIOS: 0x3fffc714
 #else
 #define DEBUGSOO CONFIG_DEBUG_LOG
 #endif
+#endif //#ifndef DEBUGSOO
+
+//#define system_get_sdk_version() "3.5.3"
+
+//#define system_get_time xTaskGetTickCount
+//#define ets_get_cpu_frequency HalGetCpuClk
+
 
 #endif // _INCLUDE_ESP_COMP_H_

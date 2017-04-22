@@ -8,7 +8,6 @@
 #ifndef _WIFI_API_H_
 #define _WIFI_API_H_
 #include "wifi_constants.h"
-#include "wifi_conf.h"
 
 #define ip4_addr1(ipaddr) (((uint8_t*)(ipaddr))[0])
 #define ip4_addr2(ipaddr) (((uint8_t*)(ipaddr))[1])
@@ -64,21 +63,21 @@ typedef struct _wifi_config {
 typedef struct _softap_config {
 	unsigned char ssid[NDIS_802_11_LENGTH_SSID];
 	unsigned char password[IW_PASSPHRASE_MAX_SIZE];
-	rtw_security_t security_type; // Only: RTW_SECURITY_OPEN, RTW_SECURITY_WPA2_AES_PSK
-	unsigned short beacon_interval;	// default 100
+	rtw_security_t security_type; // RTW_SECURITY_OPEN, RTW_SECURITY_WEP_PSK
+	uint16 beacon_interval;		// Note: support 100 ~ 60000 ms, default 100
 	unsigned char channel;		// 1..14
 	unsigned char ssid_hidden;	// Note: default 0
 	unsigned char max_sta;		// 1..3
-} SOFTAP_CONFIG, * PSOFTAP_CONFIG;
+} SOFTAP_CONFIG, *PSOFTAP_CONFIG;
 //---- Interface 1 - wlan1 - ST - struct -
 typedef struct _station_config {
 	unsigned char ssid[NDIS_802_11_LENGTH_SSID];
 	unsigned char password[IW_PASSPHRASE_MAX_SIZE];
 	rtw_security_t security_type;
-	unsigned char bssid[6];		// Note: If bssid set is not ff.ff.ff.ff.ff.ff,
-	// station will connect to the router with both ssid[] and bssid[] matched.
+	unsigned char bssid[6];			// Note: If bssid set is not ff.ff.ff.ff.ff.ff || 00:00:00:00:00:00
 	unsigned char autoreconnect;	// 0 - none, 1..254 - count, 255 - all
-	unsigned char reconnect_pause; // in sec
+	unsigned char reconnect_pause; 	// in sec
+	unsigned char flg; 				// station will connect to the router with both ssid[], else if set flg - bssid[] matched.
 // rtw_adaptivity_mode_t
 } STATION_CONFIG, *PSTATION_CONFIG;
 //--- LwIP Config -------------------------
@@ -106,6 +105,7 @@ extern DHCP_CONFIG wifi_ap_dhcp;
 extern STATION_CONFIG wifi_st_cfg;
 extern DHCP_CONFIG wifi_st_dhcp;
 extern rtw_mode_t wifi_run_mode;
+extern rtw_mode_t wifi_mode;
 extern char wlan_st_name[];
 extern char wlan_ap_name[];
 extern char wlan_st_netifn;

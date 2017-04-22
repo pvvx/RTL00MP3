@@ -333,10 +333,14 @@ int joinlink_finish(unsigned char security_type)
 		//printf("ap_bssid: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", ap_bssid[0],ap_bssid[1],ap_bssid[2],ap_bssid[3],ap_bssid[4],ap_bssid[5]);
 
 
-		ret = wifi_connect((unsigned char *)result.ssid, security_mode, 
-				   (unsigned char *)result.pwd, result.ssid_length, 
-				   result.pwd_length, 
-				   0,NULL);			   
+		ret = wifi_connect(
+					NULL,
+					0,
+					(unsigned char *)result.ssid, 
+					security_mode, 
+				    (unsigned char *)result.pwd, 
+				   	0,
+				   	NULL);			   
 				   
 		if(ret == RTW_SUCCESS){
 			printf("Connect ok!\n");

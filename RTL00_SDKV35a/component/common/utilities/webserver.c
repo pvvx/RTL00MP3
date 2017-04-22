@@ -740,8 +740,8 @@ static void RestartSoftAP()
 	wifi_restart_ap(wifi_setting.ssid,
 					wifi_setting.security_type,
 					wifi_setting.password,
-					strlen((char*)wifi_setting.ssid),
-					strlen((char*)wifi_setting.password),
+//					strlen((char*)wifi_setting.ssid),
+//					strlen((char*)wifi_setting.password),
 					wifi_setting.channel);
 }
 

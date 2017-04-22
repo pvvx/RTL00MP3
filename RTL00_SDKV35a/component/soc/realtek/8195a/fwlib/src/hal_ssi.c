@@ -547,13 +547,13 @@ HalSsiInit(VOID *Data)
             DBG_SSI_ERR("Invalid SPI Index.\n");
             break;
     }
-/*
+
     ret = FunctionChk(Function, (u32)PinmuxSelect);
     if(ret == _FALSE){
         DBG_SSI_ERR("Invalid Pinmux Setting.\n");
         return HAL_ERR_PARA;
     }
-*/
+
 #ifdef CONFIG_SOC_PS_MODULE
         REG_POWER_STATE SsiPwrState;
 #endif

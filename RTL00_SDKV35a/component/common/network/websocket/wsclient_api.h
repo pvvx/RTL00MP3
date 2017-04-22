@@ -8,7 +8,6 @@
 /****************Define if using the polarssl*******************/
 #define USING_SSL
 
-
 /******************Define the function used*********************/
 #ifdef USING_SSL
 int wss_set_fun_ops(wsclient_context *wsclient);
@@ -19,9 +18,6 @@ int ws_set_fun_ops(wsclient_context *wsclient);
 #endif
 /***************************************************************/
 
-
-
-
 /*************************************************************************************************
 ** Function Name  : create_wsclient
 ** Description    : Creating the websocket client context structure
@@ -31,7 +27,7 @@ int ws_set_fun_ops(wsclient_context *wsclient);
 ** Return         : Created: websocket client context structure
 **					Failed:  NULL
 **************************************************************************************************/
-wsclient_context *create_wsclient(char *url, int port,char *path, char* origin);
+wsclient_context *create_wsclient(char *url, int port, char *path, char* origin);
 
 /*************************************************************************************************
 ** Function Name  : ws_connect_url

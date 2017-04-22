@@ -107,7 +107,14 @@ int wlan_init_done_callback()
 //		    rtw_network_info_t *wifi;
 //		    SC_connect_to_candidate_AP
 //		    SC_parse_scan_result_and_connect();
-			if (wifi_connect(data->psk_essid, data->security_type, data->psk_passphrase, strlen(data->psk_essid), strlen(data->psk_passphrase), RTW_SECURITY_OPEN, NULL) == RTW_SUCCESS) {
+			if (wifi_connect(
+					NULL,
+					0,
+					data->psk_essid, 
+					data->security_type, 
+					data->psk_passphrase, 
+					RTW_SECURITY_OPEN, 
+					NULL) == RTW_SUCCESS) {
 #else
 	    	//set partial scan for entering to listen beacon quickly
 		    	channel = data->channel & 0xFF;
@@ -124,7 +131,14 @@ int wlan_init_done_callback()
 		    u8 bssid[ETH_ALEN] = { 0xbc,0xae,0xc5,0xeb,0x09,0x90 };
 
 //			if (wifi_connect(data->psk_essid, data->security_type, data->psk_passphrase, strlen(data->psk_essid), strlen(data->psk_passphrase), RTW_SECURITY_OPEN, NULL) == RTW_SUCCESS) {
-	        if (wifi_connect_bssid(bssid, data->psk_essid, data->security_type, data->psk_passphrase, ETH_ALEN, strlen(data->psk_essid), strlen(data->psk_passphrase), data->channel>>28, NULL) == RTW_SUCCESS) {
+	        if (wifi_connect(
+	        			bssid, 
+	        			1,
+	        			data->psk_essid, 
+	        			data->security_type, 
+	        			data->psk_passphrase, 
+	        			data->channel>>28, 
+	        			NULL) == RTW_SUCCESS) {
 #endif
 //		    	DBG_8195A("WiFi connected at start %dms\n", xTaskGetTickCount());
 #if CONFIG_LWIP_LAYER

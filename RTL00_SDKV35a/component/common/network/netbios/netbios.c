@@ -163,13 +163,12 @@ PACK_STRUCT_END
 #  include "arch/epstruct.h"
 #endif
 
-LOCAL char toupper(char ch) {
- 	return  ((ch >= 'a' && ch <= 'z') ? ch - 'a' + 'A' : ch);
-}
+//#define toupper(CH) \
+//  (((CH) >= 'a' && (CH) <= 'z') ? ((CH) - 'a' + 'A') : (CH))
 
 
 /** NetBIOS decoding name */
-LOCAL int8_t NETBIOS_CODE_ATTR NBNS_decode(char *dst, char *src)
+static int8_t NETBIOS_CODE_ATTR NBNS_decode(char *dst, char *src)
 {
   uint8_t i, j;
   char c;
@@ -218,7 +217,7 @@ static void NBNS_encode(char *dst, char *src, uint8_t type)
 #endif
 
 /** NetBIOS Name service recv callback */
-LOCAL void NETBIOS_CODE_ATTR
+static void NETBIOS_CODE_ATTR
 netbios_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, ip_addr_t *addr,
 		u16_t port) {
 	LWIP_UNUSED_ARG(arg);
@@ -227,7 +226,7 @@ netbios_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, ip_addr_t *addr,
 		if (current_netif != NULL && current_netif->num < NET_IF_NUM) {
 			uint32 ip = current_netif->ip_addr.addr;
 			char *curbiosname = netbios_name[current_netif->num];
-			if (curbiosname[0] != '\0' && ip != 0
+			if (curbiosname[0] != '\0' && ip != NULL
 			/* we only answer if we got a default interface */
 			&& (((ip ^ addr->addr) & current_netif->netmask.addr) == 0)) { // запрет ответа другой подсети
 #if DEBUGSOO > 3
@@ -309,7 +308,7 @@ netbios_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, ip_addr_t *addr,
 	}
 }
 
-LOCAL struct udp_pcb * NETBIOS_CODE_ATTR netbios_pcb(void) {
+struct udp_pcb * NETBIOS_CODE_ATTR netbios_pcb(void) {
 	struct udp_pcb *pcb;
 	for (pcb = udp_pcbs; pcb != NULL; pcb = pcb->next) {
 		if (pcb->local_port == NETBIOS_PORT)

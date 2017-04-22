@@ -303,11 +303,12 @@ static int wps_connect_to_AP_by_certificate(rtw_network_info_t *wifi)
 	printf("ssid_len = %d\n", wifi->ssid.len);
 	printf("password_len = %d\n", wifi->password_len);
 	while (1) {
-		ret = wifi_connect((char*)wifi->ssid.val,
+		ret = wifi_connect(
+						NULL,
+						0,
+						(char*)wifi->ssid.val,
 						 wifi->security_type,
 						 (char*)wifi->password,
-						 wifi->ssid.len,
-						 wifi->password_len,
 						 wifi->key_id,
 						 NULL);
 		if (ret == RTW_SUCCESS) {
@@ -336,11 +337,11 @@ static int wps_connect_to_AP_by_open_system(char *target_ssid)
 	if (target_ssid != NULL) {
 		rtw_msleep_os(500);	//wait scan complete.
 		while (1) {
-			ret = wifi_connect(target_ssid,
-							 RTW_SECURITY_OPEN,
+			ret = wifi_connect(
 							 NULL,
-							 strlen(target_ssid),
 							 0,
+							 target_ssid,
+							 RTW_SECURITY_OPEN,
 							 0,
 							 NULL);
 			if (ret == RTW_SUCCESS) {

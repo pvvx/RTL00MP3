@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-typedef struct analogin_s analogin_t;
+typedef struct analogin_s analogin_t; // 444 bytes!
 
 void     analogin_init    (analogin_t *obj, PinName pin);
 float    analogin_read    (analogin_t *obj);

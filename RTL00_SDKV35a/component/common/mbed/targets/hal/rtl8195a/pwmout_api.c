@@ -3,9 +3,8 @@
   * Copyright (c) 2014, Realtek Semiconductor Corp.
   * All rights reserved.
   *
-  * This module is a confidential and proprietary property of RealTek and
-  * possession or use of this module requires written permission of RealTek.
   *******************************************************************************
+  *  bug fixing: pvvx
   */
      
 #include "device.h"
@@ -18,8 +17,10 @@
 #ifdef CONFIG_PWM_EN
 #include "pwmout_api.h"
 #include "objects.h"
+
+extern u32 gTimerRecord;
      
-static const PinMap PinMap_PWM[] = {
+const PinMap PinMap_PWM[] = {
     {PB_4,  RTL_PIN_PERI(PWM0, 0, S0), RTL_PIN_FUNC(PWM0, S0)},
     {PB_5,  RTL_PIN_PERI(PWM1, 1, S0), RTL_PIN_FUNC(PWM1, S0)},
     {PB_6,  RTL_PIN_PERI(PWM2, 2, S0), RTL_PIN_FUNC(PWM2, S0)},
@@ -43,7 +44,7 @@ static const PinMap PinMap_PWM[] = {
     {NC,    NC,     0}
 };
  
-void pwmout_init(pwmout_t* obj, PinName pin) 
+int pwmout_init(pwmout_t* obj, PinName pin)
 {
     uint32_t peripheral;
     u32 pwm_idx;
@@ -56,7 +57,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     if (unlikely(peripheral == NC)) {
         DBG_PWM_ERR("%s: Cannot find matched pwm for this pin(0x%x)\n", __FUNCTION__, pin);
-        return;
+        return -1;
     }
 
     pwm_idx = RTL_GET_PERI_IDX(peripheral);
@@ -66,75 +67,33 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->pin_sel = pin_sel;
     obj->period = 0;
     obj->pulse = 0;
-    _memset((void *)&obj->pwm_hal_adp, 0, sizeof(HAL_PWM_ADAPTER));
+    rtl_memset((void *)&obj->pwm_hal_adp, 0, sizeof(HAL_PWM_ADAPTER));
     if (HAL_OK != HAL_Pwm_Init(&obj->pwm_hal_adp, pwm_idx, pin_sel)) {
         DBG_PWM_ERR("pwmout_init Err!\n");
-        return;
+        return -1;
     }
-    pwmout_period_us(obj, 20000); // 20 ms per default
-    HAL_Pwm_Enable(&obj->pwm_hal_adp);
+//    pwmout_period_us(obj, 20000); // 20 ms per default
+//    HAL_Pwm_Enable(&obj->pwm_hal_adp);
+    return 0;
 }
 
 void pwmout_free(pwmout_t* obj) 
 {
     HAL_Pwm_Disable(&obj->pwm_hal_adp);
+    gTimerRecord &= ~(1 << obj->pwm_hal_adp.gtimer_id);
 }
 
-void pwmout_write(pwmout_t* obj, float value) 
+void pwmout_period_us(pwmout_t* obj, uint32_t us)
 {
-    if (value < (float)0.0) {
-        value = 0.0;
-    } 
-    else if (value > (float)1.0) {
-        value = 1.0;
-    }
-
-    obj->pulse = (uint32_t)((float)obj->period * value);
-    HAL_Pwm_SetDuty(&obj->pwm_hal_adp, obj->period, obj->pulse);
+	obj->period = us;
+    HAL_Pwm_SetDuty(&obj->pwm_hal_adp, us, obj->pulse);
 }
 
-float pwmout_read(pwmout_t* obj) 
+void pwmout_pulsewidth_us(pwmout_t* obj, uint32_t us)
 {
-    float value = 0;
-    if (obj->period > 0) {
-        value = (float)(obj->pulse) / (float)(obj->period);
-    }
-    return ((value > (float)1.0) ? (float)(1.0) : (value));
-}
-
-void pwmout_period(pwmout_t* obj, float seconds) 
-{
-    pwmout_period_us(obj, (int)(seconds * 1000000.0f));
-}
-
-void pwmout_period_ms(pwmout_t* obj, int ms) 
-{
-    pwmout_period_us(obj, (int)(ms * 1000));
-}
-
-void pwmout_period_us(pwmout_t* obj, int us) 
-{
-    float dc = pwmout_read(obj);
-
-    obj->period = us;
-    // Set duty cycle again
-    pwmout_write(obj, dc);
-}
-
-void pwmout_pulsewidth(pwmout_t* obj, float seconds) 
-{
-    pwmout_pulsewidth_us(obj, (int)(seconds * 1000000.0f));
-}
-
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) 
-{
-    pwmout_pulsewidth_us(obj, ms * 1000);
-}
-
-void pwmout_pulsewidth_us(pwmout_t* obj, int us) 
-{
-    float value = (float)us / (float)obj->period;
-    pwmout_write(obj, value);
+	obj->pulse = us;
+	if(us > obj->period) obj->period = us;
+    HAL_Pwm_SetDuty(&obj->pwm_hal_adp, obj->period, us);
 }
 
 #endif // #ifdef CONFIG_PWM_EN

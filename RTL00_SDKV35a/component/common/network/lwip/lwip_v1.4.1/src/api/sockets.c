@@ -184,7 +184,6 @@ void
 lwip_socket_init(void)
 {
 }
-
 /**
  * Map a externally used socket index to the internal socket representation.
  *
@@ -213,6 +212,14 @@ get_socket(int s)
   return sock;
 }
 
+/*
+ * pvvx: errno
+ */
+int lwip_last_err_socket(int s) {
+	struct lwip_sock * sc = get_socket(s);
+	if(sc) return sc->err;
+	else return EBADF;
+}
 /**
  * Same as get_socket but doesn't set errno
  *

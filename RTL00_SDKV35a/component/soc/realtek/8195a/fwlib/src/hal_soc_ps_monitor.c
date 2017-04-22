@@ -46,7 +46,6 @@ PatchHalLogUartInit(
     u32 Divisor;
     u32 Dlh;
     u32 Dll;
-    u32 SysClock;
 
     /*
         Interrupt enable Register
@@ -71,21 +70,11 @@ PatchHalLogUartInit(
     // set up buad rate division 
 
 #ifdef CONFIG_FPGA
-    SysClock = SYSTEM_CLK;
-    Divisor = (SysClock / (16 * (UartAdapter.BaudRate)));
+    Divisor = (SYSTEM_CLK / (16 * (UartAdapter.BaudRate)));
 #else
     {
-        u32 SampleRate, Remaind;
-
-        SysClock = HalGetCpuClk() >> 2;
-
-        SampleRate = (16 * (UartAdapter.BaudRate));
-
-        Divisor= SysClock/SampleRate;
-
-        Remaind = ((SysClock*10)/SampleRate) - (Divisor*10);
-        
-        if (Remaind > 4) Divisor++;
+        Divisor = HalGetCpuClk()/(32 * UartAdapter.BaudRate);
+        Divisor = (Divisor & 1) + (Divisor >> 1);
     }
 #endif
 
@@ -98,7 +87,7 @@ PatchHalLogUartInit(
     HAL_UART_WRITE32(UART_DLL_OFF, Dll);
     HAL_UART_WRITE32(UART_DLH_OFF, Dlh);
     // clear DLAB bit 
-    HAL_UART_WRITE32(UART_LINE_CTL_REG_OFF, 0);
+//    HAL_UART_WRITE32(UART_LINE_CTL_REG_OFF, 0); // есть далее
 
     // set data format
     SetData = UartAdapter.Parity | UartAdapter.Stop | UartAdapter.DataLength;
@@ -160,7 +149,7 @@ PSHalInitPlatformLogUart(
     UartIrqHandle.Priority = 0;
 
     //4 Inital Log uart
-    UartAdapter.BaudRate = UART_BAUD_RATE_38400;
+    UartAdapter.BaudRate = DEFAULT_BAUDRATE;
     UartAdapter.DataLength = UART_DATA_LEN_8BIT;
     UartAdapter.FIFOControl = 0xC1;
     UartAdapter.IntEnReg = 0x00;

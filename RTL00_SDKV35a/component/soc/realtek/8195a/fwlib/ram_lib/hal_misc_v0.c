@@ -336,7 +336,7 @@ PatchHalInitPlatformLogUart(
     UartIrqHandle.Priority = 0;
 
     //4 Inital Log uart
-    UartAdapter.BaudRate = UART_BAUD_RATE_38400;
+    UartAdapter.BaudRate = DEFAULT_BAUDRATE;
     UartAdapter.DataLength = UART_DATA_LEN_8BIT;
     UartAdapter.FIFOControl = 0xC1;
     UartAdapter.IntEnReg = 0x00;

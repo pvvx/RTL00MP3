@@ -36,6 +36,11 @@
 #include "wifi_api.h"
 #include "wifi_user_set.h"
 
+#ifdef CONFIG_ENABLE_WPS
+extern void cmd_ap_wps(int argc, char **argv);
+extern int wpas_wps_dev_config(u8 *dev_addr, u8 bregistrar);
+#endif //CONFIG_WPS_AP
+
 //=========================================
 //--- Wlan Config Init-------------------
 WIFI_CONFIG wifi_cfg = {
@@ -68,6 +73,7 @@ STATION_CONFIG wifi_st_cfg = {
 		.ssid = DEF_ST_SSID,
 		.password = DEF_ST_PASSWORD,
 		.bssid = DEF_ST_BSSID,
+		.flg = DEF_ST_BSSID,
 		.security_type = DEF_ST_SECURITY,
 		.autoreconnect = DEF_ST_AUTORECONNECT,
 		.reconnect_pause =	DEF_ST_RECONNECT_PAUSE
@@ -115,9 +121,10 @@ uint32 write_wifi_cfg(uint32 flg)
 	uint32 ret = 0;
 	PFEEP_ELEMENT p = feep_tab;
 	for(int m = 1; m && p->id != 0; m <<= 1, p++) {
-		if((flg & m)
-			&& flash_write_cfg(p->obj, p->id, p->size) < p->size) {
-			ret |= m;
+		if(flg & m) {
+			if(!flash_write_cfg(p->obj, p->id, p->size)) {
+				ret |= m;
+			};
 		};
 	};
 	return ret;
@@ -173,8 +180,6 @@ uint8 chk_ap_netif_num(void)
 	return wlan_ap_netifn;
 }
 
-extern int wifi_start_ap_s(PSOFTAP_CONFIG p);
-
 rtw_result_t wifi_run_ap(void) {
 	chk_ap_netif_num();
 
@@ -186,7 +191,18 @@ rtw_result_t wifi_run_ap(void) {
 		if(wext_set_sta_num(wifi_ap_cfg.max_sta) != 0) { // Max number of STAs, should be 1..3, default is 3
 			error_printf("AP not set max connections %d!\n", wifi_ap_cfg.max_sta);
 		};
-		ret = wifi_start_ap_s(&wifi_ap_cfg);
+#if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
+		// todo: ветка не доделана
+		wpas_wps_dev_config(xnetif[WLAN_AP_NETIF_NUM].hwaddr, 1);
+#endif //CONFIG_WPS_AP
+		if(wifi_ap_cfg.channel == 0 || wifi_ap_cfg.channel > 14) {
+			wifi_ap_cfg.channel = 1;
+		}
+		ret = wifi_start_ap(wifi_ap_cfg.ssid,	//char  *ssid,
+				wifi_ap_cfg.security_type,		//rtw_security_t ecurity_type,
+				wifi_ap_cfg.password, 			//char *password,
+				wifi_ap_cfg.channel,			//int channel
+				wifi_ap_cfg.ssid_hidden);		//
 		wifi_run_mode |= RTW_MODE_AP;
 		if (ret != RTW_SUCCESS) {
 			error_printf("Error(%d): Start AP failed!\n\n", ret);;
@@ -233,13 +249,13 @@ rtw_result_t StartStDHCPClient(void)
 	struct netif * pnetif = &xnetif[WLAN_ST_NETIF_NUM];
 	DHCP_CONFIG *p = (dhcp_cfg *)&wifi_st_dhcp;
 	unsigned char mode = p->mode;
-	if((mode == 3)
-	&& (p->ip == IP4ADDR(255,255,255,255)
-			|| p->ip == IP4ADDR(0,0,0,0))) {
-		mode = 2;
+	if((mode == 3) // Auto fix
+	&& p->ip != IP4ADDR(255,255,255,255)
+	&& p->ip != IP4ADDR(0,0,0,0)) {
+//		mode = 2; // fixed ip
 	}
-	else mode = 1;
-	if(mode == 2) {
+	else mode = 1; // DHCP On
+	if(mode == 2) { // fixed ip
 			netif_set_addr(pnetif, (ip_addr_t *)&p->ip, (ip_addr_t *)&p->mask, (ip_addr_t *)&p->gw);
 //			dhcps_init(pnetif);
 	}
@@ -254,8 +270,8 @@ rtw_result_t StartStDHCPClient(void)
 			p->ip = pnetif->ip_addr.addr;
 			p->gw = pnetif->gw.addr;
 			p->mask = pnetif->netmask.addr;
-			if(p->mode == 3) {
-				p->mode = 2;
+			if(p->mode == 3) { // Auto fix
+				p->mode = 2; // fixed ip
 				write_wifi_cfg(BID_ST_DHCP_CFG);
 			}
 			ret = RTW_SUCCESS;
@@ -282,9 +298,14 @@ rtw_result_t wifi_run_st(void) {
 		}
 #endif
 		info_printf("Connected to AP (%s, netif%d)...\n", wlan_st_name, wlan_st_netifn);
-		ret = wifi_connect(wifi_st_cfg.ssid, wifi_st_cfg.security_type,
-				wifi_st_cfg.password, strlen(wifi_st_cfg.ssid),
-				strlen(wifi_st_cfg.password), -1, NULL);
+		ret = wifi_connect(
+				wifi_st_cfg.bssid,
+				wifi_st_cfg.flg,
+				wifi_st_cfg.ssid,
+				wifi_st_cfg.security_type,
+				wifi_st_cfg.password,
+				-1, 
+				NULL);
 		wifi_run_mode |= RTW_MODE_STA;
 		if (ret != RTW_SUCCESS) {
 			error_printf("%s: Operation failed! Error(%d)\n", __func__, ret);
@@ -328,7 +349,7 @@ int _wifi_on(rtw_mode_t mode) {
 //	wext_set_adaptivity(RTW_ADAPTIVITY_NORMAL);
 //	wext_set_adaptivity(RTW_ADAPTIVITY_CARRIER_SENSE);
 
-	devnum = (mode == RTW_MODE_STA_AP);
+	devnum = (mode == RTW_MODE_STA_AP); // flag use 2 netif
 
 	ret = rltk_wlan_init(0, mode);
 	if (ret < 0) return ret;
@@ -390,8 +411,9 @@ void _LwIP_Init(void)
 			netif_set_up(&xnetif[idx]);
 		}
 		info_printf("interface %d is initialized\n", idx);
-		wifi_mode = 0;
 		lwip_init_done = 1;
+		// для отслеживания первого старта ?
+//		wifi_mode = RTW_MODE_NONE;
 	}
 }
 
@@ -400,9 +422,6 @@ int wifi_run(rtw_mode_t mode) {
 #if CONFIG_DEBUG_LOG > 4
 	debug_printf("\n%s(%d), %d\n", __func__, mode, wifi_run_mode);
 #endif
-	if(mode != RTW_MODE_NONE) {
-		_LwIP_Init();
-	};
 	if(wifi_run_mode & RTW_MODE_AP) {
 		info_printf("Deinit old AP...\n");
 		LwIP_DHCP(WLAN_AP_NETIF_NUM, DHCP_STOP);
@@ -435,25 +454,37 @@ int wifi_run(rtw_mode_t mode) {
 		if(wifi_set_country(wifi_cfg.country_code) != RTW_SUCCESS) {
 			error_printf("Error set tx country_code (%d)!", wifi_cfg.country_code);
 		};
-//	extern uint8_t rtw_power_percentage_idx; // rtw_tx_pwr_percentage_t
-#if 1 // rltk_set_tx_power_percentage() return all = 0 !
-		rltk_set_tx_power_percentage(wifi_cfg.tx_pwr);
-#else
+//	extern uint8_t rtw_power_percentage_idx;
 		if(rtw_power_percentage_idx != wifi_cfg.tx_pwr) {
 			if(rltk_set_tx_power_percentage(wifi_cfg.tx_pwr) != RTW_SUCCESS) {
 				error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
 			};
 		}
-#endif
 		debug_printf("mode == wifi_mode? (%d == %d?)\n", mode, wifi_mode);
 //		if(mode == wifi_mode)
 		{
-			if((wifi_mode == RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP)) {
-				wifi_run_ap();
-			};
-			if((wifi_mode == RTW_MODE_STA) || (wifi_mode == RTW_MODE_STA_AP)) {
-				wifi_run_st();
-			};
+			switch(wifi_mode) {
+			 case RTW_MODE_STA_AP:
+				 wifi_run_ap();
+				 wifi_run_st();
+				 break;
+			 case RTW_MODE_STA:
+				 wifi_run_st();
+				 break;
+			 case RTW_MODE_AP:
+				 wifi_run_ap();
+				 break;
+#if 0// CONFIG_ENABLE_??
+			 case RTW_MODE_PROMISC:
+				 break;
+#endif
+#if CONFIG_ENABLE_P2P
+			 case RTW_MODE_P2P:
+				 break;
+#endif
+			 default:
+				error_printf("Error WiFi mode(%d)\n", wifi_mode);
+			}
 #if CONFIG_INTERACTIVE_MODE
 			/* Initial uart rx swmaphore*/
 			vSemaphoreCreateBinary(uart_rx_interrupt_sema);
@@ -475,6 +506,7 @@ error_end:
 	return ret;
 }
 
+/* Load cfg, init WiFi + LwIP init, WiFi start if wifi_cfg.mode !=  RTW_MODE_NONE */
 void wifi_init(void) {
 	debug_printf("\nLoad Config\n");
 	read_wifi_cfg(wifi_cfg.load_flg); // DEF_LOAD_CFG
@@ -483,13 +515,12 @@ void wifi_init(void) {
 	// Call back from application layer after wifi_connection success
 //		p_write_reconnect_ptr = wlan_write_reconnect_data_to_flash;
 	p_wlan_autoreconnect_hdl = NULL;
-	if (wifi_cfg.mode != RTW_MODE_NONE) {
-		wifi_mode = wifi_cfg.mode;
+	_LwIP_Init();
 #if CONFIG_WIFI_IND_USE_THREAD
-		wifi_manager_init();
+	wifi_manager_init();
 #endif
-		wifi_run(wifi_cfg.mode);
-	}
+//	wifi_cfg.mode = RTW_MODE_PROMISC; //RTW_MODE_P2P;
+	wifi_run(wifi_cfg.mode);
 }
 
 rtw_security_t translate_rtw_security(u8 security_type)
@@ -518,6 +549,7 @@ rtw_security_t translate_rtw_security(u8 security_type)
 	}
 	return security_mode;
 }
+
 
 void show_wifi_ap_ip(void) {
 	printf("SoftAP ip: " IPSTR "\n", IP2STR(&xnetif[WLAN_AP_NETIF_NUM].ip_addr));

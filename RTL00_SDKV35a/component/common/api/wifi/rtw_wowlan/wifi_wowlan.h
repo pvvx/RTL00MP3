@@ -212,16 +212,16 @@ struct rtw_wowlan_rx_filter {
 #if defined(__IAR_SYSTEMS_ICC__)
 #pragma pack(1)
 #else
-//#error "this structure needs to be packed!"
+#error "this structure needs to be packed!"
 #endif
-struct rtw_wowlan {
+struct rtw_wowlan_status {
 	u32 wakeup_reasons; //record wake up reason
 	u32 filter_id; //record which pattern is matched
-} _status __attribute__ ((__packed__));
+};
 #if defined(__IAR_SYSTEMS_ICC__)
 #pragma pack()
 #else
-//#error "this structure needs to be packed!"
+#error "this structure needs to be packed!"
 #endif
 
 /**

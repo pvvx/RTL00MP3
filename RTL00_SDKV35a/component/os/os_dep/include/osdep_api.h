@@ -79,7 +79,7 @@ typedef struct _RTL_TIMER{
 	u32                 msPeriod; // The period of this timer
 	void                *Context; // Timer specific context.
 	u8                  isPeriodical;   // is a periodical timer
-	u8                  TimerName[35];  // the Name of timer
+	u8                  TimerName[15];  // the Name of timer
 }RTL_TIMER, *PRTL_TIMER;
 
 __inline static VOID 

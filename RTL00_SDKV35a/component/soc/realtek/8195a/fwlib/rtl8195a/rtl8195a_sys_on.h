@@ -616,6 +616,7 @@
 #define BIT_MASK_XTAL_DRV_RF_LATCH 0xffffffffL
 #define BIT_XTAL_DRV_RF_LATCH(x) (((x) & BIT_MASK_XTAL_DRV_RF_LATCH) << BIT_SHIFT_XTAL_DRV_RF_LATCH)
 
+// BIT25 - To release DAC delta sigma clock gating
 
 //2 REG_RSVD
 

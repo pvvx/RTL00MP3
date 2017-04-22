@@ -3,8 +3,8 @@
  *
  *  Copyright (c) 2013 Realtek Semiconductor Corp.
  *
- *  This module is a confidential and proprietary property of RealTek and
- *  possession or use of this module requires written permission of RealTek.
+ * --------------------------
+ *  bug fixing: pvvx
  */
 
 
@@ -15,9 +15,10 @@
 #include "rtl8195a_pwm.h"
 #include "hal_pwm.h"
 
-extern HAL_PWM_ADAPTER PWMPin[];
+//extern HAL_PWM_ADAPTER PWMPin[];
 
-extern HAL_TIMER_OP HalTimerOp;
+//extern HAL_TIMER_OP HalTimerOp;
+extern u32 gTimerRecord;
 
 /**
   * @brief  Configure a G-Timer to generate a tick with certain time.
@@ -33,33 +34,30 @@ Pwm_SetTimerTick_8195a(
     u32 tick_time
 )
 {
-    TIMER_ADAPTER TimerAdapter;
-
-
     if (tick_time <= MIN_GTIMER_TIMEOUT) {
         tick_time = MIN_GTIMER_TIMEOUT;
     }
-    else {
-        tick_time = (((tick_time-1)/TIMER_TICK_US)+1) * TIMER_TICK_US;
-    }
-    
     // Initial a G-Timer for the PWM pin
     if (pPwmAdapt->tick_time != tick_time) {
-        TimerAdapter.IrqDis = 1;    // Disable Irq
-        TimerAdapter.IrqHandle.IrqFun = (IRQ_FUN) NULL;
-        TimerAdapter.IrqHandle.IrqNum = TIMER2_7_IRQ;
-        TimerAdapter.IrqHandle.Priority = 10;
-        TimerAdapter.IrqHandle.Data = (u32)NULL;
-        TimerAdapter.TimerId = pPwmAdapt->gtimer_id;
-        TimerAdapter.TimerIrqPriority = 0;
-        TimerAdapter.TimerLoadValueUs = tick_time-1;
-        TimerAdapter.TimerMode = 1; // auto-reload with user defined value
-
-        HalTimerOp.HalTimerInit((VOID*) &TimerAdapter);
         pPwmAdapt->tick_time = tick_time;
         DBG_PWM_INFO("%s: Timer_Id=%d Count=%d\n", __FUNCTION__, pPwmAdapt->gtimer_id, tick_time);
+        // if timer is running ?
+        if(gTimerRecord & (1 << pPwmAdapt->gtimer_id)) {
+        	HalTimerReLoadRtl8195a_Patch(pPwmAdapt->gtimer_id, tick_time);
+        } else {
+            TIMER_ADAPTER TimerAdapter;
+            TimerAdapter.IrqDis = 1;    // Disable Irq
+            TimerAdapter.IrqHandle.IrqFun = (IRQ_FUN) NULL;
+            TimerAdapter.IrqHandle.IrqNum = TIMER2_7_IRQ;
+            TimerAdapter.IrqHandle.Priority = 10;
+            TimerAdapter.IrqHandle.Data = (u32)NULL;
+            TimerAdapter.TimerId = pPwmAdapt->gtimer_id;
+            TimerAdapter.TimerIrqPriority = 0;
+            TimerAdapter.TimerLoadValueUs = tick_time-1;
+            TimerAdapter.TimerMode = 1; // auto-reload with user defined value
+            HalTimerInitRtl8195a_Patch((VOID*) &TimerAdapter);
+        }
      }
-
 }
 
 
@@ -95,7 +93,7 @@ HAL_Pwm_SetDuty_8195a(
         period = MIN_GTIMER_TIMEOUT*2;
     }
     else {
-        tick_time = period / 0x3fc; // a duty cycle be devided into 1020 ticks
+        tick_time = period / 1020; // 0x3fc; // a duty cycle be devided into 1020 ticks
         if (tick_time < MIN_GTIMER_TIMEOUT) {
             tick_time = MIN_GTIMER_TIMEOUT;
         }
@@ -103,36 +101,24 @@ HAL_Pwm_SetDuty_8195a(
 
     Pwm_SetTimerTick_8195a(pPwmAdapt, tick_time);
     tick_time = pPwmAdapt->tick_time;
-#if 0    
-    // Check if current tick time needs adjustment
-    if ((pPwmAdapt->tick_time << 12) <= period) {
-        // need a longger tick time
-    }
-    else if ((pPwmAdapt->tick_time >> 2) >= period) {
-        // need a shorter tick time
-    }
-#endif
+
     period_tick = period/tick_time;
     if (period_tick == 0) {
         period_tick = 1;
     }
 
     if (pulse_width >= period) {
-//        pulse_width = period-1;
         pulse_width = period;
     }
     pulsewidth_tick = pulse_width/tick_time;
-    if (pulsewidth_tick == 0) {
-//        pulsewidth_tick = 1;
-    }
     
     timer_id = pPwmAdapt->gtimer_id;
 
-    pPwmAdapt->period = period_tick & 0x3ff;
-    pPwmAdapt->pulsewidth = pulsewidth_tick & 0x3ff;
+    pPwmAdapt->period = period_tick & BIT_MASK_PERI_PWM0_PERIOD;
+    pPwmAdapt->pulsewidth = pulsewidth_tick & BIT_MASK_PERI_PWM0_DUTY;
     
     RegAddr = REG_PERI_PWM0_CTRL + (pwm_id*4);
-    RegValue = BIT31 | (timer_id<<24) | (pulsewidth_tick<<12) | period_tick;
+    RegValue = BIT_PERI_PWM0_EN | BIT_PERI_PWM0_GT_SEL(timer_id) | BIT_PERI_PWM0_DUTY(pulsewidth_tick) | BIT_PERI_PWM0_PERIOD(period_tick);
     
     HAL_WRITE32(PERI_ON_BASE, RegAddr, RegValue);
 }
@@ -157,10 +143,10 @@ HAL_Pwm_Init_8195a(
     pwm_id = pPwmAdapt->pwm_id;
     pin_sel =  pPwmAdapt->sel;
     // Initial a G-Timer for the PWM pin
-    Pwm_SetTimerTick_8195a(pPwmAdapt, MIN_GTIMER_TIMEOUT);
+//p/    Pwm_SetTimerTick_8195a(pPwmAdapt, MIN_GTIMER_TIMEOUT);
 
     // Set default duty ration
-    HAL_Pwm_SetDuty_8195a(pPwmAdapt, 20000, 10000);
+//p/    HAL_Pwm_SetDuty_8195a(pPwmAdapt, 20000, 10000);
 
     // Configure the Pin Mux
     PinCtrl((PWM0+pwm_id), pin_sel, 1);
@@ -187,7 +173,7 @@ HAL_Pwm_Enable_8195a(
     // Configure the Pin Mux
     if (!pPwmAdapt->enable) {
         PinCtrl((PWM0+pwm_id), pPwmAdapt->sel, 1);
-        HalTimerOp.HalTimerEn(pPwmAdapt->gtimer_id);        
+        HalTimerEnRtl8195a_Patch(pPwmAdapt->gtimer_id);
         pPwmAdapt->enable = 1;
     }
 }
@@ -211,7 +197,7 @@ HAL_Pwm_Disable_8195a(
     // Configure the Pin Mux
     if (pPwmAdapt->enable) {
         PinCtrl((PWM0+pwm_id), pPwmAdapt->sel, 0);
-        HalTimerOp.HalTimerDis(pPwmAdapt->gtimer_id);        
+        HalTimerDisRtl8195a(pPwmAdapt->gtimer_id);
         pPwmAdapt->enable = 0;
     }
 }

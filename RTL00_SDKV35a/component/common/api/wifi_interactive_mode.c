@@ -124,9 +124,9 @@ extern void cmd_googlenest(int argc, char **argv);
 extern void cmd_jd_smart(int argc, char **argv);
 #endif
 #if CONFIG_WLAN
-static void cmd_wifi_on(int argc, char **argv);
-static void cmd_wifi_off(int argc, char **argv);
-static void cmd_wifi_disconnect(int argc, char **argv);
+void cmd_wifi_on(int argc, char **argv);
+void cmd_wifi_off(int argc, char **argv);
+void cmd_wifi_disconnect(int argc, char **argv);
 extern void cmd_promisc(int argc, char **argv);
 extern void cmd_simple_config(int argc, char **argv);
 
@@ -222,9 +222,8 @@ static void cmd_wifi_sta_and_ap(int argc, char **argv)
 		if(wifi_start_ap(argv[1],
 							 RTW_SECURITY_WPA2_AES_PSK,
 							 argv[3],
-							 strlen((const char *)argv[1]),
-							 strlen((const char *)argv[3]),
-							 channel
+							 channel,
+							 0
 							 ) != RTW_SUCCESS) {
 			printf("ERROR: Operation failed!\n\n");
 			return;
@@ -234,9 +233,8 @@ static void cmd_wifi_sta_and_ap(int argc, char **argv)
 		if(wifi_start_ap(argv[1],
 							 RTW_SECURITY_OPEN,
 							 NULL,
-							 strlen((const char *)argv[1]),
-							 0,
-							 channel
+							 channel,
+							 0
 							 ) != RTW_SUCCESS) {
 			printf("ERROR: Operation failed!\n");
 			return;
@@ -332,9 +330,8 @@ static void cmd_wifi_ap(int argc, char **argv)
 		if(wifi_start_ap(argv[1],
 							 RTW_SECURITY_WPA2_AES_PSK,
 							 argv[3],
-							 strlen((const char *)argv[1]),
-							 strlen((const char *)argv[3]),
-							 channel
+							 channel,
+							 0
 							 ) != RTW_SUCCESS) {
 			printf("ERROR: Operation failed!\n");
 			return;
@@ -344,9 +341,8 @@ static void cmd_wifi_ap(int argc, char **argv)
 		if(wifi_start_ap(argv[1],
 							 RTW_SECURITY_OPEN,
 							 NULL,
-							 strlen((const char *)argv[1]),
-							 0,
-							 channel
+							 channel,
+							 0
 							 ) != RTW_SUCCESS) {
 			printf("ERROR: Operation failed!\n");
 			return;
@@ -443,11 +439,12 @@ static void cmd_wifi_connect(int argc, char **argv)
 		semaphore = NULL;
 	}
 
-	ret = wifi_connect(ssid, 
-					security_type, 
-					password, 
-					ssid_len, 
-					password_len, 
+	ret = wifi_connect(
+					NULL,
+					0,
+					ssid,
+					security_type,
+					password,
 					key_id,
 					semaphore);
 
@@ -480,7 +477,6 @@ static void cmd_wifi_connect_bssid(int argc, char **argv)
 	char 			*ssid = NULL;
 	rtw_security_t		security_type;
 	char 			*password;
-	int 				bssid_len;
 	int 				ssid_len = 0;
 	int 				password_len;
 	int 				key_id;
@@ -525,21 +521,18 @@ static void cmd_wifi_connect_bssid(int argc, char **argv)
 	if(argc == 3 + index){
 		security_type = RTW_SECURITY_OPEN;
 		password = NULL;
-		bssid_len = ETH_ALEN;
 		password_len = 0;
 		key_id = 0;
 		semaphore = NULL;
 	}else if(argc ==4 + index){
 		security_type = RTW_SECURITY_WPA2_AES_PSK;
 		password = argv[3 + index];
-		bssid_len = ETH_ALEN;
 		password_len = strlen((const char *)argv[3 + index]);
 		key_id = 0;
 		semaphore = NULL;
 	}else{
 		security_type = RTW_SECURITY_WEP_PSK;
 		password = argv[3 + index];
-		bssid_len = ETH_ALEN;
 		password_len = strlen((const char *)argv[3 + index]);
 		key_id = atoi(argv[4 + index]);
 		if(( password_len != 5) && (password_len != 13)) {
@@ -553,13 +546,12 @@ static void cmd_wifi_connect_bssid(int argc, char **argv)
 		semaphore = NULL;
 	}
 
-	ret = wifi_connect_bssid(bssid, 
+	ret = wifi_connect(
+					bssid,
+					1,
 					ssid,
-					security_type, 
-					password, 
-					bssid_len, 
-					ssid_len, 					
-					password_len, 
+					security_type,
+					password,
 					key_id,
 					semaphore);
 
@@ -578,7 +570,7 @@ static void cmd_wifi_connect_bssid(int argc, char **argv)
 	printf("Got IP after %dms.\n", (tick3-tick1));
 }
 
-static void cmd_wifi_disconnect(int argc, char **argv)
+void cmd_wifi_disconnect(int argc, char **argv)
 {
 	int timeout = 20;
 	char essid[33];
@@ -714,14 +706,14 @@ static void cmd_wifi_info(int argc, char **argv)
 #endif
 }
 
-static void cmd_wifi_on(int argc, char **argv)
+void cmd_wifi_on(int argc, char **argv)
 {
 	if(wifi_on(RTW_MODE_STA)<0){
 		printf("ERROR: Wifi on failed!\n");
 	}
 }
 
-static void cmd_wifi_off(int argc, char **argv)
+void cmd_wifi_off(int argc, char **argv)
 {
 #if CONFIG_WEBSERVER
 	stop_web_server();
@@ -1059,7 +1051,7 @@ static const cmd_entry cmd_table[] = {
 	{"wifi_wps", cmd_wps},
 #endif	
 #ifdef CONFIG_WPS_AP
-//pvvx	{"wifi_ap_wps", cmd_ap_wps},
+	{"wifi_ap_wps", cmd_ap_wps},
 #endif
 #if CONFIG_ENABLE_P2P
 	{"wifi_p2p_start", cmd_wifi_p2p_start},

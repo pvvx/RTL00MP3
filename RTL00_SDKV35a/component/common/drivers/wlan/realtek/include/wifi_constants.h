@@ -491,7 +491,7 @@ typedef enum {
 	RTW_TX_PWR_PERCENTAGE_75 = 1, /* 75% */
 	RTW_TX_PWR_PERCENTAGE_50 = 2, /* 50% */
 	RTW_TX_PWR_PERCENTAGE_25 = 3, /* 25% */
-	RTW_TX_PWR_PERCENTAGE_12_5 = 4, /* 12.5% */
+	RTW_TX_PWR_PERCENTAGE_12_5 = 4 /* 12.5% */
 }rtw_tx_pwr_percentage_t;
 
 /**

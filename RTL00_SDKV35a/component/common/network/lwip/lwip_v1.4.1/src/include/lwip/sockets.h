@@ -342,6 +342,8 @@ int lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptse
 int lwip_ioctl(int s, long cmd, void *argp);
 int lwip_fcntl(int s, int cmd, int val);
 
+int lwip_last_err_socket(int s); // errno
+
 #if LWIP_COMPAT_SOCKETS
 #define accept(a,b,c)         lwip_accept(a,b,c)
 #define bind(a,b,c)           lwip_bind(a,b,c)
@@ -360,6 +362,7 @@ int lwip_fcntl(int s, int cmd, int val);
 #define socket(a,b,c)         lwip_socket(a,b,c)
 #define select(a,b,c,d,e)     lwip_select(a,b,c,d,e)
 #define ioctlsocket(a,b,c)    lwip_ioctl(a,b,c)
+
 
 #if LWIP_POSIX_SOCKETS_IO_NAMES
 #define read(a,b,c)           lwip_read(a,b,c)

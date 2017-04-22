@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include "libc/rom/string/rom_libc_string.h"
-#include "strproc.h"
 
 #define memchr		__rtl_memchr_v1_00
 #define memcmp		__rtl_memcmp_v1_00
@@ -22,6 +21,10 @@
 #define strstr		__rtl_strstr_v1_00
 #define strsep		__rtl_strsep_v1_00
 #define strtok		__rtl_strtok_v1_00
+
+static char toupper(char ch) {
+ 	return  ((ch >= 'a' && ch <= 'z') ? ch - 'a' + 'A' : ch);
+};
 
 #define NEWFP 1
 #define ENDIAN_LITTLE 1234
@@ -188,13 +191,6 @@ str_fmt(char *p, int size, int fmt)
 /*
  * strtoupper()
  */
-#define strtoupper StrUpr
-/*
-
-LOCAL char toupper(char ch) {
- 	return  ((ch >= 'a' && ch <= 'z') ? ch - 'a' + 'A' : ch);
-};
-
 void
 strtoupper(char *p)
 {
@@ -203,7 +199,7 @@ strtoupper(char *p)
     for (; *p; p++)
         *p = toupper (*p);
 }
-*/
+
 /* $Id: atob.c,v 1.1.1.1 2006/08/23 17:03:06 pefo Exp $ */
 
 /*
@@ -637,7 +633,7 @@ c_vsprintf (char *d, const char *s, va_list ap)
                     }
                     else if (*s == 'o')
                         base = 8;
-                    else //if (*s == 'b')
+                    else if (*s == 'b')
                         base = 2;
                     if (longlong)
                         llbtoa(d, va_arg (ap, quad_t),
@@ -1078,12 +1074,9 @@ int c_printf(const char *fmt, ...)
 
 int puts (const char *s)
 {
-	int i = 0;
 	while(*s) {
 		HalSerialPutcRtl8195a(*s++);
-		i++;
 	}
-	return i;
 }
 
 void vTaskDelete(void *);

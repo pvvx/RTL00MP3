@@ -161,7 +161,7 @@ void HalLogUartIrqHandle(VOID * Data) {
 void HalLogUartSetBaudRate(HAL_LOG_UART_ADAPTER *pUartAdapter) {
 	u32 clk4 = HalGetCpuClk() >> 2; // PLATFORM_CLOCK/2; // (unsigned int) HalGetCpuClk() >> 2; // div 4
 	if (pUartAdapter->BaudRate == 0)
-		pUartAdapter->BaudRate = UART_BAUD_RATE_38400;
+		pUartAdapter->BaudRate = DEFAULT_BAUDRATE;
 	u32 br16 = pUartAdapter->BaudRate << 4; // * 16
 	if ((br16 != 0) && (br16 <= clk4)) {
 		unsigned int dll = clk4 / br16;
@@ -200,7 +200,7 @@ u32 HalLogUartInitSetting(HAL_LOG_UART_ADAPTER *pUartAdapter) {
 //  HalPinCtrlRtl8195A(LOG_UART, 0, 1); ????
 	u32 clk4 = HalGetCpuClk() >> 2; // PLATFORM_CLOCK/2; // (unsigned int) HalGetCpuClk() >> 2; // div 4
 	if (pUartAdapter->BaudRate == 0)
-		pUartAdapter->BaudRate = UART_BAUD_RATE_38400;
+		pUartAdapter->BaudRate = DEFAULT_BAUDRATE;
 	u32 br16 = pUartAdapter->BaudRate << 4; // * 16
 	HAL_UART_WRITE32(UART_INTERRUPT_EN_REG_OFF, 0); // 40003004 = 0;
 	if (br16 <= clk4) {
@@ -418,7 +418,7 @@ void HalInitLogUart(void) {
 	HAL_PERI_ON_WRITE32(REG_PESOC_CLK_CTRL,
 			HAL_PERI_ON_READ32(REG_PESOC_CLK_CTRL) | BIT_SOC_ACTCK_LOG_UART_EN); // 40000230 |= 0x1000u;
 	HalPinCtrlRtl8195A(LOG_UART, 0, 1);
-	UartAdapter.BaudRate = UART_BAUD_RATE_38400;
+	UartAdapter.BaudRate = DEFAULT_BAUDRATE;
 	UartAdapter.DataLength = UART_DATA_LEN_8BIT;
 	UartAdapter.FIFOControl = FCR_RX_TRIG_MASK | FCR_FIFO_EN; // 0xC1;
 	UartAdapter.IntEnReg = IER_ERBFI | IER_ELSI; // 5

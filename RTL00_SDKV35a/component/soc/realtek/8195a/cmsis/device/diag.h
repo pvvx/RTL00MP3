@@ -89,6 +89,8 @@ prvDiagSPrintf(
     IN  const char *fmt, ...
 );
 
+extern char print_off;
+
 #if CONFIG_DEBUG_LOG > 3
 #define debug_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)
 #define info_printf(fmt, ...) rtl_printf(fmt, ##__VA_ARGS__)

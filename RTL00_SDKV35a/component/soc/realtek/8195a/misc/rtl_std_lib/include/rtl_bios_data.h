@@ -92,7 +92,7 @@ typedef struct _FALSE_ALARM_STATISTICS {
 	u32 Cnt_CCA_all;
 	u32 Cnt_BW_USC;
 	u32 Cnt_BW_LSC;
-} FALSE_ALARM_STATISTICS, *PFALSE_ALARM_STATISTICS;
+} FALSE_ALARM_STATISTICS;
 extern FALSE_ALARM_STATISTICS FalseAlmCnt;	// 100006E0
 
 typedef struct _rom_info {
@@ -100,7 +100,7 @@ typedef struct _rom_info {
 	u8 CrystalCap;
 	u64 DebugComponents;
 	u32 DebugLevel;
-} ROM_INFO, *PROM_INFO;
+} ROM_INFO;
 extern ROM_INFO ROMInfo;					// 10000720
 
 typedef struct _CFO_TRACKING_ {
@@ -118,7 +118,7 @@ typedef struct _CFO_TRACKING_ {
 	u8 CFO_TH_XTAL_HIGH;
 	u8 CFO_TH_XTAL_LOW;
 	u8 CFO_TH_ATC;
-} CFO_TRACKING, *PCFO_TRACKING;;
+}CFO_TRACKING;
 extern CFO_TRACKING DM_CfoTrack;			// 10000738
 
 /* in rom_libgloss_retarget.h

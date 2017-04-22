@@ -10,8 +10,10 @@
 #include <lwip/netif.h>
 #include "wifi/wifi_conf.h"
 #include <platform/platform_stdlib.h>
+#ifdef CONFIG_ENABLE_EAP
 #include <polarssl/ssl.h>
 #include <polarssl/memory.h>
+#endif
 
 #define WLAN0_NAME "wlan0"
 #ifndef ENABLE
@@ -20,6 +22,21 @@
 #ifndef DISABLE
 #define	DISABLE (0)
 #endif
+
+#ifndef CONFIG_ENABLE_EAP
+int get_eap_phase(void){
+	return 0;
+}
+
+int get_eap_method(void){
+	return 0;
+}
+
+void eap_autoreconnect_hdl(u8 method_id)
+{
+	(void) method_id;
+}
+#else
 
 u8 eap_phase = 0;
 u8 eap_method = 0;
@@ -42,9 +59,6 @@ void eap_eapol_recvd_hdl(char *buf, int buf_len, int flags, void* handler_user_d
 void eap_eapol_start_hdl(char *buf, int buf_len, int flags, void* handler_user_data);
 #endif
 
-void set_eap_phase(unsigned char is_trigger_eap){
-	eap_phase = is_trigger_eap;
-}
 
 int get_eap_phase(void){
 	return eap_phase;
@@ -52,6 +66,10 @@ int get_eap_phase(void){
 
 int get_eap_method(void){
 	return eap_method;
+}
+
+void set_eap_phase(unsigned char is_trigger_eap){
+	eap_phase = is_trigger_eap;
 }
 
 void reset_config(void){
@@ -63,6 +81,8 @@ void reset_config(void){
 	eap_client_key = NULL;
 	eap_client_key_pwd = NULL;
 }
+
+#ifdef CONFIG_ENABLE_EAP
 
 void judge_station_disconnect(void) 
 {
@@ -82,7 +102,7 @@ void judge_station_disconnect(void)
 			wifi_disconnect();
 	}	
 }
-#ifdef CONFIG_ENABLE_EAP
+
 void eap_disconnected_hdl(char *buf, int buf_len, int flags, void* handler_user_data){
 //	printf("disconnected\n");
 	wifi_unreg_event_handler(WIFI_EVENT_EAPOL_RECVD, eap_eapol_recvd_hdl);
@@ -258,11 +278,12 @@ static int connect_by_open_system(char *target_ssid)
 	if (target_ssid != NULL) {
 		while (1) {
 			rtw_msleep_os(500);	//wait scan complete.
-			ret = wifi_connect(target_ssid,
+			ret = wifi_connect(
+							NULL, 
+							0,
+							target_ssid,
 							RTW_SECURITY_OPEN,
 							NULL,
-							strlen(target_ssid),
-							0,
 							0,
 							NULL);
 			if (ret == RTW_SUCCESS) {
@@ -451,3 +472,5 @@ int eap_cert_setup(ssl_context *ssl)
 #endif
 	return 0;
 }
+
+#endif //#ifdef CONFIG_ENABLE_EAP

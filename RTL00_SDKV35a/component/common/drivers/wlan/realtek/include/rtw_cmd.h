@@ -925,11 +925,11 @@ Result:
 
 #define H2C_RSP_OFFSET			512
 
-#define H2C_SUCCESS				0x00
+#define H2C_SUCCESS			0x00
 #define H2C_SUCCESS_RSP			0x01
 #define H2C_DUPLICATED			0x02
-#define H2C_DROPPED				0x03
-#define H2C_PARAMETERS_ERROR	0x04
+#define H2C_DROPPED			0x03
+#define H2C_PARAMETERS_ERROR		0x04
 #define H2C_REJECTED			0x05
 #define H2C_CMD_OVERFLOW		0x06
 #define H2C_RESERVED			0x07

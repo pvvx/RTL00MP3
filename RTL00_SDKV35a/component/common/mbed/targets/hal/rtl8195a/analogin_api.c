@@ -119,6 +119,14 @@ void analogin_init (analogin_t *obj, PinName pin){
 
 float analogin_read(analogin_t *obj){
     float value;
+	union {
+		unsigned int 	ui[2];
+		unsigned short 	us[4];
+	} adata;
+	PSAL_ADC_HND p = &((&(obj->SalADCMngtAdpt))->pSalHndPriv->SalADCHndPriv);
+	RtkADCReceiveBuf(p, &adata.ui);
+    return (float)(adata.us[p->DevNum]) / (float)(0xCE80);
+/*
     uint32_t AnaloginTmp[2]      = {0,0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
@@ -144,9 +152,18 @@ float analogin_read(analogin_t *obj){
     value = (float)(AnalogDat) / (float)(AnalogDatFull);
 
     return (float)value;
+*/
 }
 
 uint16_t analogin_read_u16(analogin_t *obj){
+	union {
+		unsigned int 	ui[2];
+		unsigned short 	us[4];
+	} adata;
+	PSAL_ADC_HND p = &((&(obj->SalADCMngtAdpt))->pSalHndPriv->SalADCHndPriv);
+	RtkADCRxManualRotate(p, &adata.ui);
+	return adata.us[p->DevNum];
+/*
     uint32_t AnaloginTmp[2]      = {0,0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
@@ -166,20 +183,23 @@ uint16_t analogin_read_u16(analogin_t *obj){
     AnalogDat = AnaloginTmp[(AnaloginIdx/2)];
     AnalogDat = (AnalogDat & AnaloginDatMsk);    
     AnalogDat = (AnalogDat>>((u32)(16*(AnaloginIdx&0x01))));
-
     return (uint16_t)AnalogDat;
+*/
     
 }
 
 
 void  analogin_deinit(analogin_t *obj){
-    PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
+/*
+	PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
     
     pSalADCMngtAdpt         = &(obj->SalADCMngtAdpt);
-    pSalADCHND              = &(pSalADCMngtAdpt->pSalHndPriv->SalADCHndPriv);
+    p = &(pSalADCMngtAdpt->pSalHndPriv->SalADCHndPriv); */
+
+    PSAL_ADC_HND p = &((&(obj->SalADCMngtAdpt))->pSalHndPriv->SalADCHndPriv);
 
     /* To deinit analogin */
-    RtkADCDeInit(pSalADCHND);    
+    RtkADCDeInit(p);
 }
 #endif

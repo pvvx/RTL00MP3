@@ -375,10 +375,10 @@ typedef enum _RT_SPINLOCK_TYPE{
 	typedef unsigned short			u2Byte,*pu2Byte;
 	typedef unsigned int			u4Byte,*pu4Byte;
 	typedef unsigned long long		u8Byte,*pu8Byte;
-	typedef signed char				s1Byte,*ps1Byte; /* GCC ROM char = unsigned char */
+	typedef signed char			s1Byte,*ps1Byte; /* GCC ROM char = unsigned char */
 	typedef signed short			s2Byte,*ps2Byte;
-	typedef signed long				s4Byte,*ps4Byte;
-	typedef long long				s8Byte,*ps8Byte;
+	typedef signed long			s4Byte,*ps4Byte;
+	typedef long long			s8Byte,*ps8Byte;
 
 	typedef struct sta_info			STA_INFO_T,*PSTA_INFO_T;
 

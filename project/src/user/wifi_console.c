@@ -9,6 +9,7 @@
 #include "FreeRTOS.h"
 #include "diag.h"
 #include "wifi_api.h"
+#include "wifi_conf.h"
 #include "rtl8195a/rtl_libc.h"
 #include "hal_platform.h"
 
@@ -290,8 +291,8 @@ MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"ATPN", 1, fATPN, "=<SSID>[,password[,encryption[,auto-reconnect[,reconnect pause]]]: WIFI Connect to AP"},
 		{"ATPA", 1, fATPA, "=<SSID>[,password[,encryption[,channel[,hidden[,max connections]]]]]: Start WIFI AP"},
 		{"ATWR", 0, fATWR, ": WIFI Connect, Disconnect"},
-//		{"ATON", 0, fATON, ": Open connections"},
-//		{"ATOF", 0, fATOF, ": Close connections"},
+		{"ATON", 0, fATON, ": Open connections"},
+		{"ATOF", 0, fATOF, ": Close connections"},
 		{"ATWI", 0, fATWI, ": WiFi Info"},
 #if CONFIG_DEBUG_LOG > 3
 		{"ATWT", 1, fATWT, "=<tx_power>: WiFi tx power: 0 - 100%, 1 - 75%, 2 - 50%, 3 - 25%, 4 - 12.5%"},

@@ -6,11 +6,9 @@
  */
 //======================================================
 #ifndef LOGUART_STACK_SIZE
-#define	LOGUART_STACK_SIZE	400 // USE_MIN_STACK_SIZE to 128
+#define	LOGUART_STACK_SIZE	400 // USE_MIN_STACK_SIZE modify from 512 to 128
 #endif
-#ifndef CONSOLE_PRIORITY
 #define	CONSOLE_PRIORITY 0
-#endif
 //======================================================
 #include "rtl8195a.h"
 #include "rtl_bios_data.h"
@@ -43,7 +41,7 @@ _LONG_CALL_ extern void UartLogHistoryCmd(
 IN u8 RevData, IN UART_LOG_CTL *prvUartLogCtl,
 IN u8 EchoFlag);
 
-_LONG_CALL_ extern void UartLogCmdExecute(IN PUART_LOG_CTL pUartLogCtlExe);
+//_LONG_CALL_ extern void UartLogCmdExecute(IN PUART_LOG_CTL pUartLogCtlExe);
 //======================================================
 extern PCOMMAND_TABLE UartLogRamCmdTable[];
 extern UartLogRamCmdTableSize;
@@ -128,9 +126,9 @@ void UartLogIrqHandleRam(void * Data) {
 // для передачи ' ' или ','.
 // Начальные пробелы cmd или arg удаляются.
 //======================================================
-int GetArgvRam(IN u8 *pstr) {
+int GetArgvRam(IN u8 *pstr, u8** argv) {
 	int arvc = 0;
-	u8** argv = ArgvArray;
+//	u8** argv = ArgvArray;
 	u8* p = pstr;
 	u8 t, n = ' ';
 	int m = 0;
@@ -213,7 +211,7 @@ MON_RAM_TEXT_SECTION void RtlConsolTaskRam(void *Data) {
 		RtlDownSema(&p->Sema);
 		if (p->ExecuteCmd) {
 			//	UartLogCmdExecute(pUartLogCtl);
-			int argc = GetArgvRam(p->pTmpLogBuf->UARTLogBuf);
+			int argc = GetArgvRam(p->pTmpLogBuf->UARTLogBuf, ArgvArray);
 			if(argc) {
 				StrUpr(ArgvArray[0]);
 				PCOMMAND_TABLE pcmd = p->pCmdTbl;
@@ -329,8 +327,13 @@ _WEAK void console_help(int argc, char *argv[]) { 	// Help
 	}
 	DiagPrintf(&str_rom_57ch3Dch0A[25]); //	DiagPrintf("==============================\n");
 }
+LOCAL void print_on(int argc, char *argv[])
+{
+	print_off = argv[1][0]!='1';
+}
 // (!) размещается в специальном сегменте '.mon.tab*' (см. *.ld файл)
 MON_RAM_TAB_SECTION COMMAND_TABLE console_commands[] = {
+		{"PR", 1, print_on, "<1/0>: Printf on/off"},	// Help
 		{"?", 0, console_help, ": This Help"}	// Help
 //		{"HELP", 0, console_help, ": Help"}	// Help
 };

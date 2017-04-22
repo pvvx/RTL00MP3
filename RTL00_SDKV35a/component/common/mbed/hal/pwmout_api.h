@@ -26,19 +26,19 @@ extern "C" {
 
 typedef struct pwmout_s pwmout_t;
 
-void pwmout_init         (pwmout_t* obj, PinName pin);
+int pwmout_init			 (pwmout_t* obj, PinName pin); // != 0 - error
 void pwmout_free         (pwmout_t* obj);
 
-void  pwmout_write       (pwmout_t* obj, float percent);
-float pwmout_read        (pwmout_t* obj);
+//void  pwmout_write       (pwmout_t* obj, float percent);
+//float pwmout_read        (pwmout_t* obj);
 
-void pwmout_period       (pwmout_t* obj, float seconds);
-void pwmout_period_ms    (pwmout_t* obj, int ms);
-void pwmout_period_us    (pwmout_t* obj, int us);
+//void pwmout_period       (pwmout_t* obj, float seconds);
+//void pwmout_period_ms    (pwmout_t* obj, int ms);
+void pwmout_period_us    (pwmout_t* obj, uint32_t us);
 
-void pwmout_pulsewidth   (pwmout_t* obj, float seconds);
-void pwmout_pulsewidth_ms(pwmout_t* obj, int ms);
-void pwmout_pulsewidth_us(pwmout_t* obj, int us);
+//void pwmout_pulsewidth   (pwmout_t* obj, float seconds);
+//void pwmout_pulsewidth_ms(pwmout_t* obj, uint32_t ms);
+void pwmout_pulsewidth_us(pwmout_t* obj, uint32_t us);
 
 #ifdef __cplusplus
 }

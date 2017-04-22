@@ -13,8 +13,9 @@
 
 //-------------------------------------------------------------------------
 // Data declarations
-
-#define DEFAULT_BAUDRATE UART_BAUD_RATE_38400
+#ifndef DEFAULT_BAUDRATE
+#define DEFAULT_BAUDRATE 38400
+#endif
 
 /* 0 - 166666666 Hz, 1 - 83333333 Hz, 2 - 41666666 Hz, 3 - 20833333 Hz, 4 - 10416666 Hz, 5 - 4000000? Hz,
    6 - 200000000 Hz, 7 - 10000000 Hz, 8 - 50000000 Hz, 9 - 25000000 Hz, 10 - 12500000 Hz, 11 - 4000000? Hz */

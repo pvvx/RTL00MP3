@@ -12,7 +12,7 @@ RTL00 module (RTL8710AF)<br>
 
 ![SCH](https://github.com/pvvx/RTL00MP3/blob/master/RTL00_MP3_SCH.gif)
 
-Толко Тест!<br>
+Только Тест!<br>
 
 PWM Out GC_2 and PE_2 (2 канала по 96Bit на один исходный sample 48 кГц)<br>
 

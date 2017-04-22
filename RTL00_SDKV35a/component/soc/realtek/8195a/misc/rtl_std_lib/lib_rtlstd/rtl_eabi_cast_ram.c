@@ -4,7 +4,6 @@
  */
 
 #include "basic_types.h"
-#include "rt_lib_rom.h"
 
 //-------------------------------------------------------------------------
 // Function declarations
@@ -72,15 +71,12 @@ int rtl_dtoi(double d)
   return __rtl_dtoi_v1_00(d);
 }
 
-extern _LONG_CALL_ int __rtl_dtoui_v1_00(double d);
-
 //----- rtl_dtoui()
 int rtl_dtoui(double d)
 {
   return __rtl_dtoui_v1_00(d);
 }
 
-extern _LONG_CALL_ float __rtl_itof_v1_00(int val);
 //----- rtl_i2f()
 float rtl_i2f(int val)
 {
@@ -105,7 +101,6 @@ int rtl_ui2d(unsigned int val)
   return __rtl_uitod_v1_00(val);
 }
 
-extern _LONG_CALL_ char * __rtl_ltoa_v1_00(int value, char *string, int radix);
 //----- rtl_itoa()
 char *rtl_itoa(int value, char *string, int radix)
 {
@@ -118,7 +113,6 @@ char *rtl_ltoa(int value, char *string, int radix)
   return (char *)__rtl_ltoa_v1_00(value, string, radix);
 }
 
-extern _LONG_CALL_ char * __rtl_ultoa_v1_00(unsigned int value, char *string, int radix);
 //----- rtl_utoa()
 char *rtl_utoa(unsigned int value, char *string, int radix)
 {
@@ -131,7 +125,6 @@ char *rtl_ultoa(unsigned int value, char *string, int radix)
   return (char *)__rtl_ultoa_v1_00(value, string, radix);
 }
 
-extern _LONG_CALL_ double __rtl_ftod_v1_00(float f);
 //----- rtl_ftol()
 int rtl_ftol(float f)
 {
@@ -144,7 +137,6 @@ int rtl_ftod(float f)
   return __rtl_ftod_v1_00(f);
 }
 
-extern _LONG_CALL_ float __rtl_fsub_v1_00(float a, float b);
 //----- rtl_dtof()
 float rtl_dtof(double d)
 {
@@ -163,14 +155,12 @@ float rtl_fsub(float a, float b)
   return __rtl_fsub_v1_00(a, b);
 }
 
-extern _LONG_CALL_ float __rtl_fmul_v1_00(float a, float b);
 //----- rtl_fmul()
 float rtl_fmul(float a, float b)
 {
   return __rtl_fmul_v1_00(a, b);
 }
 
-extern _LONG_CALL_ float __rtl_fdiv_v1_00(float a, float b);
 //----- rtl_fdiv()
 float rtl_fdiv(float a, float b)
 {
@@ -213,7 +203,6 @@ int rtl_dcmplt(double a, double b)
   return __rtl_dcmplt_v1_00(a, b);
 }
 
-extern _LONG_CALL_ int __rtl_dcmple_v1_00(double a, double b);
 //----- rtl_dcmple()
 int rtl_dcmple(double a, double b)
 {
@@ -225,13 +214,13 @@ int rtl_dcmpgt(double a, double b)
 {
   return __rtl_dcmpgt_v1_00(a, b);
 }
-extern _LONG_CALL_ int __rtl_fcmplt_v1_00(float a, float b);
+
 //----- rtl_fcmplt()
 int rtl_fcmplt(float a, float b)
 {
   return __rtl_fcmplt_v1_00(a, b);
 }
-extern _LONG_CALL_ int __rtl_fcmpgt_v1_00(float a, float b);
+
 //----- rtl_fcmpgt()
 int rtl_fcmpgt(float a, float b)
 {

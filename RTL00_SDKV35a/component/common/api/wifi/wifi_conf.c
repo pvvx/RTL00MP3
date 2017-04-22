@@ -9,6 +9,7 @@
 #include <wifi/wifi_conf.h>
 #include <wifi/wifi_util.h>
 #include <wifi/wifi_ind.h>
+#include <wifi_api.h>
 #include "tcpip.h"
 #include <osdep_service.h>
 
@@ -22,8 +23,6 @@
 extern int inic_start(void);
 extern int inic_stop(void);
 #endif
-#include "wifi_api.h"
-
 #include "wlan_lib.h"
 
 #if CONFIG_DEBUG_LOG > 0
@@ -429,8 +428,18 @@ void restore_wifi_info_to_flash() {
 #endif
 
 //----------------------------------------------------------------------------//
-int wifi_connect(char *ssid, rtw_security_t security_type, char *password,
-		int ssid_len, int password_len, int key_id, void *semaphore) {
+int wifi_connect(
+		unsigned char bssid[ETH_ALEN],
+		char use_bssid, // flag
+		char *ssid,
+		rtw_security_t security_type,
+		char *password,
+		int key_id,
+		void *semaphore) {
+
+	int ssid_len = 0;
+	int password_len = 0;
+	int bssid_len = 6;
 	xSemaphoreHandle join_semaphore;
 	rtw_result_t result = RTW_SUCCESS;
 	u8 wep_hex = 0;
@@ -441,7 +450,34 @@ int wifi_connect(char *ssid, rtw_security_t security_type, char *password,
 		return RTW_ERROR;
 	}
 
+	if(ssid) {
+		ssid_len = rtl_strlen(ssid);
+		if(ssid_len > NDIS_802_11_LENGTH_SSID)
+			ssid_len = NDIS_802_11_LENGTH_SSID;
+	}
+	if(password) {
+		password_len = rtl_strlen(password);
+		if(password_len > IW_PASSPHRASE_MAX_SIZE)
+			password_len = IW_PASSPHRASE_MAX_SIZE;
+	}
+
 	rtw_join_status = 0;	//clear for last connect status
+	error_flag = RTW_UNKNOWN;	//clear for last connect status
+	internal_join_result_t *join_result =
+			(internal_join_result_t *) rtw_zmalloc(
+					sizeof(internal_join_result_t));
+	if (!join_result) {
+#if	CONFIG_DEBUG_LOG > 3
+		error_printf("%s: Can't malloc memory!\n", __func__);
+#endif
+		return RTW_NOMEM;
+	}
+	if (ssid_len && ssid) {
+		join_result->network_info.ssid.len = ssid_len > 32 ? 32 : ssid_len;
+		rtw_memcpy(join_result->network_info.ssid.val, ssid, ssid_len);
+	}
+	if(bssid) rtw_memcpy(join_result->network_info.bssid.octet, bssid, ETH_ALEN);
+
 	error_flag = RTW_UNKNOWN;	//clear for last connect status
 	if ((((password_len > RTW_MAX_PSK_LEN) || (password_len < RTW_MIN_PSK_LEN))
 			&& ((security_type == RTW_SECURITY_WPA_TKIP_PSK)
@@ -463,24 +499,24 @@ int wifi_connect(char *ssid, rtw_security_t security_type, char *password,
 
 			if (password_len == 10) {
 
-				u32 p[5] = { 0 };
+				u32 g[5] = { 0 };
 				u8 i = 0;
-				sscanf((const char*) password, "%02x%02x%02x%02x%02x", &p[0],
-						&p[1], &p[2], &p[3], &p[4]);
+				sscanf((const char*) password, "%02x%02x%02x%02x%02x", &g[0],
+						&g[1], &g[2], &g[3], &g[4]);
 				for (i = 0; i < 5; i++)
-					wep_pwd[i] = (u8) p[i];
+					wep_pwd[i] = (u8) g[i];
 				wep_pwd[5] = '\0';
 				password_len = 5;
 				wep_hex = 1;
 			} else if (password_len == 26) {
-				u32 p[13] = { 0 };
+				u32 g[13] = { 0 };
 				u8 i = 0;
 				sscanf((const char*) password, "%02x%02x%02x%02x%02x%02x%02x"
-						"%02x%02x%02x%02x%02x%02x", &p[0], &p[1], &p[2], &p[3],
-						&p[4], &p[5], &p[6], &p[7], &p[8], &p[9], &p[10],
-						&p[11], &p[12]);
+						"%02x%02x%02x%02x%02x%02x", &g[0], &g[1], &g[2], &g[3],
+						&g[4], &g[5], &g[6], &g[7], &g[8], &g[9], &g[10],
+						&g[11], &g[12]);
 				for (i = 0; i < 13; i++)
-					wep_pwd[i] = (u8) p[i];
+					wep_pwd[i] = (u8) g[i];
 				wep_pwd[13] = '\0';
 				password_len = 13;
 				wep_hex = 1;
@@ -488,20 +524,8 @@ int wifi_connect(char *ssid, rtw_security_t security_type, char *password,
 		}
 	}
 
-	internal_join_result_t *join_result =
-			(internal_join_result_t *) rtw_zmalloc(
-					sizeof(internal_join_result_t));
-	if (!join_result) {
-#if	CONFIG_DEBUG_LOG > 3
-		error_printf("%s: Can't malloc memory!\n", __func__);
-#endif
-		return RTW_NOMEM;
-	}
-
-	join_result->network_info.ssid.len = ssid_len > 32 ? 32 : ssid_len;
-	rtw_memcpy(join_result->network_info.ssid.val, ssid, ssid_len);
-
 	join_result->network_info.password_len = password_len;
+
 	if (password_len) {
 		/* add \0 to the end */
 		join_result->network_info.password = rtw_zmalloc(password_len + 1);
@@ -542,9 +566,33 @@ int wifi_connect(char *ssid, rtw_security_t security_type, char *password,
 #if DD_WIFI_CONN	// дублирование с wifi_connect_bssid_local()
 	wifi_connect_local(&join_result->network_info);
 #else
-	if (wifi_connect_local(&join_result->network_info) == 0)
-		wext_set_ssid(WLAN0_NAME, join_result->network_info.ssid.val,
-				join_result->network_info.ssid.len);
+	rtw_network_info_t *pWifi = &join_result->network_info;
+
+	if (wifi_connect_local(pWifi) == 0) {
+		uint16 flg = 0;
+		if(use_bssid) {
+			struct {
+				u8 bssid[ETH_ALEN + 2];
+				void * p;
+			} bs = { 0 };
+			memcpy(bs.bssid, pWifi->bssid.octet, ETH_ALEN);
+			for(int i = 0; i < ETH_ALEN; i++) {
+				flg += bs.bssid[i];
+			}
+			if(flg == 0x5FA || flg == 0) { // 0x5FA = 6*0xff
+				use_bssid = 0;
+				flg = 0;
+			}
+			else {
+				use_bssid = 1;
+				wext_set_bssid(WLAN0_NAME, bs.bssid);
+			}
+		}
+		if(!use_bssid) {
+			wext_set_ssid(WLAN0_NAME, join_result->network_info.ssid.val,
+					join_result->network_info.ssid.len);
+		};
+	}
 #endif
 	join_user_data = join_result;
 
@@ -604,10 +652,18 @@ int wifi_connect(char *ssid, rtw_security_t security_type, char *password,
 			wifi_handshake_done_hdl);
 	return result;
 }
+/*
 
-int wifi_connect_bssid(unsigned char bssid[ETH_ALEN], char *ssid,
-		rtw_security_t security_type, char *password, int bssid_len,
-		int ssid_len, int password_len, int key_id, void *semaphore) {
+int wifi_connect_bssid(
+		unsigned char bssid[ETH_ALEN],
+		char *ssid,
+		rtw_security_t security_type,
+		char *password,
+		int bssid_len,
+		int ssid_len,
+		int password_len,
+		int key_id,
+		void *semaphore) {
 	xSemaphoreHandle join_semaphore;
 	rtw_result_t result = RTW_SUCCESS;
 
@@ -643,7 +699,7 @@ int wifi_connect_bssid(unsigned char bssid[ETH_ALEN], char *ssid,
 	}
 	join_result->network_info.password_len = password_len;
 	if (password_len) {
-		/* add \0 to the end */
+		// add \0 to the end
 		join_result->network_info.password = rtw_zmalloc(password_len + 1);
 		if (!join_result->network_info.password) {
 			return RTW_NOMEM;
@@ -726,6 +782,7 @@ int wifi_connect_bssid(unsigned char bssid[ETH_ALEN], char *ssid,
 			wifi_handshake_done_hdl);
 	return result;
 }
+*/
 
 int wifi_disconnect(void) {
 	int ret = 0;
@@ -740,7 +797,6 @@ int wifi_disconnect(void) {
 	}
 	return ret;
 }
-
 //----------------------------------------------------------------------------//
 int wifi_is_connected_to_ap(void) {
 	return rltk_wlan_is_connected_to_ap();
@@ -874,17 +930,23 @@ int wifi_get_drv_ability(uint32_t *ability) {
 
 //----------------------------------------------------------------------------//
 int wifi_set_country(rtw_country_code_t country_code) {
-	return wext_set_country(WLAN0_NAME, country_code);
+	int ret;
+
+	ret = wext_set_country(WLAN0_NAME, country_code);
+
+	return ret;
 }
 
 //----------------------------------------------------------------------------//
 int wifi_set_channel_plan(uint8_t channel_plan) {
 	const char * ifname = WLAN0_NAME;
+	int ret = 0;
 	char buf[24];
 
 	rtw_memset(buf, 0, sizeof(buf));
 	snprintf(buf, 24, "set_ch_plan %x", channel_plan);
-	return wext_private_command(ifname, buf, SHOW_PRIVATE_OUT);
+	ret = wext_private_command(ifname, buf, SHOW_PRIVATE_OUT);
+	return ret;
 }
 
 //----------------------------------------------------------------------------//
@@ -918,12 +980,16 @@ void wifi_set_mib(void) {
 
 //----------------------------------------------------------------------------//
 int wifi_rf_on(void) {
-	return rltk_wlan_rf_on();
+	int ret;
+	ret = rltk_wlan_rf_on();
+	return ret;
 }
 
 //----------------------------------------------------------------------------//
 int wifi_rf_off(void) {
-	return rltk_wlan_rf_off();
+	int ret;
+	ret = rltk_wlan_rf_off();
+	return ret;
 }
 
 //----------------------------------------------------------------------------//
@@ -1070,9 +1136,21 @@ int wifi_get_last_error(void) {
 int wpas_wps_init(const char* ifname);
 #endif
 
-int wifi_start_ap_s(PSOFTAP_CONFIG p) {
+int wifi_start_ap(char *ssid, rtw_security_t security_type, char *password, int channel, char ssid_hidden) {
 	const char *ifname = WLAN0_NAME;
+	int ssid_len = 0;
+	int password_len = 0;
 	int ret = 0;
+	if(ssid) {
+		ssid_len = rtl_strlen(ssid);
+		if(ssid_len > NDIS_802_11_LENGTH_SSID)
+			ssid_len = NDIS_802_11_LENGTH_SSID;
+	}
+	if(password) {
+		password_len = rtl_strlen(password);
+		if(password_len > IW_PASSPHRASE_MAX_SIZE)
+			password_len = IW_PASSPHRASE_MAX_SIZE;
+	}
 
 	if (wifi_mode == RTW_MODE_STA_AP) {
 		ifname = WLAN1_NAME;
@@ -1088,60 +1166,7 @@ int wifi_start_ap_s(PSOFTAP_CONFIG p) {
 	ret = wext_set_mode(ifname, IW_MODE_MASTER);
 	if (ret < 0)
 		goto exit;
-	ret = wext_set_channel(ifname, p->channel);	//Set channel before starting ap
-	if (ret < 0)
-		goto exit;
-
-	switch (p->security_type) {
-	case RTW_SECURITY_OPEN:
-		break;
-	case RTW_SECURITY_WPA2_AES_PSK:
-		ret = wext_set_auth_param(ifname, IW_AUTH_80211_AUTH_ALG,
-		IW_AUTH_ALG_OPEN_SYSTEM);
-		if (ret == 0)
-			ret = wext_set_key_ext(ifname, IW_ENCODE_ALG_CCMP, NULL, 0, 0, 0, 0,
-			NULL, 0);
-		if (ret == 0)
-			ret = wext_set_passphrase(ifname, (u8*) p->password, strlen(p->password));
-		break;
-	default:
-		ret = -1;
-		printf("WIFICONF: security type is not supported\n");
-		break;
-	}
-	if (ret < 0)
-		goto exit;
-	if(p->ssid_hidden) {
-		ret = set_hidden_ssid(ifname, 1);
-		if (ret < 0)
-			goto exit;
-	}
-	ret = wext_set_ap_ssid(ifname, (u8*) p->ssid, strlen(p->ssid));
-#if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
-	wpas_wps_init(ifname);
-#endif
-exit: return ret;
-}
-
-int wifi_start_ap(char *ssid, rtw_security_t security_type, char *password,
-		int ssid_len, int password_len, int channel) {
-	const char *ifname = WLAN0_NAME;
-	int ret = 0;
-
-	if (wifi_mode == RTW_MODE_STA_AP) {
-		ifname = WLAN1_NAME;
-	}
-
-	if (is_promisc_enabled())
-		promisc_set(0, NULL, 0);
-
-	wifi_reg_event_handler(WIFI_EVENT_STA_ASSOC, wifi_ap_sta_assoc_hdl, NULL);
-	wifi_reg_event_handler(WIFI_EVENT_STA_DISASSOC, wifi_ap_sta_disassoc_hdl,
-	NULL);
-
-	ret = wext_set_mode(ifname, IW_MODE_MASTER);
-	if (ret < 0)
-		goto exit;
+//	if(!channel) channel = 1;
 	ret = wext_set_channel(ifname, channel);	//Set channel before starting ap
 	if (ret < 0)
 		goto exit;
@@ -1166,13 +1191,19 @@ int wifi_start_ap(char *ssid, rtw_security_t security_type, char *password,
 	if (ret < 0)
 		goto exit;
 
+	if(ssid_hidden) {
+		ret = set_hidden_ssid(ifname, 1);
+		if (ret < 0)
+			goto exit;
+	}
+
 	ret = wext_set_ap_ssid(ifname, (u8*) ssid, ssid_len);
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
 	wpas_wps_init(ifname);
 #endif	
 	exit: return ret;
 }
-
+/*
 int wifi_start_ap_with_hidden_ssid(char *ssid, rtw_security_t security_type,
 		char *password, int ssid_len, int password_len, int channel) {
 	const char *ifname = WLAN0_NAME;
@@ -1226,6 +1257,7 @@ int wifi_start_ap_with_hidden_ssid(char *ssid, rtw_security_t security_type,
 #endif
 	exit: return ret;
 }
+*/
 
 void wifi_scan_each_report_hdl(char* buf, int buf_len, int flags,
 		void* userdata) {
@@ -1710,7 +1742,7 @@ void wifi_enter_promisc_mode() {
 }
 
 int wifi_restart_ap(unsigned char *ssid, rtw_security_t security_type,
-		unsigned char *password, int ssid_len, int password_len, int channel) {
+		unsigned char *password, int channel) {
 	unsigned char idx = 0;
 	struct ip_addr ipaddr;
 	struct ip_addr netmask;
@@ -1747,8 +1779,7 @@ int wifi_restart_ap(unsigned char *ssid, rtw_security_t security_type,
 		wifi_on(RTW_MODE_AP);
 	}
 	// start ap
-	if (wifi_start_ap((char*) ssid, security_type, (char*) password, ssid_len,
-			password_len, channel) < 0) {
+	if (wifi_start_ap((char*) ssid, security_type, (char*) password, channel, 0) < 0) {
 		printf("ERROR: Operation failed!\n");
 		return -1;
 	}

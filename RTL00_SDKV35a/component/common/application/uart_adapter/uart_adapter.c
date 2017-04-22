@@ -1694,11 +1694,12 @@ int uartadapter_connect_wifi(rtw_network_info_t *p_wifi, uint32_t channel, uint8
 			return ret;
 		}
 
-		ret = wifi_connect((char*)p_wifi->ssid.val,
+		ret = wifi_connect(
+					  NULL,
+					  0,	
+					  (char*)p_wifi->ssid.val,
 					  p_wifi->security_type,
 					  (char*)p_wifi->password,
-					  p_wifi->ssid.len,
-					  p_wifi->password_len,
 					  p_wifi->key_id,
 					  NULL);
 

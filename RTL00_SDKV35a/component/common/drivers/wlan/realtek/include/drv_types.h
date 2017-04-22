@@ -612,20 +612,20 @@ struct _ADAPTER{
 	u16	interface_type;//USB,SDIO,SPI,PCI
 	u32	work_mode; //STA, AP, STA+AP, PROMISC, P2P
 
-	struct	dvobj_priv	*dvobj;				//+8
-	struct	mlme_priv	mlmepriv;			//+12 [1244]
-	struct	mlme_ext_priv	mlmeextpriv;	//+1256 [912]
-	struct	cmd_priv	cmdpriv;			//+2168
+	struct	dvobj_priv	*dvobj;
+	struct	mlme_priv	mlmepriv;
+	struct	mlme_ext_priv	mlmeextpriv;
+	struct	cmd_priv	cmdpriv;
 	struct	evt_priv	evtpriv;
 	//struct	io_queue	*pio_queue;
 	struct 	io_priv	iopriv;
-	struct	xmit_priv	xmitpriv;			//+2248
-	struct	recv_priv	recvpriv;			//+2752
-	struct	sta_priv	stapriv;			//+3024 [164]
+	struct	xmit_priv	xmitpriv;
+	struct	recv_priv	recvpriv;
+	struct	sta_priv	stapriv;
 	struct	security_priv	securitypriv;
-	struct	registry_priv	registrypriv;	// registrypriv.power_percentage_idx +4929
-	struct	pwrctrl_priv	pwrctrlpriv;	// pwrctrlpriv.bInternalAutoSuspend //+5061
-	struct 	eeprom_priv eeprompriv;		//+5128?
+	struct	registry_priv	registrypriv;
+	struct	pwrctrl_priv	pwrctrlpriv;
+	struct 	eeprom_priv eeprompriv;
 //TODO
 //	struct	led_priv	ledpriv;
 
@@ -666,20 +666,20 @@ struct _ADAPTER{
 	struct wifi_display_info wfd_info;
 #endif //CONFIG_WFD
 
-	PVOID		HalData;			//+5656
-	u32 		hal_data_sz;		//+5660
-	struct hal_ops	HalFunc;		//+5664
+	PVOID		HalData;
+	u32 		hal_data_sz;
+	struct hal_ops	HalFunc;
 
-	s32	bDriverStopped;				//+5880
-	s32	bSurpriseRemoved;			//+5884
-	s32	bCardDisableWOHSM;			//+5888
-	u8	RxStop;	//Used to stop rx thread as early as possible //+5892
+	s32	bDriverStopped;
+	s32	bSurpriseRemoved;
+	s32	bCardDisableWOHSM;
+	u8	RxStop;	//Used to stop rx thread as early as possible
 
 	u32	IsrContent;
 	u32	ImrContent;
 
 	u8	EepromAddressSize;
-	u8	hw_init_completed;			//+5905
+	u8	hw_init_completed;
 	u8	bDriverIsGoingToUnload;
 	u8	init_adpt_in_progress;
 	u8	bMpDriver;
@@ -692,9 +692,9 @@ struct _ADAPTER{
 	_thread_hdl_	evtThread;
 #endif
 #if defined(CONFIG_ISR_THREAD_MODE_POLLING) || defined(CONFIG_ISR_THREAD_MODE_INTERRUPT)
-	struct task_struct	isrThread;		//+5888?
+	struct task_struct	isrThread;
 #endif
-	struct task_struct	cmdThread;		//+5920
+	struct task_struct	cmdThread;
 #ifdef CONFIG_XMIT_THREAD_MODE
 	struct task_struct	xmitThread;
 #endif
@@ -702,13 +702,13 @@ struct _ADAPTER{
 	struct task_struct	recvThread;
 #endif
 #ifdef CONFIG_RECV_TASKLET_THREAD
-	struct task_struct	recvtasklet_thread;	//+5952
+	struct task_struct	recvtasklet_thread;
 #endif
 #ifdef CONFIG_XMIT_TASKLET_THREAD
 #ifdef PLATFORM_LINUX
 	struct tasklet_struct xmit_tasklet;
 #else
-	struct task_struct	xmittasklet_thread;	//+5984
+	struct task_struct	xmittasklet_thread;
 #endif
 #endif
 #ifdef CONFIG_SDIO_XMIT_THREAD
@@ -721,8 +721,8 @@ struct _ADAPTER{
 	void (*dvobj_deinit)(struct dvobj_priv *dvobj);
 #endif
 
-	void (*intf_start)(_adapter * adapter);		//+6008
-	void (*intf_stop)(_adapter * adapter);		//+6012
+	void (*intf_start)(_adapter * adapter);
+	void (*intf_stop)(_adapter * adapter);
 
 #ifdef PLATFORM_WINDOWS
 	_nic_hdl		hndis_adapter;//hNdisAdapter(NDISMiniportAdapterHandle);
@@ -741,9 +741,9 @@ struct _ADAPTER{
 #endif	//#ifdef PLATFORM_ECOS
 
 #if defined(PLATFORM_FREERTOS) || defined (PLATFORM_CMSIS_RTOS)
-	_nic_hdl	pnetdev;					//+6016
-	int		bup;							//+6020
-	struct net_device_stats stats;			//+6024
+	_nic_hdl	pnetdev;
+	int		bup;
+	struct net_device_stats stats;
 #endif	//#ifdef PLATFORM_FREERTOS
 
 #ifdef PLATFORM_LINUX
@@ -773,7 +773,7 @@ struct _ADAPTER{
 	int bup;
 	_lock glock;
 #endif //PLATFORM_FREEBSD
-	u8 net_closed;					//+6052
+	u8 net_closed;
 
 	u8 bFWReady;
 	//u8 bBTFWReady;
@@ -785,20 +785,20 @@ struct _ADAPTER{
 	u8	bDisableAutosuspend;
 #endif
 
-	_adapter *pbuddy_adapter;		//+6056
+	_adapter *pbuddy_adapter;
 
-	_mutex *hw_init_mutex;			//+6060
+	_mutex *hw_init_mutex;
 #if defined(CONFIG_CONCURRENT_MODE) 
-	u8 isprimary; //is primary adapter or not	//+6064
-	u8 adapter_type;							//+6065
-	u8 iface_type; //interface port type		//+6056
+	u8 isprimary; //is primary adapter or not
+	u8 adapter_type;
+	u8 iface_type; //interface port type
 
 	//for global synchronization
-	_mutex *ph2c_fwcmd_mutex;					//+6068
-	_mutex *psetch_mutex;						//+6072
-	_mutex *psetbw_mutex;						//+6076
+	_mutex *ph2c_fwcmd_mutex;
+	_mutex *psetch_mutex;
+	_mutex *psetbw_mutex;
 
-	struct co_data_priv *pcodatapriv;//data buffer shared among interfaces //+6080
+	struct co_data_priv *pcodatapriv;//data buffer shared among interfaces
 #endif
 
 #ifdef CONFIG_BR_EXT
@@ -827,7 +827,7 @@ struct _ADAPTER{
 	PLOOPBACKDATA ploopback;
 #endif
 
-        u8    fix_rate;				//+6084
+        u8    fix_rate;
 #ifdef CONFIG_CAC_TEST
 	unsigned char     in_cta_test;
 #endif
@@ -837,7 +837,7 @@ struct _ADAPTER{
 	u8	debug_level;
 #endif
 
-};	// [6088] (!)
+};
 
 #define adapter_to_dvobj(adapter) (adapter->dvobj)
 #define adapter_to_pwrctl(adapter) (&adapter->pwrctrlpriv)

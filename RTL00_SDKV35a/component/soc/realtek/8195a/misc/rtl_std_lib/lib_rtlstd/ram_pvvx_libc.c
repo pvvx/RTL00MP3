@@ -6,8 +6,6 @@
 
 #include "rtl_bios_data.h"
 #include "va_list.h"
-#include "strproc.h"
-#include "rt_lib_rom.h"
 
 #define CHECK_LIBC_INIT 0
 //-------------------------------------------------------------------------
@@ -69,10 +67,8 @@ unsigned long long __aeabi_llsr(unsigned long long val, unsigned int shift);
 
 extern struct _reent * _rtl_impure_ptr;
 
-#if CHECK_LIBC_INIT
-extern int libc_has_init;
-#endif
-// extern impure_ptr
+extern char libc_has_init;
+extern char print_off;
 
 //-------------------------------------------------------------------------
 // Function
@@ -142,13 +138,17 @@ int printf(const char *fmt, ...) {
 		rtl_libc_init();
 	}
 #endif	
-	va_list args;
-	va_start (args, fmt);
-	int result = __rtl_vfprintf_r_v1_00(_rtl_impure_ptr,
-			_rtl_impure_ptr->_stdout, fmt, args);
-	__rtl_fflush_r_v1_00(_rtl_impure_ptr, _rtl_impure_ptr->_stdout);
-	//	va_end (args);
-	return result;
+	if(!print_off) {
+
+		va_list args;
+		va_start (args, fmt);
+		int result = __rtl_vfprintf_r_v1_00(_rtl_impure_ptr,
+				_rtl_impure_ptr->_stdout, fmt, args);
+		__rtl_fflush_r_v1_00(_rtl_impure_ptr, _rtl_impure_ptr->_stdout);
+		//	va_end (args);
+		return result;
+	}
+	else return 0;
 }
 
 //----- vprintf()
@@ -169,6 +169,7 @@ int vprintf(const char * fmt, __VALIST param) {
 int vsnprintf(char *str, size_t size, const char *fmt, __VALIST param) {
 	int result;
 	int w;
+	int v11;
 	FILE f;
 #if CHECK_LIBC_INIT
 	if (!libc_has_init) {
@@ -299,9 +300,9 @@ int sscanf(const char *buf, const char *fmt, ...) {
 	return i;
 }
 
-LOCAL char toupper(char ch) {
+char toupper(char ch) {
  	return  ((ch >= 'a' && ch <= 'z') ? ch - 'a' + 'A' : ch);
-}
+};
 
 int _stricmp (const char *s1, const char *s2)
 {
@@ -378,15 +379,12 @@ int __aeabi_dtoi(double d)
   return __rtl_dtoi_v1_00(d);
 }
 
-extern _LONG_CALL_ int __rtl_dtoui_v1_00(double d);
-
 //----- __aeabi_dtoui()
 int __aeabi_dtoui(double d)
 {
   return __rtl_dtoui_v1_00(d);
 }
 
-extern _LONG_CALL_ float __rtl_itof_v1_00(int val);
 //----- __aeabi_i2f()
 float __aeabi_i2f(int val)
 {
@@ -411,7 +409,6 @@ int __aeabi_ui2d(unsigned int val)
   return __rtl_uitod_v1_00(val);
 }
 
-extern _LONG_CALL_ char * __rtl_ltoa_v1_00(int value, char *string, int radix);
 //----- __aeabi_itoa()
 char * __aeabi_itoa(int value, char *string, int radix)
 {
@@ -424,7 +421,6 @@ char * __aeabi_ltoa(int value, char *string, int radix)
   return (char *)__rtl_ltoa_v1_00(value, string, radix);
 }
 
-extern _LONG_CALL_ char * __rtl_ultoa_v1_00(unsigned int value, char *string, int radix);
 //----- __aeabi_utoa()
 char * __aeabi_utoa(unsigned int value, char *string, int radix)
 {
@@ -437,49 +433,42 @@ char * __aeabi_ultoa(unsigned int value, char *string, int radix)
   return (char *)__rtl_ultoa_v1_00(value, string, radix);
 }
 
-extern _LONG_CALL_ long long __rtl_ftol_v1_00(float f);
 //----- __aeabi_ftol()
-long long __aeabi_ftol(float f)
+int __aeabi_ftol(float f)
 {
   return __rtl_ftol_v1_00(f);
 }
 
-extern _LONG_CALL_ double __rtl_ftod_v1_00(float f);
 //----- __aeabi_ftod()
-double __aeabi_ftod(float f)
+int __aeabi_ftod(float f)
 {
   return __rtl_ftod_v1_00(f);
 }
 
-extern _LONG_CALL_ float __rtl_dtof_v1_00(double d);
 //----- __aeabi_dtof()
 float __aeabi_dtof(double d)
 {
   return __rtl_dtof_v1_00(d);
 }
 
-extern _LONG_CALL_ float __rtl_fadd_v1_00(float a, float b);
 //----- __aeabi_fadd()
 float __aeabi_fadd(float a, float b)
 {
   return __rtl_fadd_v1_00(a, b);
 }
 
-extern _LONG_CALL_ float __rtl_fsub_v1_00(float a, float b);
 //----- __aeabi_fsub()
 float __aeabi_fsub(float a, float b)
 {
   return __rtl_fsub_v1_00(a, b);
 }
 
-extern _LONG_CALL_ float __rtl_fmul_v1_00(float a, float b);
 //----- __aeabi_fmul()
 float __aeabi_fmul(float a, float b)
 {
   return __rtl_fmul_v1_00(a, b);
 }
 
-extern _LONG_CALL_ float __rtl_fdiv_v1_00(float a, float b);
 //----- __aeabi_fdiv()
 float __aeabi_fdiv(float a, float b)
 {
@@ -487,25 +476,25 @@ float __aeabi_fdiv(float a, float b)
 }
 
 //----- __aeabi_dadd()
-double __aeabi_dadd(double a, double b)
+int __aeabi_dadd(double a, double b)
 {
   return __rtl_dadd_v1_00(a, b);
 }
 
 //----- __aeabi_dsub()
-double __aeabi_dsub(double a, double b)
+int __aeabi_dsub(double a, double b)
 {
   return __rtl_dsub_v1_00(a, b);
 }
 
 //----- __aeabi_dmul()
-double __aeabi_dmul(double a, double b)
+int __aeabi_dmul(double a, double b)
 {
   return __rtl_dmul_v1_00(a, b);
 }
 
 //----- __aeabi_ddiv()
-double __aeabi_ddiv(double a, double b)
+int __aeabi_ddiv(double a, double b)
 {
   return __rtl_ddiv_v1_00(a, b);
 }
@@ -522,7 +511,6 @@ int __aeabi_dcmplt(double a, double b)
   return __rtl_dcmplt_v1_00(a, b);
 }
 
-extern _LONG_CALL_ int __rtl_dcmple_v1_00(double a, double b);
 //----- __aeabi_dcmple()
 int __aeabi_dcmple(double a, double b)
 {
@@ -535,13 +523,12 @@ int __aeabi_dcmpgt(double a, double b)
   return __rtl_dcmpgt_v1_00(a, b);
 }
 
-extern _LONG_CALL_ int __rtl_fcmplt_v1_00(float a, float b);
 //----- __aeabi_fcmplt()
 int __aeabi_fcmplt(float a, float b)
 {
   return __rtl_fcmplt_v1_00(a, b);
 }
-extern _LONG_CALL_ int __rtl_fcmpgt_v1_00(float a, float b);
+
 //----- __aeabi_fcmpgt()
 int __aeabi_fcmpgt(float a, float b)
 {

@@ -3,15 +3,17 @@
 #define __WIFI_CONF_API_H
 
 #include "FreeRTOS.h"
-#include "wifi_constants.h"
+#include "wifi_constants.h"   
 #include "wifi_structures.h"  
 #include "wifi_util.h"    
-#include "wifi_ind.h"
+#include "wifi_ind.h"    
 #include <platform/platform_stdlib.h>
+#include "wifi_api.h"
 
 #ifdef __cplusplus
   extern "C" {
 #endif
+
 
 /******************************************************
  *                    Macros
@@ -137,14 +139,14 @@ int wifi_manager_init(void);
  *   	   	 RTW_ERROR   : if an error occurred
  */
 int wifi_connect(
+	unsigned char 		bssid[ETH_ALEN],
+	char 				use_bssid,
 	char 				*ssid,
 	rtw_security_t	security_type,
 	char 				*password,
-	int 				ssid_len,
-	int 				password_len,
 	int 				key_id,
 	void 				*semaphore);
-
+/*
 int wifi_connect_bssid(
 	unsigned char 		bssid[ETH_ALEN],
 	char 				*ssid,
@@ -155,7 +157,7 @@ int wifi_connect_bssid(
 	int 				password_len,
 	int 				key_id,
 	void 				*semaphore);
-
+*/
 /** Disassociates from a Wi-Fi network.
  *
  * @return    RTW_SUCCESS : On successful disassociation from 
@@ -446,6 +448,8 @@ int wifi_get_lps_dtim(unsigned char *dtim);
  * @return    RTW_SUCCESS : if successfully creates an AP
  *            RTW_ERROR   : if an error occurred
  */
+int wifi_start_ap(char *ssid, rtw_security_t security_type, char *password, int channel, char ssid_hidden);
+/*
 int wifi_start_ap(
 	char 				*ssid,
 	rtw_security_t		security_type,
@@ -453,7 +457,7 @@ int wifi_start_ap(
 	int 				ssid_len,
 	int 				password_len,
 	int					channel);
-
+*/
 /** Starts an infrastructure WiFi network with hidden SSID
  *
  * @warning If a STA interface is active when this function is called, the softAP will\n
@@ -478,6 +482,7 @@ int wifi_start_ap(
  * @return    RTW_SUCCESS : if successfully creates an AP
  *            RTW_ERROR   : if an error occurred
  */
+/*
 int wifi_start_ap_with_hidden_ssid(
 	char 				*ssid,
 	rtw_security_t		security_type,
@@ -485,7 +490,7 @@ int wifi_start_ap_with_hidden_ssid(
 	int 				ssid_len,
 	int 				password_len,
 	int					channel);
-
+*/
 /** Initiates a scan to search for 802.11 networks.
  *
  *  The scan progressively accumulates results over time, and
@@ -638,8 +643,6 @@ int wifi_restart_ap(
 	unsigned char 		*ssid,
 	rtw_security_t		security_type,
 	unsigned char 		*password,
-	int 				ssid_len,
-	int 				password_len,
 	int					channel);
 
 int wifi_config_autoreconnect(__u8 mode, __u8 retyr_times, __u16 timeout);

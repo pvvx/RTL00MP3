@@ -1,7 +1,7 @@
 #include <PinNames.h>
 #include <pinmap.h>
 #include <gpio_api.h>
-#include <rtw_wowlan/wifi_wowlan.h>
+#include <wifi_wowlan.h>
 #include <freertos_pmu.h>
 #include <wifi_conf.h>
 

@@ -948,13 +948,16 @@ void fATWC(void *arg){
 
 	if(assoc_by_bssid){
 		printf("Joining BSS by BSSID "MAC_FMT" ...\n", MAC_ARG(wifi.bssid.octet));
-		ret = wifi_connect_bssid(wifi.bssid.octet, (char*)wifi.ssid.val, wifi.security_type, (char*)wifi.password, 
-						ETH_ALEN, wifi.ssid.len, wifi.password_len, wifi.key_id, NULL);		
 	} else {
 		printf("Joining BSS by SSID %s...\n", (char*)wifi.ssid.val);
-		ret = wifi_connect((char*)wifi.ssid.val, wifi.security_type, (char*)wifi.password, wifi.ssid.len,
-						wifi.password_len, wifi.key_id, NULL);
 	}
+	ret = wifi_connect(wifi.bssid.octet, 
+					assoc_by_bssid, 
+					(char*)wifi.ssid.val, 
+					wifi.security_type, 
+					(char*)wifi.password, 
+					 wifi.key_id, 
+					 NULL);		
 	
 	if(ret!= RTW_SUCCESS){
 		printf("ERROR: Can't connect to AP\n");
@@ -1652,19 +1655,10 @@ void fATPA(void *arg)
 		goto exit;
 	}
 
-	if(hidden_ssid){
-		if(wifi_start_ap_with_hidden_ssid((char*)ap.ssid.val, ap.security_type, (char*)ap.password, ap.ssid.len, ap.password_len, ap.channel) < 0) {
+	if(wifi_start_ap((char*)ap.ssid.val, ap.security_type, (char*)ap.password, ap.channel, hidden_ssid) < 0) {
 			//at_printf("\r\n[ATPA] ERROR : Start AP failed");
 			error_no = 4;
 			goto exit;
-		}
-	}
-	else{
-		if(wifi_start_ap((char*)ap.ssid.val, ap.security_type, (char*)ap.password, ap.ssid.len, ap.password_len, ap.channel) < 0) {
-			//at_printf("\r\n[ATPA] ERROR : Start AP failed");
-			error_no = 4;
-			goto exit;
-		}
 	}
 
 	while(1) {
@@ -1906,13 +1900,14 @@ void fATPN(void *arg)
 		wifi_set_pscan_chan(&connect_channel, &pscan_config, 1);
 #endif
 
-	if(assoc_by_bssid){
-		ret = wifi_connect_bssid(wifi.bssid.octet, (char*)wifi.ssid.val, wifi.security_type, (char*)wifi.password,
-						ETH_ALEN, wifi.ssid.len, wifi.password_len, wifi.key_id, NULL);
-	} else {
-		ret = wifi_connect((char*)wifi.ssid.val, wifi.security_type, (char*)wifi.password, wifi.ssid.len,
-						wifi.password_len, wifi.key_id, NULL);
-	}
+	ret = wifi_connect(
+					wifi.bssid.octet, 
+					assoc_by_bssid,
+					(char*)wifi.ssid.val,
+					wifi.security_type,
+					(char*)wifi.password,
+					wifi.key_id, 
+					NULL);
 
 	if(ret!= RTW_SUCCESS){
 		//at_printf("\r\n[ATPN] ERROR: Can't connect to AP");
@@ -2345,8 +2340,14 @@ int atcmd_wifi_restore_from_flash(void)
 					break;
 			}
 
-			ret = wifi_connect((char*)wifi.ssid.val, wifi.security_type, (char*)wifi.password, wifi.ssid.len,
-				wifi.password_len, wifi.key_id, NULL);
+			ret = wifi_connect(
+				NULL,
+				0,
+				(char*)wifi.ssid.val, 
+				wifi.security_type, 
+				(char*)wifi.password, 
+				wifi.key_id, 
+				NULL);
 			if(ret == RTW_SUCCESS){
 				LwIP_DHCP(0, DHCP_START);
 				ret = 0;

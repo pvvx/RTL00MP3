@@ -74,12 +74,12 @@ static int inHandlerMode (void)
 #if configSignalManagementSupport  // the older FreeRTOS version didn't support Signal Management functions
 static void add_thread_signal_map (osThreadId thread_id, EventGroupHandle_t signals)
 {
-    uint32_t dummy;
+    int dummy;
 //    uint32_t i;
     ThreadSignalRec *prec_entity;
 
     if (inHandlerMode()) {
-        dummy =	portSET_INTERRUPT_MASK_FROM_ISR();
+        dummy = portSET_INTERRUPT_MASK_FROM_ISR();
     }
     else {
         vPortEnterCritical();
@@ -135,7 +135,7 @@ static EventGroupHandle_t find_signal_by_thread (osThreadId thread_id)
 {
     EventGroupHandle_t signals_hdl=NULL;
 //    uint32_t i;
-    uint32_t dummy;
+    int dummy;
     ThreadSignalRec *prec_entity;
     
     if (inHandlerMode()) {
@@ -185,7 +185,7 @@ static EventGroupHandle_t remove_thread_signal_map (osThreadId thread_id)
 {
     EventGroupHandle_t signals_hdl=NULL;
 //    uint32_t i;
-    uint32_t dummy;
+    int dummy;
     ThreadSignalRec *prec_entity;
     ThreadSignalRec *pprev_entity;
     
@@ -989,7 +989,7 @@ osPoolId osPoolCreate (const osPoolDef_t *pool_def)
 /// \note MUST REMAIN UNCHANGED: \b osPoolAlloc shall be consistent in every CMSIS-RTOS.
 void *osPoolAlloc (osPoolId pool_id)
 {
-	uint32_t dummy;
+    int dummy;
     void *p = NULL;
     uint32_t i;
     uint32_t index;
@@ -1047,7 +1047,7 @@ void *osPoolCAlloc (osPoolId pool_id)
 /// \note MUST REMAIN UNCHANGED: \b osPoolFree shall be consistent in every CMSIS-RTOS.
 osStatus osPoolFree (osPoolId pool_id, void *block)
 {
-	uint32_t dummy;
+    int dummy;
     uint32_t index;
 
     if (pool_id == NULL) {

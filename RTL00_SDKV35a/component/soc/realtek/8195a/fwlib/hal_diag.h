@@ -51,6 +51,9 @@
 #define UART_STOP_1BIT              0x0
 #define UART_STOP_2BIT              0x4
 
+#ifndef DEFAULT_BAUDRATE
+#define DEFAULT_BAUDRATE	UART_BAUD_RATE_38400
+#endif
 
 #define HAL_UART_READ32(addr)            HAL_READ32(LOG_UART_REG_BASE, addr)
 #define HAL_UART_WRITE32(addr, value)    HAL_WRITE32(LOG_UART_REG_BASE, addr, value)

@@ -68,7 +68,7 @@ u8 rtw_validate_ssid(NDIS_802_11_SSID *ssid);
 u16 rtw_get_cur_max_rate(_adapter *adapter);
 //int rtw_set_scan_mode(_adapter *adapter, RT_SCAN_TYPE scan_mode);
 int rtw_set_channel_plan(_adapter *adapter, u8 channel_plan);
-//int rtw_set_country(_adapter *adapter, const char *country_code);
+int rtw_set_country(_adapter *adapter, const char *country_code);
 //int rtw_set_band(_adapter *adapter, enum _BAND band);
 
 #endif
