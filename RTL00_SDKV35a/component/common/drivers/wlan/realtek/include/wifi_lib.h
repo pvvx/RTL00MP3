@@ -708,9 +708,9 @@ struct mlme_ext_priv { //__attribute__((packed))?
 	uint16_t action_public_rxseq;
 	_timer reconnect_timer;
 	uint8_t reconnect_deauth_filtered;
-	uint8_t reconnect_times;
+	uint8_t reconnect_times;	//+2017
 	uint8_t reconnect_cnt;
-	uint16_t reconnect_timeout;
+	uint16_t reconnect_timeout;	//+ 2020
 	uint8_t saved_alg;
 	uint8_t saved_essid[33];
 	uint8_t saved_key[32];
@@ -718,7 +718,7 @@ struct mlme_ext_priv { //__attribute__((packed))?
 	uint8_t saved_key_idx;
 	uint8_t saved_wpa_passphrase[65];
 	uint8_t saved_eap_method;
-	uint8_t auto_reconnect;
+	uint8_t auto_reconnect;		// + 2157 ?
 	uint8_t partial_scan;
 	p_cus_ie cus_ven_ie;
 	uint8_t ie_num;

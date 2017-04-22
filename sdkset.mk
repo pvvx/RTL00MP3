@@ -354,7 +354,6 @@ SRC_C += sdk/component/common/file_system/fatfs/disk_if/src/sdcard.c
 # -------------------------------------------------------------------
 ADD_SRC_C = 
 # REVERSED 
-#ADD_SRC_C += sdk/component/soc/realtek/8195a/cmsis/device/app_start.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_dac.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_common.c
 ADD_SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_soc_ps_monitor.c

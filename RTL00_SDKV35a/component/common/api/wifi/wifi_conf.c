@@ -1838,9 +1838,14 @@ static void wifi_autoreconnect_thread(void *param) {
 	struct wifi_autoreconnect_param *reconnect_param =
 			(struct wifi_autoreconnect_param *) param;
 	printf("auto reconnect ...\n");
-	ret = wifi_connect(reconnect_param->ssid, reconnect_param->security_type,
-			reconnect_param->password, reconnect_param->ssid_len,
-			reconnect_param->password_len, reconnect_param->key_id, NULL);
+	ret = wifi_connect(
+			NULL,
+			0,
+			reconnect_param->ssid,
+			reconnect_param->security_type,
+			reconnect_param->password,
+			reconnect_param->key_id,
+			NULL);
 	if (ret == RTW_SUCCESS) {
 #if CONFIG_LWIP_LAYER
 
