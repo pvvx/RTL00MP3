@@ -86,7 +86,7 @@ typedef struct rtw_network_info {
 	int					key_id;
 }rtw_network_info_t;
 
-#if defined(__IAR_SYSTEMS_ICC__) || defined(__GNUC__)
+#if defined(__IAR_SYSTEMS_ICC__)
 #pragma pack(1)
 #endif
 
@@ -94,16 +94,16 @@ typedef struct rtw_network_info {
   * @brief  The structure is used to describe the scan result of the AP.
   */
 typedef struct rtw_scan_result {
-    rtw_ssid_t              SSID;             /**< Service Set Identification (i.e. Name of Access Point)                    */
-    rtw_mac_t               BSSID;            /**< Basic Service Set Identification (i.e. MAC address of Access Point)       */
-    signed short		                  signal_strength;  /**< Receive Signal Strength Indication in dBm. <-90=Very poor, >-30=Excellent */
-    rtw_bss_type_t          bss_type;         /**< Network type                                                              */
-    rtw_security_t          security;         /**< Security type                                                             */
-    rtw_wps_type_t          wps_type;         /**< WPS type                                                                  */
-    unsigned int                      channel;          /**< Radio channel that the AP beacon was received on                          */
-    rtw_802_11_band_t       band;             /**< Radio band                                                                */                                        
+    rtw_ssid_t				SSID;             /**< Service Set Identification (i.e. Name of Access Point)                    */
+    rtw_mac_t				BSSID;            /**< Basic Service Set Identification (i.e. MAC address of Access Point)       */
+    signed short			signal_strength;  /**< Receive Signal Strength Indication in dBm. <-90=Very poor, >-30=Excellent */
+    rtw_bss_type_t			bss_type;         /**< Network type                                                              */
+    rtw_security_t			security;         /**< Security type                                                             */
+    rtw_wps_type_t			wps_type;         /**< WPS type                                                                  */
+    unsigned int			channel;          /**< Radio channel that the AP beacon was received on                          */
+    rtw_802_11_band_t		band;             /**< Radio band                                                                */
 } rtw_scan_result_t;
-#if defined(__IAR_SYSTEMS_ICC__) || defined(__GNUC__)
+#if defined(__IAR_SYSTEMS_ICC__)
 #pragma pack()
 #endif
 
@@ -117,7 +117,7 @@ typedef struct rtw_scan_handler_result {
 
 } rtw_scan_handler_result_t;
 
-#if defined(__IAR_SYSTEMS_ICC__) || defined(__GNUC__)
+#if defined(__IAR_SYSTEMS_ICC__)
 #pragma pack(1)
 #endif
 
@@ -132,7 +132,7 @@ typedef struct rtw_wifi_setting {
 	unsigned char 		password[65];
 	unsigned char		key_idx;
 }rtw_wifi_setting_t;
-#if defined(__IAR_SYSTEMS_ICC__) || defined(__GNUC__)
+#if defined(__IAR_SYSTEMS_ICC__)
 #pragma pack()
 #endif
 

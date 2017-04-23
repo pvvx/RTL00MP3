@@ -524,16 +524,16 @@ int wifi_run(rtw_mode_t mode) {
 	};
 	if (mode != RTW_MODE_NONE) {
 		if(wifi_set_country(wifi_cfg.country_code) != RTW_SUCCESS) {
-			error_printf("Error set tx country_code (%d)!", wifi_cfg.country_code);
+			error_printf("WiFi: Error set tx country_code (%d)!", wifi_cfg.country_code);
 		};
 //	extern uint8_t rtw_power_percentage_idx;
 		if(rtw_power_percentage_idx != wifi_cfg.tx_pwr) {
 			if(rltk_set_tx_power_percentage(wifi_cfg.tx_pwr) != RTW_SUCCESS) {
-				error_printf("Error set tx power (%d)!", wifi_cfg.tx_pwr);
+				error_printf("WiFi: Error set tx power (%d)!", wifi_cfg.tx_pwr);
 			};
 		}
 		if(wifi_set_network_mode(wifi_cfg.bgn) != RTW_SUCCESS) {
-			error_printf("Error set network mode (%d)!", wifi_cfg.bgn);
+			error_printf("WiFi: Error set network mode (%d)!", wifi_cfg.bgn);
 		}
 		debug_printf("mode == wifi_mode? (%d == %d?)\n", mode, wifi_mode);
 		switch(wifi_mode) {
@@ -556,7 +556,7 @@ int wifi_run(rtw_mode_t mode) {
 				 break;
 #endif
 			 default:
-				error_printf("Error WiFi mode(%d)\n", wifi_mode);
+				error_printf("WiFi: Error mode(%d)\n", wifi_mode);
 		}
 #if CONFIG_INTERACTIVE_MODE
 		/* Initial uart rx swmaphore*/
@@ -564,6 +564,11 @@ int wifi_run(rtw_mode_t mode) {
 		xSemaphoreTake(uart_rx_interrupt_sema, 1/portTICK_RATE_MS);
 		start_interactive_mode();
 #endif
+		if(wifi_cfg.sleep) {
+			if(wext_enable_powersave(WLAN0_NAME, 1, 1) != RTW_SUCCESS) {
+				error_printf("WiFi: Error set powersave mode!");
+			};
+		}
 		ret = 1;
 	} else {
 		ret = 1;
@@ -594,32 +599,65 @@ void wifi_init(void) {
 	wifi_run(wifi_cfg.mode);
 }
 
-uint32 tab_rtw_security[] = {
-		RTW_SECURITY_OPEN,			//0 Open security
-		RTW_SECURITY_WEP_PSK,		//1 WEP Security with open authentication
-		RTW_SECURITY_WEP_SHARED,	//2 WEP Security with shared authentication
-		RTW_SECURITY_WPA_TKIP_PSK,	//3 WPA Security with TKIP
-		RTW_SECURITY_WPA_AES_PSK,	//4 WPA Security with AES
-		RTW_SECURITY_WPA2_AES_PSK,	//5 WPA2 Security with AES
-		RTW_SECURITY_WPA2_TKIP_PSK,	//6 WPA2 Security with TKIP
-		RTW_SECURITY_WPA2_MIXED_PSK,//7 WPA2 Security with AES & TKIP
-		RTW_SECURITY_WPA_WPA2_MIXED //8 WPA/WPA2 Security
+unsigned char *tab_txt_rtw_secyrity[] = {
+		"OPEN",			//0 Open security
+		"WEP",			//1 WEP Security with open authentication
+		"WEP SHARED",	//2 WEP Security with shared authentication
+		"WPA TKIP",		//3 WPA Security with TKIP
+		"WPA AES",		//4 WPA Security with AES
+		"WPA2 AES",		//5 WPA2 Security with TKIP
+		"WPA2 TKIP",	//6 WPA2 Security with AES
+		"WPA2 Mixed",	//7 WPA2 Security with AES & TKIP
+		"WPA/WPA2 AES",	//8 WPA/WPA2 Security
+		"Unknown"		//9
+};
+
+unsigned int tab_code_rtw_secyrity[] = {
+		RTW_SECURITY_OPEN,				//0 Open security
+		RTW_SECURITY_WEP_PSK,			//1 WEP Security with open authentication
+		RTW_SECURITY_WEP_SHARED,		//2 WEP Security with shared authentication
+		RTW_SECURITY_WPA_TKIP_PSK,		//3 WPA Security with TKIP
+		RTW_SECURITY_WPA_AES_PSK,		//4 WPA Security with AES
+		RTW_SECURITY_WPA2_TKIP_PSK,		//5 WPA2 Security with TKIP
+		RTW_SECURITY_WPA2_AES_PSK,		//6 WPA2 Security with AES
+		RTW_SECURITY_WPA2_MIXED_PSK,	//7 WPA2 Security with AES & TKIP
+		RTW_SECURITY_WPA_WPA2_MIXED,	//8 WPA/WPA2 Security
+		RTW_SECURITY_UNKNOWN			//9
+};
+
+unsigned char *tab_txt_rtw_eccryption[] = {
+    "Unknown",
+    "OPEN",
+    "WEP40",
+    "WPA_TKIP",
+    "WPA_AES",
+    "WPA2_TKIP",
+    "WPA2_AES",
+    "WPA2_MIXED",
+	"???",
+    "WEP104",
+    "Udef" // 0xff
 };
 
 
-rtw_security_t translate_val_to_rtw_security(uint8 security_type)
+rtw_security_t idx_to_rtw_security(unsigned char idx)
 {
-	if(security_type > 8) security_type = 5;
-	return (rtw_security_t)tab_rtw_security[security_type];
+	if(idx > 8) idx = 5;
+	return (rtw_security_t)tab_code_rtw_secyrity[idx];
 }
 
-uint8 translate_rtw_security_to_val(rtw_security_t security_type)
+unsigned char rtw_security_to_idx(rtw_security_t rtw_sec_type)
 {
-	uint8 i = 0;
-	while(i < 9 && tab_rtw_security[i] != security_type) i++;
+	unsigned char i = 0;
+	for(; rtw_sec_type != tab_code_rtw_secyrity[i] && tab_code_rtw_secyrity[i] != RTW_SECURITY_UNKNOWN; i++);
+    	i++;
 	return i;
 }
 
+unsigned char * rtw_security_to_str(rtw_security_t rtw_sec_type)
+{
+	return tab_txt_rtw_secyrity[rtw_security_to_idx(rtw_sec_type)];
+}
 
 void show_wifi_ap_ip(void) {
 	printf("SoftAP ip: " IPSTR "\n", IP2STR(&xnetif[WLAN_AP_NETIF_NUM].ip_addr));

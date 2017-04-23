@@ -142,7 +142,7 @@ int wifi_connect(
 	unsigned char 		bssid[ETH_ALEN],
 	char 				use_bssid,
 	char 				*ssid,
-	rtw_security_t	security_type,
+	rtw_security_t		security_type,
 	char 				*password,
 	int 				key_id,
 	void 				*semaphore);
@@ -172,13 +172,12 @@ int wifi_disconnect(void);
  *           RTW_FALSE   : If it's not
 */
 int wifi_is_connected_to_ap(void);
+
 /*check if  wifi has connected to AP before dhcp
 *
 * @return RTW_SUCCESS:if conneced
 		 RTW_ERROR    :if not connect
 */
-
-
 int wifi_is_up(rtw_interface_t interface);
 
 /** Determines if a particular interface is ready to transceive ethernet packets
@@ -412,7 +411,6 @@ int wifi_set_tdma_param(unsigned char slot_period, unsigned char rfon_period_len
  *         RTW_ERROR otherwise
  */
 int wifi_set_lps_dtim(unsigned char dtim);
-
 /**
  * Get LPS DTIM
  *
@@ -522,9 +520,9 @@ int wifi_start_ap_with_hidden_ssid(
  *
  * @return    RTW_SUCCESS or RTW_ERROR
  */
-int wifi_scan(rtw_scan_type_t                    scan_type,
-				  rtw_bss_type_t                     bss_type,
-				  void*                result_ptr);
+int wifi_scan(rtw_scan_type_t		scan_type,
+				  rtw_bss_type_t	bss_type,
+				  void*				result_ptr);
 
 /** Initiates a scan to search for 802.11 networks, a higher
  *  level API based on wifi_scan to simplify the scan

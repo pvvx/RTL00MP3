@@ -69,8 +69,8 @@ extern struct netif xnetif[NET_IF_NUM];
 /******************************************************
  *               Variables Definitions
  ******************************************************/
-static internal_scan_handler_t scan_result_handler_ptr = { 0, 0, 0, RTW_FALSE,
-		0, 0, 0, 0, 0 };
+static internal_scan_handler_t scan_result_handler_ptr = {
+		0, 0, 0, RTW_FALSE,	0, 0, 0, 0, 0 };
 static internal_join_result_t* join_user_data;
 rtw_mode_t wifi_mode = RTW_MODE_NONE;
 //extern rtw_mode_t wifi_mode;
@@ -1479,8 +1479,7 @@ int wifi_scan_networks_with_ssid(
 	return ret;
 }
 
-int wifi_scan_networks(rtw_scan_result_handler_t results_handler,
-		void* user_data) {
+int wifi_scan_networks(rtw_scan_result_handler_t results_handler, void* user_data) {
 	unsigned int max_ap_size = 64;
 
 #if SCAN_USE_SEMAPHORE

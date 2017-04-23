@@ -52,7 +52,7 @@ LOCAL void fATPN(int argc, char *argv[]){
 			}
 			if(argc > 3) {
 				if(pswlen > 7) {
-					wifi_st_cfg.security_type = translate_val_to_rtw_security(atoi(argv[3]));
+					wifi_st_cfg.security_type = idx_to_rtw_security(atoi(argv[3]));
 				}
 				else {
 					printf("password len < 8!\n");
@@ -213,31 +213,7 @@ LOCAL void fATSF(int argc, char *argv[])
 }
 
 /* --------  WiFi Scan ------------------------------- */
-unsigned char *tab_txt_rtw_secyrity[] = {
-		"OPEN   ",
-		"WEP    ",
-		"WPA TKIP",
-		"WPA AES",
-		"WPA2 AES",
-		"WPA2 TKIP",
-		"WPA2 Mixed",
-		"WPA/WPA2 AES",
-		"Unknown"
-};
-int *tab_code_rtw_secyrity[] = {
-		RTW_SECURITY_OPEN,
-		RTW_SECURITY_WEP_PSK,
-		RTW_SECURITY_WPA_TKIP_PSK,
-		RTW_SECURITY_WPA_AES_PSK,
-		RTW_SECURITY_WPA2_AES_PSK,
-		RTW_SECURITY_WPA2_TKIP_PSK,
-		RTW_SECURITY_WPA2_MIXED_PSK,
-		RTW_SECURITY_WPA_WPA2_MIXED,
-		RTW_SECURITY_UNKNOWN
-};
-
 volatile uint8_t scan_end;
-
 /* --------  WiFi Scan ------------------------------- */
 LOCAL rtw_result_t _scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
 {
@@ -254,9 +230,11 @@ LOCAL rtw_result_t _scan_result_handler( rtw_scan_handler_result_t* malloced_sca
 	    printf("\t%d\t", record->signal_strength);
 	    printf("%d\t", record->channel);
 	    printf("%d\t", record->wps_type);
-	    int i = 0;
-	    for(; record->security != tab_code_rtw_secyrity[i] && tab_code_rtw_secyrity[i] != RTW_SECURITY_UNKNOWN; i++);
-	    printf("%s \t", tab_txt_rtw_secyrity[i]);
+	    {
+	    	uint8 * s = rtw_security_to_str(record->security);
+	    	printf("%s\t", s);
+	    	if(strlen(s) < 8) printf("\t");
+	    }
 	    printf("%s\n", record->SSID.val);
 	} else {
 		scan_end = 0;

@@ -122,8 +122,10 @@ uint32 write_wifi_cfg(uint32 flg);
 int wifi_run(rtw_mode_t mode);
 void wifi_init(void);
 
-rtw_security_t translate_val_to_rtw_security(uint8 security_type);
-uint8 translate_rtw_security_to_val(rtw_security_t security_type);
+extern unsigned char *tab_txt_rtw_eccryption[];
+rtw_security_t idx_to_rtw_security(unsigned char idx);
+unsigned char rtw_security_to_idx(rtw_security_t rtw_sec_type);
+unsigned char * rtw_security_to_str(rtw_security_t rtw_sec_type);
 
 void _LwIP_Init(void);
 
