@@ -157,14 +157,15 @@ void sntp_get_lasttime(long *sec, long *usec, unsigned int *tick)
   *tick = sntp_update_tick;
 }
 
-struct tm sntp_gen_system_time(int timezone)
+time_t sntp_gen_system_time(int timezone)
 {
 	struct tm current_tm;
-	unsigned int update_tick = 0;
-	long update_sec = 0, update_usec = 0, current_sec = 0;
-	unsigned int current_tick = xTaskGetTickCount();
+	unsigned int update_tick;
+	long update_sec, update_usec, current_sec = 0;
 
 	sntp_get_lasttime(&update_sec, &update_usec, &update_tick);
+
+	unsigned int current_tick = xTaskGetTickCount();
 
 	if(update_tick) {
 		long tick_diff_sec, tick_diff_ms;
@@ -176,14 +177,17 @@ struct tm sntp_gen_system_time(int timezone)
 		current_sec = update_sec + update_usec / 1000000 + timezone * 3600;
 	}
 	else {
-		current_sec = current_tick / configTICK_RATE_HZ;
+//		current_sec = current_tick / configTICK_RATE_HZ;
+		current_sec = update_usec;
 	}
-
+	return current_sec;
+/*
 	current_tm = *(localtime(&current_sec));
 	current_tm.tm_year += 1900;
 	current_tm.tm_mon += 1;
 
 	return current_tm;
+*/
 }
 /* End of Realtek added */
 
@@ -635,6 +639,7 @@ sntp_init(void)
 #else
       sntp_request(NULL);
 #endif
+      rtl_printf("SNTP start.\n");
     }
   }
 }
@@ -649,6 +654,7 @@ sntp_stop(void)
     sys_untimeout(sntp_request, NULL);
     udp_remove(sntp_pcb);
     sntp_pcb = NULL;
+    rtl_printf("SNTP stop.\n");
   }
 }
 #endif /* LWIP_UDP */

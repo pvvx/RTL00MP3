@@ -65,7 +65,7 @@
 #define HW_ADDRESS_LENGTH				(6)
 
 /* Reference by RFC 2131 */
-struct dhcp_msg {
+struct dhcps_msg {
 	uint8_t op; 		/* Message op code/message type. 1 = BOOTREQUEST, 2 = BOOTREPLY */
 	uint8_t	htype;		/* Hardware address type */
 	uint8_t hlen;		/* Hardware address length */
@@ -92,8 +92,13 @@ struct dhcp_msg {
 
 /* use this to check whether the message is dhcp related or not */
 static const uint8_t dhcp_magic_cookie[4] = {99, 130, 83, 99};
-static const uint8_t dhcp_option_lease_time_one_day[] = {0x00, 0x01, 0x51, 0x80}; 
-static const uint8_t dhcp_option_interface_mtu_576[] = {0x02, 0x40};
+static const uint8_t dhcp_option_lease_time_one_day[] = {0x00, 0x01, 0x51, 0x80};
+
+#ifdef CLASS_B_NET
+static const uint8_t dhcp_option_interface_mtu[] = {0x05, 0xDC}; // 1500
+#else
+static const uint8_t dhcp_option_interface_mtu[] = {0x02, 0x40}; // 576
+#endif
 
 struct table {
 	uint32_t ip_range[8];

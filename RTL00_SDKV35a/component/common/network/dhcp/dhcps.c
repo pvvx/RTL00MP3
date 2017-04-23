@@ -1,4 +1,5 @@
 
+#include "dhcp.h"
 #include "dhcps.h"
 #include "tcpip.h"
 
@@ -25,7 +26,7 @@ static struct ip_addr dhcps_owned_first_ip;
 static struct ip_addr dhcps_owned_last_ip;
 static uint8_t dhcps_num_of_available_ips;
 #endif
-static struct dhcp_msg *dhcp_message_repository;
+static struct dhcps_msg *dhcp_message_repository;
 static int dhcp_message_total_options_lenth;
 
 /* allocated IP range */  
@@ -162,13 +163,25 @@ static void add_offer_options(uint8_t *option_start_address)
 	This option specifies the Maximum transmission unit to use */
 	temp_option_addr = fill_one_option_content(temp_option_addr,
 		DHCP_OPTION_CODE_INTERFACE_MTU, DHCP_OPTION_LENGTH_TWO,
-					(void *) &dhcp_option_interface_mtu_576);
+					(void *) &dhcp_option_interface_mtu);
 	/* add DHCP options 31.
 	This option specifies whether or not the client should solicit routers */
 	temp_option_addr = fill_one_option_content(temp_option_addr,
 		DHCP_OPTION_CODE_PERFORM_ROUTER_DISCOVERY, DHCP_OPTION_LENGTH_ONE,
 								NULL);
-	*temp_option_addr++ = DHCP_OPTION_CODE_END;
+#if LWIP_NETIF_HOSTNAME
+	/* add DHCP options 12 HostName */
+    const char *p = dhcps_netif->hostname;
+    uint8_t len;
+    if(p && (len = strlen(p)) != 0) {
+    	*temp_option_addr++ = DHCP_OPTION_HOSTNAME;
+    	*temp_option_addr++ = len;
+    	while(len--) {
+        	*temp_option_addr++ = *p++;
+    	}
+    }
+#endif
+	*temp_option_addr = DHCP_OPTION_CODE_END;
 
 }
 
@@ -178,7 +191,7 @@ static void add_offer_options(uint8_t *option_start_address)
   * @param  m the pointer which point to the dhcp message store in.
   * @retval None.
   */
-static void dhcps_initialize_message(struct dhcp_msg *dhcp_message_repository, struct ip_addr yiaddr)
+static void dhcps_initialize_message(struct dhcps_msg *dhcp_message_repository, struct ip_addr yiaddr)
 {
      
         dhcp_message_repository->op = DHCP_MESSAGE_OP_REPLY;
@@ -220,7 +233,7 @@ static void dhcps_initialize_message(struct dhcp_msg *dhcp_message_repository, s
 static void dhcps_send_offer(struct pbuf *packet_buffer)
 {
 	uint8_t temp_ip = 0;
-	dhcp_message_repository = (struct dhcp_msg *)packet_buffer->payload;	
+	dhcp_message_repository = (struct dhcps_msg *)packet_buffer->payload;
 #if (!IS_USE_FIXED_IP)
 	if ((ip4_addr4(&dhcps_allocated_client_address) != 0) &&
 		(memcmp((void *)&dhcps_allocated_client_address, (void *)&client_request_ip, 4) == 0) &&
@@ -271,7 +284,7 @@ static void dhcps_send_nak(struct pbuf *packet_buffer)
 	struct ip_addr zero_address;
 	IP4_ADDR(&zero_address, 0, 0, 0, 0);
 
-	dhcp_message_repository = (struct dhcp_msg *)packet_buffer->payload;
+	dhcp_message_repository = (struct dhcps_msg *)packet_buffer->payload;
         dhcps_initialize_message(dhcp_message_repository, zero_address);
         add_msg_type(&dhcp_message_repository->options[4], DHCP_MESSAGE_TYPE_NAK);
         udp_sendto_if(dhcps_pcb, packet_buffer,
@@ -285,7 +298,7 @@ static void dhcps_send_nak(struct pbuf *packet_buffer)
   */
 static void dhcps_send_ack(struct pbuf *packet_buffer)
 {
-        dhcp_message_repository = (struct dhcp_msg *)packet_buffer->payload;
+        dhcp_message_repository = (struct dhcps_msg *)packet_buffer->payload;
         dhcps_initialize_message(dhcp_message_repository, dhcps_allocated_client_address);
         add_offer_options(add_msg_type(&dhcp_message_repository->options[4],
 				      			DHCP_MESSAGE_TYPE_ACK));
@@ -407,7 +420,7 @@ static uint8_t dhcps_handle_msg_options(uint8_t *option_start, int16_t total_opt
 static uint8_t dhcps_check_msg_and_handle_options(struct pbuf *packet_buffer)
 {
 	int dhcp_message_option_offset;
-	dhcp_message_repository = (struct dhcp_msg *)packet_buffer->payload;
+	dhcp_message_repository = (struct dhcps_msg *)packet_buffer->payload;
 	memcpy(dhcp_client_ethernet_address, dhcp_message_repository->chaddr, sizeof(dhcp_client_ethernet_address));
 	dhcp_message_option_offset = ((int)dhcp_message_repository->options 
 						- (int)packet_buffer->payload);
@@ -435,7 +448,7 @@ struct pbuf *udp_packet_buffer, struct ip_addr *sender_addr, uint16_t sender_por
   	int16_t total_length_of_packet_buffer;
 	struct pbuf *merged_packet_buffer = NULL;
 	
-	dhcp_message_repository = (struct dhcp_msg *)udp_packet_buffer->payload;
+	dhcp_message_repository = (struct dhcps_msg *)udp_packet_buffer->payload;
 	if (udp_packet_buffer == NULL) {
 		printf("Error! System doesn't allocate any buffer\n");
 		return;  

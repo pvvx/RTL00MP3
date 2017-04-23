@@ -63,7 +63,7 @@ typedef struct _wifi_config {
 typedef struct _softap_config {
 	unsigned char ssid[NDIS_802_11_LENGTH_SSID];
 	unsigned char password[IW_PASSPHRASE_MAX_SIZE];
-	rtw_security_t security_type; // RTW_SECURITY_OPEN, RTW_SECURITY_WEP_PSK
+	rtw_security_t security_type; // RTW_SECURITY_WPA2_AES_PSK or RTW_SECURITY_OPEN
 	uint16 beacon_interval;		// Note: support 100 ~ 60000 ms, default 100
 	unsigned char channel;		// 1..14
 	unsigned char ssid_hidden;	// Note: default 0
@@ -121,6 +121,9 @@ uint32 read_wifi_cfg(uint32 flg);
 uint32 write_wifi_cfg(uint32 flg);
 int wifi_run(rtw_mode_t mode);
 void wifi_init(void);
+
+rtw_security_t translate_val_to_rtw_security(uint8 security_type);
+uint8 translate_rtw_security_to_val(rtw_security_t security_type);
 
 void _LwIP_Init(void);
 

@@ -1068,6 +1068,7 @@ int wifi_off(void) {
 #if CONFIG_LWIP_LAYER
 	dhcps_deinit();
 	LwIP_DHCP(0, DHCP_STOP);
+	LwIP_DHCP(1, DHCP_STOP);
 #endif
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
 	if ((wifi_mode == RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP))

@@ -194,7 +194,7 @@
 =3 errors + warning + info,
 =4 errors + warning + info + debug,
 =5 full */
-#define CONFIG_DEBUG_LOG 2
+#define CONFIG_DEBUG_LOG 4
 #if CONFIG_DEBUG_LOG > 0
 //#define CONFIG_DEBUG_ERR_MSG 1
 #define CONFIG_DEBUG_LOG_ADC_HAL 1

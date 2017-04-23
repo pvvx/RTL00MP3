@@ -57,7 +57,7 @@ WIFI_CONFIG wifi_cfg = {
 SOFTAP_CONFIG wifi_ap_cfg = {
 		.ssid = DEF_AP_SSID,
 		.password = DEF_AP_PASSWORD,
-		.security_type = DEF_AP_SECURITY,
+		.security_type = DEF_AP_SECURITY, // RTW_SECURITY_WPA2_AES_PSK or RTW_SECURITY_OPEN
 		.beacon_interval = DEF_AP_BEACON,
 		.channel = DEF_AP_CHANNEL,
 		.ssid_hidden = 0,
@@ -185,7 +185,7 @@ char wlan_st_netifn = 0;
 char wlan_ap_netifn = 1;
 extern rtw_mode_t wifi_mode;	// новый режим работы
 
-uint8 chk_ap_netif_num(void)
+LOCAL uint8 chk_ap_netif_num(void)
 {
 	if (wifi_mode == RTW_MODE_AP) {
 		wlan_st_name[4] = '1';
@@ -204,7 +204,6 @@ uint8 chk_ap_netif_num(void)
 
 rtw_result_t wifi_run_ap(void) {
 	chk_ap_netif_num();
-
 	rtw_result_t ret = RTW_NOTAP;
 	if( (wifi_mode == RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP) ){
 		info_printf("Starting AP (%s, netif%d)...\n", wlan_ap_name, wlan_ap_netifn);
@@ -245,6 +244,7 @@ rtw_result_t wifi_run_ap(void) {
 						info_printf("AP '%s' started after %d ms\n",
 								wifi_ap_cfg.ssid, xTaskGetTickCount());
 						show_wifi_ap_ip();
+						show_wifi_st_ip();
 						if(wifi_cfg.save_flg & (BID_WIFI_AP_CFG | BID_AP_DHCP_CFG))
 							write_wifi_cfg(wifi_cfg.save_flg & (BID_WIFI_AP_CFG | BID_AP_DHCP_CFG));
 						ret = RTW_SUCCESS;
@@ -264,7 +264,7 @@ rtw_result_t wifi_run_ap(void) {
 	return ret;
 }
 
-rtw_result_t StartStDHCPClient(void)
+LOCAL rtw_result_t StartStDHCPClient(void)
 {
 	debug_printf("Start DHCPClient...\n");
 	int ret = RTW_SUCCESS;
@@ -274,12 +274,10 @@ rtw_result_t StartStDHCPClient(void)
 	if((mode == 3) // Auto fix
 	&& p->ip != IP4ADDR(255,255,255,255)
 	&& p->ip != IP4ADDR(0,0,0,0)) {
-//		mode = 2; // fixed ip
 	}
 	else mode = 1; // DHCP On
 	if(mode == 2) { // fixed ip
 			netif_set_addr(pnetif, (ip_addr_t *)&p->ip, (ip_addr_t *)&p->mask, (ip_addr_t *)&p->gw);
-//			dhcps_init(pnetif);
 	}
 	else if(mode) {
 		UBaseType_t savePriority =  uxTaskPriorityGet(NULL);
@@ -357,7 +355,6 @@ LOCAL void wifi_autoreconnect_hdl_(rtw_security_t security_type, char *ssid,
 			&wifi_autoreconnect, tskIDLE_PRIORITY + 1, NULL);
 }
 
-
 LOCAL void st_set_autoreconnect(uint8 mode, uint8 count, uint16 timeout) {
 	p_wlan_autoreconnect_hdl = wifi_autoreconnect_hdl_;
 	_adapter * ad = *(_adapter **)((rltk_wlan_info[0].dev)->priv);
@@ -366,7 +363,6 @@ LOCAL void st_set_autoreconnect(uint8 mode, uint8 count, uint16 timeout) {
 	ad->mlmeextpriv.reconnect_cnt = 0;
 	ad->mlmeextpriv.auto_reconnect = (mode != 0);
 }
-
 
 rtw_result_t wifi_run_st(void) {
 	rtw_result_t ret = RTW_SUCCESS;
@@ -427,6 +423,7 @@ int _wifi_on(rtw_mode_t mode) {
 	}
 	wifi_mode = mode;
 	info_printf("Initializing WIFI...\n");
+
 	// set wifi mib
 	// adaptivity
 	wext_set_adaptivity(RTW_ADAPTIVITY_DISABLE);
@@ -438,8 +435,12 @@ int _wifi_on(rtw_mode_t mode) {
 	ret = rltk_wlan_init(0, mode);
 	if (ret < 0) return ret;
 	if(devnum) {
+		netif_set_up(&xnetif[1]);
 		ret = rltk_wlan_init(1, mode);
 		if (ret < 0) return ret;
+	}
+	else {
+		netif_set_down(&xnetif[1]);
 	}
 	rltk_wlan_start(0);
 	if(devnum) rltk_wlan_start(1);
@@ -506,35 +507,23 @@ int wifi_run(rtw_mode_t mode) {
 #if CONFIG_DEBUG_LOG > 4
 	debug_printf("\n%s(%d), %d\n", __func__, mode, wifi_run_mode);
 #endif
-	if(wifi_run_mode & RTW_MODE_AP) {
-		info_printf("Deinit old AP...\n");
-		LwIP_DHCP(WLAN_AP_NETIF_NUM, DHCP_STOP);
+	if(wifi_run_mode != mode) {
+		if(wifi_run_mode & RTW_MODE_AP) {
 #if CONFIG_DEBUG_LOG > 4
 		debug_printf("dhcps_deinit()\n");
 #endif
-		dhcps_deinit();
-		wifi_run_mode &= ~RTW_MODE_AP;
-	};
-	if(wifi_run_mode & RTW_MODE_STA) {
-		info_printf("Deinit old ST...\n");
-		LwIP_DHCP(WLAN_ST_NETIF_NUM, DHCP_STOP);
-		wifi_run_mode &= ~RTW_MODE_STA;
-	};
-//	if(mode != wifi_mode)
-//	wifi_mode = mode;
-//	chk_ap_netif_num();
-	if (mode != RTW_MODE_NONE) {
-		if(mode != (volatile)wifi_mode) {
-			info_printf("Deinitializing WIFI ...\n");
-			wifi_off();
-			vTaskDelay(30);
-			debug_printf("WiFi_on(%d)\n", mode);
-			if (_wifi_on(mode) < 0) {
-				error_printf("Wifi On failed!\n");
-				goto error_end;
-			};
-			wifi_mode =	mode;
+			dhcps_deinit();
+		}
+		info_printf("Deinitializing WIFI ...\n");
+		wifi_off();
+		wifi_run_mode = RTW_MODE_NONE;
+		vTaskDelay(30);
+		if (_wifi_on(mode) < 0) {
+			error_printf("Wifi On failed!\n");
+			goto error_end;
 		};
+	};
+	if (mode != RTW_MODE_NONE) {
 		if(wifi_set_country(wifi_cfg.country_code) != RTW_SUCCESS) {
 			error_printf("Error set tx country_code (%d)!", wifi_cfg.country_code);
 		};
@@ -548,9 +537,7 @@ int wifi_run(rtw_mode_t mode) {
 			error_printf("Error set network mode (%d)!", wifi_cfg.bgn);
 		}
 		debug_printf("mode == wifi_mode? (%d == %d?)\n", mode, wifi_mode);
-//		if(mode == wifi_mode)
-		{
-			switch(wifi_mode) {
+		switch(wifi_mode) {
 			 case RTW_MODE_STA_AP:
 				 wifi_run_ap();
 				 wifi_run_st();
@@ -571,16 +558,14 @@ int wifi_run(rtw_mode_t mode) {
 #endif
 			 default:
 				error_printf("Error WiFi mode(%d)\n", wifi_mode);
-			}
+		}
 #if CONFIG_INTERACTIVE_MODE
-			/* Initial uart rx swmaphore*/
-			vSemaphoreCreateBinary(uart_rx_interrupt_sema);
-			xSemaphoreTake(uart_rx_interrupt_sema, 1/portTICK_RATE_MS);
-			start_interactive_mode();
+		/* Initial uart rx swmaphore*/
+		vSemaphoreCreateBinary(uart_rx_interrupt_sema);
+		xSemaphoreTake(uart_rx_interrupt_sema, 1/portTICK_RATE_MS);
+		start_interactive_mode();
 #endif
-//			if(wifi_run_mode == wifi_cfg.mode)
-			ret = 1;
-		};
+		ret = 1;
 	} else {
 		ret = 1;
 error_end:
@@ -610,31 +595,30 @@ void wifi_init(void) {
 	wifi_run(wifi_cfg.mode);
 }
 
-rtw_security_t translate_rtw_security(u8 security_type)
-{
-	rtw_security_t security_mode = RTW_SECURITY_OPEN;
+uint32 tab_rtw_security[] = {
+		RTW_SECURITY_OPEN,			//0 Open security
+		RTW_SECURITY_WEP_PSK,		//1 WEP Security with open authentication
+		RTW_SECURITY_WEP_SHARED,	//2 WEP Security with shared authentication
+		RTW_SECURITY_WPA_TKIP_PSK,	//3 WPA Security with TKIP
+		RTW_SECURITY_WPA_AES_PSK,	//4 WPA Security with AES
+		RTW_SECURITY_WPA2_AES_PSK,	//5 WPA2 Security with AES
+		RTW_SECURITY_WPA2_TKIP_PSK,	//6 WPA2 Security with TKIP
+		RTW_SECURITY_WPA2_MIXED_PSK,//7 WPA2 Security with AES & TKIP
+		RTW_SECURITY_WPA_WPA2_MIXED //8 WPA/WPA2 Security
+};
 
-	switch (security_type) {
-//  	case RTW_ENCRYPTION_OPEN:
-//    		security_mode = RTW_SECURITY_OPEN;
-//    	break;
-  	case RTW_ENCRYPTION_WEP40:
-  	case RTW_ENCRYPTION_WEP104:
-    		security_mode = RTW_SECURITY_WEP_PSK;
-    	break;
-  	case RTW_ENCRYPTION_WPA_TKIP:
-  	case RTW_ENCRYPTION_WPA_AES:
-  	case RTW_ENCRYPTION_WPA2_TKIP:
-  	case RTW_ENCRYPTION_WPA2_AES:
-  	case RTW_ENCRYPTION_WPA2_MIXED:
-    		security_mode = RTW_SECURITY_WPA2_AES_PSK;
-    	break;
-//  	case RTW_ENCRYPTION_UNKNOWN:
-//  	case RTW_ENCRYPTION_UNDEF:
-//  	default:
-  		//security_mode = RTW_SECURITY_OPEN;
-	}
-	return security_mode;
+
+rtw_security_t translate_val_to_rtw_security(uint8 security_type)
+{
+	if(security_type > 8) security_type = 5;
+	return (rtw_security_t)tab_rtw_security[security_type];
+}
+
+uint8 translate_rtw_security_to_val(rtw_security_t security_type)
+{
+	uint8 i = 0;
+	while(i < 9 && tab_rtw_security[i] != security_type) i++;
+	return i;
 }
 
 

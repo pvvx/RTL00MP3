@@ -34,6 +34,7 @@
 #include "user/atcmd_user.h"
 #include "main.h"
 #include "wifi_api.h"
+#include "rtl8195a/rtl_libc.h"
 
 /* ---------------------------------------------------
   *  Customized Signature (Image Name)
@@ -71,13 +72,14 @@ static char sampCntAdd;
 static char sampDelCnt;
 static int sampCnt;
 #endif
+#define ID_FEEP_MP3 0x5000
 
 mp3_server_setings mp3_serv = {0,{0}}; //{ PLAY_PORT, { PLAY_SERVER }};
 
-static int mp3_cfg_read(void)
+LOCAL int mp3_cfg_read(void)
 {
-	bzero(&mp3_serv, sizeof(mp3_serv));
-	if(flash_read_cfg(mp3_serv, 0x5000, sizeof(mp3_serv.port) + 2) >= sizeof(mp3_serv.port) + 2) {
+	rtl_memset(&mp3_serv, 0, sizeof(mp3_serv));
+	if(flash_read_cfg(&mp3_serv, ID_FEEP_MP3, sizeof(mp3_serv.port) + 2) >= sizeof(mp3_serv.port) + 2) {
 		mp3_serv.port = PLAY_PORT;
 		strcpy(mp3_serv.url, PLAY_SERVER);
 	}
@@ -167,7 +169,7 @@ static enum mad_flow input(struct mad_stream *stream) {
 }
 
 //Routine to print out an error
-static enum mad_flow error(void *data, struct mad_stream *stream,
+LOCAL  enum mad_flow error(void *data, struct mad_stream *stream,
 		struct mad_frame *frame) {
 #if DEBUG_MAIN_LEVEL > 0
 	DBG_8195A("MAD: Dec err 0x%04x (%s)\n", stream->error,
@@ -176,11 +178,11 @@ static enum mad_flow error(void *data, struct mad_stream *stream,
 	return MAD_FLOW_CONTINUE;
 }
 
-void tskreader(void *pvParameters);
+LOCAL void tskreader(void *pvParameters);
 
 //This is the main mp3 decoding task. It will grab data from the input buffer FIFO in the SPI ram and
 //output it to the I2S port.
-void tskmad(void *pvParameters) {
+LOCAL void tskmad(void *pvParameters) {
 	//Initialize I2S
 	if (i2sInit(-1, I2S_DMA_PAGE_WAIT_MS_MIN * I2S_DMA_PAGE_SIZE_MS_96K, WL_24b)) { // min 2 ms x I2S_DMA_PAGE_SIZE buffers
 		//Allocate structs needed for mp3 decoding
@@ -263,7 +265,7 @@ exit:
 	vTaskDelete(NULL);
 }
 
-int getIpForHost(const char *host, struct sockaddr_in *ip) {
+LOCAL int getIpForHost(const char *host, struct sockaddr_in *ip) {
 	struct hostent *he;
 	struct in_addr **addr_list;
 	he = gethostbyname(host);
@@ -277,11 +279,11 @@ int getIpForHost(const char *host, struct sockaddr_in *ip) {
 
 //Open a connection to a webserver and request an URL. Yes, this possibly is one of the worst ways to do this,
 //but RAM is at a premium here, and this works for most of the cases.
-int openConn(const char *streamHost, const char *streamPath, int streamPort) {
+LOCAL  int openConn(const char *streamHost, const char *streamPath, int streamPort) {
 	int n = 5;
 	while (tskreader_enable == 1) {
 		struct sockaddr_in remote_ip;
-		bzero(&remote_ip, sizeof(struct sockaddr_in));
+		rtl_memset(&remote_ip, 0, sizeof(struct sockaddr_in));
 		if (!getIpForHost(streamHost, &remote_ip)) {
 			vTaskDelay(1000 / portTICK_RATE_MS);
 			if(n--)	continue;
@@ -328,7 +330,7 @@ int openConn(const char *streamHost, const char *streamPath, int streamPort) {
 }
 
 
-int http_head_read(unsigned char *buf, int len, int ff) {
+LOCAL int http_head_read(unsigned char *buf, int len, int ff) {
 	int flg_head = 0;
 	int n, ret = 0;
 	if ((n = read(ff, buf, len)) <= 0)	return 0;
@@ -373,7 +375,7 @@ int http_head_read(unsigned char *buf, int len, int ff) {
 }
 
 //Reader task. This will try to read data from a TCP socket into the SPI fifo buffer.
-void tskreader(void *pvParameters) {
+LOCAL void tskreader(void *pvParameters) {
 	char wbuf[SOCK_READ_BUF];
 	int n;
 	if (RamFifoInit(mMIN(xPortGetFreeHeapSize() - MIN_FIFO_HEAP, MAX_FIFO_SIZE))) {
@@ -509,12 +511,15 @@ void ShowMemInfo(void)
 }
 
 
-void user_init_thrd(void) {
+LOCAL void user_init_thrd(void) {
+
+	mp3_cfg_read();
 
 	wifi_init();
 
 	/* Initilaize the console stack */
 	console_init();
+
 
 	/* Kill init thread after all init tasks done */
 	vTaskDelete(NULL);
@@ -554,8 +559,6 @@ void main(void)
 	ShowMemInfo(); // RAM/TCM/Heaps info
 #endif
 
-	mp3_cfg_read();
-
 	/* wlan & user_start intialization */
 	xTaskCreate(user_init_thrd, "user_init", 1024, NULL, tskIDLE_PRIORITY + 0 + PRIORITIE_OFFSET, NULL);
 
@@ -573,7 +576,7 @@ void main(void)
 //--- CONSOLE ---
 
 // MP3 Set server, Close/Open connect
-void fATWS(int argc, char *argv[]){
+LOCAL void fATWS(int argc, char *argv[]){
     	if (argc == 2) {
     		StrUpr(argv[1]);
     		if(argv[1][0] == '?') {
@@ -597,7 +600,7 @@ void fATWS(int argc, char *argv[]){
     		}
     		else if(argv[1][0] == 'S') { // strcmp(argv[1], "save") == 0
 			    printf("%s: %s,%d\n", argv[0], mp3_serv.url, mp3_serv.port);
-    			if(flash_write_cfg(&mp3_serv, 0x5000, strlen(mp3_serv.port) + strlen(mp3_serv.url)))
+    			if(flash_write_cfg(&mp3_serv, ID_FEEP_MP3, strlen(mp3_serv.port) + strlen(mp3_serv.url)))
     			    printf("ATWS: saved\n", mp3_serv.url, mp3_serv.port);
     		    return;
     		}
@@ -612,5 +615,5 @@ void fATWS(int argc, char *argv[]){
 }
 
 MON_RAM_TAB_SECTION COMMAND_TABLE console_commands_main[] = {
-		{"ATWS", 1, fATWS, "=<URL,PORT>: MP3 Connect to URL\nATWS=<c>[lose]: Close MP3\nATWS=<r>[ead]: Read MP3 URL\nATWS=<s>[ave]: Save MP3 URL\nATWS=<?>: URL Info"}
+		{"ATWS", 1, fATWS, "=<URL,PORT>: MP3 Connect to URL\nATWS=<c>: Close MP3\nATWS=<r>: Read MP3 URL\nATWS=<s>: Save MP3 URL\nATWS=<?>: URL Info"}
 };
