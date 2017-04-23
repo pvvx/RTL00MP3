@@ -244,7 +244,6 @@ rtw_result_t wifi_run_ap(void) {
 						info_printf("AP '%s' started after %d ms\n",
 								wifi_ap_cfg.ssid, xTaskGetTickCount());
 						show_wifi_ap_ip();
-						show_wifi_st_ip();
 						if(wifi_cfg.save_flg & (BID_WIFI_AP_CFG | BID_AP_DHCP_CFG))
 							write_wifi_cfg(wifi_cfg.save_flg & (BID_WIFI_AP_CFG | BID_AP_DHCP_CFG));
 						ret = RTW_SUCCESS;
