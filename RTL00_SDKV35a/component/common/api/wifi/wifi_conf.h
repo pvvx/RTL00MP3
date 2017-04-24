@@ -75,16 +75,16 @@ typedef struct {
 typedef struct internal_scan_handler{
 	rtw_scan_result_t** pap_details;
 	rtw_scan_result_t * ap_details;
-	int	scan_cnt;
-	rtw_bool_t	scan_complete;
+	int				scan_cnt;
+	rtw_bool_t		scan_complete;
 	unsigned char	max_ap_size;
 	rtw_scan_result_handler_t gscan_result_handler;
 #if SCAN_USE_SEMAPHORE
-	void *scan_semaphore;
+	void	*		scan_semaphore;
 #else
-	int 	scan_running;
+	int 			scan_running;
 #endif
-	void*	user_data;
+	void	*		user_data;
 	unsigned int	scan_start_time;
 } internal_scan_handler_t;
 

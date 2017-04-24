@@ -30,6 +30,8 @@ extern char str_rom_57ch3Dch0A[]; // "==========================================
 #define BID_ST_DHCP_CFG		(1 << 3)
 #define BID_WIFI_CFG		(1 << 4)
 
+#define BID_ALL_WIFI_CFG	(BID_WIFI_AP_CFG|BID_WIFI_ST_CFG|BID_AP_DHCP_CFG|BID_ST_DHCP_CFG)
+
 #define WLAN_ST_NETIF_NUM  wlan_st_netifn
 #define WLAN_AP_NETIF_NUM  wlan_ap_netifn
 //==== FEEP_ID ===========================
@@ -122,7 +124,6 @@ uint32 write_wifi_cfg(uint32 flg);
 int wifi_run(rtw_mode_t mode);
 void wifi_init(void);
 
-extern unsigned char *tab_txt_rtw_eccryption[];
 rtw_security_t idx_to_rtw_security(unsigned char idx);
 unsigned char rtw_security_to_idx(rtw_security_t rtw_sec_type);
 unsigned char * rtw_security_to_str(rtw_security_t rtw_sec_type);

@@ -161,6 +161,7 @@
 extern void *pvPortMalloc( size_t xWantedSize );
 extern void vPortFree( void *pv );
 #define malloc                  pvPortMalloc
+#define zalloc                  pvPortZalloc
 #define free                    vPortFree
 #endif
 #elif defined (CONFIG_PLATFORM_8711B)

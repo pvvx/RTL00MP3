@@ -449,15 +449,17 @@ int wext_get_rssi(const char *ifname, int *rssi) {
 	return ret;
 }
 
-int wext_set_pscan_channel(const char *ifname, __u8 *ch, __u8 *pscan_config,
-		__u8 length) {
+int wext_set_pscan_channel(const char *ifname,
+						__u8 *ch,
+						__u8 *pscan_config,
+						__u8 length) {
 	struct iwreq iwr;
 	int ret = -1;
 	__u8 *para;
 	int i = 0;
 	memset(&iwr, 0, sizeof(iwr));
 	//Format of para:function_name num_channel chan1... pscan_config1 ...
-	para = pvPortMalloc((length + length + 1) + 12);//size:num_chan + num_time + length + function_name
+	para = pvPortMalloc((length + length + 1) + 12); //size:num_chan + num_time + length + function_name
 	if (para != NULL) {
 		//Cmd
 		snprintf((char*) para, 12, "PartialScan");
@@ -480,6 +482,7 @@ int wext_set_pscan_channel(const char *ifname, __u8 *ch, __u8 *pscan_config,
 #endif
 	return ret;
 }
+
 int wext_set_channel(const char *ifname, __u8 ch) {
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));

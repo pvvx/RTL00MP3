@@ -605,8 +605,8 @@ unsigned char *tab_txt_rtw_secyrity[] = {
 		"WEP SHARED",	//2 WEP Security with shared authentication
 		"WPA TKIP",		//3 WPA Security with TKIP
 		"WPA AES",		//4 WPA Security with AES
-		"WPA2 AES",		//5 WPA2 Security with TKIP
-		"WPA2 TKIP",	//6 WPA2 Security with AES
+		"WPA2 TKIP",	//5 WPA2 Security with TKIP
+		"WPA2 AES",		//6 WPA2 Security with AES
 		"WPA2 Mixed",	//7 WPA2 Security with AES & TKIP
 		"WPA/WPA2 AES",	//8 WPA/WPA2 Security
 		"Unknown"		//9
@@ -625,6 +625,7 @@ unsigned int tab_code_rtw_secyrity[] = {
 		RTW_SECURITY_UNKNOWN			//9
 };
 
+/*
 unsigned char *tab_txt_rtw_eccryption[] = {
     "Unknown",
     "OPEN",
@@ -638,19 +639,18 @@ unsigned char *tab_txt_rtw_eccryption[] = {
     "WEP104",
     "Udef" // 0xff
 };
-
+*/
 
 rtw_security_t idx_to_rtw_security(unsigned char idx)
 {
-	if(idx > 8) idx = 5;
+	if(idx > 8) idx = 5; // RTW_SECURITY_WPA2_MIXED_PSK
 	return (rtw_security_t)tab_code_rtw_secyrity[idx];
 }
 
 unsigned char rtw_security_to_idx(rtw_security_t rtw_sec_type)
 {
 	unsigned char i = 0;
-	for(; rtw_sec_type != tab_code_rtw_secyrity[i] && tab_code_rtw_secyrity[i] != RTW_SECURITY_UNKNOWN; i++);
-    	i++;
+	while(rtw_sec_type != tab_code_rtw_secyrity[i] && tab_code_rtw_secyrity[i] != RTW_SECURITY_UNKNOWN) i++;
 	return i;
 }
 

@@ -286,25 +286,25 @@ typedef	long long __i64;
 /* Informative stuff */
 #define SIOCSIWRANGE	0x8B0A		/* Unused */
 #define SIOCGIWRANGE	0x8B0B		/* Get range of parameters */
-#define SIOCSIWPRIV	0x8B0C		/* Unused */
-#define SIOCGIWPRIV	0x8B0D		/* get private ioctl interface info */
+#define SIOCSIWPRIV		0x8B0C		/* Unused */
+#define SIOCGIWPRIV		0x8B0D		/* get private ioctl interface info */
 #define SIOCSIWSTATS	0x8B0E		/* Unused */
 #define SIOCGIWSTATS	0x8B0F		/* Get /proc/net/wireless stats */
 /* SIOCGIWSTATS is strictly used between user space and the kernel, and
  * is never passed to the driver (i.e. the driver will never see it). */
 
 /* Spy support (statistics per MAC address - used for Mobile IP support) */
-#define SIOCSIWSPY	0x8B10		/* set spy addresses */
-#define SIOCGIWSPY	0x8B11		/* get spy info (quality of link) */
+#define SIOCSIWSPY		0x8B10		/* set spy addresses */
+#define SIOCGIWSPY		0x8B11		/* get spy info (quality of link) */
 #define SIOCSIWTHRSPY	0x8B12		/* set spy threshold (spy event) */
 #define SIOCGIWTHRSPY	0x8B13		/* get spy threshold */
 
 /* Access Point manipulation */
-#define SIOCSIWAP	0x8B14		/* set access point MAC addresses */
-#define SIOCGIWAP	0x8B15		/* get access point MAC addresses */
+#define SIOCSIWAP		0x8B14		/* set access point MAC addresses */
+#define SIOCGIWAP		0x8B15		/* get access point MAC addresses */
 #define SIOCGIWAPLIST	0x8B17		/* Deprecated in favor of scanning */
-#define SIOCSIWSCAN	0x8B18		/* trigger scanning (list cells) */
-#define SIOCGIWSCAN	0x8B19		/* get scanning results */
+#define SIOCSIWSCAN		0x8B18		/* trigger scanning (list cells) */
+#define SIOCGIWSCAN		0x8B19		/* get scanning results */
 
 /* 802.11 specific support */
 #define SIOCSIWESSID	0x8B1A		/* set ESSID (network name) */
@@ -316,12 +316,12 @@ typedef	long long __i64;
  * point to a string in user space, like it is done for RANGE... */
 
 /* Other parameters useful in 802.11 and some other devices */
-#define SIOCSIWRATE	0x8B20		/* set default bit rate (bps) */
-#define SIOCGIWRATE	0x8B21		/* get default bit rate (bps) */
-#define SIOCSIWRTS	0x8B22		/* set RTS/CTS threshold (bytes) */
-#define SIOCGIWRTS	0x8B23		/* get RTS/CTS threshold (bytes) */
-#define SIOCSIWFRAG	0x8B24		/* set fragmentation thr (bytes) */
-#define SIOCGIWFRAG	0x8B25		/* get fragmentation thr (bytes) */
+#define SIOCSIWRATE		0x8B20		/* set default bit rate (bps) */
+#define SIOCGIWRATE		0x8B21		/* get default bit rate (bps) */
+#define SIOCSIWRTS		0x8B22		/* set RTS/CTS threshold (bytes) */
+#define SIOCGIWRTS		0x8B23		/* get RTS/CTS threshold (bytes) */
+#define SIOCSIWFRAG		0x8B24		/* set fragmentation thr (bytes) */
+#define SIOCGIWFRAG		0x8B25		/* get fragmentation thr (bytes) */
 #define SIOCSIWTXPOW	0x8B26		/* set transmit power (dBm) */
 #define SIOCGIWTXPOW	0x8B27		/* get transmit power (dBm) */
 #define SIOCSIWRETRY	0x8B28		/* set retry limits and lifetime */

@@ -69,7 +69,7 @@ extern struct netif xnetif[NET_IF_NUM];
 /******************************************************
  *               Variables Definitions
  ******************************************************/
-static internal_scan_handler_t scan_result_handler_ptr = {
+internal_scan_handler_t scan_result_handler_ptr = {
 		0, 0, 0, RTW_FALSE,	0, 0, 0, 0, 0 };
 static internal_join_result_t* join_user_data;
 rtw_mode_t wifi_mode = RTW_MODE_NONE;
@@ -1260,8 +1260,7 @@ int wifi_start_ap_with_hidden_ssid(char *ssid, rtw_security_t security_type,
 }
 */
 
-void wifi_scan_each_report_hdl(char* buf, int buf_len, int flags,
-		void* userdata) {
+void wifi_scan_each_report_hdl(char* buf, int buf_len, int flags, void* userdata) {
 	int i = 0;
 	int j = 0;
 	int insert_pos = 0;
