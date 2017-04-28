@@ -254,7 +254,7 @@ extern struct sk_buff *rltk_wlan_alloc_skb(unsigned int total_len);
 extern void rltk_wlan_send_skb(int idx, struct sk_buff *skb);
 extern void rltk_netif_rx(struct sk_buff *skb);
 extern int rltk_del_station(const char *ifname, u8 *hwaddr); 
-extern int rltk_get_auto_chl(const char *ifname, u8 *channel_set, int channel_num, int a4);
+extern int rltk_get_auto_chl(const char *ifname, u8 *channel_set, int channel_num);
 extern int rltk_set_tx_power_percentage(rtw_tx_pwr_percentage_t power_percentage_idx); 
 extern int rltk_wlan_control(unsigned long cmd, void *data);
 extern unsigned char rltk_wlan_running(unsigned char idx);

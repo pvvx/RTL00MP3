@@ -1310,7 +1310,13 @@ void fATST(void *arg) {
 }
 
 #if 0
-#include "wlan_lib.h"
+#if 1
+#include "drv_types.h" // or #include "wlan_lib.h"
+#else
+#include "wifi_constants.h"
+#include "wifi_structures.h"
+#include "wlan_lib.h" // or #include "drv_types.h"
+#endif
 #include "hal_com_reg.h"
 // extern Rltk_wlan_t rltk_wlan_info[2];
 void fATXT(void *arg)

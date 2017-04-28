@@ -31,9 +31,9 @@ extern "C" {
 enum eFMEMORY_ERRORS {
 	FMEM_NOT_FOUND = -1,	//  -1 - не найден
 	FMEM_FLASH_ERR = -2,	//  -2 - flash rd/wr/erase error
-	FMEM_ERROR = -3,		//  -3 - error
-	FMEM_OVR_ERR = -4,		//  -4 - переполнение FMEMORY_SCFG_BANK_SIZE
-	FMEM_MEM_ERR = -5		//  -5 - heap alloc error
+	FMEM_ERROR = 	-3,		//  -3 - error
+	FMEM_OVR_ERR = 	-4,		//  -4 - переполнение FMEMORY_SCFG_BANK_SIZE
+	FMEM_MEM_ERR = 	-5		//  -5 - heap alloc error
 };
 //-----------------------------------------------------------------------------
 // extern QueueHandle_t flash_mutex;

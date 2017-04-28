@@ -8,7 +8,7 @@
 #include "wifi_util.h"    
 #include "wifi_ind.h"    
 #include <platform/platform_stdlib.h>
-#include "wifi_api.h"
+
 
 #ifdef __cplusplus
   extern "C" {
@@ -72,20 +72,21 @@ typedef struct {
 /******************************************************
  *                    Structures
  ******************************************************/
+#define SCAN_USE_SEMAPHORE	0
+
 typedef struct internal_scan_handler{
 	rtw_scan_result_t** pap_details;
 	rtw_scan_result_t * ap_details;
-	int				scan_cnt;
-	rtw_bool_t		scan_complete;
-	unsigned char	max_ap_size;
 	rtw_scan_result_handler_t gscan_result_handler;
 #if SCAN_USE_SEMAPHORE
 	void	*		scan_semaphore;
-#else
-	int 			scan_running;
 #endif
+	//	unsigned int	scan_start_time;
 	void	*		user_data;
-	unsigned int	scan_start_time;
+	unsigned char	scan_cnt;
+	unsigned char	max_ap_size;
+	volatile unsigned char	scan_complete;
+	volatile unsigned char	scan_running;
 } internal_scan_handler_t;
 
 typedef struct {
@@ -569,7 +570,7 @@ int wifi_set_pscan_chan(__u8 * channel_list,__u8 * pscan_config, __u8 length);
  *
  * @return    RTW_SUCCESS or RTW_ERROR
  */
-int wifi_get_setting(const char *ifname,rtw_wifi_setting_t *pSetting);
+int wifi_get_setting(const char *ifname, rtw_wifi_setting_t *pSetting);
 
 /** Show the network information
  *  

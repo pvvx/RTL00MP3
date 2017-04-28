@@ -364,7 +364,7 @@ typedef int (*iw_handler)(struct net_device *, struct iw_request_info *,
 		union iwreq_data *, char *);
 
 struct _NDIS_802_11_SSID {
-	uint32_t SsidLength;
+	uint32_t SsidLength;	//+164
 	uint8_t Ssid[36];
 };
 typedef struct _NDIS_802_11_SSID NDIS_802_11_SSID;
@@ -422,7 +422,7 @@ struct _WLAN_BSSID_EX {
 	uint32_t Length;
 	NDIS_802_11_MAC_ADDRESS MacAddress;
 	uint8_t Reserved[2];
-	NDIS_802_11_SSID Ssid;
+	NDIS_802_11_SSID Ssid; // +164
 	uint32_t Privacy;
 	NDIS_802_11_RSSI Rssi;
 	NDIS_802_11_NETWORK_TYPE NetworkTypeInUse;
@@ -514,21 +514,21 @@ enum _RT_SCAN_TYPE //: sint32_t
 typedef enum _RT_SCAN_TYPE RT_SCAN_TYPE;
 
 struct mlme_priv {
-	_lock lock;
-	sint fw_state;
-	uint8_t bScanInProcess;
-	uint8_t to_join;
-	uint8_t *nic_hdl;
-	_list *pscanned;
-	_queue free_bss_pool;
-	_queue scanned_queue;
-	uint8_t *free_bss_buf;
-	uint16_t num_of_scanned;
-	uint8_t *scan_buf;
-	uint32_t scan_buf_len;
-	uint16_t scan_cnt;
-	uint16_t scan_type;
-	NDIS_802_11_SSID assoc_ssid;
+	_lock lock;					//+12
+	sint fw_state;				//+16
+	uint8_t bScanInProcess;		//+20
+	uint8_t to_join;			//+21
+	uint8_t *nic_hdl;			//+24
+	_list *pscanned;			//+28
+	_queue free_bss_pool;		//+32
+	_queue scanned_queue;		//+44
+	uint8_t *free_bss_buf;		//+56
+	uint16_t num_of_scanned;	//+60
+	uint8_t *scan_buf;			//+64
+	uint32_t scan_buf_len;		//+68
+	uint16_t scan_cnt;			//+72
+	uint16_t scan_type;			//+74
+	NDIS_802_11_SSID assoc_ssid;	//+76
 	uint8_t assoc_bssid[6];
 	struct wlan_network cur_network;
 	uint32_t scan_interval;
@@ -687,7 +687,7 @@ struct mlme_ext_priv { //__attribute__((packed))?
 	uint8_t mlmeext_init;
 	struct atomic_t event_seq;
 	uint16_t mgnt_seq;
-	uint8_t cur_channel;
+	uint8_t cur_channel;	//	padapter+1270
 	uint8_t cur_bwmode;
 	uint8_t cur_ch_offset;
 	uint8_t cur_wireless_mode;
@@ -845,7 +845,7 @@ struct _atr_aligned8_ recv_priv {
 	uint16_t rxbuffersize;
 	uint8_t is_signal_dbg;
 	uint8_t signal_strength_dbg;
-	int8_t rssi;
+	int8_t rssi;					// +2932
 	int8_t rxpwdb;
 	uint8_t signal_strength;
 	uint8_t signal_qual;
@@ -1980,7 +1980,7 @@ struct hal_ops {
 struct _atr_aligned4_ _ADAPTER {
 	uint16_t HardwareType;
 	uint16_t interface_type;	//+2
-	uint32_t work_mode;
+	uint32_t work_mode;			//+4
 	struct dvobj_priv *dvobj;	//+8
 	struct mlme_priv mlmepriv; //+12 [1244]
 	struct mlme_ext_priv mlmeextpriv; //+1256 [912]

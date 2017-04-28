@@ -512,13 +512,13 @@ typedef	long long __i64;
 #define IW_QUAL_QUAL_UPDATED	0x01	/* Value was updated since last read */
 #define IW_QUAL_LEVEL_UPDATED	0x02
 #define IW_QUAL_NOISE_UPDATED	0x04
-#define IW_QUAL_ALL_UPDATED	0x07
-#define IW_QUAL_DBM		0x08	/* Level + Noise are dBm */
+#define IW_QUAL_ALL_UPDATED		0x07
+#define IW_QUAL_DBM				0x08	/* Level + Noise are dBm */
 #define IW_QUAL_QUAL_INVALID	0x10	/* Driver doesn't provide value */
 #define IW_QUAL_LEVEL_INVALID	0x20
 #define IW_QUAL_NOISE_INVALID	0x40
-#define IW_QUAL_RCPI		0x80	/* Level + Noise are 802.11k RCPI */
-#define IW_QUAL_ALL_INVALID	0x70
+#define IW_QUAL_RCPI			0x80	/* Level + Noise are 802.11k RCPI */
+#define IW_QUAL_ALL_INVALID		0x70
 
 /* Frequency flags */
 #define IW_FREQ_AUTO		0x00	/* Let the driver decides */
@@ -567,7 +567,7 @@ typedef	long long __i64;
 #define IW_TXPOW_RANGE		0x1000	/* Range of value between min/max */
 
 /* Retry limits and lifetime flags available */
-#define IW_RETRY_ON		0x0000	/* No details... */
+#define IW_RETRY_ON			0x0000	/* No details... */
 #define IW_RETRY_TYPE		0xF000	/* Type of parameter */
 #define IW_RETRY_LIMIT		0x1000	/* Maximum number of retries*/
 #define IW_RETRY_LIFETIME	0x2000	/* Maximum duration of retries in us */
@@ -631,10 +631,10 @@ typedef	long long __i64;
 #define IW_AUTH_WPA_VERSION_WPA2	0x00000004
 
 /* IW_AUTH_PAIRWISE_CIPHER and IW_AUTH_GROUP_CIPHER values (bit field) */
-#define IW_AUTH_CIPHER_NONE	0x00000001
+#define IW_AUTH_CIPHER_NONE		0x00000001
 #define IW_AUTH_CIPHER_WEP40	0x00000002
-#define IW_AUTH_CIPHER_TKIP	0x00000004
-#define IW_AUTH_CIPHER_CCMP	0x00000008
+#define IW_AUTH_CIPHER_TKIP		0x00000004
+#define IW_AUTH_CIPHER_CCMP		0x00000008
 #define IW_AUTH_CIPHER_WEP104	0x00000010
 
 /* IW_AUTH_KEY_MGMT values (bit field) */
@@ -644,7 +644,7 @@ typedef	long long __i64;
 /* IW_AUTH_80211_AUTH_ALG values (bit field) */
 #define IW_AUTH_ALG_OPEN_SYSTEM	0x00000001
 #define IW_AUTH_ALG_SHARED_KEY	0x00000002
-#define IW_AUTH_ALG_LEAP	0x00000004
+#define IW_AUTH_ALG_LEAP		0x00000004
 
 /* IW_AUTH_ROAMING_CONTROL values */
 #define IW_AUTH_ROAMING_ENABLE	0	/* driver/firmware based roaming */
@@ -666,15 +666,15 @@ typedef	long long __i64;
 
 /* IWEVMICHAELMICFAILURE : struct iw_michaelmicfailure ->flags */
 #define IW_MICFAILURE_KEY_ID	0x00000003 /* Key ID 0..3 */
-#define IW_MICFAILURE_GROUP	0x00000004
+#define IW_MICFAILURE_GROUP		0x00000004
 #define IW_MICFAILURE_PAIRWISE	0x00000008
 #define IW_MICFAILURE_STAKEY	0x00000010
-#define IW_MICFAILURE_COUNT	0x00000060 /* 1 or 2 (0 = count not supported)
+#define IW_MICFAILURE_COUNT		0x00000060 /* 1 or 2 (0 = count not supported)
 					    */
 
 /* Bit field values for enc_capa in struct iw_range */
-#define IW_ENC_CAPA_WPA		0x00000001
-#define IW_ENC_CAPA_WPA2	0x00000002
+#define IW_ENC_CAPA_WPA			0x00000001
+#define IW_ENC_CAPA_WPA2		0x00000002
 #define IW_ENC_CAPA_CIPHER_TKIP	0x00000004
 #define IW_ENC_CAPA_CIPHER_CCMP	0x00000008
 
@@ -698,8 +698,8 @@ typedef	long long __i64;
 
 /* Modulations bitmasks */
 #define IW_MODUL_ALL		0x00000000	/* Everything supported */
-#define IW_MODUL_FH		0x00000001	/* Frequency Hopping */
-#define IW_MODUL_DS		0x00000002	/* Original Direct Sequence */
+#define IW_MODUL_FH			0x00000001	/* Frequency Hopping */
+#define IW_MODUL_DS			0x00000002	/* Original Direct Sequence */
 #define IW_MODUL_CCK		0x00000004	/* 802.11b : 5.5 + 11 Mb/s */
 #define IW_MODUL_11B		(IW_MODUL_DS | IW_MODUL_CCK)
 #define IW_MODUL_PBCC		0x00000008	/* TI : 5.5 + 11 + 22 Mb/s */
@@ -714,8 +714,8 @@ typedef	long long __i64;
 #define IW_MODUL_CUSTOM		0x40000000	/* Driver specific */
 
 /* Bitrate flags available */
-#define IW_BITRATE_TYPE		0x00FF	/* Type of value */
-#define IW_BITRATE_UNICAST	0x0001	/* Maximum/Fixed unicast bitrate */
+#define IW_BITRATE_TYPE			0x00FF	/* Type of value */
+#define IW_BITRATE_UNICAST		0x0001	/* Maximum/Fixed unicast bitrate */
 #define IW_BITRATE_BROADCAST	0x0002	/* Fixed broadcast bitrate */
 
 /****************************** TYPES ******************************/
@@ -772,7 +772,7 @@ struct	iw_freq
 struct	iw_quality
 {
 	__u8		qual;		/* link quality (%retries, SNR,
-					   %missed beacons or better...) */
+					   		%missed beacons or better...) */
 	__u8		level;		/* signal level (dBm) */
 	__u8		noise;		/* noise level (dBm) */
 	__u8		updated;	/* Flags to know if updated */
@@ -988,7 +988,7 @@ union	iwreq_data
 	struct iw_param	txpower;	/* default transmit power */
 	struct iw_param	rts;		/* RTS threshold threshold */
 	struct iw_param	frag;		/* Fragmentation threshold */
-	__u32		mode;		/* Operation mode */
+	__u32			mode;		/* Operation mode */
 	struct iw_param	retry;		/* Retry limits & lifetime */
 
 	struct iw_point	encoding;	/* Encoding stuff : tokens */

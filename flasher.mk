@@ -167,7 +167,7 @@ flashimage2p:
 flashwebfs:
 	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
 	-c "rtl8710_flash_auto_erase 1" -c "rtl8710_flash_auto_verify 1" \
-	-c "rtl8710_flash_write $(BIN_DIR)/webpages.espfs 0xd0000" \
+	-c "rtl8710_flash_write $(BIN_DIR)/ 0xd0000" \
 	-c "rtl8710_reboot" -c "reset run" -c shutdown
 
 	

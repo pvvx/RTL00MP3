@@ -103,8 +103,8 @@ struct netif xnetif[NET_IF_NUM]; /* network interface structure */
   * @retval None
   */
 #if CONFIG_WLAN
-extern  int error_flag;
-extern rtw_mode_t wifi_mode;
+extern  char error_flag;
+extern 	unsigned char wifi_mode; // rtw_mode_t
 #endif
 
 int lwip_init_done = 0;
@@ -204,7 +204,7 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 	}
 
 	for (;;) {
-		//printf("\n\r ========DHCP_state:%d============\n\r",DHCP_state);
+		//info_printf("\n\r ========DHCP_state:%d============\n\r",DHCP_state);
 		switch (DHCP_state) {
 		case DHCP_START: {
 #if CONFIG_WLAN

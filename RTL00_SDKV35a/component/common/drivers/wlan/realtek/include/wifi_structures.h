@@ -125,7 +125,7 @@ typedef struct rtw_scan_handler_result {
   * @brief  The structure is used to store the WIFI setting gotten from WIFI driver.
   */
 typedef struct rtw_wifi_setting {
-	rtw_mode_t		mode;
+	rtw_mode_t			mode;
 	unsigned char 		ssid[33];
 	unsigned char		channel;
 	rtw_security_t		security_type;

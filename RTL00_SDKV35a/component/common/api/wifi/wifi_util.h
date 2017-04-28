@@ -32,6 +32,7 @@ int wext_set_mac_address(const char *ifname, char * mac);
 int wext_get_mac_address(const char *ifname, char * mac);
 int wext_enable_powersave(const char *ifname, __u8 lps_mode, __u8 ips_mode);
 int wext_disable_powersave(const char *ifname);
+#define wext_disable_powersave(n) wext_enable_powersave(n, 0, 0)
 int wext_set_tdma_param(const char *ifname, __u8 slot_period, __u8 rfon_period_len_1, __u8 rfon_period_len_2, __u8 rfon_period_len_3);
 int wext_set_lps_dtim(const char *ifname, __u8 lps_dtim);
 int wext_get_lps_dtim(const char *ifname, __u8 *lps_dtim);

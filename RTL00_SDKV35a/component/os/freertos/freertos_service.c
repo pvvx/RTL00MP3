@@ -622,12 +622,14 @@ _timerHandle _freertos_timerCreate( const signed char *pcTimerName,
 	if(xTimerPeriodInTicks == TIMER_MAX_DELAY) {
 		xTimerPeriodInTicks = portMAX_DELAY;
 	}
+//	printf("xTimerCreate: %s, %u, %u, %p\n", pcTimerName, xTimerPeriodInTicks, uxAutoReload, pxCallbackFunction);
 	return xTimerCreate((const char *)pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction);	
 }
 
 u32 _freertos_timerDelete( _timerHandle xTimer, 
 							   osdepTickType xBlockTime )
 {
+//	printf("xTimerDelete: %p\n", xTimer);
 	return (u32)xTimerDelete(xTimer, xBlockTime);	
 }
 

@@ -521,7 +521,7 @@ void dhcps_init(struct netif * pnetif)
 
 	memset(&ip_table, 0, sizeof(struct table));
 	if((dhcps_ip4addr_pool_end | dhcps_ip4addr_pool_start)  == 0) {
-		dhcps_ip4addr_pool_start = 1;
+		dhcps_ip4addr_pool_start = 2;
 		dhcps_ip4addr_pool_end = 255;
 	}
 

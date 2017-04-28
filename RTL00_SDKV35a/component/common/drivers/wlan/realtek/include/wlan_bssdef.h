@@ -617,7 +617,7 @@ typedef struct _WLAN_BSSID_EX
   u8					Reserved[1];		//[0]: IS beacon frame
   u8					bP2pNetwork;
  #else
-  u8					Reserved[2];		//[0]: IS beacon frame
+  u8					Reserved[2];		//[0]: IS beacon frame (padapter+163)
  #endif
   NDIS_802_11_SSID			Ssid;
   u32					Privacy;

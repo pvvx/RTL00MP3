@@ -4,7 +4,16 @@
 #include <platform/platform_stdlib.h>
 #include <wifi/wifi_conf.h>
 #include <wifi/wifi_ind.h>
+#if 1
+#include "drv_types.h" // or #include "wlan_lib.h"
+#else
+#include "wifi_constants.h"
+#include "wifi_structures.h"
+#include "wlan_lib.h" // or #include "drv_types.h"
+#endif
 #include <osdep_service.h>
+
+#define USE_WIFI_ADAPTER 1 // использовать прямое обращение в тело драйвера WiFi
 
 int iw_ioctl(const char * ifname, unsigned long request, struct iwreq * pwrq) {
 	memcpy(pwrq->ifr_name, ifname, 5);
@@ -23,8 +32,35 @@ int iw_ioctl(const char * ifname, unsigned long request, struct iwreq * pwrq) {
 	return ret;
 }
 
+#ifdef USE_WIFI_ADAPTER
+extern Rltk_wlan_t rltk_wlan_info[2]; // in wrapper.h
+LOCAL _adapter * get_padapter(const char *ifname) {
+	if(ifname[4] == '0') {
+		return *(_adapter **)((rltk_wlan_info[0].dev)->priv);
+	} else {
+		return *(_adapter **)((rltk_wlan_info[1].dev)->priv);
+	}
+	return NULL;
+};
+#endif
+
 /* ssid = NULL -> not connected */
 int wext_get_ssid(const char *ifname, __u8 *ssid) {
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad = get_padapter(ifname);
+	rtw_result_t ret = RTW_ERROR;
+	if(pad != NULL && (pad->mlmepriv.fw_state & 0x41) != 0) {
+		int len = pad->mlmepriv.cur_network.network.Ssid.SsidLength;
+		if(len > 32) rtw_memcpy(ssid, pad->mlmepriv.cur_network.network.Ssid.Ssid, 32);
+		else {
+			rtw_memcpy(ssid, &pad->mlmepriv.cur_network.network.Ssid.Ssid, len);
+			ssid[len] = '\0';
+			debug_printf("s=[%s]\n", ssid);
+		}
+		ret = RTW_SUCCESS;
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	iwr.u.essid.pointer = ssid;
@@ -43,6 +79,7 @@ int wext_get_ssid(const char *ifname, __u8 *ssid) {
 		ssid[ret] = '\0';
 	}
 	return ret;
+#endif
 }
 
 int wext_set_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len) {
@@ -164,6 +201,20 @@ int wext_set_passphrase(const char *ifname, const __u8 *passphrase,
 }
 
 int wext_get_passphrase(const char *ifname, __u8 *passphrase) {
+#if USE_WIFI_ADAPTER
+	extern int rtw_wx_get_passphrase(struct net_device *dev, struct iw_request_info *a, union iwreq_data *wrqu, char *extra);
+	struct net_device * pdev = rltk_wlan_info[0].dev;
+	if(ifname[4] != '0')
+		pdev = rltk_wlan_info[1].dev;
+	rtw_result_t ret = RTW_ERROR;
+	if(pdev) {
+		uint16 len[4];
+		ret = rtw_wx_get_passphrase(pdev, 0, &len, passphrase);
+		if(ret == RTW_SUCCESS) passphrase[len[2]] = '\0';
+		debug_printf("pas[%d]-<%s>\n", len[2], passphrase);
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	iwr.u.passphrase.pointer = (void *) passphrase;
@@ -173,6 +224,7 @@ int wext_get_passphrase(const char *ifname, __u8 *passphrase) {
 		passphrase[ret] = '\0';
 	}
 	return ret;
+#endif
 }
 
 #if 0
@@ -198,6 +250,18 @@ int wext_get_mac_address(const char *ifname, char * mac)
 #endif
 
 int wext_enable_powersave(const char *ifname, __u8 ips_mode, __u8 lps_mode) {
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad = get_padapter(ifname);
+	rtw_result_t ret = RTW_ERROR;
+	if(pad) {
+		ret = rtw_pm_set_ips(pad, ips_mode); // 2 режима 1,2 !
+		if(ret == RTW_SUCCESS) {
+			LeaveAllPowerSaveMode(pad);
+			ret = rtw_pm_set_lps(pad, lps_mode);
+		}
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	__u16 pindex = 7;
 	__u8 para[16]; // 7 + (1+1+1) + (1+1+1)
@@ -214,8 +278,9 @@ int wext_enable_powersave(const char *ifname, __u8 ips_mode, __u8 lps_mode) {
 	iwr.u.data.pointer = &para[0];
 	iwr.u.data.length = pindex;
 	return iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr);
+#endif
 }
-
+/*
 int wext_disable_powersave(const char *ifname) {
 	struct iwreq iwr;
 	__u16 pindex = 7;
@@ -234,9 +299,22 @@ int wext_disable_powersave(const char *ifname) {
 	iwr.u.data.length = pindex;
 	return iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr);
 }
+*/
 
 int wext_set_tdma_param(const char *ifname, __u8 slot_period,
 		__u8 rfon_period_len_1, __u8 rfon_period_len_2, __u8 rfon_period_len_3) {
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad = get_padapter(ifname);
+	rtw_result_t ret = RTW_ERROR;
+	if(pad) {
+		ret = rtw_pm_set_tdma_param(pad,
+				slot_period,
+				rfon_period_len_1,
+				rfon_period_len_2,
+				rfon_period_len_3);
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	int ret = -1;
 	__u16 pindex = 7;
@@ -254,9 +332,18 @@ int wext_set_tdma_param(const char *ifname, __u8 slot_period,
 	iwr.u.data.pointer = para;
 	iwr.u.data.length = pindex;
 	return iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr);
+#endif
 }
 
 int wext_set_lps_dtim(const char *ifname, __u8 lps_dtim) {
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad =	get_padapter(ifname);
+	rtw_result_t ret = RTW_ERROR;
+	if(pad) {
+		ret = rtw_pm_set_lps_dtim(pad, lps_dtim);
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	int ret = -1;
 	__u16 pindex = 7;
@@ -274,10 +361,19 @@ int wext_set_lps_dtim(const char *ifname, __u8 lps_dtim) {
 	iwr.u.data.length = pindex;
 	ret = iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr);
 	return ret;
+#endif
 }
 
 int wext_get_lps_dtim(const char *ifname, __u8 *lps_dtim) {
-
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad = get_padapter(ifname);
+	rtw_result_t ret = RTW_ERROR;
+	if(pad) {
+		*lps_dtim = rtw_pm_get_lps_dtim(pad);
+		ret = RTW_SUCCESS;
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	int ret = -1;
 	__u16 pindex = 7;
@@ -303,6 +399,7 @@ int wext_get_lps_dtim(const char *ifname, __u8 *lps_dtim) {
 		ret = -1;
 	}
 	return ret;
+#endif
 }
 
 int wext_set_tos_value(const char *ifname, __u8 *tos_value) {
@@ -416,21 +513,49 @@ int wext_set_mode(const char *ifname, int mode) {
 }
 
 int wext_get_mode(const char *ifname, int *mode) {
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad =	get_padapter(ifname);
+	rtw_result_t ret = RTW_ERROR;
+	if(pad) {
+		uint16 f = pad->mlmepriv.fw_state;
+		if(f & 8) *mode = 2;
+		else if(f & 0x60) *mode = 1;
+		else if(!(f & 0x10)) *mode = 0;
+		else *mode = 3;
+		ret = RTW_SUCCESS;
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	int ret = iw_ioctl(ifname, SIOCGIWMODE, &iwr);
 	if (ret >= 0)
 		*mode = iwr.u.mode;
 	return ret;
+#endif
 }
 
 int wext_set_ap_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len) {
+#ifdef USE_WIFI_ADAPTER
+	struct net_device * pdev = rltk_wlan_info[0].dev;
+	if(ifname[4] != '0')
+		pdev = rltk_wlan_info[1].dev;
+	rtw_result_t ret = RTW_ERROR;
+	if(pdev) {
+		uint16 len[2];
+		len[0] = ssid_len;
+		len[1] = (ssid_len != 0);
+		ret = rtw_wx_set_ap_essid(pdev, 0, &len, ssid);
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	iwr.u.essid.pointer = (void *) ssid;
 	iwr.u.essid.length = ssid_len;
 	iwr.u.essid.flags = (ssid_len != 0);
 	return iw_ioctl(ifname, SIOCSIWPRIVAPESSID, &iwr);
+#endif
 }
 
 int wext_set_country(const char *ifname, rtw_country_code_t country_code) {
@@ -441,12 +566,25 @@ int wext_set_country(const char *ifname, rtw_country_code_t country_code) {
 }
 
 int wext_get_rssi(const char *ifname, int *rssi) {
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad =	get_padapter(ifname);
+	rtw_result_t ret = RTW_ERROR;
+	if(pad) {
+		if(pad->mlmepriv.fw_state & 1) {
+			*rssi = pad->recvpriv.rssi; // +2932
+		}
+		else *rssi = 0;
+		ret = RTW_SUCCESS;
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	int ret = iw_ioctl(ifname, SIOCGIWSENS, &iwr);
 	if (ret >= 0)
 		*rssi = 0 - iwr.u.sens.value;
 	return ret;
+#endif
 }
 
 int wext_set_pscan_channel(const char *ifname,
@@ -483,22 +621,50 @@ int wext_set_pscan_channel(const char *ifname,
 	return ret;
 }
 
+//extern int rtw_wx_set_freq(struct net_device *dev, struct iw_request_info *info, union iwreq_data *wrqu, char *extra);
+
 int wext_set_channel(const char *ifname, __u8 ch) {
+#if 0 //def USE_WIFI_ADAPTER
+	struct net_device * pdev = rltk_wlan_info[0].dev;
+	if(ifname[4] != '0')
+		pdev = rltk_wlan_info[1].dev;
+	rtw_result_t ret = RTW_ERROR;
+	if(pdev) {
+		ret = rtw_wx_set_freq(pdev, ch, NULL, NULL);
+	}
+	return ret;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	iwr.u.freq.m = 0;
 	iwr.u.freq.e = 0;
 	iwr.u.freq.i = ch;
 	return iw_ioctl(ifname, SIOCSIWFREQ, &iwr);
+#endif
 }
 
 int wext_get_channel(const char *ifname, __u8 *ch) {
+#ifdef USE_WIFI_ADAPTER
+		_adapter * pad = get_padapter(ifname);
+		rtw_result_t ret = RTW_ERROR;
+		if(pad) {
+			if(pad->mlmepriv.fw_state & 1) {
+				*ch = pad->mlmepriv.cur_network.network.Configuration.DSConfig;// .Reserved[1]; //.PhyInfo.Optimum_antenna; //
+			}
+			else {
+				*ch = pad->mlmeextpriv.cur_channel; //
+			}
+			ret = RTW_SUCCESS;
+		}
+		return ret;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	int ret = iw_ioctl(ifname, SIOCGIWFREQ, &iwr);
 	if (ret >= 0)
 		*ch = iwr.u.freq.i;
 	return ret;
+#endif
 }
 
 int wext_register_multicast_address(const char *ifname, rtw_mac_t *mac) {
