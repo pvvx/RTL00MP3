@@ -8,6 +8,7 @@
 #ifndef _WIFI_API_H_
 #define _WIFI_API_H_
 #include "wifi_constants.h"
+#include "queue.h"
 
 #define ip4_addr1(ipaddr) (((uint8_t*)(ipaddr))[0])
 #define ip4_addr2(ipaddr) (((uint8_t*)(ipaddr))[1])
@@ -167,6 +168,8 @@ unsigned char * idx_security_to_str(unsigned char idx);
 
 #define SCAN_CHANNELS 14
 #define	MAX_AP_SIZE 32
+
+extern QueueHandle_t xQueueWebSrv;
 
 typedef struct web_scan_handler{
 	TimerHandle_t timer;

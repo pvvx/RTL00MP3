@@ -4,7 +4,6 @@
  *  Created on: 01/11/2017
  *      Author: pvvx
  */
-#include "user_config.h"
 #include <platform_opts.h>
 #include "rtl8195a.h"
 #include "drv_types.h"
