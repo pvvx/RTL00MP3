@@ -506,10 +506,37 @@ int wext_get_ap_info(const char *ifname, rtw_bss_info_t * ap_info,
 #endif
 
 int wext_set_mode(const char *ifname, int mode) {
+#ifdef USE_WIFI_ADAPTER
+	_adapter * pad =	get_padapter(ifname);
+	int nwm;
+	if(rtw_pwr_wakeup(pad) && pad->hw_init_completed) {
+		switch(mode) {
+		case IW_MODE_AUTO:
+			nwm = Ndis802_11AutoUnknown;
+			break;
+		case IW_MODE_MASTER:
+			nwm = Ndis802_11APMode;
+			break;
+		case IW_MODE_INFRA:
+			nwm = Ndis802_11Infrastructure;
+			break;
+		case IW_MODE_ADHOC:
+			nwm = Ndis802_11IBSS;
+			break;
+        default:
+            return RTW_NORESOURCE;
+		}
+        if(rtw_set_802_11_infrastructure_mode(pad, nwm)) {
+          return set_opmode(pad, nwm);
+        }
+	}
+    return RTW_ERROR;
+#else
 	struct iwreq iwr;
 	memset(&iwr, 0, sizeof(iwr));
 	iwr.u.mode = mode;
 	return iw_ioctl(ifname, SIOCSIWMODE, &iwr);
+#endif
 }
 
 int wext_get_mode(const char *ifname, int *mode) {
@@ -624,7 +651,7 @@ int wext_set_pscan_channel(const char *ifname,
 //extern int rtw_wx_set_freq(struct net_device *dev, struct iw_request_info *info, union iwreq_data *wrqu, char *extra);
 
 int wext_set_channel(const char *ifname, __u8 ch) {
-#if 0 //def USE_WIFI_ADAPTER
+#if 0 //def USE_WIFI_ADAPTER // link: undefined reference to `rtw_wx_set_freq' -> rtw_wx_set_freq.isra.10
 	struct net_device * pdev = rltk_wlan_info[0].dev;
 	if(ifname[4] != '0')
 		pdev = rltk_wlan_info[1].dev;
@@ -649,10 +676,10 @@ int wext_get_channel(const char *ifname, __u8 *ch) {
 		rtw_result_t ret = RTW_ERROR;
 		if(pad) {
 			if(pad->mlmepriv.fw_state & 1) {
-				*ch = pad->mlmepriv.cur_network.network.Configuration.DSConfig;// .Reserved[1]; //.PhyInfo.Optimum_antenna; //
+				*ch = pad->mlmepriv.cur_network.network.Configuration.DSConfig;
 			}
 			else {
-				*ch = pad->mlmeextpriv.cur_channel; //
+				*ch = pad->mlmeextpriv.cur_channel;
 			}
 			ret = RTW_SUCCESS;
 		}

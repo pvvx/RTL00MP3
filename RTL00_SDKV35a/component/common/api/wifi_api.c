@@ -554,7 +554,7 @@ LOCAL int _wifi_on(rtw_mode_t mode) {
 	// set wifi mib
 	wext_set_adaptivity(wifi_cfg.adaptivity & 3); // rtw_adaptivity_mode_t
 
-	ret = rltk_wlan_init(WLAN0_IDX, mode);
+	ret = rltk_wlan_init(WLAN0_IDX, mode); // rtw_mode_t
 
 	netif_set_up(&xnetif[0]);
 	if (ret < 0) return ret;

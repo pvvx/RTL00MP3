@@ -333,7 +333,7 @@ LOCAL void print_on(int argc, char *argv[])
 }
 // (!) размещается в специальном сегменте '.mon.tab*' (см. *.ld файл)
 MON_RAM_TAB_SECTION COMMAND_TABLE console_commands[] = {
-		{"PR", 1, print_on, "<1/0>: Printf on/off"},	// Help
+		{"PR", 1, print_on, "=<1/0>: Printf on/off"},	// Help
 		{"?", 0, console_help, ": This Help"}	// Help
 //		{"HELP", 0, console_help, ": Help"}	// Help
 };
