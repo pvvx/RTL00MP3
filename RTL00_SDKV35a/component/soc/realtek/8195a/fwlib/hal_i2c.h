@@ -17,9 +17,9 @@
 // I2C SAL User Configuration Flags
 
 // I2C SAL operation types
-#define I2C_POLL_OP_TYPE            1
-#define I2C_INTR_OP_TYPE            1
-#define I2C_DMA_OP_TYPE             1
+#define I2C_POLL_OP_TYPE            1 //1
+#define I2C_INTR_OP_TYPE            1 //1
+#define I2C_DMA_OP_TYPE             1 //1
 
 // I2C supports user register address
 #define I2C_USER_REG_ADDR           1       //I2C User specific register address by using 

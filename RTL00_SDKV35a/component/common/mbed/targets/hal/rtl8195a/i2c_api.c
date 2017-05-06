@@ -88,7 +88,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     i2c_sel = (uint32_t)pinmap_merge(i2c_sda, i2c_scl);
     i2c_idx = RTL_GET_PERI_IDX(i2c_sel);
     if (unlikely(i2c_idx == NC)) {
-        DBG_8195A("%s: Cannot find matched UART\n", __FUNCTION__);
+        DBG_8195A("%s: Cannot find matched port i2c\n", __FUNCTION__);
         return;
     }
     
@@ -184,7 +184,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
     pSalI2CMngtAdpt->InnerTimeOut   = pSalI2CHND->TimeOut;
 
-
     /* Deinit I2C first */
     //i2c_reset(obj);
 
@@ -200,8 +199,6 @@ void i2c_frequency(i2c_t *obj, int hz) {
     
     uint16_t i2c_default_clk    = (uint16_t) pSalI2CHND->I2CClk;
     uint16_t i2c_user_clk       = (uint16_t) (hz/1000);
-
-    
     
     if (i2c_default_clk != i2c_user_clk) {
         /* Deinit I2C first */

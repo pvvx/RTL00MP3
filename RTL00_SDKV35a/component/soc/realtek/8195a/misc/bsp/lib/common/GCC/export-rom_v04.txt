@@ -240,6 +240,7 @@ SECTIONS
 	RtkI2CDeInit = 0xbe4d;
 	RtkI2CSendUserAddr = 0xbee5;
 	RtkI2CSend = 0xc07d;
+	_RtkI2CReceive = 0x0c6dd;
 	RtkI2CLoadDefault = 0xce51;
 	RtkSalI2COpInit = 0xcf21;
 	HalI2SWrite32 = 0xcf65;
