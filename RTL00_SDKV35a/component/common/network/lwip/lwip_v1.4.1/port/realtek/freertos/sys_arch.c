@@ -455,9 +455,6 @@ int result;
 	   {
 		   void *stack_addr = tcm_heap_malloc(stacksize * sizeof(int));
 
-		   if(stack_addr == NULL){
-		   }
-
 		   result = xTaskGenericCreate(
 				   thread,
 				   ( signed portCHAR * ) name,

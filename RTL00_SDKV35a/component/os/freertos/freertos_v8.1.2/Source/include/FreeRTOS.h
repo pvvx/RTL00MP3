@@ -90,8 +90,26 @@
 extern "C" {
 #endif
 
+#ifndef _PLATFORM_AUTOCONFIG_H_
+#include "platform_autoconf.h"
+#endif
+
 /* Application specific configuration options. */
 #include "FreeRTOSConfig.h"
+
+//-----------
+#if defined(CONFIG_PLATFORM_8195A)
+	#ifndef CONFIG_USE_TCM_HEAP
+		#define CONFIG_USE_TCM_HEAP
+	#endif
+	#ifndef configUSE_STACK_TCM_HEAP
+		#define configUSE_STACK_TCM_HEAP 1
+	#endif
+#else
+	#undef configUSE_STACK_TCM_HEAP
+	#define configUSE_STACK_TCM_HEAP 0
+#endif
+//-----------
 
 /* Basic FreeRTOS definitions. */
 #include "projdefs.h"

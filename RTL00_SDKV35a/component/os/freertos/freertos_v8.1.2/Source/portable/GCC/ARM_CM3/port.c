@@ -724,12 +724,18 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 #endif /* configASSERT_DEFINED */
 
 /*-----------------------------------------------------------*/
+#if configUSE_IDLE_HOOK
 void vApplicationIdleHook( void )
 {
 	/* Use the idle task to place the CPU into a low power mode.  Greater power
 	saving could be achieved by not including any demo tasks that never block. */
+#ifdef CONFIG_WDG_ON_IDLE
+	WDGRefresh();
+#endif
 }
+#endif
 
+#if configCHECK_FOR_STACK_OVERFLOW
 #include "diag.h"
 void vApplicationStackOverflowHook( xTaskHandle pxTask, signed char *pcTaskName )
 {
@@ -741,6 +747,6 @@ void vApplicationStackOverflowHook( xTaskHandle pxTask, signed char *pcTaskName 
 	DiagPrintf("\n[%s] STACK OVERFLOW - TaskName(%s)\n", __FUNCTION__, pcTaskName);
 	for( ;; );
 }
-
+#endif
 /*-----------------------------------------------------------*/
 

@@ -55,8 +55,8 @@ void tcm_heap_init(void)
 
 void tcm_heap_dump(void)
 {
-	if(!g_heap_inited) tcm_heap_init();
 #if CONFIG_DEBUG_LOG > 1
+	if(!g_heap_inited) tcm_heap_init();
 	MemChunk *chunk, *prev;
 	struct Heap* h = &g_tcm_heap;
 	int count = 0;
