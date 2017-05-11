@@ -443,6 +443,7 @@ void sys_mutex_unlock(sys_mutex_t *mutex)
   thread() function. The id of the new thread is returned. Both the id and
   the priority are system dependent.
 */
+#if 0
 sys_thread_t sys_thread_new_tcm(const char *name, lwip_thread_fn thread , void *arg, int stacksize, int prio)
 {
 xTaskHandle CreatedTask;
@@ -488,6 +489,7 @@ int result;
       return NULL;
    }
 }
+#endif
 /*-----------------------------------------------------------------------------------*/
 // TODO
 /*-----------------------------------------------------------------------------------*/

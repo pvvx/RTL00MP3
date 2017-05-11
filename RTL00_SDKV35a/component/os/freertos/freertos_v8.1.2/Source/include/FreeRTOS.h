@@ -100,10 +100,10 @@ extern "C" {
 //-----------
 #if defined(CONFIG_PLATFORM_8195A)
 	#ifndef CONFIG_USE_TCM_HEAP
-		#define CONFIG_USE_TCM_HEAP
+		#define CONFIG_USE_TCM_HEAP 1
 	#endif
 	#ifndef configUSE_STACK_TCM_HEAP
-		#define configUSE_STACK_TCM_HEAP 1
+		#define configUSE_STACK_TCM_HEAP 5 // min priority use tcm
 	#endif
 #else
 	#undef configUSE_STACK_TCM_HEAP

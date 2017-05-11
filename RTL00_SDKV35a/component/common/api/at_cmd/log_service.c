@@ -438,7 +438,7 @@ void start_log_service(void)
 	xTaskHandle CreatedTask;
 	int result;
 
-#if CONFIG_USE_TCM_HEAP
+#if 0 // CONFIG_USE_TCM_HEAP
 	extern void *tcm_heap_malloc(int size);
 	void *stack_addr = tcm_heap_malloc(STACKSIZE * sizeof(int));
 

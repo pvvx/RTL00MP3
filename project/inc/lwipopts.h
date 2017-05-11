@@ -163,7 +163,10 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* ---------- ARP options ----------- */
 #define LWIP_ARP		1
-
+/**
+ * LWIP_AUTOIP==1: Enable AUTOIP module.
+ */
+#define LWIP_AUTOIP                   0 //Realtek modified (0->1)
 /* ---------- DHCP options ---------- */
 /* Define LWIP_DHCP to 1 if you want DHCP configuration of
    interfaces. DHCP is not implemented in lwIP 0.5.1, however, so

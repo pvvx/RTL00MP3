@@ -724,10 +724,14 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB ) PRIVILEGED_FUNCTION;
 			{
 			StackType_t *pxStack = puxStackBuffer;
 #if configUSE_STACK_TCM_HEAP
-				if (pxStack == NULL) {
+				if(pxStack == NULL 
+#if 0 //  configUSE_STACK_TCM_HEAP > 1
+					&& uxPriority >= configUSE_STACK_TCM_HEAP
+#endif
+				)	
+
 					pxStack = ( StackType_t * ) tcm_heap_malloc((( size_t ) usStackDepth) * sizeof(StackType_t));
-					if(pxStack == NULL) pxStack = ( StackType_t * ) pvPortMalloc((( size_t ) usStackDepth) * sizeof(StackType_t));
-				}
+ 				if(pxStack == NULL) pxStack = ( StackType_t * ) pvPortMalloc((( size_t ) usStackDepth) * sizeof(StackType_t));
 #else
 				/* Allocate space for the stack used by the task being created. */
 				pxStack = ( StackType_t * ) pvPortMalloc( ( ( ( size_t ) usStackDepth ) * sizeof( StackType_t ) ) ); /*lint !e961 MISRA exception as the casts are only redundant for some ports. */
