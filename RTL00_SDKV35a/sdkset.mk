@@ -1,34 +1,45 @@
+#=============================================
+# USER CONFIG (in project.mk)
+#=============================================
 #USE_AT = 1
 #USE_FATFS = 1
 #USE_SDIOH = 1
 #USE_POLARSSL = 1
 #USE_P2P_WPS = 1
-ifndef USE_AT
-USE_NEWCONSOLE = 1
-USE_WIFI_API = 1
-endif
-USE_MBED = 1
-
+#ifndef USE_AT
+#USE_NEWCONSOLE = 1
+#USE_WIFI_API = 1
+#endif
+#USE_MBED = 1
+#USE_GCC_LIB = 1
 #RTOSDIR=freertos_v8.1.2
-RTOSDIR=freertos_v9.0.0
-LWIPDIR=lwip_v1.4.1
-
+#RTOSDIR=freertos_v9.0.0
+#LWIPDIR=lwip_v1.4.1
+# -------------------------------------------------------------------
 # FLAGS
 # -------------------------------------------------------------------
 CFLAGS = -DM3 -DCONFIG_PLATFORM_8195A -DGCC_ARMCM3 -DARDUINO_SDK -DF_CPU=166666666L -DNDEBUG
 CFLAGS += -mcpu=cortex-m3 -mthumb -g2 -Os -std=gnu99 -Wall -Werror
 CFLAGS += -fno-common -fmessage-length=0 -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums -fsigned-char 
 CFLAGS += -w -Wno-pointer-sign    
+ifdef USE_GCC_LIB 
+LFLAGS = -mcpu=cortex-m3 -mthumb -g -Os -nostartfiles --specs=nano.specs
+else
 LFLAGS = -mcpu=cortex-m3 -mthumb -g -Os -nostartfiles -nostdlib
-#--specs=nano.specs
+endif
 LFLAGS += -Wl,--gc-sections -Wl,--cref -Wl,--entry=Reset_Handler -Wl,--no-enum-size-warning -Wl,--no-wchar-size-warning -Wl,-nostdlib
 
 # LIBS
 # -------------------------------------------------------------------
 LIBS =
+ifdef USE_GCC_LIB 
+all: LIBS +=_platform_new _wlan _p2p _wps _websocket _sdcard _xmodem _mdns gcc m c nosys 
+mp: LIBS +=_platform_new _wlan_mp _wps _p2p _websocket _sdcard _xmodem _mdns gcc m c nosys 
+else
 all: LIBS +=_platform_new _wlan _p2p _wps _websocket _sdcard _xmodem _mdns
-# m c nosys gcc
 mp: LIBS +=_platform_new _wlan_mp _wps _p2p _websocket _sdcard _xmodem _mdns
+endif
+# m c nosys gcc
 PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
 LDFILE = rlx8195A-symbol-v04-img2.ld
 BOOTS = sdk/component/soc/realtek/8195a/misc/bsp/image
@@ -370,7 +381,9 @@ SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_libglos
 SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_eabi_cast_ram.c
 SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/rtl_math_ram.c
 #if +- nostdlib..
+ifndef USE_GCC_LIB 
 SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/ram_pvvx_libc.c 
+endif
 #if c_printf() float
 SRC_C += sdk/component/soc/realtek/8195a/misc/rtl_std_lib/lib_rtlstd/c_stdio.c
 # -------------------------------------------------------------------
@@ -423,34 +436,3 @@ endif
 #ADD_SRC_C += sdk/component/common/example/mdns/example_mdns.c
 #ADD_SRC_C += sdk/component/common/example/socket_select/example_socket_select.c
 #ADD_SRC_C += sdk/component/common/example/xml/example_xml.c
-
-#=============================================
-# PROGECT
-#=============================================
-#user main
-ADD_SRC_C += project/src/user/main.c
-# components
-ADD_SRC_C += project/src/user/wifi_console.c
-ADD_SRC_C += project/src/user/atcmd_user.c
-ADD_SRC_C += project/src/user/spiram_fifo.c
-
-#lib mad
-ADD_SRC_C += project/src/mad/mad_version.c
-ADD_SRC_C += project/src/mad/mpg12/layer12.c
-ADD_SRC_C += project/src/mad/frame.c
-ADD_SRC_C += project/src/mad/layer3.c
-ADD_SRC_C += project/src/mad/align.c
-ADD_SRC_C += project/src/mad/decoder.c
-ADD_SRC_C += project/src/mad/huffman.c
-ADD_SRC_C += project/src/mad/fixed.c
-ADD_SRC_C += project/src/mad/bit.c
-ADD_SRC_C += project/src/mad/synth.c
-ADD_SRC_C += project/src/mad/timer.c
-ADD_SRC_C += project/src/mad/stream.c
-
-#driver
-ADD_SRC_C += project/src/driver/i2s_freertos.c
-
-#include
-INCLUDES += project/inc/mad
-#=============================================

@@ -1,0 +1,11 @@
+#
+# J-LINK GDB SERVER initialization
+#
+source -v flasher/gdb_flasher.jlink
+InitJlink
+load build/obj/build.axf
+SetBootCall4
+monitor reset
+monitor go
+quit
+

@@ -1,6 +1,6 @@
-
-include sdkset.mk
-include paths.mk
+include userset.mk
+include $(SDK_PATH)paths.mk
+include project.mk
 
 INCFLAGS = $(patsubst %,-I%,$(patsubst sdk/%,$(SDK_PATH)%,$(INCLUDES)))
 

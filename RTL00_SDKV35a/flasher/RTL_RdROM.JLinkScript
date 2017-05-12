@@ -1,0 +1,11 @@
+r0
+trst0
+r1
+trst1
+h
+r
+savebin bios-rom.bin 0x00000000 0x100000
+w4 0x40000210,0x211157
+r
+g
+q

@@ -534,10 +534,3 @@ int __aeabi_fcmpgt(float a, float b)
 {
   return __rtl_fcmpgt_v1_00(a, b);
 }
-
-
-
-
-
-
-
