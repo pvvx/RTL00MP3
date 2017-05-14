@@ -85,6 +85,7 @@ extern uint32_t SystemCoreClock;
  * See http://www.freertos.org/a00110.html.
  *----------------------------------------------------------*/
 
+#define configUSE_STACK_TCM_HEAP		1 // RTL871xAx/RTL8195Ax Stack priority used TCM HEAP
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				1
 #define configUSE_TICK_HOOK				0
@@ -116,6 +117,7 @@ extern uint32_t SystemCoreClock;
 #define configQUEUE_REGISTRY_SIZE		0
 #define configGENERATE_RUN_TIME_STATS	1
 #if configGENERATE_RUN_TIME_STATS
+#define configUSE_STATS_FORMATTING_FUNCTIONS 1
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() //( ulHighFrequencyTimerTicks = 0UL )
 #define portGET_RUN_TIME_COUNTER_VALUE() xTickCount //ulHighFrequencyTimerTicks
 #undef	configUSE_TRACE_FACILITY

@@ -530,7 +530,14 @@ static void prvResetNextTaskUnblockTime( void );
 
 /*-----------------------------------------------------------*/
 
-BaseType_t xTaskGenericCreate( TaskFunction_t pxTaskCode, const char * const pcName, const uint16_t usStackDepth, void * const pvParameters, UBaseType_t uxPriority, TaskHandle_t * const pxCreatedTask, StackType_t * const puxStackBuffer, const MemoryRegion_t * const xRegions ) /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
+BaseType_t xTaskGenericCreate( TaskFunction_t pxTaskCode, 
+								const char * const pcName, 
+								const uint16_t usStackDepth, 
+								void * const pvParameters, 
+								UBaseType_t uxPriority, 
+								TaskHandle_t * const pxCreatedTask, 
+								StackType_t * const puxStackBuffer, 
+								const MemoryRegion_t * const xRegions ) /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
 {
 BaseType_t xReturn;
 TCB_t * pxNewTCB;
@@ -1704,11 +1711,11 @@ TickType_t xTaskGetTickCount( void )
 TickType_t xTicks;
 
 	/* Critical section required if running on a 16 bit processor. */
-	taskENTER_CRITICAL();
+//	taskENTER_CRITICAL();
 	{
 		xTicks = xTickCount;
 	}
-	taskEXIT_CRITICAL();
+//	taskEXIT_CRITICAL();
 
 	return xTicks;
 }
@@ -2753,9 +2760,6 @@ static portTASK_FUNCTION( prvIdleTask, pvParameters )
 			{
 				mtCOVERAGE_TEST_MARKER();
 			}
-#ifdef CONFIG_WDG_ON_IDLE
-			WDGRefresh();
-#endif
 		}
 		#endif /* configUSE_TICKLESS_IDLE */
 	}
@@ -3019,7 +3023,6 @@ static void prvAddCurrentTaskToDelayedList( const TickType_t xTimeToWake )
 	}
 }
 /*-----------------------------------------------------------*/
-
 static TCB_t *prvAllocateTCBAndStack( const uint16_t usStackDepth, StackType_t * const puxStackBuffer )
 {
 TCB_t *pxNewTCB;
@@ -3033,12 +3036,12 @@ TCB_t *pxNewTCB;
 		/* Allocate space for the stack used by the task being created.
 		The base of the stack memory stored in the TCB so the task can
 		be deleted later if required. */
-//pvvx
-#if CONFIG_USE_TCM_HEAP
+#if configUSE_STACK_TCM_HEAP
 		if(puxStackBuffer == NULL) {
-			pxNewTCB->pxStack = ( StackType_t * ) tcm_heap_malloc((( size_t ) puxStackBuffer) * sizeof(StackType_t));
-			if(pxNewTCB->pxStack == NULL) pxNewTCB->pxStack = ( StackType_t * ) pvPortMalloc((( size_t ) puxStackBuffer) * sizeof(StackType_t));
+			pxNewTCB->pxStack = ( StackType_t * ) tcm_heap_malloc((( size_t ) usStackDepth) * sizeof(StackType_t));
+			if(pxNewTCB->pxStack == NULL) pxNewTCB->pxStack = ( StackType_t * ) pvPortMalloc((( size_t ) usStackDepth) * sizeof(StackType_t));
 		}
+		else pxNewTCB->pxStack = puxStackBuffer;
 #else
 		pxNewTCB->pxStack = ( StackType_t * ) pvPortMallocAligned( ( ( ( size_t ) usStackDepth ) * sizeof( StackType_t ) ), puxStackBuffer ); /*lint !e961 MISRA exception as the casts are only redundant for some ports. */
 #endif

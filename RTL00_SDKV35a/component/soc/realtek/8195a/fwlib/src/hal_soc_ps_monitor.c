@@ -2630,14 +2630,14 @@ SoCPWRIdleTaskHandleTest(
             DiagPrintf("0x2009F408 : 0x%x\n", HAL_READ32(0x2009F400,8));
             DiagPrintf("\n");
             
-            HAL_WRITE32(0x40000000,0x330,0x55559555);//0x55552a2a
+            HAL_WRITE32(PERI_ON_BASE,0x330,0x55559555);//0x55552a2a
             //slp pg GPIOD GPIOE
-            HAL_WRITE32(0x40000000,0x334,0x55555555);
-            HAL_WRITE32(0x40000000,0x338,0x05555555);
-            HAL_WRITE32(0x40000000,0x33c,0x55555555);
-            HAL_WRITE32(0x40000000,0x340,0x55555555);
-            HAL_WRITE32(0x40000000,0x344,0x55555555);
-            HAL_WRITE32(0x40000000,0x320,0x0);
+            HAL_WRITE32(PERI_ON_BASE,0x334,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x338,0x05555555);
+            HAL_WRITE32(PERI_ON_BASE,0x33c,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x340,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x344,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x320,0x0);
 
             HAL_WRITE32(0x20080000, 0, (HAL_READ32(0x20080000,0)+1));
             HAL_WRITE32(0x20080000, 4, (HAL_READ32(0x20080000,4)+1));
@@ -2648,22 +2648,22 @@ SoCPWRIdleTaskHandleTest(
         }
     }
     //mem test
-    if (HAL_READ8(0x40000000,0xf1) == 0xaa) {
+    if (HAL_READ8(SYSTEM_CTRL_BASE,0xf1) == 0xaa) {
 
         CMDTemp[0] = 8;
         SOCPSTestApp((VOID*)CMDTemp);
-        Rtemp = HAL_READ32(0x40080000,0x824);
+        Rtemp = HAL_READ32(WIFI_REG_BASE,0x824);
         Rtemp2 = Rtemp;
         Rtemp2 = ((Rtemp2 & 0x807fffff) | 0x80000000);
-        HAL_WRITE32(0x40080000,0x824,Rtemp&0x7fffffff);
-        HAL_WRITE32(0x40080000,0x824,Rtemp2);
-        HAL_WRITE32(0x40080000,0x824,(Rtemp|0x80000000));
-        Rtemp1 = HAL_READ32(0x40080000,0x820)&BIT8;
+        HAL_WRITE32(WIFI_REG_BASE,0x824,Rtemp&0x7fffffff);
+        HAL_WRITE32(WIFI_REG_BASE,0x824,Rtemp2);
+        HAL_WRITE32(WIFI_REG_BASE,0x824,(Rtemp|0x80000000));
+        Rtemp1 = HAL_READ32(WIFI_REG_BASE,0x820)&BIT8;
         if (Rtemp1) {
-            Rtemp = HAL_READ32(0x40080000,0x8b8)&0xfffff;
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x8b8)&0xfffff;
         }
         else {
-            Rtemp = HAL_READ32(0x40080000,0x8a0)&0xfffff;
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x8a0)&0xfffff;
         }
         if(Rtemp== 0x00045678){
             Chktemp = 1;
@@ -2673,16 +2673,16 @@ SoCPWRIdleTaskHandleTest(
             &SoCPSMEMTestChk(0x1FFF4000,0x5000,0x12345678); 
 
         if (Chktemp) {
-            HAL_WRITE32(0x40080000,0x4,(HAL_READ32(0x40080000,0x4)&0xFFFFFFF0));
-            HAL_WRITE32(0x40000000,0xfc,(HAL_READ32(0x40000000,0xfc)+1));
-            DiagPrintf("run %d times\n", HAL_READ32(0x40000000,0xfc));
+            HAL_WRITE32(WIFI_REG_BASE,0x4,(HAL_READ32(WIFI_REG_BASE,0x4)&0xFFFFFFF0));
+            HAL_WRITE32(SYSTEM_CTRL_BASE,0xfc,(HAL_READ32(SYSTEM_CTRL_BASE,0xfc)+1));
+            DiagPrintf("run %d times\n", HAL_READ32(SYSTEM_CTRL_BASE,0xfc));
             CMDTemp[0] = 1;
             CMDTemp[1] = 5;
             CMDTemp[2] = 0xff;
             SOCPSTestApp((VOID*)CMDTemp);
         }
         else {
-            HAL_WRITE32(0x40000000,0xf0,0);
+            HAL_WRITE32(SYSTEM_CTRL_BASE,0xf0,0);
         }      
         
     }
@@ -2973,14 +2973,14 @@ SOCPSTestApp(
         
         case 0:
             DiagPrintf("SoC PWR Init wlan\n");
-            Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,0x214)|BIT16;
-            HAL_WRITE32(SYSTEM_CTRL_BASE,0x214,Rtemp);
+            Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,REG_SOC_HCI_COM_FUNC_EN)|BIT_SOC_HCI_WL_MACON_EN;
+            HAL_WRITE32(SYSTEM_CTRL_BASE,REG_SOC_HCI_COM_FUNC_EN,Rtemp);
 
-            Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,0x244)|BIT0;
-            HAL_WRITE32(SYSTEM_CTRL_BASE,0x244,Rtemp);
+            Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,REG_PESOC_COM_CLK_CTRL1)|BIT_SOC_ACTCK_WL_EN;
+            HAL_WRITE32(SYSTEM_CTRL_BASE,REG_PESOC_COM_CLK_CTRL1,Rtemp);
 
-            Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,0x210)|BIT2;
-            HAL_WRITE32(SYSTEM_CTRL_BASE,0x210,Rtemp);
+            Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,REG_SOC_FUNC_EN)|BIT_SOC_LXBUS_EN;
+            HAL_WRITE32(SYSTEM_CTRL_BASE,REG_SOC_FUNC_EN,Rtemp);
 
             HalDelayUs(100);
             
@@ -2989,10 +2989,10 @@ SOCPSTestApp(
             #if 0
             DiagPrintf("SoC PWR debug setting\n");
             Rtemp = 0;
-            HAL_WRITE32(SYSTEM_CTRL_BASE,0x33c,Rtemp);
+            HAL_WRITE32(SYSTEM_CTRL_BASE,REG_GPIO_PULL_CTRL3,Rtemp);
 
             Rtemp = 0;
-            HAL_WRITE32(SYSTEM_CTRL_BASE,0x334,Rtemp);
+            HAL_WRITE32(SYSTEM_CTRL_BASE,REG_GPIO_PULL_CTRL1,Rtemp);
             
             #if 0
             //en debug
@@ -3027,8 +3027,8 @@ SOCPSTestApp(
             //HAL_WRITE32(0x40001000,0x4,0x4000000);
 
             //SIC EN
-            //HAL_WRITE32(0x40000000,0x8,0x81000010);
-            //HAL_WRITE32(0x40000000,0xA4,0x00000001);
+            //HAL_WRITE32(SYSTEM_CTRL_BASE,0x8,0x81000010);
+            //HAL_WRITE32(SYSTEM_CTRL_BASE,0xA4,0x00000001);
             
             //Wait for LogUart print out
             while(1) { 
@@ -3040,14 +3040,14 @@ SOCPSTestApp(
             
             #if 0
 
-            HAL_WRITE32(0x40000000,0x330,0x55559555);//0x55552a2a
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL0,0x55559555);//0x55552a2a
             //slp pg GPIOD GPIOE
-            HAL_WRITE32(0x40000000,0x334,0x55555555);
-            HAL_WRITE32(0x40000000,0x338,0x05555555);
-            HAL_WRITE32(0x40000000,0x33c,0x55555555);
-            HAL_WRITE32(0x40000000,0x340,0x55555555);
-            HAL_WRITE32(0x40000000,0x344,0x55555555);
-            HAL_WRITE32(0x40000000,0x320,0x0);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL1,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL2,0x05555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL3,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL4,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL5,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_SHTDN_CTRL,0x0);
             #endif
             
             ChangeSoCPwrState(TestParameter[1], TestParameter[2]);
@@ -3062,27 +3062,27 @@ SOCPSTestApp(
         case 2:
             #if 1
 
-            HAL_WRITE32(0x40000000,0x320,0x7ff);
-            HAL_WRITE32(0x40000000,0x330,0x5565A555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_SHTDN_CTRL,0x7ff);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL0,0x5565A555);
             //slp pg GPIOD GPIOE
-            HAL_WRITE32(0x40000000,0x334,0x55555555);
-            HAL_WRITE32(0x40000000,0x338,0x05555555);
-            HAL_WRITE32(0x40000000,0x33c,0x55555555);
-            HAL_WRITE32(0x40000000,0x340,0x55555555);
-            HAL_WRITE32(0x40000000,0x344,0x55555555);
-            HAL_WRITE32(0x40000000,0x348,0x55555555);
-            HAL_WRITE32(0x40000000,0x320,0x0);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL1,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL2,0x05555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL3,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL4,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL5,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_PULL_CTRL6,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,REG_GPIO_SHTDN_CTRL,0x0);
             
-            HAL_WRITE32(0x40000000,0x8,0x80000011);
+            HAL_WRITE32(SYSTEM_CTRL_BASE,REG_SYS_FUNC_EN,0x80000011);
             #endif
-            HAL_WRITE32(SYSTEM_CTRL_BASE, 0X120, TestParameter[1]);
-            HAL_WRITE32(SYSTEM_CTRL_BASE, 0X124, TestParameter[2]);
+            HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_OPTION, TestParameter[1]);
+            HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_OPTION_EXT, TestParameter[2]);
 
             if (TestParameter[4] == 0xff) {
                 //SIC EN
-                HAL_WRITE32(0x40000000,0x320,0x4);
-                HAL_WRITE32(0x40000000,0x8,0xC1000010);
-                HAL_WRITE32(0x40000000,0xA4,0x00000001);
+                HAL_WRITE32(PERI_ON_BASE,REG_GPIO_SHTDN_CTRL,0x4);
+                HAL_WRITE32(SYSTEM_CTRL_BASE,REG_SYS_FUNC_EN,0xC1000010);
+                HAL_WRITE32(SYSTEM_CTRL_BASE,REG_SYS_PINMUX_CTRL,0x00000001);
             }
             
             HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, TestParameter[3]);
@@ -3097,8 +3097,8 @@ SOCPSTestApp(
             break;
 
         case 3:
-            HAL_WRITE32(SYSTEM_CTRL_BASE, 0X120, 0x74000e00);
-            HAL_WRITE32(SYSTEM_CTRL_BASE, 0X124, 2);
+            HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_OPTION, 0x74000e00);
+            HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_OPTION_EXT, 2);
             HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, TestParameter[1]);
             #if 0
             {
@@ -3182,27 +3182,27 @@ SOCPSTestApp(
             Rtemp = 0x00000001;
             HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_SLP_WAKE_EVENT_MSK0, Rtemp);
 #if 0
-            HAL_WRITE32(0x40000000,0x330,0x55559555);//0x55552a2a
-            HAL_WRITE32(0x40000000,0x2C0,0x100001);
+            HAL_WRITE32(PERI_ON_BASE,0x330,0x55559555);//0x55552a2a
+            HAL_WRITE32(PERI_ON_BASE,0x2C0,0x100001);
             //slp pg GPIOD GPIOE
-            HAL_WRITE32(0x40000000,0x334,0x55555555);
-            HAL_WRITE32(0x40000000,0x338,0x05555555);
-            HAL_WRITE32(0x40000000,0x33c,0x55555555);
-            HAL_WRITE32(0x40000000,0x340,0x55555555);
-            HAL_WRITE32(0x40000000,0x344,0x55555555);
-            HAL_WRITE32(0x40000000,0x320,0x0);
+            HAL_WRITE32(PERI_ON_BASE,0x334,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x338,0x05555555);
+            HAL_WRITE32(PERI_ON_BASE,0x33c,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x340,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x344,0x55555555);
+            HAL_WRITE32(PERI_ON_BASE,0x320,0x0);
 #endif            
             HAL_WRITE32(SYSTEM_CTRL_BASE, 0X120, TestParameter[1]);
             HAL_WRITE32(SYSTEM_CTRL_BASE, 0X124, TestParameter[2]);
 
-            if (HAL_READ32(0x40000000,0xf4) == 0x11) {
-                HAL_WRITE32(0x40000000,0x8,0x80000011);
+            if (HAL_READ32(SYSTEM_CTRL_BASE,0xf4) == 0x11) {
+                HAL_WRITE32(SYSTEM_CTRL_BASE,0x8,0x80000011);
             }
 
             if (TestParameter[4] == 0xff) {
                 //SIC EN
-                HAL_WRITE32(0x40000000,0x8,0x81000010);
-                HAL_WRITE32(0x40000000,0xA4,0x00000001);
+                HAL_WRITE32(SYSTEM_CTRL_BASE,0x8,0x81000010);
+                HAL_WRITE32(SYSTEM_CTRL_BASE,0xA4,0x00000001);
             }
             
             HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, TestParameter[3]);
@@ -3267,27 +3267,27 @@ SOCPSTestApp(
         case 8:
             DiagPrintf("enable wifi\n");
             
-            Rtemp = HAL_READ32(0x40000000,0x214)|0x10000;
-            HAL_WRITE32(0x40000000,0x214,Rtemp);
-            Rtemp = HAL_READ32(0x40000000,0x244)|0x1;
-            HAL_WRITE32(0x40000000,0x244,Rtemp);
-            Rtemp = HAL_READ32(0x40000000,0x210)|0x4;
-            HAL_WRITE32(0x40000000,0x210,Rtemp);
+            Rtemp = HAL_READ32(PERI_ON_BASE,REG_SOC_HCI_COM_FUNC_EN)|BIT_SOC_HCI_WL_MACON_EN;
+            HAL_WRITE32PERI_ON_BASE,REG_SOC_HCI_COM_FUNC_EN,Rtemp);
+            Rtemp = HAL_READ32(PERI_ON_BASE,REG_PESOC_COM_CLK_CTRL1)|BIT_SOC_ACTCK_WL_EN;
+            HAL_WRITE32(PERI_ON_BASE,REG_PESOC_COM_CLK_CTRL1,Rtemp);
+            Rtemp = HAL_READ32(PERI_ON_BASE,REG_SOC_FUNC_EN)|BIT_SOC_LXBUS_EN;
+            HAL_WRITE32(PERI_ON_BASE,REG_SOC_FUNC_EN,Rtemp);
 
-            Rtemp = HAL_READ32(0x40080000,0x0)&0xFFFFFFDF;
-            HAL_WRITE32(0x40080000,0x0,Rtemp);
-            Rtemp = HAL_READ32(0x40080000,0x4)|0x1;
-            HAL_WRITE32(0x40080000,0x4,Rtemp);
-            Rtemp = HAL_READ32(0x40080000,0x20)|0x1;
-            HAL_WRITE32(0x40080000,0x20,Rtemp);
-            while( (HAL_READ32(0x40080000,0x20)&BIT0)!=0);
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x0)&0xFFFFFFDF;
+            HAL_WRITE32(WIFI_REG_BASE,0x0,Rtemp);
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x4)|0x1;
+            HAL_WRITE32(WIFI_REG_BASE,0x4,Rtemp);
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x20)|0x1;
+            HAL_WRITE32(WIFI_REG_BASE,0x20,Rtemp);
+            while( (HAL_READ32(WIFI_REG_BASE,0x20)&BIT0)!=0);
             
-            Rtemp = HAL_READ32(0x40080000,0x4)|0x30000;
-            HAL_WRITE32(0x40080000,0x4,Rtemp);
-            Rtemp = HAL_READ32(0x40080000,0x4)|0x7000000;
-            HAL_WRITE32(0x40080000,0x4,Rtemp);
-            Rtemp = HAL_READ32(0x40080000,0x50)&0xFFFFFF00;
-            HAL_WRITE32(0x40080000,0x50,Rtemp);
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x4)|0x30000;
+            HAL_WRITE32(WIFI_REG_BASE,0x4,Rtemp);
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x4)|0x7000000;
+            HAL_WRITE32(WIFI_REG_BASE,0x4,Rtemp);
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x50)&0xFFFFFF00;
+            HAL_WRITE32(WIFI_REG_BASE,0x50,Rtemp);
             break;
 
         case 9:
@@ -3315,18 +3315,18 @@ SOCPSTestApp(
             break;
 
         case 10:
-            Rtemp = HAL_READ32(0x40080000,0x824);
+            Rtemp = HAL_READ32(WIFI_REG_BASE,0x824);
             Rtemp2 = Rtemp;
             Rtemp2 = Rtemp2 & 0x807fffff | (TestParameter[1]<<23) | 0x80000000;
-            HAL_WRITE32(0x40080000,0x824,Rtemp&0x7fffffff);
-            HAL_WRITE32(0x40080000,0x824,Rtemp2);
-            HAL_WRITE32(0x40080000,0x824,Rtemp|0x80000000);
-            Rtemp1 = HAL_READ32(0x40080000,0x820)&BIT8;
+            HAL_WRITE32(WIFI_REG_BASE,0x824,Rtemp&0x7fffffff);
+            HAL_WRITE32(WIFI_REG_BASE,0x824,Rtemp2);
+            HAL_WRITE32(WIFI_REG_BASE,0x824,Rtemp|0x80000000);
+            Rtemp1 = HAL_READ32(WIFI_REG_BASE,0x820)&BIT8;
             if (Rtemp1) {
-                Rtemp = HAL_READ32(0x40080000,0x8b8)&0xfffff;
+                Rtemp = HAL_READ32(WIFI_REG_BASE,0x8b8)&0xfffff;
             }
             else {
-                Rtemp = HAL_READ32(0x40080000,0x8a0)&0xfffff;
+                Rtemp = HAL_READ32(WIFI_REG_BASE,0x8a0)&0xfffff;
             }
             DiagPrintf("rf offset: 0x%x, 0x%x\n", TestParameter[1], Rtemp);
             break;
@@ -3334,7 +3334,7 @@ SOCPSTestApp(
         case 11://addr [1]; date [2]
             TestParameter[1] &= 0x3f;
             Rtemp = (TestParameter[1]<<20)|(TestParameter[2]&0x000fffff)&0x0fffffff;
-            HAL_WRITE32(0x40080000,0x840,Rtemp);
+            HAL_WRITE32(WIFI_REG_BASE,0x840,Rtemp);
             
             //SoCPWRIdleTaskHandle();
             break;
@@ -3348,19 +3348,19 @@ SOCPSTestApp(
             break;
 
         case 14:
-            HAL_WRITE32(0x40000000,TestParameter[1],0x12345678);
-            DiagPrintf("w32: 0x%x\n", HAL_READ32(0x40000000,TestParameter[1]));
-            HAL_WRITE32(0x40000000,TestParameter[1],0);
-            HAL_WRITE16(0x40000000,TestParameter[1],0x1234);
-            DiagPrintf("w16: 0x%x\n", HAL_READ32(0x40000000,TestParameter[1]));
-            HAL_WRITE32(0x40000000,TestParameter[1],0);
-            HAL_WRITE8(0x40000000,TestParameter[1],0x12);
-            DiagPrintf("w8: 0x%x\n", HAL_READ32(0x40000000,TestParameter[1]));
-            HAL_WRITE32(0x40000000,TestParameter[1],0x12345678);
-            DiagPrintf("R32: 0x%x\n", HAL_READ32(0x40000000,TestParameter[1]));
-            DiagPrintf("R16: 0x%x\n", HAL_READ16(0x40000000,TestParameter[1]));
-            DiagPrintf("R8: 0x%x\n", HAL_READ8(0x40000000,TestParameter[1]));
-            Rtemp = ((HAL_READ32(0x40000000,0xf4))?1:0);
+            HAL_WRITE32(SYSTEM_CTRL_BASE,TestParameter[1],0x12345678);
+            DiagPrintf("w32: 0x%x\n", HAL_READ32(SYSTEM_CTRL_BASE,TestParameter[1]));
+            HAL_WRITE32(SYSTEM_CTRL_BASE,TestParameter[1],0);
+            HAL_WRITE16(SYSTEM_CTRL_BASE,TestParameter[1],0x1234);
+            DiagPrintf("w16: 0x%x\n", HAL_READ32(SYSTEM_CTRL_BASE,TestParameter[1]));
+            HAL_WRITE32(SYSTEM_CTRL_BASE,TestParameter[1],0);
+            HAL_WRITE8(SYSTEM_CTRL_BASE,TestParameter[1],0x12);
+            DiagPrintf("w8: 0x%x\n", HAL_READ32(SYSTEM_CTRL_BASE,TestParameter[1]));
+            HAL_WRITE32(SYSTEM_CTRL_BASE,TestParameter[1],0x12345678);
+            DiagPrintf("R32: 0x%x\n", HAL_READ32(SYSTEM_CTRL_BASE,TestParameter[1]));
+            DiagPrintf("R16: 0x%x\n", HAL_READ16(SYSTEM_CTRL_BASE,TestParameter[1]));
+            DiagPrintf("R8: 0x%x\n", HAL_READ8(SYSTEM_CTRL_BASE,TestParameter[1]));
+            Rtemp = ((HAL_READ32(SYSTEM_CTRL_BASE,0xf4))?1:0);
             DiagPrintf("R: 0x%x\n", Rtemp);
             break;
             
@@ -3463,7 +3463,7 @@ SOCPSTestApp(
                     break;
                 }
             }
-            HAL_WRITE32(SYSTEM_CTRL_BASE, 0X2c0, 0x0);
+            HAL_WRITE32(SYSTEM_CTRL_BASE, REG_CPU_PERIPHERAL_CTRL, 0x0);
 
             GpioPsPullCtrl();
             

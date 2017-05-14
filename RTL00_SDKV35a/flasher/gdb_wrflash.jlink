@@ -1,0 +1,166 @@
+###############
+# FlasherInit #
+###############
+define FlasherInit
+set $rtl8710_flasher_capacity = 0
+set $rtl8710_flasher_auto_erase = 1
+set $rtl8710_flasher_auto_verify = 1
+set $rtl8710_flasher_firmware_ptr = 0x10001000
+set $rtl8710_flasher_buffer = 0x10008000
+#262144
+set $rtl8710_flasher_buffer_size = 421888
+set $rtl8710_flasher_sector_size = 4096
+set $rtl8710_flasher_auto_erase_sector = 0xFFFFFFFF
+end
+###############
+# FlasherWait #
+###############
+define FlasherWait
+set $fresult = {int}($rtl8710_flasher_buffer)
+while ($fresult != 0)
+set $fresult = {int}($rtl8710_flasher_buffer)
+end
+end
+###############
+# FlasherLoad #
+###############
+define FlasherLoad
+if $rtl8710_flasher_capacity == 0
+ printf "initializing RTL8710 flasher\n"
+ restore $arg0 binary $rtl8710_flasher_firmware_ptr 0 968
+ monitor reset
+ set $pc = $rtl8710_flasher_firmware_ptr
+ set $sp = 0x1ffffffc
+ set {int}($rtl8710_flasher_buffer + 0x08) = 0
+ set {int}($rtl8710_flasher_buffer + 0x00) = 1
+ #continue
+ monitor go
+ FlasherWait
+ set $id = {int}($rtl8710_flasher_buffer + 0x0C)
+ if ($id == 0x1420c2) 
+  set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
+  printf "Flash ID = 0x%08x : MX25L8006E (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
+ else 
+  set $rtl8710_flasher_capacity = 1024*1024)
+  error "Flash ID = 0x%08x : ?\n", $id
+ end
+ printf "RTL8710 flasher initialized\n"
+else
+printf "reinitializing RTL8710 flasher\n"
+end
+end
+##################
+# FlasherWrBlock #
+##################
+define FlasherWrBlock
+#printf "FlashWrBlock 0x%08x, 0x%08x\n", $arg0, $arg1 
+set {int}($rtl8710_flasher_buffer + 0x04) = 4
+set {int}($rtl8710_flasher_buffer + 0x08) = 0
+set {int}($rtl8710_flasher_buffer + 0x10) = $arg0
+set {int}($rtl8710_flasher_buffer + 0x14) = $arg1
+set {int}($rtl8710_flasher_buffer + 0x00) = 1
+FlasherWait
+set $status = {int}($rtl8710_flasher_buffer + 0x08)
+if $status > 0
+ error "write error, offset 0x%08x", $arg0
+end
+end
+##################
+# FlasherVrBlock #
+##################
+define FlasherVrBlock
+#printf "FlashVrBlock 0x%08x, 0x%08x\n", $arg0, $arg1 
+set {int}($rtl8710_flasher_buffer + 0x04) = 5
+set {int}($rtl8710_flasher_buffer + 0x08) = 0
+set {int}($rtl8710_flasher_buffer + 0x10) = $arg0
+set {int}($rtl8710_flasher_buffer + 0x14) = $arg1
+set {int}($rtl8710_flasher_buffer + 0x00) = 1
+FlasherWait
+set $status = {int}($rtl8710_flasher_buffer + 0x08)
+if $status > 0
+ set $status = {int}($rtl8710_flasher_buffer + 0x0C)
+ set $status = {int}($status + $arg0)
+ error "verify error, offset 0x%08x", $status
+end
+end
+#################
+# FlashSecErase #
+#################
+define FlashSecErase
+#printf "FlashSecErase 0x%08x, 0x%08x\n", $rtl8710_flasher_buffer, $arg0
+set {int}($rtl8710_flasher_buffer + 0x04) = 2
+set {int}($rtl8710_flasher_buffer + 0x08) = 0
+set {int}($rtl8710_flasher_buffer + 0x10) = $arg0
+set {int}($rtl8710_flasher_buffer + 0x00) = 1
+FlasherWait
+end
+################
+# FlasherWrite #
+################
+define FlasherWrite
+set $sector = 0
+set $offset = 0
+set $size = $arg2
+while $offset < $size
+ set $len = $size - $offset
+ if $len > $rtl8710_flasher_buffer_size
+  set $len = $rtl8710_flasher_buffer_size
+ end
+ set $flash_offset = $arg1 + $offset
+ printf "write offset 0x%08x\n", $flash_offset
+ set $parms1 = $rtl8710_flasher_buffer + 0x20 - $offset - $arg1
+ set $parms2 = $offset + $arg1
+ set $parms3 = $offset + $len + $arg1
+ restore $arg0 binary $parms1 $parms2 $parms3
+ if $rtl8710_flasher_auto_erase != 0
+  set $count_i = $flash_offset
+  while $count_i < ($flash_offset + $len)
+   set $sector = $count_i/$rtl8710_flasher_sector_size
+   if $rtl8710_flasher_auto_erase_sector != $sector
+	set $parms1 = $sector * $rtl8710_flasher_sector_size
+    printf "erase sector %d at 0x%08x\n", $sector, $parms1 
+    FlashSecErase $parms1
+    set $rtl8710_flasher_auto_erase_sector = $sector
+   end
+   set $count_i = $count_i + 1
+  end
+ end
+ FlasherWrBlock $flash_offset $len
+ printf "wrote %d bytes at 0x%08x\n", $len, $flash_offset
+ if $rtl8710_flasher_auto_verify != 0
+  printf "verify offset 0x%08x len %d\n", $flash_offset, $len
+  FlasherVrBlock $flash_offset $len
+ end
+ set $offset = $offset + $rtl8710_flasher_buffer_size
+end
+end
+#########################################
+source -v flasher/gdb_flasher.jlink
+source -v flasher/flash_file.jlink
+InitJlink
+SystemInit
+SetClk166MHz
+SPI_Init
+FlashImagesInfo
+#SetFirwareSize $wr_flile
+call1
+if $FirmwareSize == 0
+ error "FirmwareSize = 0!"
+end
+FlasherInit
+FlasherLoad flasher/rtl8710_flasher.bin
+if $Image1Size != 0
+ printf "Write Image1 size %d to Flash addr 0x00000000:\n", $Image1Size
+ #FlasherWrite $wr_flile 0 $Image1Size
+ call2
+ if $Image2Size != 0 && $Image2Addr >= $Image1Size 
+  printf "Write Image2 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
+  #FlasherWrite $wr_flile $Image2Addr $Image2Size
+  call3
+ end
+end
+FlashImagesInfo
+monitor reset
+SetBootFlash
+monitor go
+quit

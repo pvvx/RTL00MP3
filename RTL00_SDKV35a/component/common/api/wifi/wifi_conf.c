@@ -1378,13 +1378,13 @@ int wifi_show_setting(const char *ifname, rtw_wifi_setting_t *pSetting) {
 	switch (pSetting->mode) {
 	case RTW_MODE_AP:
 #if CONFIG_EXAMPLE_UART_ATCMD
-		at_printf("AP,");
+		at_printf("AP:");
 #endif
 		printf("\tMODE => AP\n");
 		break;
 	case RTW_MODE_STA:
 #if CONFIG_EXAMPLE_UART_ATCMD
-		at_printf("STA,");
+		at_printf("STA:");
 #endif
 		printf("\tMODE => STATION\n");
 		break;

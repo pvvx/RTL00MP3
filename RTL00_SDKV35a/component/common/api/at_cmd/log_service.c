@@ -438,7 +438,7 @@ void start_log_service(void)
 	xTaskHandle CreatedTask;
 	int result;
 
-#if CONFIG_USE_TCM_HEAP
+#if 0 // CONFIG_USE_TCM_HEAP
 	extern void *tcm_heap_malloc(int size);
 	void *stack_addr = tcm_heap_malloc(STACKSIZE * sizeof(int));
 
@@ -447,7 +447,7 @@ void start_log_service(void)
 
 	result = xTaskGenericCreate(
 			log_service,
-			( signed portCHAR * ) "log_service",
+			( signed portCHAR * ) "log_srv",
 			STACKSIZE,
 			NULL,
 			tskIDLE_PRIORITY + 5,
@@ -455,7 +455,7 @@ void start_log_service(void)
 			stack_addr,
 			NULL);
 #else		
-	result = xTaskCreate( log_service, ( signed portCHAR * ) "log_service", STACKSIZE, NULL, tskIDLE_PRIORITY + 5, &CreatedTask );
+	result = xTaskCreate( log_service, ( signed portCHAR * ) "log_srv", STACKSIZE, NULL, tskIDLE_PRIORITY + 5, &CreatedTask );
 #endif
    
 	if(result != pdPASS) {

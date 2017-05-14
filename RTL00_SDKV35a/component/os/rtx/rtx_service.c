@@ -772,9 +772,9 @@ static u32 _rtx_GetFreeHeapSize(void)
 }
 
 
-#if CONFIG_USE_TCM_HEAP
-void *tcm_heap_malloc(int size);
-#endif
+//#if CONFIG_USE_TCM_HEAP
+//void *tcm_heap_malloc(int size);
+//#endif
 static int _rtx_create_task(struct task_struct *ptask, const char *name,
 	u32  stack_size, u32 priority, thread_func_t func, void *thctx)
 {

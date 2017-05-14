@@ -81,13 +81,11 @@ int wifi_start_p2p_go(char *ssid, char *passphrase, u8 channel)
 	netif_set_addr(pnetif, &ipaddr, &netmask,&gw);
 	
 	// start ap
-	if(wifi_start_ap(ssid,
-						 RTW_SECURITY_WPA2_AES_PSK,
-						 passphrase,
-						 strlen(ssid),
-						 strlen(passphrase),
-						 channel
-						 ) != RTW_SUCCESS) {
+	if(wifi_start_ap(	ssid,
+						RTW_SECURITY_WPA2_AES_PSK,
+						passphrase,
+						channel,
+						0) != RTW_SUCCESS) {
 		printf("ERROR: Operation failed!\n");
 		return -1;
 	}

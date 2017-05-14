@@ -1,0 +1,99 @@
+proc cortex_bootstrap {start} {
+	# disable interrupts
+	reg faultmask 0x01
+	set vectors ""
+	mem2array vectors 32 $start 2
+	reg sp $vectors(0)
+	reg pc $vectors(1)
+	resume
+}
+
+proc cortex_reboot {} {
+	set ddd [ format "0x%08x" [ rtl8710_flasher_mrw [ expr 0x40000210 ] ] ]
+#	set aaa [ format "0x%08x" [ expr 0x40000210 ] ]
+	echo "CLK_CTRL1 = $ddd"
+#	echo "# Set processor clock to default before system reset"
+	set ddd [ format "0x%08x" [ rtl8710_flasher_mrw [ expr 0x40000014 ] ] ]
+#	set aaa [ format "0x%08x" [ expr 0x40000014 ] ]
+	echo "SOC_FUNC_EN = $ddd"
+#	mww 0x40000014 0x00000021
+	sleep 10
+	echo "# Reboot (system reset)"
+	mww 0xE000ED0C 0x05FA0007
+}
+
+proc init_system {} {
+# Set processor clock to default before system reset
+# CLK_CTRL1
+#	mww 0x40000014 0x00000011 
+	mww 0x40000014 0x00000021 
+	sleep 10
+# PESOC_SOC_CTRL	
+#	mww 0x40000304 0x1fc00001	
+	mww 0x40000304 0x1fc00002	
+	sleep 10
+# PESOC_CLK_SEL	
+	mww 0x40000250 0x00000400
+	sleep 10
+# GPIO_PULL_CTRL4	
+	mww 0x40000340 0x00000000
+	sleep 10
+# PESOC_CLK_CTRL
+#	mww 0x40000230 0x0000d3c4
+	mww 0x40000230 0x0000dcc4
+	sleep 10
+# SOC_FUNC_EN: FUN|OCP|LXBUS|FLASH|CPU|LOG_UART|GTIMER|SECURITY_ENGINE	
+#	mww 0x40000210 0x00211117
+	mww 0x40000210 0x00011117
+	sleep 10
+# SOC_FUNC_EN: FUN|OCP|LXBUS|FLASH|CPU|LOG_UART|GTIMER|SECURITY_ENGINE + MEM_CTRL	
+	mww 0x40000210 0x00011157
+	sleep 10
+# CPU_PERIPHERAL_CTRL SPI_FLASH_PIN_EN|SDR_PIN_EN|SWD_PIN_EN|LOG_UART_PIN_EN ?
+#	mww 0x400002c0 0x00110000
+	mww 0x400002c0 0x00110011
+	sleep 10
+# GPIO_SHTDN_CTRL	
+#	mww 0x40000320 0x00000033
+	mww 0x40000320 0xffffffff
+	sleep 10
+
+	mww 0x40005008 0x00000000
+	sleep 10
+# PESOC_MEM_CTRL	
+	mww 0x40000300 0x0006005e
+	sleep 10
+		
+	# set baudrate to 38400
+#	mww 0x40003010 0x00000080 
+#	mww 0x40003008 0x00000022 
+#	mww 0x4000300C 0x00000000 
+#	mww 0x40003010 0x00000000 
+}
+
+proc boot_from_flash {} {
+	echo "# skip sdram init, it has been init in openocd config"
+	mww 0x40000210 0x211157
+}
+
+proc boot_from_ram {} {
+	echo "# boot from ram, igonore loading flash"
+	mww 0x40000210 0x8011157
+}
+
+proc restart_from_falsh {} {
+	init
+	init_system
+	boot_from_flash
+	cortex_reboot
+}
+
+proc load_ram_binary { local_filename address } {
+#	set address 0x10000BC8
+	init 
+	reset halt
+	set size [file size $local_filename]
+	load_image $local_filename $address bin $address $size
+	boot_from_ram
+	resume
+}

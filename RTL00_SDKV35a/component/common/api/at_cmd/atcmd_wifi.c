@@ -510,7 +510,7 @@ void fATWx(void *arg){
 						printf("\tMAC => "MAC_FMT"\n",
 										MAC_ARG(client_info.mac_list[client_number].octet));
 #if CONFIG_EXAMPLE_UART_ATCMD
-						at_printf("CLIENT : %d,"MAC_FMT"\n", client_number + 1, MAC_ARG(client_info.mac_list[client_number].octet));
+						at_printf("CLIENT:%d,"MAC_FMT"\n", client_number + 1, MAC_ARG(client_info.mac_list[client_number].octet));
 #endif
 #if CONFIG_INIC_CMD_RSP
 						if(info){

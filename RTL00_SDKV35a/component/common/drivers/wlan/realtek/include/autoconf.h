@@ -109,7 +109,9 @@
 
 #if defined(CONFIG_PLATFORM_AMEBA_X)
 	#if !defined(CONFIG_PLATFORM_8711B)
+	 #ifndef CONFIG_USE_TCM_HEAP
 		#define CONFIG_USE_TCM_HEAP 1					/* USE TCM HEAP */
+	 #endif
 	#endif
 	#define CONFIG_RECV_TASKLET_THREAD
 	#define CONFIG_XMIT_TASKLET_THREAD

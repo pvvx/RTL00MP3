@@ -739,49 +739,49 @@
 #define BIT_GET_IC_COMP_TYPE(x)               	(((x) >> BIT_SHIFT_IC_COMP_TYPE) & BIT_MASK_IC_COMP_TYPE)
 
 //======================== Register Address Definition ========================
-#define REG_DW_I2C_IC_CON 0x0000
-#define REG_DW_I2C_IC_TAR 0x0004
-#define REG_DW_I2C_IC_SAR 0x0008
-#define REG_DW_I2C_IC_HS_MADDR 0x000C
-#define REG_DW_I2C_IC_DATA_CMD 0x0010
-#define REG_DW_I2C_IC_SS_SCL_HCNT 0x0014
-#define REG_DW_I2C_IC_SS_SCL_LCNT 0x0018
-#define REG_DW_I2C_IC_FS_SCL_HCNT 0x001C
-#define REG_DW_I2C_IC_FS_SCL_LCNT 0x0020
-#define REG_DW_I2C_IC_HS_SCL_HCNT 0x0024
-#define REG_DW_I2C_IC_HS_SCL_LCNT 0x0028
-#define REG_DW_I2C_IC_INTR_STAT 0x002C
-#define REG_DW_I2C_IC_INTR_MASK 0x0030
-#define REG_DW_I2C_IC_RAW_INTR_STAT 0x0034
-#define REG_DW_I2C_IC_RX_TL 0x0038
-#define REG_DW_I2C_IC_TX_TL 0x003C
-#define REG_DW_I2C_IC_CLR_INTR 0x0040
-#define REG_DW_I2C_IC_CLR_RX_UNDER 0x0044
-#define REG_DW_I2C_IC_CLR_RX_OVER 0x0048
-#define REG_DW_I2C_IC_CLR_TX_OVER 0x004C
-#define REG_DW_I2C_IC_CLR_RD_REQ 0x0050
-#define REG_DW_I2C_IC_CLR_TX_ABRT 0x0054
-#define REG_DW_I2C_IC_CLR_RX_DONE 0x0058
-#define REG_DW_I2C_IC_CLR_ACTIVITY 0x005C
-#define REG_DW_I2C_IC_CLR_STOP_DET 0x0060
-#define REG_DW_I2C_IC_CLR_START_DET 0x0064
-#define REG_DW_I2C_IC_CLR_GEN_CALL 0x0068
-#define REG_DW_I2C_IC_ENABLE 0x006C
-#define REG_DW_I2C_IC_STATUS 0x0070
-#define REG_DW_I2C_IC_TXFLR 0x0074
-#define REG_DW_I2C_IC_RXFLR 0x0078
-#define REG_DW_I2C_IC_SDA_HOLD 0x007C
-#define REG_DW_I2C_IC_TX_ABRT_SOURCE 0x0080
-#define REG_DW_I2C_IC_SLV_DATA_NACK_ONLY 0x0084
-#define REG_DW_I2C_IC_DMA_CR 0x0088
-#define REG_DW_I2C_IC_DMA_TDLR 0x008C
-#define REG_DW_I2C_IC_DMA_RDLR 0x0090
-#define REG_DW_I2C_IC_SDA_SETUP 0x0094
-#define REG_DW_I2C_IC_ACK_GENERAL_CALL 0x0098
-#define REG_DW_I2C_IC_ENABLE_STATUS 0x009C
-#define REG_DW_I2C_IC_COMP_PARAM_1 0x00F4
-#define REG_DW_I2C_IC_COMP_VERSION 0x00F8
-#define REG_DW_I2C_IC_COMP_TYPE 0x00FC
+#define REG_DW_I2C_IC_CON 0x0000			// Control Register
+#define REG_DW_I2C_IC_TAR 0x0004			// Master Target Address
+#define REG_DW_I2C_IC_SAR 0x0008			// Slave Address
+#define REG_DW_I2C_IC_HS_MADDR 0x000C		// High Speed Master ID
+#define REG_DW_I2C_IC_DATA_CMD 0x0010		// Data Buffer and Command
+#define REG_DW_I2C_IC_SS_SCL_HCNT 0x0014	// Standard Speed Clock SCL High Count
+#define REG_DW_I2C_IC_SS_SCL_LCNT 0x0018	// Standard Speed Clock SCL Low Count
+#define REG_DW_I2C_IC_FS_SCL_HCNT 0x001C	// Fast Speed Clock SCL High Count
+#define REG_DW_I2C_IC_FS_SCL_LCNT 0x0020	// Fast Speed I2C Clock SCL Low Count
+#define REG_DW_I2C_IC_HS_SCL_HCNT 0x0024	// High Speed I2C Clock SCL High Count
+#define REG_DW_I2C_IC_HS_SCL_LCNT 0x0028	// High Speed I2C Clock SCL Low Count
+#define REG_DW_I2C_IC_INTR_STAT 0x002C		// Interrupt Status
+#define REG_DW_I2C_IC_INTR_MASK 0x0030		// Interrupt Mask
+#define REG_DW_I2C_IC_RAW_INTR_STAT 0x0034	// Raw Interrupt Status
+#define REG_DW_I2C_IC_RX_TL 0x0038			// Receive FIFO Threshold Level
+#define REG_DW_I2C_IC_TX_TL 0x003C			// Transmit FIFO Threshold Level
+#define REG_DW_I2C_IC_CLR_INTR 0x0040		// Clear Combined and Individual Interrupt
+#define REG_DW_I2C_IC_CLR_RX_UNDER 0x0044	// Clear RX_UNDER Interrupt
+#define REG_DW_I2C_IC_CLR_RX_OVER 0x0048	// Clear RX_OVER Interrupt
+#define REG_DW_I2C_IC_CLR_TX_OVER 0x004C	// Clear TX_OVER Interrupt
+#define REG_DW_I2C_IC_CLR_RD_REQ 0x0050		// Clear RD_REQ Interrupt
+#define REG_DW_I2C_IC_CLR_TX_ABRT 0x0054	// Clear TX_ABRT Interrupt
+#define REG_DW_I2C_IC_CLR_RX_DONE 0x0058	// Clear RX_DONE Interrupt
+#define REG_DW_I2C_IC_CLR_ACTIVITY 0x005C	// Clear ACTIVITY Interrupt
+#define REG_DW_I2C_IC_CLR_STOP_DET 0x0060	// Clear STOP_DET Interrupt
+#define REG_DW_I2C_IC_CLR_START_DET 0x0064	// Clear START_DET Interrupt
+#define REG_DW_I2C_IC_CLR_GEN_CALL 0x0068	// Clear GEN_CALL Interrupt
+#define REG_DW_I2C_IC_ENABLE 0x006C			// Enable
+#define REG_DW_I2C_IC_STATUS 0x0070			// Status
+#define REG_DW_I2C_IC_TXFLR 0x0074			// Transmit FIFO Level
+#define REG_DW_I2C_IC_RXFLR 0x0078			// Receive FIFO Level
+#define REG_DW_I2C_IC_SDA_HOLD 0x007C		// SDA Hold
+#define REG_DW_I2C_IC_TX_ABRT_SOURCE 0x0080	// Transmit Abort Source
+#define REG_DW_I2C_IC_SLV_DATA_NACK_ONLY 0x0084	//
+#define REG_DW_I2C_IC_DMA_CR 0x0088			//
+#define REG_DW_I2C_IC_DMA_TDLR 0x008C		// DMA Transmit Data Level Register
+#define REG_DW_I2C_IC_DMA_RDLR 0x0090		// I2C Receive Data Level Register
+#define REG_DW_I2C_IC_SDA_SETUP 0x0094		// SDA Setup
+#define REG_DW_I2C_IC_ACK_GENERAL_CALL 0x0098	// General Call Ack
+#define REG_DW_I2C_IC_ENABLE_STATUS 0x009C	// Enable Status
+#define REG_DW_I2C_IC_COMP_PARAM_1 0x00F4	// Configuration Parameters
+#define REG_DW_I2C_IC_COMP_VERSION 0x00F8	// Component Version
+#define REG_DW_I2C_IC_COMP_TYPE 0x00FC		// Component Type
 
 //======================================================
 // I2C related enumeration

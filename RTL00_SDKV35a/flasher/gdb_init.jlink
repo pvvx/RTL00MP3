@@ -1,0 +1,30 @@
+#
+# J-LINK GDB SERVER initialization
+#
+target remote localhost:2331
+set remotetimeout 10000
+monitor device Cortex-M3
+monitor endian little
+monitor reset
+# Set max speed
+monitor speed 4000
+set mem inaccessible-by-default off
+# Setup GDB FOR FASTER DOWNLOADS
+#set remote memory-write-packet-size 4096
+#set remote memory-write-packet-size fixed
+# Boot Flash
+monitor long 0x40000210 = 0x211157
+# Boot RAM start_addr0() Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x80000000 ) 
+#monitor long 0x40000210 = 0x80011117
+# Boot RAM start_addr1() Run if ( v40000210 & 0x20000000 ) 
+#monitor long 0x40000210 = 0x20011117
+# Boot RAM start_addr2() Run if ( v40000210 & 0x10000000 )
+#monitor long 0x40000210 = 0x10011117
+# Boot RAM start_addr3() Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x8000000 )
+#monitor long 0x40000210 = 0x8011117
+# Boot RAM start_addr4() Init console, Run if ( v40000210 & 0x4000000 )
+monitor long 0x40000210 = 0x4011117
+# CPU CLK 166 MHz?
+# monitor long 0x40000014 = 0x00000011 
+# CPU CLK 83 MHz?
+#monitor long 0x40000014 = 0x00000021 

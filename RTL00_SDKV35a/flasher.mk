@@ -1,6 +1,7 @@
 # RTL8710 Flasher v0.0.alfa
 # pvvx 21.09.2016
--include paths.mk
+include userset.mk
+include $(SDK_PATH)paths.mk
 #---------------------------
 #FLASHER = stlink-v2-1
 #FLASHER = stlink-v2
@@ -134,6 +135,18 @@ flashburn:
 
 flashwebfs:
 	@echo define call1>$(FLASHER_PATH)file_info.jlink
+	@echo set '$$'ImageSize = $(shell printf '0x%X\n' $$(stat --printf="%s" $(BIN_DIR)/WEBFiles.bin))>>$(FLASHER_PATH)file_info.jlink
+	@echo set '$$'ImageAddr = 0x0D0000>>$(FLASHER_PATH)file_info.jlink
+	@echo end>>$(FLASHER_PATH)file_info.jlink
+	@echo define call2>>$(FLASHER_PATH)file_info.jlink
+	@echo FlasherWrite $(BIN_DIR)/WEBFiles.bin '$$'ImageAddr '$$'ImageSize>>$(FLASHER_PATH)file_info.jlink
+	@echo end>>$(FLASHER_PATH)file_info.jlink
+	@cmd /K start $(JLINK_PATH)$(JLINK_GDBSRV) -device Cortex-M3 -if SWD -ir -endian little -speed 1000 
+	@$(GDB) -x $(FLASHER_PATH)gdb_wrfile.jlink
+	#@taskkill /F /IM $(JLINK_GDBSRV)
+
+flashespfs:
+	@echo define call1>$(FLASHER_PATH)file_info.jlink
 	@echo set '$$'ImageSize = $(shell printf '0x%X\n' $$(stat --printf="%s" $(BIN_DIR)/webpages.espfs))>>$(FLASHER_PATH)file_info.jlink
 	@echo set '$$'ImageAddr = 0x0D0000>>$(FLASHER_PATH)file_info.jlink
 	@echo end>>$(FLASHER_PATH)file_info.jlink
@@ -143,6 +156,7 @@ flashwebfs:
 	@cmd /K start $(JLINK_PATH)$(JLINK_GDBSRV) -device Cortex-M3 -if SWD -ir -endian little -speed 1000 
 	@$(GDB) -x $(FLASHER_PATH)gdb_wrfile.jlink
 	#@taskkill /F /IM $(JLINK_GDBSRV)
+
 
 flash_OTA:
 	@cmd /K start $(JLINK_PATH)$(JLINK_GDBSRV) -device Cortex-M3 -if SWD -ir -endian little -speed 1000 
@@ -167,9 +181,14 @@ flashimage2p:
 flashwebfs:
 	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
 	-c "rtl8710_flash_auto_erase 1" -c "rtl8710_flash_auto_verify 1" \
-	-c "rtl8710_flash_write $(BIN_DIR)/ 0xd0000" \
+	-c "rtl8710_flash_write $(BIN_DIR)/WEBFiles.bin 0xd0000" \
 	-c "rtl8710_reboot" -c "reset run" -c shutdown
 
+flashespfs:
+	@$(OPENOCD) -f interface/$(FLASHER).cfg -c "transport select swd" -f $(FLASHER_PATH)rtl8710.ocd -c "init" -c "adapter_khz $(FLASHER_SPEED)" -c "reset halt" \
+	-c "rtl8710_flash_auto_erase 1" -c "rtl8710_flash_auto_verify 1" \
+	-c "rtl8710_flash_write $(BIN_DIR)/webpages.espfs 0xd0000" \
+	-c "rtl8710_reboot" -c "reset run" -c shutdown
 	
 reset:
 #	@$(JLINK_PATH)$(JLINK_EXE) -Device CORTEX-M3 -If SWD -Speed $(FLASHER_SPEED) flasher/RTLreset.JLinkScript

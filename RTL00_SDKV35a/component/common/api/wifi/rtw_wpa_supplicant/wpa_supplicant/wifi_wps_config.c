@@ -342,6 +342,7 @@ static int wps_connect_to_AP_by_open_system(char *target_ssid)
 							 0,
 							 target_ssid,
 							 RTW_SECURITY_OPEN,
+							 NULL,
 							 0,
 							 NULL);
 			if (ret == RTW_SUCCESS) {

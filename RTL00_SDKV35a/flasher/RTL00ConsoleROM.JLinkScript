@@ -1,0 +1,6 @@
+h
+loadbin flasher/RTL00Console_ROM.bin 0x10000ba8
+r
+w4 0x40000210,0x4011117
+g
+q
