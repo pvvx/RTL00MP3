@@ -375,7 +375,7 @@ LOCAL unsigned int BOOT_RAM_TEXT_SECTION flashcpy(unsigned int faddr,
 	return size;
 }
 
-enum {
+typedef enum {
 	SEG_ID_ERR,
 	SEG_ID_SRAM,
 	SEG_ID_TCM,
@@ -385,7 +385,7 @@ enum {
 	SEG_ID_CPU,
 	SEG_ID_ROM,
 	SEG_ID_MAX
-} SEG_ID;
+} _SEG_ID;
 
 LOCAL const char * const txt_tab_seg[] = {
 		"UNK",		// 0
