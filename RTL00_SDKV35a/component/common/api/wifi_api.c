@@ -406,15 +406,10 @@ LOCAL rtw_result_t StartStDHCPClient(void)
 	struct netif * pnetif = &xnetif[WLAN_ST_NETIF_NUM];
 	DHCP_CONFIG *p = (dhcp_cfg *)&wifi_st_dhcp;
 	unsigned char mode = p->mode;
-	if((mode == 3) // Auto fix
-	&& p->ip != IP4ADDR(255,255,255,255)
-	&& p->ip != IP4ADDR(0,0,0,0)) {
+	if(mode == 2 && p->ip != IP4ADDR(255,255,255,255) && p->ip != IP4ADDR(0,0,0,0)) { // fixed ip
+		netif_set_addr(pnetif, (ip_addr_t *)&p->ip, (ip_addr_t *)&p->mask, (ip_addr_t *)&p->gw);
 	}
-	else mode = 1; // DHCP On
-	if(mode == 2) { // fixed ip
-			netif_set_addr(pnetif, (ip_addr_t *)&p->ip, (ip_addr_t *)&p->mask, (ip_addr_t *)&p->gw);
-	}
-	else if(mode) {
+	else if(mode) { // DHCP On
 		UBaseType_t savePriority =  uxTaskPriorityGet(NULL);
 		/* If not rise priority, LwIP DHCP may timeout */
 		vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 3);
@@ -425,7 +420,7 @@ LOCAL rtw_result_t StartStDHCPClient(void)
 			p->ip = pnetif->ip_addr.addr;
 			p->gw = pnetif->gw.addr;
 			p->mask = pnetif->netmask.addr;
-			if(p->mode == 3) { // Auto fix
+			if(p->mode > 2) { // 3+ Auto fix
 				p->mode = 2; // fixed ip
 				write_wifi_cfg(BID_ST_DHCP_CFG);
 			}
