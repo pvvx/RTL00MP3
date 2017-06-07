@@ -1,10 +1,7 @@
 #include "cmsis_os.h"
 #include <cJSON.h>
 
-#undef malloc
 #define malloc      pvPortMalloc
-
-#undef free
 #define free        vPortFree
 
 /*  The data structure for this example

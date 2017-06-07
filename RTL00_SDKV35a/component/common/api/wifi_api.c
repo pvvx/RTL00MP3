@@ -420,7 +420,7 @@ LOCAL rtw_result_t StartStDHCPClient(void)
 			p->ip = pnetif->ip_addr.addr;
 			p->gw = pnetif->gw.addr;
 			p->mask = pnetif->netmask.addr;
-			if(p->mode > 2) { // 3+ Auto fix
+			if(mode > 2) { // 3+ Auto fix
 				p->mode = 2; // fixed ip
 				write_wifi_cfg(BID_ST_DHCP_CFG);
 			}

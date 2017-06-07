@@ -10,55 +10,33 @@
 #if CONFIG_EXAMPLE_UART_ATCMD
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "osdep_api.h"
 
-
-#if defined(RTL8710AF)
-// RTL8710AF
-#define UART_TX   		PA_4 // PC_3
-#define UART_RX   		PA_0 // PC_0
-#define UART_RTS		PA_2 // PC_2
-#define UART_CTS		PA_1 // PC_1
-
-#elif 0 // defined(RTL8711AM)
-// RTL8711AM
-#define UART_TX   		PA_7
-#define UART_RX   		PA_6 // no Interrupt!
-#define UART_RTS		PA_3
-#define UART_CTS		PA_5
-
-#elif 0 // else
-// RTL8711AM + RTL8710AF
-#define UART_TX   		PC_3
-#define UART_RX   		PC_0 // no Interrupt!
-#define UART_RTS		PC_2
-#define UART_CTS		PC_1
-
-#elif defined(RTL8711AM)
-// RTL8711AM + RTL8710AF
-#define UART_TX   		PE_0
-#define UART_RX   		PE_3
-#define UART_RTS		PE_1
-#define UART_CTS		PE_2
-
+/*UART Pinmux*/
+#define CONFIG_AMEBA1 1
+#if CONFIG_AMEBA1
+#define UART_TX			PA_4
+#define UART_RX			PA_0
+#define UART_RTS			PA_2
+#define UART_CTS			PA_1
+#else
+#define UART_TX			PA_23
+#define UART_RX			PA_18
+#define UART_RTS			PA_22
+#define UART_CTS			PA_19
 #endif
 
-#define KEY_ENTER 		0xd
-#define KEY_BS    		0x8
-#define KEY_ESC    		0x1B
-#define KEY_LBRKT  		0x5B
+#define ATCMD_RX_GPIO_WAKEUP 0
+#define KEY_NL			0xa // '\n'
+#define KEY_ENTER		0xd // '\r'
+#define KEY_BS			0x8
+#define KEY_ESC			0x1B
+#define KEY_LBRKT		0x5B
 
 void uart_at_lock(void);
 void uart_at_unlock(void);
 void uart_at_send_string(char *str);
 void uart_at_send_buf(u8 *buf, u32 len);
 void example_uart_atcmd(void);
-
-#include "at_cmd/atcmd_wifi.h"
-
-void uart_atcmd_reinit(UART_LOG_CONF* uartconf);
-int write_uart_atcmd_setting_to_system_data(UART_LOG_CONF* uartconf);
-
 extern u8 key_2char2num(u8 hch, u8 lch);
 static void at_hex2str(const u8 *start, u32 size, u8 *out, u32 out_size)
 {

@@ -5,7 +5,7 @@
 //-------------------------------------------------------------------------
 // Function declarations
 void mode_init();
-void HalSerialPutcRtl8195a(int c, int a2, char a3);
+void HalSerialPutcRtl8195a(int c);
 signed int DiagPrintf(const char *fmt, ...);
 void log_uart_enable_printf();
 void log_uart_disable_printf();

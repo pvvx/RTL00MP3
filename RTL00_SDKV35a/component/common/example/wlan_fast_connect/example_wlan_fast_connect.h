@@ -23,9 +23,9 @@ struct wlan_fast_reconnect {
 	unsigned char psk_passphrase[IW_PASSPHRASE_MAX_SIZE + 1];
 	unsigned char wpa_global_PSK[A_SHA_DIGEST_LEN * 2];
 	uint32_t	channel;
-	uint32_t	security_type;
+	uint32_t    security_type;
 #if ATCMD_VER == ATVER_2
-	uint8_t	enable;
+	uint32_t    enable;
 #endif
 };
 
