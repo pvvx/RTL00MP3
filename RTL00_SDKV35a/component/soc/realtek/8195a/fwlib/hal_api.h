@@ -3,8 +3,6 @@
  *
  *  Copyright (c) 2013 Realtek Semiconductor Corp.
  *
- *  This module is a confidential and proprietary property of RealTek and
- *  possession or use of this module requires written permission of RealTek.
  */
 #ifndef _HAL_API_H_
 #define _HAL_API_H_
@@ -32,7 +30,7 @@
 #define HAL_WRITE8(base, addr, value)  \
         ((*((volatile u8*)(base + addr))) = value)
 
-#if 0
+#if 1
 // These "extern _LONG_CALL_" function declaration are for RAM code building only
 // For ROM code building, thses code should be marked off
 extern _LONG_CALL_ u8 
@@ -86,6 +84,49 @@ extern _LONG_CALL_  VOID
 VectorIrqDisRtl8195A(
     IN  PIRQ_HANDLE pIrqHandle
     );
+
+extern _LONG_CALL_ int HalUart0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalUart1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalUart2PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSPI0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSPI1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSPI2PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSPI0MCSPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalI2C0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalI2C1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalI2C2PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalI2C3PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalI2S0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalI2S1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalPCM0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalPCM1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSDIODPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSDIOHPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalMIIPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalWLLEDPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalWLANT0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalWLANT1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalWLBTCOEXPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalWLBTCMDPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalNFCPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalPWM0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalPWM1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalPWM2PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalPWM3PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalETE0PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalETE1PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalETE2PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalETE3PinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalEGTIMPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSPIFlashPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSDRPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalJTAGPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalTRACEPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalLOGUartPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalLOGUartIRPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalSICPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalEEPROMPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
+extern _LONG_CALL_ int HalDEBUGPinCtrlRtl8195A(IN u32  PinLocation, IN BOOL   Operation);
 #endif
 
 extern BOOLEAN SpicFlashInitRtl8195A(u8 SpicBitMode);

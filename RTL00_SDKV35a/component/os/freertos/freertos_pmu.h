@@ -117,5 +117,7 @@ void set_pll_reserved(unsigned char reserve);
 #define pmu_release_wakelock release_wakelock
 #define pmu_acquire_wakelock acquire_wakelock
 #define pmu_get_wakelock_status get_wakelock_status
+#define pmu_set_pll_reserved set_pll_reserved
+#define pmu_enable_wakelock_stats
 
 #endif

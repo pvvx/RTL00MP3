@@ -6,10 +6,15 @@
  ******************************************************************************/
 #include <platform_opts.h>
 #include "main.h"
+#include "freertos_pmu.h"
 
 #if ATCMD_VER == ATVER_2
 #include "flash_api.h"
 #include "device_lock.h"
+#ifdef USE_FLASH_EEP
+#include "flash_eep.h"
+#include "feep_config.h"
+#endif
 #endif
    
 #if CONFIG_EXAMPLE_MDNS
@@ -189,15 +194,19 @@
 */
 void pre_example_entry(void)
 {
+#if CONFIG_EXAMPLE_WLAN_FAST_CONNECT
 #if ATCMD_VER == ATVER_2
 	flash_t flash;
 	struct wlan_fast_reconnect read_data = {0};
+#ifdef USE_FLASH_EEP
+	flash_read_cfg(data, FEEP_ID_WIFI_CFG, sizeof(struct wlan_fast_reconnect));
+#else
 	device_mutex_lock(RT_DEV_LOCK_FLASH);
-	flash_stream_read(&flash, FAST_RECONNECT_DATA, sizeof(struct wlan_fast_reconnect), (u8 *) &read_data);
+	flash_stream_read(&flash, FAST_RECONNECT_DATA, sizeof(read_data), (u8 *) &read_data);
 	device_mutex_unlock(RT_DEV_LOCK_FLASH);
 #endif
+#endif
 
-#if CONFIG_EXAMPLE_WLAN_FAST_CONNECT
 #if ATCMD_VER == ATVER_2
 	if(read_data.enable == 1)
 #endif
