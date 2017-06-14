@@ -1,9 +1,0 @@
-define call1
-SetFirwareSize build/bin/ram_all.bin
-end
-define call2
-FlasherWrite build/bin/ram_all.bin 0 $Image1Size
-end
-define call3
-FlasherWrite build/bin/ram_all.bin $Image2Addr $Image2Size
-end
