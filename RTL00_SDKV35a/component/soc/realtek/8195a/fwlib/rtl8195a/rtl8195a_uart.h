@@ -57,17 +57,17 @@ typedef enum {
 #define RUART_FIFO_CTL_REG_OFF          0x08    //[W]
 // Define FIFO Control Register Bits
 typedef enum {
-	RU_FCR_FIFO_EN      = BIT0,   // FIFO Enable.
-	RU_FCR_RST_RX       = BIT1,   // RCVR FIFO Reset, self clear
-	RU_FCR_RST_TX       = BIT2,   // XMIT FIFO Reset, self clear
-	RU_FCR_TX_TRIG_EMP  = 0,        // TX Empty Trigger: FIFO empty
-	RU_FCR_TX_TRIG_2CH  = BIT4,   // TX Empty Trigger: 2 characters in the FIFO
-	RU_FCR_TX_TRIG_QF   = BIT5,   // TX Empty Trigger: FIFO 1/4 full
-	RU_FCR_TX_TRIG_HF   = (BIT5|BIT4),   // TX Empty Trigger: FIFO 1/2 full
-	RU_FCR_TX_TRIG_MASK = (BIT5|BIT4),   // TX Empty Trigger Bit Mask
-	RU_FCR_RX_TRIG_1CH  = 0,        // RCVR Trigger: 1 character in the FIFO
-	RU_FCR_RX_TRIG_QF   = BIT6,   // RCVR Trigger: FIFO 1/4 full
-	RU_FCR_RX_TRIG_HF   = BIT7,   // RCVR Trigger: FIFO 1/2 full
+	RU_FCR_FIFO_EN      = BIT0,   		// FIFO Enable.
+	RU_FCR_RST_RX       = BIT1,   		// RCVR FIFO Reset, self clear
+	RU_FCR_RST_TX       = BIT2,   		// XMIT FIFO Reset, self clear
+	RU_FCR_TX_TRIG_EMP  = 0,        	// TX Empty Trigger: FIFO empty
+	RU_FCR_TX_TRIG_2CH  = BIT4,   		// TX Empty Trigger: 2 characters in the FIFO
+	RU_FCR_TX_TRIG_QF   = BIT5,   		// TX Empty Trigger: FIFO 1/4 full
+	RU_FCR_TX_TRIG_HF   = (BIT5|BIT4),  // TX Empty Trigger: FIFO 1/2 full
+	RU_FCR_TX_TRIG_MASK = (BIT5|BIT4),  // TX Empty Trigger Bit Mask
+	RU_FCR_RX_TRIG_1CH  = 0,        	// RCVR Trigger: 1 character in the FIFO
+	RU_FCR_RX_TRIG_QF   = BIT6,   		// RCVR Trigger: FIFO 1/4 full
+	RU_FCR_RX_TRIG_HF   = BIT7,   		// RCVR Trigger: FIFO 1/2 full
 	RU_FCR_RX_TRIG_AF   = (BIT7|BIT6),  // RCVR Trigger: FIFO 2 less than full
 	RU_FCR_RX_TRIG_MASK = (BIT7|BIT6)   // RCVR Trigger bits Mask
 } RUART_FIFO_CTRL;
@@ -92,7 +92,7 @@ typedef enum {
 #define RUART_LINE_CTL_REG_OFF          0x0C
 // Define Line Control Register Bits
 typedef enum {
-	RU_LCR_DLS_5B = 0,      			// Data Length: 5 bits
+	RU_LCR_DLS_5B = 0,      		// Data Length: 5 bits
 	RU_LCR_DLS_6B = BIT0,      		// Data Length: 6 bits
 	RU_LCR_DLS_7B = BIT1,      		// Data Length: 7 bits
 	RU_LCR_DLS_8B = (BIT1|BIT0),   	// Data Length: 7 bits
@@ -101,11 +101,11 @@ typedef enum {
 	RU_LCR_STOP_2B = BIT2,		// Number of stop bits: 1.5(data len=5) or 2
 
 	RU_LCR_PARITY_NONE = 0,     		// Parity Enable: 0
-	RU_LCR_PARITY_ODD = BIT3,      	// Parity Enable: 1, Even Parity: 0
+	RU_LCR_PARITY_ODD = BIT3,      		// Parity Enable: 1, Even Parity: 0
 	RU_LCR_PARITY_EVEN = (BIT4|BIT3),	// Parity Enable: 1, Even Parity: 1
 
 	RU_LCR_BC = BIT6, 	    	// Break Control Bit
-	RU_LCR_DLAB = BIT7     	// Divisor Latch Access Bit
+	RU_LCR_DLAB = BIT7     		// Divisor Latch Access Bit
 } RUART_LINE_CTRL;
 //*BIT6 Break Control Bit (BC)
 //*BIT4 Even Parity Select (EPS)
@@ -154,11 +154,11 @@ typedef enum {
 #define RUART_SP_REG_XFACTOR_ADJ        (0x7FF<<16)  //[26:16]
 
 #define RUART_STS_REG_OFF               0x20
-#define RUART_STS_REG_RESET_RCV         BIT3  //BIT3, 0x08, Reset Uart Receiver
+#define RUART_STS_REG_RESET_RCV         BIT3  // BIT3, 0x08, Reset Uart Receiver
 #define RUART_STS_REG_XFACTOR           0xF<<4
 
-#define RUART_REV_BUF_REG_OFF           0x24  //Receiver Buffer Register
-#define RUART_TRAN_HOLD_REG_OFF         0x24  //Transmitter Holding Register
+#define RUART_REV_BUF_REG_OFF           0x24  // Receiver Buffer Register
+#define RUART_TRAN_HOLD_REG_OFF         0x24  // Transmitter Holding Register
 
 #define RUART_MISC_CTL_REG_OFF          0x28
 #define RUART_TXDMA_BURSTSIZE_MASK      0xF8    //7:3

@@ -45,35 +45,35 @@ typedef struct _UART_DMA_CONFIG_ {
 }UART_DMA_CONFIG, *PUART_DMA_CONFIG;
 
 typedef struct _HAL_RUART_ADAPTER_ {
-    u32 BaudRate;
-    u32 FlowControl;
-    u32 FifoControl;
-    u32 Interrupts;
-    u32 TxCount;     // how many byte to TX
-    u32 RxCount;     // how many bytes to RX
-    u8 *pTxBuf;
-    u8 *pRxBuf;
-    HAL_UART_State State;       // UART state
-    u8 Status;      // Transfer Status
-    u8 Locked;      // is UART locked for operation
-    u8 UartIndex;
-    u8 WordLen;     // word length select: 0 -> 7 bits, 1 -> 8 bits
-    u8 StopBit;     // word length select: 0 -> 1 stop bit, 1 -> 2 stop bit
-    u8 Parity;      // parity check enable
-    u8 ParityType;  // parity check type
-    u8 StickParity;
-    u8 ModemStatus; // the modem status
+    u32 BaudRate;		//+0
+    u32 FlowControl;	//+4
+    u32 FifoControl;	//+8
+    u32 Interrupts;		//+12
+    u32 TxCount;     //+16 how many byte to TX
+    u32 RxCount;     //+20 how many bytes to RX
+    u8 *pTxBuf;		//+24
+    u8 *pRxBuf;		//+28
+    HAL_UART_State State;       //+32 UART state
+    u8 Status;      //+36 Transfer Status
+    u8 Locked;      //+37 is UART locked for operation
+    u8 UartIndex;	//+38
+    u8 WordLen;     //+39 word length select: 0 -> 7 bits, 1 -> 8 bits
+    u8 StopBit;     //+40 word length select: 0 -> 1 stop bit, 1 -> 2 stop bit
+    u8 Parity;      //+41 parity check enable
+    u8 ParityType;  //+42 parity check type
+    u8 StickParity;	//+43
+    u8 ModemStatus; //+44 the modem status
     u8 DmaEnable;
     u8 TestCaseNumber;
     u8 PinmuxSelect;
     BOOL PullMode;
     IRQ_HANDLE IrqHandle;
     PUART_DMA_CONFIG DmaConfig;
-    VOID (*ModemStatusInd)(VOID *pAdapter);    // modem status indication interrupt handler
-    VOID (*TxTDCallback)(VOID *pAdapter);      // User Tx Done callback function
-    VOID (*RxDRCallback)(VOID *pAdapter);      // User Rx Data ready callback function
-    VOID (*TxCompCallback)(VOID *para);    // User Tx complete callback function
-    VOID (*RxCompCallback)(VOID *para);    // User Rx complete callback function
+    VOID (*ModemStatusInd)(VOID *pAdapter);    //+72 modem status indication interrupt handler
+    VOID (*TxTDCallback)(VOID *pAdapter);      //+76 User Tx Done callback function
+    VOID (*RxDRCallback)(VOID *pAdapter);      //+80 User Rx Data ready callback function
+    VOID (*TxCompCallback)(VOID *para);    	//+84 User Tx complete callback function
+    VOID (*RxCompCallback)(VOID *para);    	//+88 User Rx complete callback function
     VOID *TxTDCbPara;   // the pointer agrument for TxTDCallback
     VOID *RxDRCbPara;   // the pointer agrument for RxDRCallback
     VOID *TxCompCbPara; // the pointer argument for TxCompCbPara

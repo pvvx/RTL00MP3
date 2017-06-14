@@ -14,8 +14,6 @@
 HAL_GPIO_ADAPTER gHAL_Gpio_Adapter;
 extern PHAL_GPIO_ADAPTER _pHAL_Gpio_Adapter;
 
-extern VOID GPIO_PullCtrl_8195a(u32 chip_pin, u8 pull_type);
-
 /**
   * @brief  To get the GPIO IP Pin name for the given chip pin name
   *
@@ -202,6 +200,5 @@ HAL_GPIO_DeInit(
 
     GpioFunctionChk(chip_pin, DISABLE);
 }
-
 
 #endif // CONFIG_GPIO_EN

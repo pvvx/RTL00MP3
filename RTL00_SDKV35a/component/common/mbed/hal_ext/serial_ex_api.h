@@ -46,8 +46,8 @@ int32_t serial_send_stream_abort (serial_t *obj);
 int32_t serial_recv_stream_abort (serial_t *obj);
 void serial_disable (serial_t *obj);
 void serial_enable (serial_t *obj);
-int32_t serial_recv_stream_timeout (serial_t *obj, char *prxbuf, uint32_t \
-    len, uint32_t timeout_ms, void *force_cs);
+int32_t serial_recv_stream_timeout (serial_t *obj, char *prxbuf, \
+	uint32_t len, uint32_t timeout_ms, void *force_cs);
 int32_t serial_recv_stream_dma_timeout (serial_t *obj, char *prxbuf, \
     uint32_t len, uint32_t timeout_ms, void *force_cs);
 

@@ -242,8 +242,6 @@ HAL_GPIO_IP_DeInit(
     VOID
 );
 
-
-
 extern u16 GPIOState[_PORT_MAX]; // побитно 16 бит для каждого порта (A..K), бит=номер задействованного пина в порту на периферию.
 
 #endif  // end of "#define _HAL_GPIO_H_"

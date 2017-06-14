@@ -303,7 +303,7 @@ void example_entry(void)
 #endif   
 
 #if CONFIG_EXAMPLE_MEDIA_AUDIO_FROM_RTP
-        example_media_audio_from_rtp();
+    example_media_audio_from_rtp();
 #endif     
         
 #if CONFIG_EXAMPLE_AUDIO_MP3

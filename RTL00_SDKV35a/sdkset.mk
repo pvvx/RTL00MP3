@@ -232,6 +232,7 @@ SRC_C += sdk/component/common/mbed/targets/hal/rtl8195a/flash_eep.c
 endif
 
 #peripheral - hal
+SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/bitband_io.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_32k.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_adc.c
 SRC_C += sdk/component/soc/realtek/8195a/fwlib/src/hal_gdma.c

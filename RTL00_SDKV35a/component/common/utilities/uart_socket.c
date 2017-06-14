@@ -150,8 +150,8 @@ Exit:
 
 uart_socket_t* uart_open(uart_set_str *puartpara)
 {
-	PinName uart_tx = PA_7;//PA_4; //PA_7
-	PinName uart_rx = PA_6;//PA_0; //PA_6
+	PinName uart_tx = PA_7; //PA_4; //PA_7
+	PinName uart_rx = PA_6; //PA_0; //PA_6
 	uart_socket_t *u;
 
 	u = (uart_socket_t *)RtlZmalloc(sizeof(uart_socket_t));

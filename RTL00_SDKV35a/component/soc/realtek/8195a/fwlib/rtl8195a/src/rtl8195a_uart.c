@@ -1248,7 +1248,7 @@ HalRuartMultiBlkDmaRecvRtl8195a(
 }
 
 /**
- * Stop non-blocking UART TX
+ * Stop non-blocking UART RX
  *
  *
  * @return VOID

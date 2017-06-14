@@ -10,34 +10,12 @@
 #define BITBAND_SRAM_BASE 0x12000000
 #define BITBAND_SRAM(a,b) (BITBAND_SRAM_BASE + (a-BITBAND_SRAM_REF)*32 + (b*4)) // Convert SRAM address
 
-/*
- * in hal_platform.h
-#define BITBAND_REG_BASE		0x40001000
- */
-
-/*
- * in rtl8195a_gpio.h
- *
-#define BITBAND_PORTA_DR           0x00        // data register
-#define BITBAND_PORTA_DDR          0x04        // data direction
-#define BITBAND_PORTA_CTRL         0x08        // data source control, we should keep it as default: data source from software
-
-#define BITBAND_PORTB_DR           0x0c        // data register
-#define BITBAND_PORTB_DDR          0x10        // data direction
-#define BITBAND_PORTB_CTRL         0x14        // data source control, we should keep it as default: data source from software
-
-#define BITBAND_PORTC_DR           0x18        // data register
-#define BITBAND_PORTC_DDR          0x1c        // data direction
-#define BITBAND_PORTC_CTRL         0x20        // data source control, we should keep it as default: data source from software
-
-#define BITBAND_EXT_PORTA          0x50        // GPIO IN read or OUT read back
-#define BITBAND_EXT_PORTB          0x54        // GPIO IN read or OUT read back
-#define BITBAND_EXT_PORTC          0x58        // GPIO IN read or OUT read back
-*/
+#define BITBAND_ADDR(a,b)	(0x02000000 + (a & 0xF0000000) + (a - (a & 0xF0000000)) * 32 + ((b) * 4))	// Convert address ?
 
 #define BITBAND_PERI_REF	0x40000000
 #define BITBAND_PERI_BASE	0x42000000
-#define BITBAND_PERI(a,b)	(BITBAND_PERI_BASE + (a-BITBAND_PERI_REF)*32 + (b*4))	// Convert PERI address
+#define BITBAND_PERI(a,b)	(BITBAND_PERI_BASE + (a - BITBAND_PERI_REF) * 32 + ((b) * 4))	// Convert PERI address
+
 #define ucBITBAND_PERI(a,b)	*((volatile unsigned char *)BITBAND_PERI(a,b))
 #define uiBITBAND_PERI(a,b) *((volatile unsigned int *)BITBAND_PERI(a,b))
 
@@ -142,5 +120,11 @@
 #define BITBAND_K4 ucBITBAND_PERI(GPIO_REG_BASE+GPIO_PORTC_DR,24)  //Port = 2, bit = 24, K4
 #define BITBAND_K5 ucBITBAND_PERI(GPIO_REG_BASE+GPIO_PORTC_DR,25)  //Port = 2, bit = 25, K5
 #define BITBAND_K6 ucBITBAND_PERI(GPIO_REG_BASE+GPIO_PORTC_DR,26)  //Port = 2, bit = 26, K6
+
+volatile u8 * BitBandAddr(void *addr, u8 bit);
+volatile u8 * BitBandPeriAddr(void *addr, u8 bit);
+volatile u8 * GetOutPinBitBandAddr(PinName pin);
+volatile u8 * GetInpPinBitBandAddr(PinName pin);
+volatile u8 * HardSetPin(PinName pin, PinDirection pdir, PinMode pmode, u8 val);
 
 #endif // _BITBAND_IO_H_

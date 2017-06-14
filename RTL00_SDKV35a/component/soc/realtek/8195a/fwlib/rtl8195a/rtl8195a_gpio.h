@@ -261,6 +261,14 @@ GPIO_Int_SetType_8195a(
     u8 int_mode
 );
 
+_LONG_CALL_ VOID
+GPIO_Int_Mask_8195a(
+		u8 pin_num,
+		u8 En
+);
+
+_LONG_CALL_ u32 GPIO_FuncOn_8195a(VOID);
+_LONG_CALL_ u32 GPIO_FuncOff_8195a(VOID);
 
 _LONG_CALL_  HAL_Status HAL_GPIO_IntCtrl_8195aV02(HAL_GPIO_PIN  *GPIO_Pin, u32 En);
 _LONG_CALL_ u32 GPIO_Int_Clear_8195aV02(u32 irq_clr);
