@@ -5,6 +5,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "freertos_pmu.h"
 #include "at_cmd/log_service.h"
 #include "at_cmd/atcmd_wifi.h"
 #include <lwip_netconf.h>
@@ -327,17 +328,17 @@ LOCAL void fATSP(int argc, char *argv[])
 		switch (argv[1][0]) {
 		case 'a': // acquire
 		{
-			acquire_wakelock(atoi(argv[2]));
+			pmu_acquire_wakelock(atoi(argv[2]));
 			break;
 		}
 		case 'r': // release
 		{
-			release_wakelock(atoi(argv[2]));
+			pmu_release_wakelock(atoi(argv[2]));
 			break;
 		}
 		};
 	};
-	printf("WakeLock Status %d\n", get_wakelock_status());
+	printf("WakeLock Status %d\n", pmu_get_wakelock_status());
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

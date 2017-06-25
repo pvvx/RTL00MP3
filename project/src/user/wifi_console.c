@@ -7,6 +7,7 @@
 
 #include <autoconf.h>
 #include "FreeRTOS.h"
+#include "freertos_pmu.h"
 #include "diag.h"
 #include "wifi_api.h"
 #include "wifi_conf.h"
@@ -226,7 +227,7 @@ LOCAL void fATSF(int argc, char *argv[])
 
 LOCAL void fATWP(int argc, char *argv[]) {
 	if(argc > 1) {
-		release_wakelock(0xffff);
+		pmu_release_wakelock(0xffff);
 		wifi_set_power_mode(1, 1);
 		wifi_set_lps_dtim(atoi(argv[1]));
 	}

@@ -128,7 +128,9 @@ int i2sInit(int mask, int bufsize, int word_len) { // word_len = WL_16b or WL_24
 				HalPinCtrlRtl8195A(JTAG, 0, 0);
 				i2s_init(pi2s_obj, I2S0_SCLK_PIN, I2S0_WS_PIN, I2S0_SD_PIN);
 			    // Create a Semaphone
-				RtlInitSema(&I2sTxSema, 1);
+			    
+//				RtlInitSema(&I2sTxSema, 1); // 
+				I2sTxSema = xSemaphoreCreateCounting(MAX_SEMA_COUNT, 1); 
 			}
 			else i2s_init(pi2s_obj, I2S1_SCLK_PIN, I2S1_WS_PIN, I2S1_SD_PIN);
 			i2s_set_param(pi2s_obj, pi2s_obj->channel_num, pi2s_obj->sampling_rate, pi2s_obj->word_length);
