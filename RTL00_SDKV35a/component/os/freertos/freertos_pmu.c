@@ -201,6 +201,39 @@ void acquire_wakelock(uint32_t lock_id) {
 #endif
 
 }
+#if 0
+void pmu_acquire_wakelock(uint32_t lock_id) {
+
+    wakelock |= BIT(lock_id);
+#if (configGENERATE_RUN_TIME_STATS == 1)
+	    uint32_t i;
+        uint32_t current_timestamp = osKernelSysTick();
+        for (i=0; i<32; i++) {
+            if ( (1<<i & BIT(lock_id)) && (last_wakelock_state[i] == 0) ) {
+                last_acquire_wakelock_time[i] = current_timestamp;
+                last_wakelock_state[i] = 1;            
+            }
+        }
+#endif
+}
+
+void pmu_release_wakelock(uint32_t lock_id) {
+    wakelock &= ~BIT(lock_id);
+
+#if (configGENERATE_RUN_TIME_STATS == 1)
+    if (generate_wakelock_stats) {
+        uint32_t i;
+        uint32_t current_timestamp = osKernelSysTick();
+        for (i=0; i<32; i++) {
+            if ( (1<<i & BIT(lock_id)) && (last_wakelock_state[i] == 1) ) {
+                hold_wakelock_time[i] += current_timestamp - last_acquire_wakelock_time[i];
+                last_wakelock_state[i] = 0;
+            }
+        }
+    }
+#endif
+}
+#endif
 
 void release_wakelock(uint32_t lock_id) {
     wakelock &= ~lock_id;
@@ -217,6 +250,7 @@ void release_wakelock(uint32_t lock_id) {
 #endif
 
 }
+
 
 uint32_t get_wakelock_status() {
     return wakelock;

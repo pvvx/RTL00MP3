@@ -226,18 +226,25 @@ LOCAL void fATSF(int argc, char *argv[])
 }
 
 LOCAL void fATWP(int argc, char *argv[]) {
+	int x = 0;
 	if(argc > 1) {
-		pmu_release_wakelock(0xffff);
-		wifi_set_power_mode(1, 1);
-		wifi_set_lps_dtim(atoi(argv[1]));
-	}
-	else {
-		unsigned char x;
-		if(wifi_get_lps_dtim(&x) >= 0) {
-			printf("DTIM: %d\n", x);
+		x = atoi(argv[1]);
+		if(x == 0) {
+			acquire_wakelock(~WAKELOCK_WLAN);
+			release_wakelock(0xffff);
+			_wext_enable_powersave(0, 0, 0);
+			_wext_set_lps_dtim(0, 1);
+		} else {
+			release_wakelock(~WAKELOCK_WLAN);
+			_wext_enable_powersave(0, 1, 1);
+			_wext_set_lps_dtim(0, x);
 		}
 	}
+	else {
+		printf("DTIM: %d\n", _wext_get_lps_dtim(0));
+	}
 }
+
 /* --------  WiFi Scan ------------------------------- */
 LOCAL void scan_result_handler(internal_scan_handler_t* ap_scan_result)
 {
@@ -318,7 +325,7 @@ MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"ATWT", 1, fATWT, "=<tx_power>: WiFi tx power: 0 - 100%, 1 - 75%, 2 - 50%, 3 - 25%, 4 - 12.5%"},
 		{"ATSF", 0, fATSF, ": Test TSF value"},
 #endif
-		{"ATWP", 0, fATWP, ": WiFi power"},
+//		{"ATWP", 0, fATWP, "=[dtim]: 0 - WiFi ipc/lpc off, 1..10 - on + dtim"},
 		{"ATSN", 0, fATSN, ": Scan networks"}
 };
 

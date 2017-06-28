@@ -34,8 +34,13 @@ void sys_recover_ota_signature(void);
 void sys_log_uart_on(void);
 void sys_log_uart_off(void);
 void sys_adc_calibration(u8 write, u16 *offset, u16 *gain);
-u8   sys_is_sdram_power_on(void);
+#ifdef	CONFIG_SDR_EN
 void sys_sdram_off(void);
+u8   sys_is_sdram_power_on(void);
+#else
+#define sys_sdram_off()
+#define sys_is_sdram_power_on() (0)
+#endif
 
 /**
  *  @brief   system software reset

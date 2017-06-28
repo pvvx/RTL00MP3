@@ -657,7 +657,6 @@ void fATSR(void *arg) {
 
 void fATSV(void *arg) {
 	char at_buf[32];
-	char fw_buf[32];
 	char cspimode[4] = { 'S', 'D', 'Q', '?' };
 
 	if (fspic_isinit == 0) {
@@ -675,9 +674,8 @@ void fATSV(void *arg) {
 	strcpy(at_buf, ATCMD_VERSION"."ATCMD_SUBVERSION"."ATCMD_REVISION);
 
 	// get fw version
-	strcpy(fw_buf, SDK_VERSION);
-	printf("%s,%s(%s)\n", at_buf, fw_buf, RTL8195AFW_COMPILE_TIME);
-	at_printf("\r\n[ATSV] OK:%s,%s(%s)", at_buf, fw_buf,
+	printf("%s,%s(%s)\n", at_buf, SDK_VERSION, RTL8195AFW_COMPILE_TIME);
+	at_printf("\r\n[ATSV] OK:%s,%s(%s)", at_buf, SDK_VERSION,
 			RTL8195AFW_COMPILE_TIME);
 }
 

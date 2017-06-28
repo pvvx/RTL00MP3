@@ -114,10 +114,10 @@ void register_post_sleep_callback( freertos_sleep_callback post_sleep_cb );
 void set_pll_reserved(unsigned char reserve);
 
 /* SDK 4.0a compatible */
-#define pmu_release_wakelock release_wakelock
-#define pmu_acquire_wakelock acquire_wakelock
+#define pmu_acquire_wakelock(nDeviceId) acquire_wakelock(1<<(nDeviceId))
+#define pmu_release_wakelock(nDeviceId) release_wakelock(1<<(nDeviceId))
 #define pmu_get_wakelock_status get_wakelock_status
-#define pmu_set_pll_reserved set_pll_reserved
 #define pmu_enable_wakelock_stats
+#define pmu_set_pll_reserved set_pll_reserved
 
 #endif

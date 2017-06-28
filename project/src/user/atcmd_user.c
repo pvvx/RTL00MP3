@@ -328,12 +328,12 @@ LOCAL void fATSP(int argc, char *argv[])
 		switch (argv[1][0]) {
 		case 'a': // acquire
 		{
-			pmu_acquire_wakelock(atoi(argv[2]));
+			acquire_wakelock(atoi(argv[2]));
 			break;
 		}
 		case 'r': // release
 		{
-			pmu_release_wakelock(atoi(argv[2]));
+			release_wakelock(atoi(argv[2]));
 			break;
 		}
 		};

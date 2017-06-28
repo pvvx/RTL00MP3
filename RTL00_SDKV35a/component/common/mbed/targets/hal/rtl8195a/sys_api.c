@@ -203,28 +203,16 @@ void sys_reset(void)
 	                              (1 << 2));                                  // SYSRESETREQ
 }
 
+#ifdef	CONFIG_SDR_EN
 u8 sys_is_sdram_power_on(void)
 {
-#ifdef	CONFIG_SDR_EN
-//	u8 ison = 0;
-
-//#if defined ( __ICCARM__ )
 	return IsSdrPowerOn();
-//#endif
-
-//	return ison;
-#else
-	return 0;
-#endif
 }
 
 void sys_sdram_off(void)
 {
-#ifdef	CONFIG_SDR_EN
-//#if defined ( __ICCARM__ )
 	if (IsSdrPowerOn()) {
 		SdrPowerOff();
 	}
-//#endif
-#endif
 }
+#endif
