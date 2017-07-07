@@ -40,7 +40,7 @@ all: LIBS +=_platform_new _wlan _p2p _wps _websocket _sdcard _xmodem _mdns
 mp: LIBS +=_platform_new _wlan_mp _wps _p2p _websocket _sdcard _xmodem _mdns
 endif
 # m c nosys gcc
-PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
+PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/GCC
 LDFILE = rlx8195A-symbol-v04-img2.ld
 BOOTS = sdk/component/soc/realtek/8195a/misc/bsp/image
 
