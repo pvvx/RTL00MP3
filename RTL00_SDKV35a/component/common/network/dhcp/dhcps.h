@@ -30,8 +30,8 @@
 #define DHCP_MESSAGE_HTYPE 				(1)
 #define DHCP_MESSAGE_HLEN  				(6)
 
-#define DHCP_SERVER_PORT  				(67)
-#define DHCP_CLIENT_PORT  				(68)
+//#define DHCP_SERVER_PORT  				(67)
+//#define DHCP_CLIENT_PORT  				(68)
 
 #define DHCP_MESSAGE_TYPE_DISCOVER  			(1)
 #define DHCP_MESSAGE_TYPE_OFFER     			(2)

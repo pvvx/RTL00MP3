@@ -58,13 +58,11 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
 
     _memset((void*)obj, 0, sizeof(spi_t));
     obj->state = 0;
-    uint32_t SystemClock = SystemGetCpuClk();
-    uint32_t MaxSsiFreq  = (SystemClock >> 2) >> 1;
 
     /* SsiClockDivider doesn't support odd number */
 
-    DBG_SSI_INFO("SystemClock: %d\n", SystemClock);
-    DBG_SSI_INFO("MaxSsiFreq : %d\n", MaxSsiFreq);
+    DBG_SSI_INFO("SystemClock: %d\n", SystemGetCpuClk());
+    DBG_SSI_INFO("MaxSsiFreq : %d\n", (SystemClock >> 2) >> 1);
 
     ssi_mosi = pinmap_peripheral(mosi, PinMap_SSI_MOSI);
     ssi_miso = pinmap_peripheral(miso, PinMap_SSI_MISO);

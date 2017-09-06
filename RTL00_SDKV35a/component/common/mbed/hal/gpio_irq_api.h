@@ -27,7 +27,9 @@ extern "C" {
 typedef enum {
     IRQ_NONE,
     IRQ_RISE,
-    IRQ_FALL
+    IRQ_FALL,
+    IRQ_LOW,
+    IRQ_HIGH
 } gpio_irq_event;
 
 typedef void (*gpio_irq_handler)(uint32_t id, gpio_irq_event event);

@@ -5,9 +5,9 @@
 #ifndef _INC_RTL_LIBC_
 #define _INC_RTL_LIBC_
 
-//#undef malloc
+#undef malloc
 #define malloc(size)            pvPortMalloc(size)
-//#undef free
+#undef free
 #define free(pbuf)              vPortFree(pbuf)
 
 #define atoi(str)               prvAtoi(str)

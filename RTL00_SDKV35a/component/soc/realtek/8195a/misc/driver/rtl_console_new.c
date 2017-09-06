@@ -13,6 +13,7 @@
 #include "rtl8195a.h"
 #include "rtl_bios_data.h"
 #include "osdep_api.h"
+#include "osdep_service.h"
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
 #include "freertos_pmu.h"
 #else
@@ -44,7 +45,7 @@ IN u8 EchoFlag);
 //_LONG_CALL_ extern void UartLogCmdExecute(IN PUART_LOG_CTL pUartLogCtlExe);
 //======================================================
 extern PCOMMAND_TABLE UartLogRamCmdTable[];
-extern UartLogRamCmdTableSize;
+extern int UartLogRamCmdTableSize;
 //======================================================
 //<Function>:  UartLogIrqHandleRam
 //<Usage   >:  To deal with Uart-Log RX IRQ
@@ -61,7 +62,7 @@ void UartLogIrqHandleRam(void * Data) {
 	if (UartReceiveData == 0) {
 		goto exit;
 	}
-	PUART_LOG_CTL p = pUartLogCtl;
+	PUART_LOG_CTL p = (PUART_LOG_CTL) pUartLogCtl;
 	//KB_ESC chk is for cmd history, it's a special case here.
 	if (UartReceiveData == KB_ASCII_ESC) {
 		// Esc detection is only valid in the first stage of boot sequence (few seconds)
@@ -102,7 +103,7 @@ void UartLogIrqHandleRam(void * Data) {
 				if (p->pTmpLogBuf != NULL) {
 					p->ExecuteCmd = _TRUE;
 					if (p->TaskRdy) {
-						RtlUpSemaFromISR((_Sema *) &pUartLogCtl->Sema);
+						rtw_up_sema_from_isr((_Sema *) &pUartLogCtl->Sema);
 					}
 				} else {
 					ArrayInitialize((u8 *) pUartLogCtl->pTmpLogBuf->UARTLogBuf,
@@ -130,7 +131,7 @@ int GetArgvRam(IN u8 *pstr, u8** argv) {
 	int arvc = 0;
 //	u8** argv = ArgvArray;
 	u8* p = pstr;
-	u8 t, n = ' ';
+	u8 t = 0, n = ' ';
 	int m = 0;
 	while(*p != 0
 		&& *p != '\r'
@@ -200,7 +201,7 @@ int GetArgvRam(IN u8 *pstr, u8** argv) {
 //<Notes   >:
 //======================================================
 MON_RAM_TEXT_SECTION void RtlConsolTaskRam(void *Data) {
-	PUART_LOG_CTL p = pUartLogCtl;
+	PUART_LOG_CTL p = (PUART_LOG_CTL) pUartLogCtl;
 #ifdef USE_ROM_CONSOLE // show Help
 	p->pTmpLogBuf->UARTLogBuf[0] = '?';
 	p->pTmpLogBuf->BufCount = 1;
@@ -208,7 +209,7 @@ MON_RAM_TEXT_SECTION void RtlConsolTaskRam(void *Data) {
 #endif
 	do {
 		p->TaskRdy = _TRUE;
-		RtlDownSema(&p->Sema);
+		rtw_down_sema(&p->Sema);
 		if (p->ExecuteCmd) {
 			//	UartLogCmdExecute(pUartLogCtl);
 			int argc = GetArgvRam(p->pTmpLogBuf->UARTLogBuf, ArgvArray);
@@ -225,9 +226,9 @@ MON_RAM_TEXT_SECTION void RtlConsolTaskRam(void *Data) {
 						flg = 0;
 						if(pcmd->ArgvCnt < argc) {
 #ifdef USE_ROM_CONSOLE
-							pcmd->func(argc-1, &ArgvArray[1]);
+							pcmd->func(argc-1, (char **) &ArgvArray[1]);
 #else
-							pcmd->func(argc, &ArgvArray);
+							pcmd->func(argc, (char **) &ArgvArray);
 #endif
 						} else {
 #ifdef USE_ROM_CONSOLE
@@ -291,7 +292,7 @@ MON_RAM_TEXT_SECTION void console_init(void) {
 #endif
 	pUartLogCtl->RevdNo = UART_LOG_HISTORY_LEN;
 	// Create a Semaphone
-	RtlInitSema(&pUartLogCtl->Sema, 1);
+	rtw_init_sema((_sema *)&pUartLogCtl->Sema, 1);
 	// executing boot sequence
 	pUartLogCtl->ExecuteCmd = _FALSE;
 	pUartLogCtl->ExecuteEsc = _TRUE;		//don't check Esc anymore
@@ -316,7 +317,7 @@ extern char str_rom_57ch3Dch0A[]; // "==========================================
 _WEAK void console_help(int argc, char *argv[]) { 	// Help
 	DiagPrintf("CONSOLE COMMAND SET:\n");
 	DiagPrintf(&str_rom_57ch3Dch0A[25]); //	DiagPrintf("==============================\n");
-	PCOMMAND_TABLE pcmdtab = UartLogRamCmdTable;
+	PCOMMAND_TABLE pcmdtab = (PCOMMAND_TABLE) UartLogRamCmdTable;
 	while(pcmdtab->cmd) {
 #ifdef USE_ROM_CONSOLE
 		DiagPrintf(pcmdtab->msg);
@@ -327,7 +328,8 @@ _WEAK void console_help(int argc, char *argv[]) { 	// Help
 	}
 	DiagPrintf(&str_rom_57ch3Dch0A[25]); //	DiagPrintf("==============================\n");
 }
-LOCAL void print_on(int argc, char *argv[])
+
+void print_on(int argc, char *argv[])
 {
 	print_off = argv[1][0]!='1';
 }

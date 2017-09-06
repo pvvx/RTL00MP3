@@ -85,18 +85,14 @@ extern uint32_t SystemCoreClock;
  * See http://www.freertos.org/a00110.html.
  *----------------------------------------------------------*/
 
-#define configUSE_STACK_TCM_HEAP		1 // RTL871xAx/RTL8195Ax Stack priority used TCM HEAP
+#define configUSE_STACK_TCM_HEAP		5 // RTL871xAx/RTL8195Ax Stack priority used TCM HEAP
 #define configUSE_PREEMPTION			1
 #define configUSE_IDLE_HOOK				1
 #define configUSE_TICK_HOOK				0
 #define configCPU_CLOCK_HZ				( SystemCoreClock )
 #define configTICK_RATE_HZ				( ( uint32_t ) 1000 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 70 )
-#ifdef CONFIG_UVC
-#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 110 * 1024 ) )	// use HEAP5
-#else
-#define configTOTAL_HEAP_SIZE			( ( size_t )  ( 90 * 1024 ) )	// use HEAP5
-#endif
+#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 90 * 1024 ) ) // use HEAP5
 #define configMAX_TASK_NAME_LEN			( 10 )
 #define configUSE_TRACE_FACILITY		0
 #define configUSE_16_BIT_TICKS			0
@@ -112,10 +108,11 @@ extern uint32_t SystemCoreClock;
 
 #define configUSE_COUNTING_SEMAPHORES 	1
 #define configUSE_ALTERNATIVE_API 		0
-#define configCHECK_FOR_STACK_OVERFLOW	2
+#define configCHECK_FOR_STACK_OVERFLOW	0
 #define configUSE_RECURSIVE_MUTEXES		1
 #define configQUEUE_REGISTRY_SIZE		0
 #define configGENERATE_RUN_TIME_STATS	1
+
 #if configGENERATE_RUN_TIME_STATS
 #define configUSE_STATS_FORMATTING_FUNCTIONS 1
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() //( ulHighFrequencyTimerTicks = 0UL )
@@ -137,8 +134,8 @@ extern uint32_t SystemCoreClock;
 
 #if (__IASMARM__ != 1)
 
-extern void freertos_pre_sleep_processing(unsigned int *expected_idle_time);
-extern void freertos_post_sleep_processing(unsigned int *expected_idle_time);
+extern void freertos_pre_sleep_processing(uint32_t *expected_idle_time);
+extern void freertos_post_sleep_processing(uint32_t *expected_idle_time);
 extern int  freertos_ready_to_sleep();
 
 /* Enable tickless power saving. */
@@ -164,7 +161,7 @@ extern int  freertos_ready_to_sleep();
 #define traceLOW_POWER_IDLE_END();              } while (0);
 
 /* It's FreeRTOS related feature but it's not included in FreeRTOS design. */
-#define configUSE_WAKELOCK_PMU                  1
+#define configUSE_WAKELOCK_PMU          1
 
 #endif // #if (__IASMARM__ != 1)
 
@@ -209,5 +206,7 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 
 //#define RTK_MODE_TIMER
 
+
+#define INCLUDE_uxTaskGetStackHighWaterMark 1
 
 #endif /* FREERTOS_CONFIG_H */

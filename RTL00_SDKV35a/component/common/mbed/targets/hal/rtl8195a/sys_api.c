@@ -41,7 +41,7 @@ extern void HalDeinitLogUart(void);
 
 #ifdef	CONFIG_SDR_EN
 //#if defined ( __ICCARM__ )
-extern u8 IsSdrPowerOn();
+extern u8 IsSdrPowerOn(void);
 //#endif
 #endif
 /**
@@ -204,10 +204,15 @@ void sys_reset(void)
 }
 
 #ifdef	CONFIG_SDR_EN
+
+extern u8 IsSdrPowerOn(void);
+
 u8 sys_is_sdram_power_on(void)
 {
 	return IsSdrPowerOn();
 }
+
+extern void SdrPowerOff(void);
 
 void sys_sdram_off(void)
 {

@@ -170,7 +170,6 @@ int rtl_vprintf(const char *fmt, va_list param) {
 int rtl_vsnprintf(char *str, size_t size, const char *fmt, va_list param) {
 	int result;
 	int w;
-	int v11;
 	FILE f;
 #if CHECK_LIBC_INIT
 	if (!libc_has_init) {

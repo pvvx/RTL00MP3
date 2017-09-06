@@ -34,7 +34,7 @@ void HalReInitPlatformTimer(void)
   TimerAdapter.IrqDis = 1;
   TimerAdapter.TimerId = 1;
   HalTimerOpInit_Patch(&HalTimerOp);
-  HAL_TIMER_OP x;
+//  HAL_TIMER_OP x;
   HalTimerOp.HalTimerInit(&TimerAdapter);
   HalTimerOp.HalTimerEn(1);
 }

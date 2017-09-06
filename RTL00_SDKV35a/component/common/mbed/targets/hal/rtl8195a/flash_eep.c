@@ -350,7 +350,7 @@ LOCAL FLASH_EEP_ATTR unsigned int pack_cfg_fmem(fobj_head obj)
 #if 0
 				copy_align4_to_align1((uint8 *)pbuf, rdaddr, len);
 #else
-				SpicUserReadFourByteRtl8195A(len, rdaddr, (unsigned int *)pbuf, flashobj.SpicInitPara.Mode.BitMode);
+				SpicUserReadFourByteRtl8195A(len, rdaddr, (u32 *)pbuf, flashobj.SpicInitPara.Mode.BitMode);
 #endif
 				int i = 0;
 				int size4b = len >> 2;
@@ -376,7 +376,7 @@ LOCAL signed short FLASH_EEP_ATTR _flash_write_cfg(void *ptr, unsigned short id,
 	fobj_head fobj;
 	fobj.n.id = id;
 	fobj.n.size = size;
-	bool retb = false;
+//	bool retb = false;
 	unsigned int faddr = get_addr_bscfg(false);
 
 	if(faddr >= FMEM_ERROR_MAX)  {

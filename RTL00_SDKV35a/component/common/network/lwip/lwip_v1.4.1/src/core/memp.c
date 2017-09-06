@@ -140,7 +140,7 @@ static const u16_t memp_num[MEMP_MAX] = {
 };
 
 /** This array holds a textual description of each pool. */
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) && (LWIP_DEBUG != 0)
 static const char *memp_desc[MEMP_MAX] = {
 #define LWIP_MEMPOOL(name,num,size,desc)  (desc),
 #include "lwip/memp_std.h"

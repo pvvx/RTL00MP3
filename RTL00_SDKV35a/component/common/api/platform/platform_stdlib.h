@@ -95,11 +95,11 @@
 	#define memset						rtl_memset
 	#define strcat						rtl_strcat
 	#define strchr						rtl_strchr
-	#define strcmp(s1, s2)				rtl_strcmp((const char *)s1, (const char *)s2)
+	#define strcmp						rtl_strcmp
 	#define strcpy						rtl_strcpy
-	#define strlen(str)					rtl_strlen((const char *)str)
+	#define strlen						rtl_strlen
 	#define strncat						rtl_strncat
-	#define strncmp(s1, s2, n)			rtl_strncmp((const char *)s1, (const char *)s2, n)
+	#define strncmp						rtl_strncmp
 	#define strncpy						rtl_strncpy
 	#define strstr						rtl_strstr
 	#define strsep						rtl_strsep
@@ -157,13 +157,22 @@
 //
 // memory management
 //
-#ifndef CONFIG_MBED_ENABLED
-extern void *pvPortMalloc( size_t xWantedSize );
-extern void vPortFree( void *pv );
-#define malloc                  pvPortMalloc
-#define zalloc                  pvPortZalloc
-#define free                    vPortFree
-#endif
+#undef malloc
+extern void *pvPortMalloc(size_t xWantedSize);
+#define malloc   pvPortMalloc
+
+#undef zalloc
+extern void *pvPortZalloc(size_t xWantedSize);
+#define zalloc   pvPortZalloc
+
+#undef realloc
+extern void *pvPortReAlloc(void *pv, size_t xWantedSize);
+#define realloc  pvPortReAlloc
+
+#undef free
+extern void vPortFree(void *pv);
+#define free     vPortFree
+
 #elif defined (CONFIG_PLATFORM_8711B)
 
 #if defined (__IARSTDLIB__)

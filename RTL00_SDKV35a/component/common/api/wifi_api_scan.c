@@ -90,7 +90,7 @@ LOCAL void _wifi_scan_done_hdl(char* buf, int buf_len, int flags, void* userdata
 	web_scan_handler_t * pwscn_rec = &web_scan_handler_ptr;
 	if(pscan_rec->gscan_result_handler) {
 		// сторонний вывод
-		(*pscan_rec->gscan_result_handler)(pscan_rec);
+		(*pscan_rec->gscan_result_handler)((rtw_scan_handler_result_t *) pscan_rec);
 	}
 	else {
 		// оставить структуру pscan_rec->pap_details[i] для вывода в web scan на 5 сек
@@ -136,6 +136,7 @@ LOCAL int _wifi_scan_networks(rtw_scan_result_handler_t results_handler) {
 }
 
 /* --------  wext_set_pscan_channels ----------------- */
+extern int iw_ioctl(const char * ifname, unsigned long request, struct iwreq * pwrq);
 
 LOCAL int wext_set_pscan_channels(void) {
 	struct iwreq iwr;
@@ -183,7 +184,7 @@ rtw_result_t api_wifi_scan(api_scan_result_handler_t scan_result_cb)
 //			error_printf("Error xTimerStart\n");
 		} else if(wext_set_pscan_channels() < 0) {
 //			error_printf("ERROR: wifi set partial scan channel fail\n");
-		} else if(_wifi_scan_networks(scan_result_cb) != RTW_SUCCESS) {
+		} else if(_wifi_scan_networks((rtw_scan_result_handler_t) scan_result_cb) != RTW_SUCCESS) {
 //			error_printf("ERROR: wifi scan failed\n");
 		} else if(scan_result_cb) {
 			int i = 300;

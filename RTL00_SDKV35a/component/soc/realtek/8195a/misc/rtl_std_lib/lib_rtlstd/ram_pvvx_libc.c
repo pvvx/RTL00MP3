@@ -67,9 +67,12 @@ unsigned long long __aeabi_llsr(unsigned long long val, unsigned int shift);
 
 extern struct _reent * _rtl_impure_ptr;
 
+#if CHECK_LIBC_INIT
 extern char libc_has_init;
+#endif
 extern char print_off;
 
+#undef snprintf
 //-------------------------------------------------------------------------
 // Function
 //----- snprintf()
@@ -107,7 +110,9 @@ int snprintf(char *str, size_t size, const char *fmt, ...) {
 	return result;
 }
 
+
 #ifndef ENAC_FLOAT
+#undef sprintf
 //----- sprintf()
 int sprintf(char *str, const char *fmt, ...) {
 	FILE f;
@@ -131,6 +136,7 @@ int sprintf(char *str, const char *fmt, ...) {
 	return result;
 }
 
+#undef printf
 //----- printf()
 int printf(const char *fmt, ...) {
 #if CHECK_LIBC_INIT
@@ -151,6 +157,7 @@ int printf(const char *fmt, ...) {
 	else return 0;
 }
 
+#undef vprintf
 //----- vprintf()
 int vprintf(const char * fmt, __VALIST param) {
 #if CHECK_LIBC_INIT
@@ -165,11 +172,11 @@ int vprintf(const char * fmt, __VALIST param) {
 }
 #endif // ENAC_FLOAT
 
+#undef vsnprintf
 //----- vsnprintf()
 int vsnprintf(char *str, size_t size, const char *fmt, __VALIST param) {
 	int result;
 	int w;
-	int v11;
 	FILE f;
 #if CHECK_LIBC_INIT
 	if (!libc_has_init) {
@@ -199,6 +206,7 @@ int vsnprintf(char *str, size_t size, const char *fmt, __VALIST param) {
 	return result;
 }
 
+#undef vfprintf
 //----- vfprintf()
 int vfprintf(FILE *fp, const char *fmt0, va_list ap) {
 #if CHECK_LIBC_INIT
@@ -209,86 +217,103 @@ int vfprintf(FILE *fp, const char *fmt0, va_list ap) {
 	return __rtl_vfprintf_r_v1_00(_rtl_impure_ptr, fp, fmt0, ap);
 }
 
+#undef memchr
 //----- memchr()
 void * memchr(const void * src_void , int c , size_t length) {
 	return __rtl_memchr_v1_00(src_void, c, length);
 }
 
+#undef memcmp
 //----- memcmp()
 int memcmp(const void *m1, const void *m2, size_t n) {
 	return __rtl_memcmp_v1_00(m1, m2, n);
 }
 
+#undef memcpy
 //----- memcpy()
 void * memcpy(void *dst0, const void *src0, size_t len0) {
 	return __rtl_memcpy_v1_00(dst0, src0, len0);
 }
 
+#undef memmove
 //----- memmove()
 void * memmove(void *dst_void, const void *src_void, size_t length) {
 	return __rtl_memmove_v1_00(dst_void, src_void, length);
 }
 
+#undef memset
 //----- memset()
 void * memset(void *m, int c, size_t n) {
 	return __rtl_memset_v1_00(m, c, n);
 }
 
+#undef strcat
 //----- strcat()
 char * strcat(char *s1, const char *s2) {
 	return (char *) __rtl_strcat_v1_00(s1, s2);
 }
-
+#undef strchr
 //----- strchr()
 char * strchr(const char *s1, int i) {
 	return (char *) __rtl_strchr_v1_00(s1, i);
 }
 
+#undef strcmp
 //----- strcmp()
 int strcmp(const char *s1, const char *s2) {
 	return __rtl_strcmp_v1_00(s1, s2);
 }
 
+#undef strcpy
 //----- strcpy()
 char * strcpy(char *dst0, const char *src0) {
 	return (char *) __rtl_strcpy_v1_00(dst0, src0);
 }
 
+#undef strlen
 //----- strlen()
 size_t strlen(const char *str) {
 	return __rtl_strlen_v1_00(str);
 }
 
+#undef strncat
 //----- strncat()
 char * strncat(char *s1, const char *s2, size_t n) {
 	return (char *) __rtl_strncat_v1_00(s1, s2, n);
 }
 
+#undef strncmp
 //----- strncmp()
 int strncmp(const char *s1, const char *s2, size_t n) {
 	return __rtl_strncmp_v1_00(s1, s2, n);
 }
 
+#undef strncpy
 //----- strncpy()
 char * strncpy(char *dst0, const char *src0, size_t count) {
 	return (char *) __rtl_strncpy_v1_00(dst0, src0, count);
 }
 
+#undef strstr
 //----- strstr()
 char * strstr(const char *searchee, const char *lookfor) {
 	return (char *) __rtl_strstr_v1_00(searchee, lookfor);
 }
 
+#undef strsep
 //----- strsep()
 char * strsep(char **source_ptr, const char *delim) {
 	return (char *) __rtl_strsep_v1_00(source_ptr, delim);
 }
 
+#undef strtok
 //----- strtok()
 char * strtok(char *s, const char *delim) {
 	return (char *) __rtl_strtok_v1_00(s, delim);
 }
 
+extern _LONG_CALL_ROM_ int _vsscanf(const char *buf, const char *fmt, va_list args);
+#undef sscanf
 int sscanf(const char *buf, const char *fmt, ...) {
 	va_list args;
 	int i;
@@ -300,7 +325,7 @@ int sscanf(const char *buf, const char *fmt, ...) {
 	return i;
 }
 
-char toupper(char ch) {
+int toupper(int ch) {
  	return  ((ch >= 'a' && ch <= 'z') ? ch - 'a' + 'A' : ch);
 };
 
@@ -366,7 +391,7 @@ void longjmp(__jmp_buf buf, long value)
 
 extern __attribute__ ((long_call)) unsigned int Rand(void);
 
-unsigned int rand(void)
+int rand(void)
 {
 	return Rand();
 }
@@ -534,3 +559,8 @@ int __aeabi_fcmpgt(float a, float b)
 {
   return __rtl_fcmpgt_v1_00(a, b);
 }
+
+extern _LONG_CALL_ void __aeabi_memset(void *dest, size_t n, int c); //  { memset(dest, c, n); }
+
+void __aeabi_memclr(void *dest, size_t n) { __aeabi_memset(dest, n, 0); }
+void __aeabi_memclr4(void *dest, size_t n) { __aeabi_memset(dest, n, 0); }

@@ -4,6 +4,7 @@
  */
 
 #include "basic_types.h"
+#include "rt_lib_rom.h"
 
 //-------------------------------------------------------------------------
 // Function declarations

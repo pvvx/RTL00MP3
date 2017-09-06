@@ -91,9 +91,12 @@ static void arp_timer(void *arg);
 
 #if LWIP_NETIF_HOSTNAME
 char lwip_host_name[NET_IF_NUM][LWIP_NETIF_HOSTNAME_SIZE] = {
-		DEF_HOSTNAME"0",
-		DEF_HOSTNAME"1",
-		DEF_HOSTNAME"2"
+		{ DEF_HOSTNAME"0" },
+		{ DEF_HOSTNAME"1" }
+#if NET_IF_NUM > 2
+		,{ DEF_HOSTNAME "2" }
+#endif
+
 };
 #endif
 

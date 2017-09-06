@@ -202,6 +202,7 @@ HeapRegion_t xHeapRegions[] =
 #endif
 #endif
 
+static void vPortDefineHeapRegions(const HeapRegion_t * const pxHeapRegions);
 /*-----------------------------------------------------------*/
 /*
  Dump xBlock list
@@ -501,7 +502,7 @@ static void vPortDefineHeapRegions(const HeapRegion_t * const pxHeapRegions) {
 
 	uint8 chip_id = HalGetChipId();
 	while (pxHeapRegion->xSizeInBytes > 0) {
-		if (pxHeapRegion->pucStartAddress
+		if ((uint32_t)pxHeapRegion->pucStartAddress
 				> 0x20000000 && chip_id >= CHIP_ID_8711AN && chip_id <= CHIP_ID_8711AF) {
 //				pxHeapRegion->pucStartAddress = 0;
 //				pxHeapRegion->xSizeInBytes = 0;
@@ -583,6 +584,8 @@ static void vPortDefineHeapRegions(const HeapRegion_t * const pxHeapRegions) {
 	configASSERT( xTotalHeapSize );
 
 }
+
+extern void * rtl_memcpy(void *dst0, const void *src0, size_t len0);
 
 void* pvPortReAlloc(void *pv, size_t xWantedSize) {
 	BlockLink_t *pxLink;

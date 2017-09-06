@@ -1,6 +1,7 @@
 #ifndef __NETBIOS_H__
 #define __NETBIOS_H__
 
+#include "autoconf.h"
 #include "lwip/opt.h"
 
 /** default port number for "NetBIOS Name service */
@@ -9,9 +10,9 @@
 /** size of a NetBIOS name */
 #define NETBIOS_NAME_LEN 16
 
-#ifndef NET_IF_NUM
-#define NET_IF_NUM 2
-#endif
+//#ifndef NET_IF_NUM
+//#define NET_IF_NUM 2
+//#endif
 
 #ifdef __cplusplus
 extern "C" {

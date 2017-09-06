@@ -10,10 +10,12 @@
 #include "wifi_constants.h"
 #include "queue.h"
 
+#ifndef ip4_addr1
 #define ip4_addr1(ipaddr) (((uint8_t*)(ipaddr))[0])
 #define ip4_addr2(ipaddr) (((uint8_t*)(ipaddr))[1])
 #define ip4_addr3(ipaddr) (((uint8_t*)(ipaddr))[2])
 #define ip4_addr4(ipaddr) (((uint8_t*)(ipaddr))[3])
+#endif
 
 #define IPSTR "%d.%d.%d.%d"
 
@@ -118,8 +120,8 @@ extern unsigned char wifi_mode; // rtw_mode_t
 extern unsigned char wifi_st_status; // WIFI_STA_ENUM
 extern char wlan_st_name[];
 extern char wlan_ap_name[];
-extern char wlan_st_netifn;
-extern char wlan_ap_netifn;
+extern unsigned char wlan_st_netifn;
+extern unsigned char wlan_ap_netifn;
 
 /* WiFi Station & scan security */
 typedef enum {
@@ -152,6 +154,9 @@ void show_wifi_st_ip(void);
 void show_wifi_cfg(void);
 void show_wifi_st_cfg(void);
 void show_wifi_ap_cfg(void);
+#if SDK_VER_NUM >= 0x4000
+int show_wifi_ap_clients(void);
+#endif
 uint32 read_wifi_cfg(uint32 flg);
 uint32 write_wifi_cfg(uint32 flg);
 int wifi_run(rtw_mode_t mode);
@@ -183,6 +188,11 @@ extern web_scan_handler_t web_scan_handler_ptr;
 typedef rtw_result_t (*api_scan_result_handler_t)(internal_scan_handler_t * ap_scan_result);
 rtw_result_t api_wifi_scan(api_scan_result_handler_t scan_result_cb);
 void wifi_close_scan(void);
+
+
+rtw_result_t _wext_set_lps_dtim(int adapter_num, uint8 lps_dtim);
+int _wext_get_lps_dtim(int adapter_num);
+rtw_result_t _wext_enable_powersave(int adapter_num, uint8 ips_mode, uint8 lps_mode);
 
 
 #endif // _WIFI_API_H_

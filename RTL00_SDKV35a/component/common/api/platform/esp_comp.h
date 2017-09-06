@@ -9,22 +9,30 @@
 #define DATA_IRAM_ATTR
 #define ICACHE_RAM_ATTR
 
-#define os_printf(...) rtl_printf(__VA_ARGS__)
-#define os_printf_plus(...) rtl_printf(__VA_ARGS__)
-#define os_sprintf_fd(...) rtl_sprintf(__VA_ARGS__)
-#define ets_sprintf(...) rtl_sprintf(__VA_ARGS__)
-#ifndef os_malloc
-#define os_malloc   pvPortMalloc
-#define os_zalloc   pvPortZalloc
-#define os_calloc   pvPortCalloc
-#define os_realloc  pvPortRealloc
-#endif
-#undef os_free
-#define os_free     vPortFree
-#define system_get_free_heap_size xPortGetFreeHeapSize
-#undef os_realloc
-#define os_realloc  pvPortReAlloc
 
+#define os_printf rtl_printf
+#define os_printf_plus rtl_printf
+#define os_sprintf_fd rtl_sprintf
+#define ets_sprintf rtl_sprintf
+
+//#ifndef os_malloc
+#undef os_malloc
+extern void *pvPortMalloc(size_t xWantedSize);
+#define os_malloc   pvPortMalloc
+#undef os_zalloc
+extern void *pvPortZalloc(size_t xWantedSize);
+#define os_zalloc   pvPortZalloc
+//#undef os_calloc
+//#define os_calloc   pvPortCalloc
+#undef os_realloc
+extern void *pvPortReAlloc(void *pv, size_t xWantedSize);
+#define os_realloc  pvPortReAlloc
+#undef os_free
+extern void vPortFree(void *pv);
+#define os_free     vPortFree
+//#endif
+extern size_t xPortGetFreeHeapSize(void);
+#define system_get_free_heap_size xPortGetFreeHeapSize
 
 #define os_bzero rtl_bzero
 #define os_delay_us wait_us // HalDelayUs
@@ -104,22 +112,28 @@ extern SpiFlashChip * flashchip; // in RAM-BIOS: 0x3fffc714
 #define spi_flash_read(faddr, pbuf, size) flash_stream_read(&flashobj, faddr, size, (uint8_t *)pbuf)
 #define spi_flash_erase_block(blk) flash_erase_block(&flashobj, (blk)<<16);
 
+#ifndef ip4_addr1
 #define ip4_addr1(ipaddr) (((u8_t*)(ipaddr))[0])
 #define ip4_addr2(ipaddr) (((u8_t*)(ipaddr))[1])
 #define ip4_addr3(ipaddr) (((u8_t*)(ipaddr))[2])
 #define ip4_addr4(ipaddr) (((u8_t*)(ipaddr))[3])
+#endif
 /* These are cast to u16_t, with the intent that they are often arguments
  * to printf using the U16_F format from cc.h. */
+#ifndef ip4_addr1_16
 #define ip4_addr1_16(ipaddr) ((u16_t)ip4_addr1(ipaddr))
 #define ip4_addr2_16(ipaddr) ((u16_t)ip4_addr2(ipaddr))
 #define ip4_addr3_16(ipaddr) ((u16_t)ip4_addr3(ipaddr))
 #define ip4_addr4_16(ipaddr) ((u16_t)ip4_addr4(ipaddr))
+#endif
 
+#undef IP2STR
 #define IP2STR(ipaddr) ip4_addr1_16(ipaddr), \
     ip4_addr2_16(ipaddr), \
     ip4_addr3_16(ipaddr), \
     ip4_addr4_16(ipaddr)
 
+#undef IPSTR
 #define IPSTR "%d.%d.%d.%d"
 
 #ifndef MAC2STR

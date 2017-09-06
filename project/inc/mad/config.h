@@ -8,7 +8,9 @@
 /* #undef EXPERIMENTAL */
 
 /* Define to disable debugging assertions. */
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 
 /* Define to optimize for accuracy over speed. */
 /* #undef OPT_ACCURACY */

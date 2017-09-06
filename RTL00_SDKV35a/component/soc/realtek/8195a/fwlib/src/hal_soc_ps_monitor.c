@@ -373,6 +373,7 @@ WakeFromSLPPG(
 				);
 }
 
+// Предел 8355 ms!
 VOID
 DurationScaleAndPeriodOP(
     IN  u32 SDuration,
@@ -412,7 +413,7 @@ CLKCal(
     u32 Rtemp = 0;
     u32 RRTemp = 0;
 
-    u32 x = (HAL_READ32(PERI_ON_BASE,REG_SYS_CLK_CTRL1) >> BIT_SHIFT_PESOC_OCP_CPU_CK_SEL) & BIT_MASK_PESOC_OCP_CPU_CK_SEL;
+    u32 x = (HAL_READ32(PERI_ON_BASE, REG_SYS_CLK_CTRL1) >> BIT_SHIFT_PESOC_OCP_CPU_CK_SEL) & BIT_MASK_PESOC_OCP_CPU_CK_SEL;
 
     if( ClkSel ){
         //a33_ck
@@ -432,7 +433,8 @@ CLKCal(
     }
     else {
         //anack
-        RRTemp = (((2133/Rtemp) >> x) - 1);
+//pvvx: eror RTL8710AF?        RRTemp = (((2133/Rtemp) >> x) - 1);
+        RRTemp = (2133/Rtemp) - 1;
     }
     if ( x == 5 )
       DiagPrintf("Using ana to cal is not allowed!\n");
@@ -516,7 +518,7 @@ SleepClkGatted(
      
     //3 1.5 Enable low power mode
     // 1.5.1   0x4000_0118[2] = 1 => for sleep mode
-    Rtemp = 0x00000004;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000004;
+    Rtemp = BIT_SYSON_PM_CMD_SLP;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000004;
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);   
 
     //3 1.6 Wait CHIP enter low power mode
@@ -535,7 +537,7 @@ VOID SleepPwrGatted(
     u32 Rtemp = 0;
     u32 ScaleTemp = 0;
     u32 PeriodTemp = 0;
-    u32 CalTemp = 0;
+//    u32 CalTemp = 0;
 
     //Backup CPU CLK
     BackupCPUClk();
@@ -547,7 +549,7 @@ VOID SleepPwrGatted(
     //3 1.1 Set TU timer timescale
     //0x4000_0090[21:16] = 6'h1F
     //0x4000_0090[15] = 1'b0 => Disable timer
-    CalTemp = (CLKCal(ANACK) << 16);
+//    CalTemp = (CLKCal(ANACK) << 16);
     Rtemp = (HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_ANA_TIM_CTRL)
     		& (~((BIT_MASK_SYS_DSTDY_TIM_SCAL << BIT_SHIFT_SYS_DSTDY_TIM_SCAL) |  (BIT_MASK_SYS_ANACK_TU_TIME << BIT_SHIFT_SYS_ANACK_TU_TIME))))
     		| ScaleTemp;
@@ -580,7 +582,7 @@ VOID SleepPwrGatted(
 
     //3 1.5 Enable low power mode
     // 1.5.1   0x4000_0118[2] = 1 => for sleep mode
-    Rtemp = 0x00000004;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000004;
+    Rtemp = BIT_SYSON_PM_CMD_SLP;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000004;
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
 
     //3 1.6 Wait CHIP enter low power mode
@@ -602,7 +604,7 @@ DStandby(
     u32 Rtemp = 0;
     u32 ScaleTemp = 0;
     u32 PeriodTemp = 0;
-    u32 CalTemp = 0;
+//    u32 CalTemp = 0;
 
     //Backup CPU CLK
     BackupCPUClk();
@@ -615,7 +617,7 @@ DStandby(
     //3 1.1 Set TU timer timescale
     //0x4000_0090[21:16] = 6'h1F
     //0x4000_0090[15] = 1'b0 => Disable timer
-    CalTemp = (CLKCal(ANACK) << 16);
+//    CalTemp = (CLKCal(ANACK) << 16);
     Rtemp = (HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_ANA_TIM_CTRL)
     		& (~((BIT_MASK_SYS_DSTDY_TIM_SCAL << BIT_SHIFT_SYS_DSTDY_TIM_SCAL) |  (BIT_MASK_SYS_ANACK_TU_TIME << BIT_SHIFT_SYS_ANACK_TU_TIME))))
     		| ScaleTemp;
@@ -648,7 +650,7 @@ DStandby(
         
     //3 1.5 Enable low power mode
     // [0x4000_0118[1] = 1 => for deep standby mode]
-    Rtemp = 0x00000002;
+    Rtemp = BIT_SYSON_PM_CMD_DSTBY;
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
    
     //3 1.6 Wait CHIP enter low power mode
@@ -672,8 +674,6 @@ DSleep(
     //u32 PeriodTemp = 0;
     u32 UTemp = 0;
     u32 MaxTemp = 0;
- 
-    u32 Reada335 = 0;
 
     //2 Deep Sleep mode:
     //3 2.1 Set TU timer timescale
@@ -724,16 +724,15 @@ DSleep(
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_DSLP_TIM_CTRL, Rtemp);
 
     HalDelayUs(1000);
-    Reada335 = HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_DSLP_TIM_CAL_CTRL);
 #if CONFIG_DEBUG_LOG > 3
-    DiagPrintf("a33 timer : 0x%x\n", Reada335);
+    DiagPrintf("a33 timer : 0x%x\n", HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_DSLP_TIM_CAL_CTRL));
 #endif
 
     HalDelayUs(8000);
 
     //3 2.2.3   
     //2.3 Enable low power mode: 0x4000_0118[0] = 1'b1;
-    Rtemp = 0x00000001;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
+    Rtemp = BIT_SYSON_PM_CMD_DSLP;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
 
     //2.4 Wait CHIP enter deep sleep mode
@@ -1418,6 +1417,9 @@ SetSYSTimer(
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_ANA_TIM_CTRL, Rtemp);
 }
 
+/*
+ *  SDuration < 8355 ms!
+ */
 VOID
 SleepCG(
     IN  u8  Option,
@@ -1446,7 +1448,8 @@ SleepCG(
         Rtemp = 0x74003B00; //0x74003900;
     }
     else {
-        Rtemp = 0x74000900;
+        Rtemp = 0x74000900;	// BIT_SYSON_PMOPT_NORM_XTAL_EN | BIT_SYSON_PMOPT_NORM_SYSPLL_EN | BIT_SYSON_PMOPT_NORM_SYSCLK_SEL | BIT_SYSON_PMOPT_NORM_EN_PWM
+        					// | BIT_SYSON_PMOPT_SLP_LPLDO_SEL | BIT_SYSON_PMOPT_SLP_EN_SOC
     }
     
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_OPTION, Rtemp);
@@ -1465,49 +1468,49 @@ SleepCG(
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_ANA_TIM_CTRL, Rtemp);
 
         //Enable wake event
-        WakeEvent |= BIT0;
+        WakeEvent |= BIT0; // BIT_SYSON_WEVT_SYSTIM_MSK
     }
 
     if (Option & SLP_GTIMER) {
         
         //Enable wake event
-        WakeEvent |= BIT1;
+        WakeEvent |= BIT1;	// BIT_SYSON_WEVT_GTIM_MSK
     }
 
     if (Option & SLP_GPIO) {
 
         //Enable wake event
-        WakeEvent |= BIT4;
+        WakeEvent |= BIT4; // BIT_SYSON_WEVT_GPIO_MSK
     }
     
     if (Option & SLP_WL) {
 
         //Enable wake event
-        WakeEvent |= BIT8;
+        WakeEvent |= BIT8;	// BIT_SYSON_WEVT_WLAN_MSK
     }
 
     if (Option & SLP_NFC) {
         
         //Enable wake event
-        WakeEvent |= BIT28;
+        WakeEvent |= BIT28; // BIT_SYSON_WEVT_A33_MSK
     }
 
     if (Option & SLP_SDIO) {
 
         //Enable wake event
-        WakeEvent |= BIT14;
+        WakeEvent |= BIT14; // BIT_SYSON_WEVT_SDIO_MSK
     }
 
     if (Option & SLP_USB) {
 
         //Enable wake event
-        //WakeEvent |= BIT16;
+        //WakeEvent |= BIT16; // BIT_SYSON_WEVT_USB_MSK
     }
 
     if (Option & SLP_TIMER33) {
 
         //Enable wake event
-        WakeEvent |= BIT28;
+        WakeEvent |= BIT28; // BIT_SYSON_WEVT_A33_MSK
     }
 /*
     while(1) {
@@ -1533,7 +1536,7 @@ SleepCG(
         if (SDREn) SDRSleep();
 #endif
         
-        Rtemp = 0x00000004;
+        Rtemp = BIT_SYSON_PM_CMD_SLP;
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
        
         //3 Wait CHIP enter low power mode
@@ -1565,7 +1568,7 @@ SleepPG(
 
     //3 2 Configure power state option:       
     // 2.1 power mode option: 
-    Rtemp = 0x74000100;
+    Rtemp = 0x74000100; // BIT_SYSON_PMOPT_SLP_LPLDO_SEL
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_OPTION, Rtemp);
 
     // 2.2  sleep power mode option1 
@@ -1648,7 +1651,7 @@ SleepPG(
         LDO25M_CTRL(OFF);
 #endif
         
-        Rtemp = 0x00000004;
+        Rtemp = BIT_SYSON_PM_CMD_SLP;
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
        
         //3 Wait CHIP enter low power mode
@@ -1701,7 +1704,7 @@ DeepStandby(
 
     //3 2 Configure power state option:       
     // 2.1  deep standby power mode option: 
-    Rtemp = 0x74000100;
+    Rtemp = 0x74000100;	// BIT_SYSON_PMOPT_SLP_LPLDO_SEL
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_OPTION, Rtemp);
 
     // 2.2   sleep power mode option1 
@@ -1737,19 +1740,19 @@ DeepStandby(
 
     if (Option & DSTBY_GPIO){
 
-        if (GpioOption & BIT0) {
+        if (GpioOption & BIT0) { // PA_5
             DSTBYGpioCtrl(BIT0, (GpioOption & BIT4));
         }  
 
-        if (GpioOption & BIT1) {
+        if (GpioOption & BIT1) { // PC_7
             DSTBYGpioCtrl(BIT1, (GpioOption & BIT5));
         }
 
-        if (GpioOption & BIT2) {
+        if (GpioOption & BIT2) { // PD_5
             DSTBYGpioCtrl(BIT2, (GpioOption & BIT6));
         }
 
-        if (GpioOption & BIT3) {
+        if (GpioOption & BIT3) { // PE_3
             DSTBYGpioCtrl(BIT3, (GpioOption & BIT7));
         }
         
@@ -1773,10 +1776,10 @@ DeepStandby(
 
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_GPIO_SHTDN_CTRL, 0x0);
 
-        Rtemp = (HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_FUNC_EN) & 0xBFFFFFFF);
+        Rtemp = (HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_FUNC_EN) & (~BIT_SYS_PWRON_TRAP_SHTDN_N)); // 0xBFFFFFFF, ~BIT(30)
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_FUNC_EN, Rtemp);
         
-        Rtemp = 0x00000002;
+        Rtemp = BIT_SYSON_PM_CMD_DSTBY;
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
        
         //3 Wait CHIP enter low power mode
@@ -1799,7 +1802,7 @@ DeepSleep(
     u32 UTemp = 0;
     u32 MaxTemp = 0;
 
-//???    HAL_WRITE32(0x60008000, 0x80006180, PS_MASK);
+    HAL_WRITE32(0x60008000, 0x80006180, PS_MASK);
 
     //1.1.1   Enable REGU access interface 0x4000_0094[31] = 1
     Rtemp = (HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_DSLP_TIM_CTRL) | 0x80000000);
@@ -1885,7 +1888,7 @@ DeepSleep(
         Rtemp = (HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_FUNC_EN) & 0xBFFFFFFF);
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_FUNC_EN, Rtemp);
 
-        Rtemp = 0x00000001;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
+        Rtemp = BIT_SYSON_PM_CMD_DSLP;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
         HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
 
         //2.4 Wait CHIP enter deep sleep mode
@@ -1916,7 +1919,7 @@ DSleep_GPIO(
 
     //2.2.2   
     //2.3 Enable low power mode: 0x4000_0118[0] = 1'b1;
-    Rtemp = 0x00000001;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
+    Rtemp = BIT_SYSON_PM_CMD_DSLP;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
 
     //2.4 Wait CHIP enter deep sleep mode
@@ -1989,7 +1992,7 @@ DSleep_Timer(
 
     //3 2.3   
     //2.3 Enable low power mode: 0x4000_0118[0] = 1'b1;
-    Rtemp = 0x00000001;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
+    Rtemp = BIT_SYSON_PM_CMD_DSLP;//HAL_READ32(SYSTEM_CTRL_BASE, REG_SYSON_PWRMGT_CTRL) | 0x00000001;
     HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_PWRMGT_CTRL, Rtemp);
 
     //2.4 Wait CHIP enter deep sleep mode

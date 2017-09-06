@@ -18,7 +18,7 @@ void sd_xfer_done_callback(void *obj) {
 }
 
 void sd_xfer_err_callback(void *obj) {
-	DBG_SDIO_ERR("sd_xfer_err_callback \r\n");
+	DBG_SDIO_ERR("sd_xfer_err_callback\r\n");
 }
 
 //----- SD_WaitReady

@@ -3,13 +3,16 @@
  * FileName: user_main.c
  *
  *******************************************************************************/
+
+#include "platform_autoconf.h"
+#include "autoconf.h"
 #include "rtl8195a/rtl_common.h"
 #include "rtl8195a.h"
 #include "hal_log_uart.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
-//#include "diag.h"
+#include "diag.h"
 #include "osdep_service.h"
 #include "device_lock.h"
 #include "semphr.h"
@@ -33,6 +36,7 @@
 #include "user/playerconfig.h"
 #include "user/atcmd_user.h"
 #include "main.h"
+#include "flash_eep.h"
 #include "wifi_api.h"
 #include "rtl8195a/rtl_libc.h"
 
@@ -88,7 +92,7 @@ LOCAL int mp3_cfg_read(void)
 
 // Called by the NXP modifications of libmad. It passes us (for the mono synth)
 // 32 16-bit samples.
-void render_sample_block(short *short_sample_buff, int no_samples) {
+void render_sample_block(short int *short_sample_buff, int no_samples) {
 	int i;
 	for (i = 0; i < no_samples; i++) {
 		int x = oversampling;
@@ -121,6 +125,8 @@ void set_dac_sample_rate(int rate, int chls) {
 #endif
 	oversampling = i2sSetRate(-1, rate);
 }
+
+extern int RamFifoLen(void);
 
 static enum mad_flow input(struct mad_stream *stream) {
 	int n, i;
@@ -203,9 +209,9 @@ LOCAL void tskmad(void *pvParameters) {
 				sizeof(struct mad_stream) + sizeof(struct mad_frame) + sizeof(struct mad_synth) + READBUFSZ,
 				mad_bufs);
 #endif
-		struct mad_stream *stream = mad_bufs;
-		struct mad_frame *frame = &mad_bufs[sizeof(struct mad_stream)];
-		struct mad_synth *synth = &mad_bufs[sizeof(struct mad_stream)
+		struct mad_stream *stream = (struct mad_stream *)mad_bufs;
+		struct mad_frame *frame = (struct mad_frame *) &mad_bufs[sizeof(struct mad_stream)];
+		struct mad_synth *synth = (struct mad_synth *) &mad_bufs[sizeof(struct mad_stream)
 				+ sizeof(struct mad_frame)];
 		readBuf = &mad_bufs[sizeof(struct mad_stream) + sizeof(struct mad_frame)
 				+ sizeof(struct mad_synth)];
@@ -374,6 +380,8 @@ LOCAL int http_head_read(unsigned char *buf, int len, int ff) {
 	return ret;
 }
 
+extern void RamFifoClose(void);
+
 //Reader task. This will try to read data from a TCP socket into the SPI fifo buffer.
 LOCAL void tskreader(void *pvParameters) {
 	char wbuf[SOCK_READ_BUF];
@@ -503,6 +511,8 @@ void connect_start(void) {
 #endif
 }
 
+extern int tcm_heap_freeSpace(void);
+extern void console_init(void);
 /* RAM/TCM/Heaps info */
 void ShowMemInfo(void)
 {
@@ -525,13 +535,15 @@ LOCAL void user_init_thrd(void) {
 	vTaskDelete(NULL);
 }
 
+extern void WDGStart(void);
+extern int rtl_cryptoEngine_init(void);
 
 /**
  * @brief  Main program.
  * @param  None
  * @retval None
  */
-void main(void)
+int main(void)
 {
 #if DEBUG_MAIN_LEVEL > 3
 	 ConfigDebugErr  = -1;
@@ -560,7 +572,7 @@ void main(void)
 #endif
 
 	/* wlan & user_start intialization */
-	xTaskCreate(user_init_thrd, "user_init", 1024, NULL, tskIDLE_PRIORITY + 0 + PRIORITIE_OFFSET, NULL);
+	xTaskCreate((TaskFunction_t) user_init_thrd, "user_init", 1024, NULL, tskIDLE_PRIORITY + 0 + PRIORITIE_OFFSET, NULL);
 
 	/*Enable Schedule, Start Kernel*/
 #if defined(CONFIG_KERNEL) && !TASK_SCHEDULER_DISABLED
@@ -600,7 +612,7 @@ LOCAL void fATWS(int argc, char *argv[]){
     		}
     		else if(argv[1][0] == 'S') { // strcmp(argv[1], "save") == 0
 			    printf("%s: %s,%d\n", argv[0], mp3_serv.url, mp3_serv.port);
-    			if(flash_write_cfg(&mp3_serv, ID_FEEP_MP3, strlen(mp3_serv.port) + strlen(mp3_serv.url)))
+    			if(flash_write_cfg(&mp3_serv, ID_FEEP_MP3, sizeof(mp3_serv.port) + strlen((const char *)mp3_serv.url)))
     			    printf("ATWS: saved\n", mp3_serv.url, mp3_serv.port);
     		    return;
     		}

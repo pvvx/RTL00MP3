@@ -74,8 +74,8 @@ struct mad_frame {
   mad_fixed_t (*overlap)[2][32][18];	/* Layer III block overlap data */
 };
 
-# define MAD_NCHANNELS(header)		((header)->mode ? 2 : 1)
-# define MAD_NSBSAMPLES(header)  \
+#define MAD_NCHANNELS(header)		((header)->mode ? 2 : 1)
+#define MAD_NSBSAMPLES(header)  \
   ((header)->layer == MAD_LAYER_I ? 12 :  \
    (((header)->layer == MAD_LAYER_III &&  \
      ((header)->flags & MAD_FLAG_LSF_EXT)) ? 18 : 36))

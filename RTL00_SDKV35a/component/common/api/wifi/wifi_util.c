@@ -209,7 +209,7 @@ int wext_get_passphrase(const char *ifname, __u8 *passphrase) {
 	rtw_result_t ret = RTW_ERROR;
 	if(pdev) {
 		uint16 len[4];
-		ret = rtw_wx_get_passphrase(pdev, 0, &len, passphrase);
+		ret = rtw_wx_get_passphrase(pdev, 0,(union iwreq_data *) &len, passphrase);
 		if(ret == RTW_SUCCESS) passphrase[len[2]] = '\0';
 		debug_printf("pas[%d]-<%s>\n", len[2], passphrase);
 	}
@@ -404,7 +404,6 @@ int wext_get_lps_dtim(const char *ifname, __u8 *lps_dtim) {
 
 int wext_set_tos_value(const char *ifname, __u8 *tos_value) {
 	struct iwreq iwr;
-	int ret = -1;
 	__u8 para[sizeof("set_tos_value") + 4];
 	int cmd_len = sizeof("set_tos_value");
 	memset(&iwr, 0, sizeof(iwr));
@@ -562,6 +561,8 @@ int wext_get_mode(const char *ifname, int *mode) {
 #endif
 }
 
+extern int rtw_wx_set_ap_essid(struct net_device *dev, struct iw_request_info *a, union iwreq_data *wrqu, char *extra);
+
 int wext_set_ap_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len) {
 #ifdef USE_WIFI_ADAPTER
 	struct net_device * pdev = rltk_wlan_info[0].dev;
@@ -572,7 +573,7 @@ int wext_set_ap_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len) {
 		uint16 len[2];
 		len[0] = ssid_len;
 		len[1] = (ssid_len != 0);
-		ret = rtw_wx_set_ap_essid(pdev, 0, &len, ssid);
+		ret = rtw_wx_set_ap_essid(pdev, 0, (union iwreq_data *) &len, (char *)ssid);
 	}
 	return ret;
 #else
@@ -751,7 +752,7 @@ int wext_private_command_with_retval(const char *ifname, char *cmd,
 		iwr.u.data.length = buf_size;
 		iwr.u.data.flags = 0;
 		ret = iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr);
-		if (ret >= 0 & ret_buf != NULL) {
+		if (ret >= 0 && ret_buf != NULL) {
 			if (ret_len > iwr.u.data.length)
 				ret_len = iwr.u.data.length;
 			memcpy(ret_buf, (char *) iwr.u.data.pointer, ret_len);
@@ -923,7 +924,6 @@ int wext_set_gen_ie(const char *ifname, char *buf, __u16 buf_len, __u16 flags) {
 int wext_set_autoreconnect(const char *ifname, __u8 mode, __u8 retyr_times,
 		__u16 timeout) {
 	struct iwreq iwr;
-	int ret = 0;
 	__u8 para[sizeof("SetAutoRecnt") + 4];
 	int cmd_len = sizeof("SetAutoRecnt");
 	memset(&iwr, 0, sizeof(iwr));
@@ -1017,7 +1017,7 @@ int wext_update_custom_ie(const char *ifname, void * cus_ie, int ie_index) {
 #endif
 	} else {
 		memset(&iwr, 0, sizeof(iwr));
-		cmd_len = para = pvPortMalloc((4) * 2 + cmd_len); //size:addr len+cmd_len
+		para = pvPortMalloc((4) * 2 + cmd_len); //size:addr len+cmd_len
 		if (para != NULL) {
 			//Cmd
 			snprintf(para, cmd_len, "UpdateIE");

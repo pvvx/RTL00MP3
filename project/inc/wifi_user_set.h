@@ -15,7 +15,7 @@
 #define DEF_WIFI_COUNTRY	RTW_COUNTRY_RU		// Регион использования WiFi...
 #define DEF_WIFI_TX_PWR		RTW_TX_PWR_PERCENTAGE_25 // RTW_TX_PWR_PERCENTAGE_75 // RTW_TX_PWR_PERCENTAGE_100
 #define DEF_WIFI_BGN		RTW_NETWORK_BGN		// rtw_network_mode_t
-#define DEF_WIFI_ADAPTIVITY	RTW_ADAPTIVITY_NORMAL // RTW_ADAPTIVITY_DISABLE/RTW_ADAPTIVITY_NORMAL/RTW_ADAPTIVITY_CARRIER_SENSE
+#define DEF_WIFI_ADAPTIVITY	RTW_ADAPTIVITY_DISABLE // RTW_ADAPTIVITY_NORMAL // RTW_ADAPTIVITY_DISABLE/RTW_ADAPTIVITY_NORMAL/RTW_ADAPTIVITY_CARRIER_SENSE
 
 /* Опции загрузки конфигов по старту */
 //#define DEF_LOAD_CFG 0								// старт в назначенном режиме по умолчанию
@@ -33,7 +33,7 @@
 		 RTW_SECURITY_WPA_TKIP_PSK   - WPA Security
 		 RTW_SECURITY_WPA2_AES_PSK   - WPA2 Security using AES cipher
 		 RTW_SECURITY_WPA2_MIXED_PSK - WPA2 Security using AES and/or TKIP ciphers */
-#define DEF_AP_SECURITY		RTW_SECURITY_WPA2_AES_PSK // WEP security is NOT IMPLEMENTED. It is NOT SECURE!
+#define DEF_AP_SECURITY		RTW_ENCRYPTION_WPA2_MIXED // WEP security is NOT IMPLEMENTED. It is NOT SECURE!
 #define DEF_AP_BEACON		100 	// 100...6000 ms
 #define DEF_AP_CHANNEL		1		// 1..14
 #define DEF_AP_CHANNEL		1		// 1..14
@@ -47,7 +47,7 @@
 //==== Interface 1 - wlan1 = STA ==========
 #define DEF_ST_SSID			"HOMEAP"		// Имя SSID AP (роутера) для присоединения по умолчанию (первый старт)
 #define DEF_ST_PASSWORD		"0123456789"	// Пароль AP (роутера) для присоединения по умолчанию (первый старт)
-#define DEF_ST_SECURITY		RTW_SECURITY_WPA_WPA2_MIXED // Тип Security
+#define DEF_ST_SECURITY		RTW_ENCRYPTION_WPA2_MIXED // Тип Security
 #define DEF_ST_BSSID		{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff } // If bssid set is not ff.ff.ff.ff.ff.ff,
 #define DEF_ST_USE_BSSID	0 			// station will connect to the router with both ssid[] and bssid[] matched.
 #define DEF_ST_CHANNEL		1			// 1..14

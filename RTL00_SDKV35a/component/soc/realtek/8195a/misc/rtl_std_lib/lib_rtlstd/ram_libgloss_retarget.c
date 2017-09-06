@@ -122,6 +122,6 @@ void init_rom_libgloss_ram_map(void) {
 	rom_libgloss_ram_map.libgloss_open = ram_libgloss_open;
 	rom_libgloss_ram_map.libgloss_read = ram_libgloss_read;
 	rom_libgloss_ram_map.libgloss_write = ram_libgloss_write;
-	rom_libgloss_ram_map.libgloss_sbrk = ram_libgloss_sbrk;
+	rom_libgloss_ram_map.libgloss_sbrk = (void*)ram_libgloss_sbrk;
 }
 

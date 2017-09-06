@@ -19,9 +19,11 @@
 # FLAGS
 # -------------------------------------------------------------------
 CFLAGS = -DM3 -DCONFIG_PLATFORM_8195A -DGCC_ARMCM3 -DARDUINO_SDK -DF_CPU=166666666L -DNDEBUG
-CFLAGS += -mcpu=cortex-m3 -mthumb -g2 -Os -std=gnu99 -Wall -Werror
+CFLAGS += -mcpu=cortex-m3 -mthumb -g2 -Os -std=gnu99 
 CFLAGS += -fno-common -fmessage-length=0 -ffunction-sections -fdata-sections -fomit-frame-pointer -fno-short-enums -fsigned-char 
-CFLAGS += -w -Wno-pointer-sign    
+CFLAGS += -Wall -Werror 
+CFLAGS += -Wno-old-style-declaration -Wno-pointer-sign -Wno-strict-aliasing
+CFLAGS += -Wno-variadic-macros -Wno-empty-body 
 ifdef USE_GCC_LIB 
 LFLAGS = -mcpu=cortex-m3 -mthumb -g -Os -nostartfiles --specs=nano.specs
 else
@@ -38,6 +40,10 @@ mp: LIBS +=_platform_new _wlan_mp _wps _p2p _websocket _sdcard _xmodem _mdns gcc
 else
 all: LIBS +=_platform_new _wlan _p2p _wps _websocket _sdcard _xmodem _mdns
 mp: LIBS +=_platform_new _wlan_mp _wps _p2p _websocket _sdcard _xmodem _mdns
+endif
+ifdef USE_UVC
+all: LIBS +=_rtsp _usbh
+mp: LIBS +=_rtsp _usbh
 endif
 # m c nosys gcc
 PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
@@ -81,11 +87,14 @@ INCLUDES += sdk/component/common/drivers/wlan/realtek/src/hal/OUTSRC
 INCLUDES += sdk/component/common/drivers/sdio/realtek/sdio_host/inc
 INCLUDES += sdk/component/soc/realtek/8195a/fwlib/ram_lib/wlan/realtek/wlan_ram_map/rom
 INCLUDES += sdk/component/common/network/ssl/ssl_ram_map/rom
-#INCLUDES += sdk/component/common/media/codec
-#INCLUDES += sdk/component/common/drivers/usb_class/host/uvc/inc
-#INCLUDES += sdk/component/common/drivers/usb_class/device
-#INCLUDES += sdk/component/common/drivers/usb_class/device/class 
-#INCLUDES += sdk/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include
+ifdef USE_UVC
+INCLUDES += sdk/component/common/media/codec
+INCLUDES += sdk/component/common/video/v4l2/inc 
+INCLUDES += sdk/component/common/drivers/usb_class/host/uvc/inc
+INCLUDES += sdk/component/common/drivers/usb_class/device
+INCLUDES += sdk/component/common/drivers/usb_class/device/class 
+INCLUDES += sdk/component/soc/realtek/8195a/fwlib/ram_lib/usb_otg/include
+endif
 
 # Source file list
 # -------------------------------------------------------------------

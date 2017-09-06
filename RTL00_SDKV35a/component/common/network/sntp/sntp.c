@@ -159,7 +159,7 @@ void sntp_get_lasttime(long *sec, long *usec, unsigned int *tick)
 
 time_t sntp_gen_system_time(int timezone)
 {
-	struct tm current_tm;
+//	struct tm current_tm;
 	unsigned int update_tick;
 	long update_sec, update_usec, current_sec = 0;
 

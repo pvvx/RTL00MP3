@@ -1021,7 +1021,7 @@ HalRuartDmaSend(
     u32 BlockSize;
     HAL_Status ret;
     PUART_DMA_CONFIG pUartGdmaConfig;
-    PHAL_GDMA_ADAPTER pHalGdmaAdapter;
+//    PHAL_GDMA_ADAPTER pHalGdmaAdapter;
     
     if (((Length & 0x03)==0) &&
         (((u32)(pTxBuf) & 0x03)==0)) {
@@ -1078,7 +1078,7 @@ HalRuartDmaRecv(
 //    u32 BlockSize;
     HAL_Status ret;
     PUART_DMA_CONFIG pUartGdmaConfig;
-    PHAL_GDMA_ADAPTER pHalGdmaAdapter;
+//    PHAL_GDMA_ADAPTER pHalGdmaAdapter;
     
     if (Length < 4096) {
 #if CONFIG_CHIP_E_CUT

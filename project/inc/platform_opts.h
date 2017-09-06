@@ -8,7 +8,7 @@
 #define __PLATFORM_OPTS_H__
 
 /*For MP mode setting*/
-#define SUPPORT_MP_MODE			1
+#define SUPPORT_MP_MODE			0
 
 /**
  * For AT cmd Log service configurations
@@ -39,7 +39,7 @@
  * For FreeRTOS tickless configurations
  */
 #define FREERTOS_PMU_TICKLESS_PLL_RESERVED   0   // In sleep mode, 0: close PLL clock, 1: reserve PLL clock
-#define FREERTOS_PMU_TICKLESS_SUSPEND_SDRAM  1   // In sleep mode, 1: suspend SDRAM, 0: no act
+#define FREERTOS_PMU_TICKLESS_SUSPEND_SDRAM  0   // In sleep mode, 1: suspend SDRAM, 0: no act
 
 /******************************************************************************/
 
@@ -53,6 +53,7 @@
 /**
  * For Wlan configurations
  */
+
 #define CONFIG_WLAN			1
 #if CONFIG_WLAN
 #define CONFIG_LWIP_LAYER	1
@@ -86,7 +87,7 @@
 #endif
 
 /* For Simple Link */
-#define CONFIG_INCLUDE_SIMPLE_CONFIG		1
+#define CONFIG_INCLUDE_SIMPLE_CONFIG		0
 
 /*For wowlan service settings*/
 #define CONFIG_WOWLAN_SERVICE           	0
@@ -157,4 +158,15 @@
 #define USE_FLASH_EEP 1
 #define CONFIG_WLAN_CONNECT_CB 1
 
+//#define CONFIG_FATFS_EN	1 // FatFs & SD
+#ifdef CONFIG_FATFS_EN
+// fatfs version
+#define FATFS_R_10C
+// fatfs disk interface
+#define FATFS_DISK_USB	0
+#define FATFS_DISK_SD 	1
+#undef CONFIG_SDIO_HOST_EN
+#define CONFIG_SDIO_HOST_EN   1
 #endif
+
+#endif //__PLATFORM_OPTS_H__

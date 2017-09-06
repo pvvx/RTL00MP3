@@ -308,7 +308,7 @@ err_t
 tcpip_apimsg(struct api_msg *apimsg)
 {
   struct tcpip_msg msg;
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) && (LWIP_DEBUG != 0)
   /* catch functions that don't set err */
   apimsg->msg.err = ERR_VAL;
 #endif
@@ -339,7 +339,7 @@ tcpip_apimsg(struct api_msg *apimsg)
 err_t
 tcpip_apimsg_lock(struct api_msg *apimsg)
 {
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) && (LWIP_DEBUG != 0)
   /* catch functions that don't set err */
   apimsg->msg.err = ERR_VAL;
 #endif

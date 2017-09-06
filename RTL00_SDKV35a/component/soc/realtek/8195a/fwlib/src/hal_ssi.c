@@ -527,7 +527,7 @@ HalSsiInit(VOID *Data)
 {
     HAL_Status ret;
     PHAL_SSI_ADAPTOR pHalSsiAdapter = (PHAL_SSI_ADAPTOR) Data;
-    u32 Function;
+    u32 Function = SPI0;
     u8 PinmuxSelect;
     u8 Index;
 

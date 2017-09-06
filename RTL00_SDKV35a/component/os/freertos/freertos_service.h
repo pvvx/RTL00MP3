@@ -174,7 +174,7 @@ void cli(void);
 #endif
 #define HALT()				do { cli(); for(;;);} while(0)
 
-//#undef ASSERT
+#undef ASSERT
 #define ASSERT(x)			do { \
 						if((x) == 0) \
 							printf("\n\rAssert(" #x ") failed on line %d in file %s", __LINE__, __FILE__); \

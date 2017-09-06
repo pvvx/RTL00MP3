@@ -26,6 +26,15 @@ extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
 extern void vPortSVCHandler(void);
 extern void rtl_libc_init(void);
+extern _LONG_CALL_ void HalCpuClkConfig(unsigned char CpuType);
+extern void PSHalInitPlatformLogUart(void);
+extern _LONG_CALL_ void UartLogCmdExecute(PUART_LOG_CTL pUartLogCtlExe);
+extern void HalReInitPlatformTimer(void);
+extern void SystemCoreClockUpdate (void);
+extern void En32KCalibration(void);
+extern void SdrCtrlInit(void);
+extern void InitSoCPM(void);
+extern u32 SdrControllerInit(void);
 //extern void ShowRamBuildInfo(void); // app_start.c: VOID ShowRamBuildInfo(VOID)
 //void HalNMIHandler_Patch(void);
 void SDIO_Device_Off(void);
@@ -97,7 +106,7 @@ __weak int main(void) {
 	DiagPrintf("\r<RTL>");
 	while (1) {
 		while (pUartLogCtl->ExecuteCmd != 1);
-		UartLogCmdExecute(pUartLogCtl);
+		UartLogCmdExecute((PUART_LOG_CTL) pUartLogCtl);
 		DiagPrintf("\r<RTL>");
 		pUartLogCtl->ExecuteCmd = 0;
 	}

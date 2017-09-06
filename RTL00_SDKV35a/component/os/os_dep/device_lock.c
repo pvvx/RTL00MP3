@@ -34,6 +34,7 @@ static void device_mutex_init(RT_DEV_LOCK_E device)
 }
 
 //======================================================
+#if 0 // unused-function
 static void device_mutex_free(RT_DEV_LOCK_E device)
 {
 	if(DEVICE_MUTEX_IS_INIT(device)){
@@ -47,7 +48,7 @@ static void device_mutex_free(RT_DEV_LOCK_E device)
 		rtw_exit_critical(&lock, &irqL);
 	}
 }
-
+#endif
 //======================================================
 void device_mutex_lock(RT_DEV_LOCK_E device)
 {

@@ -58,6 +58,7 @@ int freertos_ready_to_sleep() {
     return wakelock == 0;
 }
 
+extern uint32_t osKernelSysTick (void);
 /*
  *  It is called when freertos is going to sleep.
  *  At this moment, all sleep conditons are satisfied. All freertos' sleep pre-processing are done.
@@ -65,7 +66,7 @@ int freertos_ready_to_sleep() {
  *  @param  expected_idle_time : The time that FreeRTOS expect to sleep.
  *                               If we set this value to 0 then FreeRTOS will do nothing in its sleep function.
  **/
-void freertos_pre_sleep_processing(unsigned int *expected_idle_time) {
+void freertos_pre_sleep_processing(uint32_t *expected_idle_time) {
 
 #ifdef CONFIG_SOC_PS_MODULE
 
@@ -176,7 +177,7 @@ void freertos_pre_sleep_processing(unsigned int *expected_idle_time) {
 #endif
 }
 
-void freertos_post_sleep_processing(unsigned int *expected_idle_time) {
+void freertos_post_sleep_processing(uint32_t *expected_idle_time) {
 #ifndef configSYSTICK_CLOCK_HZ
 	*expected_idle_time = 1 + ( portNVIC_SYSTICK_CURRENT_VALUE_REG / ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) );
 #else
@@ -257,8 +258,12 @@ uint32_t get_wakelock_status() {
 }
 
 #if (configGENERATE_RUN_TIME_STATS == 1)
+
+extern int sprintf(char* str, const char* fmt, ...);
+extern size_t strlen(const char *str);
+
 void get_wakelock_hold_stats( char *pcWriteBuffer ) {
-    u32 i;
+    int i;
     u32 current_timestamp = osKernelSysTick();
 
     *pcWriteBuffer = 0x00;
@@ -269,15 +274,15 @@ void get_wakelock_hold_stats( char *pcWriteBuffer ) {
 
     for (i=0; i<32; i++) {
         if (last_wakelock_state[i] == 1) {
-            sprintf(pcWriteBuffer, "%x\t\t%d\r\n", i, hold_wakelock_time[i] + (current_timestamp - last_acquire_wakelock_time[i]));
+            sprintf(pcWriteBuffer, "%x\t\t%u\r\n", i, (unsigned int)( hold_wakelock_time[i] + (current_timestamp - last_acquire_wakelock_time[i])));
         } else {
             if (hold_wakelock_time[i] > 0) {
-                sprintf(pcWriteBuffer, "%x\t\t%d\r\n", i, hold_wakelock_time[i]);
+                sprintf(pcWriteBuffer, "%x\t\t%u\r\n", i, (unsigned int)hold_wakelock_time[i]);
             }
         }
         pcWriteBuffer += strlen( pcWriteBuffer );
     }
-    sprintf(pcWriteBuffer, "time passed: %d ms, system sleep %d ms\r\n", current_timestamp - base_sys_time, sys_sleep_time);
+    sprintf(pcWriteBuffer, "time passed: %u ms, system sleep %u ms\r\n", (unsigned int)(current_timestamp - base_sys_time), (unsigned int)sys_sleep_time);
 }
 
 void clean_wakelock_stat() {

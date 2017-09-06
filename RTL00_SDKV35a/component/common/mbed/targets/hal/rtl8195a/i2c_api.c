@@ -573,6 +573,7 @@ int i2c_enable_control(i2c_t *obj, int enable) {
     pSalI2CHND->pInitDat->I2CEn = enable;
 
     pSalI2CMngtAdpt->pHalOp->HalI2CEnable(pSalI2CHND->pInitDat);
+    return 1;
 }
 
 #if DEVICE_I2CSLAVE
@@ -719,14 +720,14 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
  *   \return result
  */
 int i2c_slave_set_for_rd_req(i2c_t *obj, int set) {
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    PHAL_I2C_INIT_DAT   pHalI2CInitDat      = NULL;
-    PHAL_I2C_OP         pHalI2COP           = NULL; 
+    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt;
+//    PSAL_I2C_HND            pSalI2CHND          = NULL;
+    PHAL_I2C_INIT_DAT   pHalI2CInitDat;
+    PHAL_I2C_OP         pHalI2COP;
     u32 I2CLocalTemp;
     
     pSalI2CMngtAdpt = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND      = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
+//    pSalI2CHND      = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
     pHalI2CInitDat  = pSalI2CMngtAdpt->pHalInitDat;
     pHalI2COP       = pSalI2CMngtAdpt->pHalOp;
     
@@ -772,6 +773,7 @@ int i2c_slave_set_for_data_nak(i2c_t *obj, int set_nak) {
     //}
     
     HAL_I2C_WRITE32(pSalI2CHND->DevNum, REG_DW_I2C_IC_SLV_DATA_NACK_ONLY, set_nak);
+    return 1;
 }
 
 #endif // CONFIG_I2C_SLAVE_EN

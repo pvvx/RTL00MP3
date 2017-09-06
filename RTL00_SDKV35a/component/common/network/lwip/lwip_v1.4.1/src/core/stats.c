@@ -50,7 +50,7 @@ struct stats_ lwip_stats;
 
 void stats_init(void)
 {
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) && (LWIP_DEBUG != 0)
 #if MEMP_STATS
   const char * memp_names[] = {
 #define LWIP_MEMPOOL(name,num,size,desc) desc,

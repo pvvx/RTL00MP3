@@ -105,6 +105,22 @@ extern _LONG_CALL_ double __rtl_dsub_v1_00(double a, double b);
 extern _LONG_CALL_ double __rtl_dmul_v1_00(double a, double b);
 extern _LONG_CALL_ double __rtl_ddiv_v1_00(double a, double b);
 
+// --- ???
+extern _LONG_CALL_ float __rtl_dtof_v1_00(double d);
+extern _LONG_CALL_ int __rtl_dtoui_v1_00(double d);
+extern _LONG_CALL_ float __rtl_itof_v1_00(int val);
+extern _LONG_CALL_ char *__rtl_ltoa_v1_00(int value, char *string, int radix);
+extern _LONG_CALL_ char *__rtl_ultoa_v1_00(unsigned int value, char *string, int radix);
+extern _LONG_CALL_ int __rtl_ftol_v1_00(float f);
+extern _LONG_CALL_ int __rtl_ftod_v1_00(float f);
+extern _LONG_CALL_ float __rtl_fadd_v1_00(float a, float b);
+extern _LONG_CALL_ float __rtl_fsub_v1_00(float a, float b);
+extern _LONG_CALL_ float __rtl_fmul_v1_00(float a, float b);
+extern _LONG_CALL_ float __rtl_fdiv_v1_00(float a, float b);
+extern _LONG_CALL_ int __rtl_dcmple_v1_00(double a, double b);
+extern _LONG_CALL_ int __rtl_fcmplt_v1_00(float a, float b);
+extern _LONG_CALL_ int __rtl_fcmpgt_v1_00(float a, float b);
+// --- ???
 
 //
 // mprec

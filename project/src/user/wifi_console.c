@@ -7,16 +7,22 @@
 
 #include <autoconf.h>
 #include "FreeRTOS.h"
-#include "freertos_pmu.h"
 #include "diag.h"
-#include "wifi_api.h"
-#include "wifi_conf.h"
-#include "rtl8195a/rtl_libc.h"
 #include "hal_platform.h"
+#include "freertos_pmu.h"
 
 #include "section_config.h"
 #include "hal_diag.h"
 #include "lwip/netif.h"
+#include "wifi_api.h"
+#include "wifi_conf.h"
+#include "rtl8195a/rtl_libc.h"
+
+
+#if CONFIG_WLAN_CONNECT_CB
+extern	void connect_close(void);
+extern void connect_start(void);
+#endif
 
 
 extern struct netif xnetif[NET_IF_NUM];
@@ -71,6 +77,7 @@ LOCAL void fATPN(int argc, char *argv[]){
 			else wifi_st_cfg.reconnect_pause = 5;
 			show_wifi_st_cfg();
 #if CONFIG_WLAN_CONNECT_CB
+extern	void connect_close(void);
 			connect_close();
 #endif
 			wifi_run(wifi_run_mode | RTW_MODE_STA);
@@ -143,11 +150,13 @@ LOCAL void fATWR(int argc, char *argv[]){
 #if CONFIG_WLAN_CONNECT_CB
 // Close connections
 LOCAL void fATOF(int argc, char *argv[]){
+	(void)argc; (void)argv;
 	connect_close();
 }
 
 // Open connections
 LOCAL void fATON(int argc, char *argv[]){
+	(void)argc; (void)argv;
 	connect_start();
 }
 #endif
@@ -168,6 +177,8 @@ LOCAL void fATWI(int argc, char *argv[]) {
 			wifi_cfg.mode = atoi(argv[2]);
 		}
 	}
+#else
+	(void)argc; (void)argv;
 #endif
 	rtw_wifi_setting_t Setting;
 	if((wifi_run_mode & RTW_MODE_AP)
@@ -191,12 +202,19 @@ LOCAL void fATWI(int argc, char *argv[]) {
 	printf("\nWIFI ST config:\n");
 	printf(&str_rom_57ch3Dch0A[25]); // "================================\n"
 	show_wifi_st_cfg();
+	printf("\nWIFI AP clients:\n");
+	printf(&str_rom_57ch3Dch0A[25]); // "================================\n"
+#if SDK_VER_NUM >= 0x4000
+	show_wifi_ap_clients();
+#endif
 	printf("\n");
 }
 
 extern uint8_t rtw_power_percentage_idx;
+extern int rltk_set_tx_power_percentage(rtw_tx_pwr_percentage_t power_percentage_idx);
 
-LOCAL void fATWT(int argc, char *argv[]) {
+void fATWT(int argc, char *argv[]) {
+	(void) argc; (void) argv;
 	if(argc > 1) {
 		int txpwr = atoi(argv[1]);
 		debug_printf("set tx power (%d)...\n", txpwr);
@@ -209,7 +227,10 @@ LOCAL void fATWT(int argc, char *argv[]) {
 
 //-- Test tsf (64-bits counts, 1 us step) ---
 
-#include "hal_com_reg.h"
+//#include "hal_com_reg.h"
+#define WIFI_REG_BASE               0x40080000
+#define REG_TSFTR						0x0560
+#define REG_TSFTR1						0x0568	// HW Port 1 TSF Register
 
 #define ReadTSF_Lo32() (*((volatile unsigned int *)(WIFI_REG_BASE + REG_TSFTR)))
 #define ReadTSF_Hi32() (*((volatile unsigned int *)(WIFI_REG_BASE + REG_TSFTR1)))
@@ -219,13 +240,15 @@ LOCAL uint64_t get_tsf(void)
 	return *((uint64_t *)(WIFI_REG_BASE + REG_TSFTR));
 }
 
-LOCAL void fATSF(int argc, char *argv[])
+void fATSF(int argc, char *argv[])
 {
+	(void) argc; (void) argv;
 	uint64_t tsf = get_tsf();
 	printf("\nTSF: %08x%08x\n", (uint32_t)(tsf>>32), (uint32_t)(tsf));
 }
 
-LOCAL void fATWP(int argc, char *argv[]) {
+void fATWP(int argc, char *argv[]) {
+	(void) argc; (void) argv;
 	int x = 0;
 	if(argc > 1) {
 		x = atoi(argv[1]);
@@ -244,9 +267,8 @@ LOCAL void fATWP(int argc, char *argv[]) {
 		printf("DTIM: %d\n", _wext_get_lps_dtim(0));
 	}
 }
-
 /* --------  WiFi Scan ------------------------------- */
-LOCAL void scan_result_handler(internal_scan_handler_t* ap_scan_result)
+LOCAL rtw_result_t scan_result_handler(internal_scan_handler_t* ap_scan_result)
 {
 	if (ap_scan_result) {
 		if(ap_scan_result->scan_cnt) {
@@ -268,15 +290,16 @@ LOCAL void scan_result_handler(internal_scan_handler_t* ap_scan_result)
 			    record->SSID.val[record->SSID.len] = '\0';
 			    printf("%s\n", record->SSID.val);
 			}
-
 		}
 	} else {
 		printf("Scan networks: None!\n");
 	}
+	return RTW_SUCCESS;
 }
 /* --------  WiFi Scan ------------------------------- */
-LOCAL void fATSN(int argc, char *argv[])
+void fATSN(int argc, char *argv[])
 {
+	(void) argc; (void) argv;
 	api_wifi_scan(scan_result_handler);
 }
 
@@ -315,7 +338,7 @@ MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"P2P_DISCCONNECT", 0, cmd_p2p_disconnect, ": p2p disconnect"},
 		{"P2P_CONNECT", 0, cmd_p2p_connect, ": p2p connect"},
 #endif
-		{"ATWR", 0, fATWR, ": WIFI Connect, Disconnect"},
+		{"ATWR", 0, fATWR, "=[mode]: WIFI Mode: 0 - off, 1 - ST, 2 - AP, 3 - ST+AP"},
 #if CONFIG_WLAN_CONNECT_CB
 		{"ATON", 0, fATON, ": Open connections"},
 		{"ATOFF", 0, fATOF, ": Close connections"},
@@ -323,7 +346,7 @@ MON_RAM_TAB_SECTION COMMAND_TABLE console_cmd_wifi_api[] = {
 		{"ATWI", 0, fATWI, ": WiFi Info"},
 #if CONFIG_DEBUG_LOG > 3
 		{"ATWT", 1, fATWT, "=<tx_power>: WiFi tx power: 0 - 100%, 1 - 75%, 2 - 50%, 3 - 25%, 4 - 12.5%"},
-		{"ATSF", 0, fATSF, ": Test TSF value"},
+		{"ATSF", 0, fATSF, ": Get TSF value"},
 #endif
 //		{"ATWP", 0, fATWP, "=[dtim]: 0 - WiFi ipc/lpc off, 1..10 - on + dtim"},
 		{"ATSN", 0, fATSN, ": Scan networks"}

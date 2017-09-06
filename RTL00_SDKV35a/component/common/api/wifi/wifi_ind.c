@@ -102,7 +102,7 @@ void wifi_indication(WIFI_EVENT_INDICATE event, unsigned char *buf, int buf_len,
 	//		, and tries not to share the same stack with wlan driver if remaining stack space is 
 	//		not available for the following operations. 
 	//		ex: using semaphore to notice another thread.
-	switch (event) {
+	switch ((int)event) {
 	case WIFI_EVENT_DISCONNECT:
 #if(WIFI_INDICATE_MSG>0)
 		info_printf("%s(%d): Disconnection indication received\n", __func__, event);

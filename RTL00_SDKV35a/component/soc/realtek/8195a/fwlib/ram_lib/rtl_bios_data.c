@@ -116,7 +116,7 @@ HAL_CUT_B_RAM_DATA_SECTION u32 rand_x = 123456789; // 10000be4
     0, \
     "", \
     0, \
-	0x0437DC, \
+	(void *)0x0437DC, \
     0, \
     _NULL, \
     _NULL, \

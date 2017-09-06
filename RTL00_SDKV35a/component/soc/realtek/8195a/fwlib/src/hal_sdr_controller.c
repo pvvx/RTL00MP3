@@ -150,11 +150,13 @@ unsigned int rand_x = 123456789;
 */
 #ifdef CONFIG_SDR_EN
 
+#ifndef __GNUC__
 //#pragma arm section code = ".hal.sdrc.text"
 #pragma arm section rodata = ".rodata.hal.sdrc"
 //, rwdata = ".hal.sdrc.data"
 //, zidata = ".hal.sdrc.bss"
 //#pragma arm section bss = ".hal.sdrc.bss"
+#endif
 
 #ifdef CONFIG_SDR_VERIFY
 enum{
@@ -448,13 +450,10 @@ DramInit (
     u32 CrTwr, DramMaxWr, DramWr;
     u32 CrTrtw = 0, CrTrtwT = 0;
     u32 DrmaPeriod; 
-    DRAM_TYPE         DdrType;
+    DRAM_TYPE         DdrType = DRAM_SDR;
     DRAM_DQ_WIDTH     DqWidth;
     DRAM_COLADDR_WTH    Page;
     u32 DfiRate;
-    volatile struct ms_rxi310_portmap *ms_ctrl_0_map;
-    ms_ctrl_0_map = (struct ms_rxi310_portmap*) SDR_CTRL_BASE;
-//    ms_ctrl_0_map = ms_ctrl_0_map;
 
     DfiRate = 1 << (u32) (DramInfo->DfiRate);
     DrmaPeriod = (DramInfo->DdrPeriodPs)*(DfiRate); // according DFI_RATE to setting
@@ -658,6 +657,9 @@ DramInit (
     // enter mem_mode
     HAL_SDR_WRITE32(REG_SDR_CSR,0x600);
 #else
+    volatile struct ms_rxi310_portmap *ms_ctrl_0_map;
+    ms_ctrl_0_map = (struct ms_rxi310_portmap*) SDR_CTRL_BASE;
+//    ms_ctrl_0_map = ms_ctrl_0_map;
     // WRAP_MISC setting
     ms_ctrl_0_map->misc = //0x12;
                           (
@@ -753,7 +755,8 @@ SdrCalibration(
 	DBG_8195A("%s()\n", __func__);
     u32 RdPipe = 0, TapCnt = 0, Pass = 0, AvaWdsCnt = 0;
     u32 RdPipeCounter, RecNum[2], RecRdPipe[2];//, AvaWds[2][REC_NUM];
-    BOOL RdPipeFlag, PassFlag = 0, Result; 
+    BOOL RdPipeFlag, Result;
+//    BOOL PassFlag = 0;
     u8 flashtype = 0;
 
     flashtype = SpicInitParaAllClk[0][0].flashtype;
@@ -829,7 +832,7 @@ SdrCalibration(
 #endif
 
         RdPipeFlag = _FALSE;
-        PassFlag = _FALSE;
+//        PassFlag = _FALSE;
         AvaWdsCnt = 0;
 
         for(TapCnt=0; TapCnt < (MAX_TAP_DLY+1); TapCnt++) {
@@ -853,7 +856,7 @@ SdrCalibration(
 #endif
 
             Pass = MemTest(10000);
-            PassFlag = _FALSE;
+//            PassFlag = _FALSE;
 
             if(Pass==_TRUE) {   // PASS
 
@@ -876,7 +879,7 @@ SdrCalibration(
                     break;
                 }
 
-                PassFlag = _TRUE;
+//                PassFlag = _TRUE;
                 
                 DBG_SDR_INFO("Verify Pass => RdPipe:%d; TapCnt: %d\n", RdPipe, TapCnt);
 
@@ -1044,7 +1047,7 @@ Sdr_Rand2(
 }
 
 */
-
+extern __attribute__ ((long_call)) unsigned int Rand(void);
 HAL_SDRC_TEXT_SECTION 
 s32 
 MemTest(

@@ -91,7 +91,7 @@ STATION_CONFIG wifi_st_cfg = {
 		.ssid = DEF_ST_SSID,
 		.password = DEF_ST_PASSWORD,
 		.bssid = DEF_ST_BSSID,
-		.flg = DEF_ST_BSSID,
+		.flg = DEF_ST_USE_BSSID,
 		.security = DEF_ST_SECURITY,
 		.autoreconnect = DEF_ST_AUTORECONNECT,
 		.reconnect_pause =	DEF_ST_RECONNECT_PAUSE,
@@ -204,8 +204,8 @@ LOCAL int wlan_init_done_callback(void) {
 //char wlan_st_name[] = WLAN0_NAME;
 char wlan_st_name[] = WLAN0_NAME;
 char wlan_ap_name[] = WLAN1_NAME;
-char wlan_st_netifn = 0;
-char wlan_ap_netifn = 1;
+unsigned char wlan_st_netifn = 0;
+unsigned char wlan_ap_netifn = 1;
 
 
 uint32 get_new_ip(void)
@@ -256,7 +256,7 @@ extern Rltk_wlan_t rltk_wlan_info[2]; // in wrapper.h
 };*/
 #define get_padapter(num) (*(_adapter **)((rltk_wlan_info[num].dev)->priv));
 
-LOCAL rtw_result_t _wext_set_lps_dtim(int adapter_num, uint8 lps_dtim ) {
+rtw_result_t _wext_set_lps_dtim(int adapter_num, uint8 lps_dtim ) {
 	_adapter * pad =	get_padapter(adapter_num);
 	rtw_result_t ret = RTW_ERROR;
 	if(pad) {
@@ -265,7 +265,7 @@ LOCAL rtw_result_t _wext_set_lps_dtim(int adapter_num, uint8 lps_dtim ) {
 	return ret;
 }
 
-LOCAL rtw_result_t _wext_enable_powersave(int adapter_num, uint8 ips_mode, uint8 lps_mode) {
+rtw_result_t _wext_enable_powersave(int adapter_num, uint8 ips_mode, uint8 lps_mode) {
 	_adapter * pad =	get_padapter(adapter_num);
 	rtw_result_t ret = RTW_ERROR;
 	if(pad) {
@@ -278,7 +278,7 @@ LOCAL rtw_result_t _wext_enable_powersave(int adapter_num, uint8 ips_mode, uint8
 	return ret;
 }
 
-LOCAL int _wext_cmp_ssid(int adapter_num, uint8 *ssid)
+LOCAL int _wext_cmp_ssid(int adapter_num, unsigned char *ssid)
 {
 	_adapter * pad = get_padapter(adapter_num);
 	int ret = 0;
@@ -357,7 +357,7 @@ LOCAL rtw_result_t wifi_run_ap(void) {
 			int timeout = wifi_test_timeout_ms / wifi_test_timeout_step_ms;
 			while (1) {
 #if 1
-				if (_wext_cmp_ssid(WLAN_AP_NETIF_NUM, &wifi_ap_cfg.ssid )) {
+				if (_wext_cmp_ssid(WLAN_AP_NETIF_NUM, wifi_ap_cfg.ssid )) {
 #else
 				char essid[33];
 				if ((wext_get_ssid(wlan_ap_name, (unsigned char *) essid) > 0)
@@ -404,7 +404,7 @@ LOCAL rtw_result_t StartStDHCPClient(void)
 	debug_printf("Start DHCPClient...\n");
 	int ret = RTW_SUCCESS;
 	struct netif * pnetif = &xnetif[WLAN_ST_NETIF_NUM];
-	DHCP_CONFIG *p = (dhcp_cfg *)&wifi_st_dhcp;
+	DHCP_CONFIG *p = (DHCP_CONFIG *)&wifi_st_dhcp;
 	unsigned char mode = p->mode;
 	if(mode == 2 && p->ip != IP4ADDR(255,255,255,255) && p->ip != IP4ADDR(0,0,0,0)) { // fixed ip
 		netif_set_addr(pnetif, (ip_addr_t *)&p->ip, (ip_addr_t *)&p->mask, (ip_addr_t *)&p->gw);
@@ -597,8 +597,8 @@ LOCAL void _LwIP_Init(void)
 			xnetif[idx].name[0] = 'r';
 			xnetif[idx].name[1] = '0' + idx;
 		}
-		netif_add(&xnetif[WLAN_ST_NETIF_NUM], (struct netif *)&wifi_st_dhcp.ip, (struct netif *)&wifi_st_dhcp.mask, (struct netif *)&wifi_st_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
-		netif_add(&xnetif[WLAN_AP_NETIF_NUM], (struct netif *)&wifi_ap_dhcp.ip, (struct netif *)&wifi_ap_dhcp.mask, (struct netif *)&wifi_ap_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
+		netif_add(&xnetif[WLAN_ST_NETIF_NUM], (ip_addr_t *)&wifi_st_dhcp.ip, (ip_addr_t *)&wifi_st_dhcp.mask, (ip_addr_t *)&wifi_st_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
+		netif_add(&xnetif[WLAN_AP_NETIF_NUM], (ip_addr_t *)&wifi_ap_dhcp.ip, (ip_addr_t *)&wifi_ap_dhcp.mask, (ip_addr_t *)&wifi_ap_dhcp.gw, NULL, &ethernetif_init, &tcpip_input);
 #if CONFIG_ETHERNET // && NET_IF_NUM > 2
 		{
 				struct ip_addr ipaddr;
@@ -622,6 +622,9 @@ LOCAL void _LwIP_Init(void)
 		init_event_callback_list();
 	}
 }
+
+extern int rltk_set_tx_power_percentage(rtw_tx_pwr_percentage_t power_percentage_idx);
+
 
 int wifi_run(rtw_mode_t mode) {
 	int ret = 0;
@@ -663,8 +666,8 @@ int wifi_run(rtw_mode_t mode) {
     		netbios_set_name(WLAN_ST_NETIF_NUM, lwip_host_name[0]);
 #endif
 #endif
-			netif_set_addr(&xnetif[WLAN_ST_NETIF_NUM], &wifi_st_dhcp.ip,
-				&wifi_st_dhcp.mask, &wifi_st_dhcp.gw);
+			netif_set_addr(&xnetif[WLAN_ST_NETIF_NUM], (ip_addr_t *) &wifi_st_dhcp.ip,
+					(ip_addr_t *) &wifi_st_dhcp.mask, (ip_addr_t *) &wifi_st_dhcp.gw);
 			pnif = &xnetif[WLAN_AP_NETIF_NUM];
 #if LWIP_NETIF_HOSTNAME
 			// @todo ethernetif_init()...
@@ -673,8 +676,8 @@ int wifi_run(rtw_mode_t mode) {
     		netbios_set_name(WLAN_AP_NETIF_NUM, lwip_host_name[1]);
 #endif
 #endif
-			netif_set_addr(&xnetif[WLAN_AP_NETIF_NUM], &wifi_ap_dhcp.ip,
-				&wifi_ap_dhcp.mask, &wifi_ap_dhcp.gw);
+			netif_set_addr(&xnetif[WLAN_AP_NETIF_NUM], (ip_addr_t *) &wifi_ap_dhcp.ip,
+					(ip_addr_t *) &wifi_ap_dhcp.mask, (ip_addr_t *) &wifi_ap_dhcp.gw);
 
 		}
 		switch(mode) {
@@ -856,3 +859,32 @@ void show_wifi_cfg(void) {
 	printf("\tSave flags: %p\n", wifi_cfg.save_flg);
 }
 
+#if SDK_VER_NUM >= 0x4000
+extern int wext_get_associated_client_list(const char *ifname, void * client_list_buffer, __u16 buffer_length);
+
+int show_wifi_ap_clients(void) {
+	if((wifi_mode == RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP)) {
+		struct {
+			int    count;
+			rtw_mac_t mac_list[AP_STA_NUM];
+		} client_info;
+		client_info.count = AP_STA_NUM;
+		if(wext_get_associated_client_list(wlan_ap_name, &client_info, sizeof(client_info)) >= 0) {
+			if(client_info.count) {
+				printf("\tAP %u clients:\n", client_info.count);
+				int client_idx = 0;
+				while(client_idx++ < client_info.count) {
+				    unsigned char *pmac = client_info.mac_list[client_idx].octet;
+				    printf("\tsta[%u]: %02x:%02x:%02x:%02x:%02x:%02x\n", client_idx,
+				            pmac[0],pmac[1],pmac[2],pmac[3],pmac[4],pmac[5]);
+				}
+			} else {
+				printf("\tAP clients none\n");
+			}
+			return client_info.count;
+		};
+	};
+	printf("Get AP clients error!\n");
+	return -1;
+}
+#endif

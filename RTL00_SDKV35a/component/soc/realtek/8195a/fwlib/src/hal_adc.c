@@ -533,16 +533,16 @@ ADCISRHandle(
     PSAL_ADC_MNGT_ADPT  pSalADCMngtAdpt     = NULL;
     PHAL_ADC_INIT_DAT   pHalADCInitDat      = NULL;
     PHAL_ADC_OP         pHalADCOP           = NULL;    
-    PSAL_ADC_USER_CB    pSalADCUserCB       = NULL;
-    u8  ADCIrqIdx;
+//    PSAL_ADC_USER_CB    pSalADCUserCB       = NULL;
+//    u8  ADCIrqIdx;
     
     /* To get the SAL_I2C_MNGT_ADPT pointer, and parse the rest pointers */
     pSalADCHNDPriv  = CONTAINER_OF(pSalADCHND, SAL_ADC_HND_PRIV, SalADCHndPriv);
     pSalADCMngtAdpt = CONTAINER_OF(pSalADCHNDPriv->ppSalADCHnd, SAL_ADC_MNGT_ADPT, pSalHndPriv);
     pHalADCInitDat  = pSalADCMngtAdpt->pHalInitDat;
     pHalADCOP       = pSalADCMngtAdpt->pHalOp;
-    ADCIrqIdx       = pHalADCInitDat->ADCIdx;
-    pSalADCUserCB   = pSalADCHND->pUserCB;
+//    ADCIrqIdx       = pHalADCInitDat->ADCIdx;
+//    pSalADCUserCB   = pSalADCHND->pUserCB;
 
     DBG_8195A_ADC_LVL(HAL_ADC_LVL,"ADC INTR STS:%x\n",pHalADCOP->HalADCReadReg(pHalADCInitDat, REG_ADC_INTR_STS));
 #else

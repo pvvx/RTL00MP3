@@ -44,6 +44,8 @@ const PinMap PinMap_PWM[] = {
     {NC,    NC,     0}
 };
  
+extern void * rtl_memset(void *m, int c, size_t n);
+
 int pwmout_init(pwmout_t* obj, PinName pin)
 {
     uint32_t peripheral;

@@ -17,6 +17,8 @@
 #include "us_ticker_api.h"
 
 #include "platform_autoconf.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #define WAIT_US_USE_CYCCNT
 

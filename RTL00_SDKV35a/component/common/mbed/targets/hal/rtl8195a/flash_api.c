@@ -592,6 +592,8 @@ unsigned int flash_get_size(flash_t *obj) {
 /*
  * Read Flash OTP data
  */
+extern void SpicTxCmdWithDataRtl8195A(u8 cmd, u8 DataPhaseLen, u8* pData, SPIC_INIT_PARA SpicInitPara);
+
 int flash_otp_read(flash_t *obj, uint32_t address, uint32_t Length,
 		uint8_t * data) {
 	int ret = 1;

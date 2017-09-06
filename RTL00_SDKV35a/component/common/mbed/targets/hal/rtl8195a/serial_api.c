@@ -536,12 +536,12 @@ int32_t serial_send_stream (serial_t *obj, char *ptxbuf, uint32_t len)
 
 int32_t serial_recv_stream_dma (serial_t *obj, char *prxbuf, uint32_t len)
 {
-    PHAL_RUART_OP      pHalRuartOp;
+//    PHAL_RUART_OP      pHalRuartOp;
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
     u8  uart_idx = pHalRuartAdapter->UartIndex;
     int32_t ret;
 
-    pHalRuartOp = &(obj->hal_uart_op);
+//    pHalRuartOp = &(obj->hal_uart_op);
     if ((serial_dma_en[uart_idx] & SERIAL_RX_DMA_EN)==0) {
         PUART_DMA_CONFIG   pHalRuartDmaCfg;
 
@@ -563,12 +563,12 @@ int32_t serial_recv_stream_dma (serial_t *obj, char *prxbuf, uint32_t len)
 
 int32_t serial_send_stream_dma (serial_t *obj, char *ptxbuf, uint32_t len)
 {
-    PHAL_RUART_OP      pHalRuartOp;
+//    PHAL_RUART_OP      pHalRuartOp;
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
     u8  uart_idx = pHalRuartAdapter->UartIndex;
     int32_t ret;
 
-    pHalRuartOp = &(obj->hal_uart_op);
+//    pHalRuartOp = &(obj->hal_uart_op);
 
     if ((serial_dma_en[uart_idx] & SERIAL_TX_DMA_EN)==0) {
         PUART_DMA_CONFIG   pHalRuartDmaCfg;

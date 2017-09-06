@@ -118,13 +118,13 @@ void analogin_init (analogin_t *obj, PinName pin){
 }
 
 float analogin_read(analogin_t *obj){
-    float value;
+//    float value;
 	union {
 		unsigned int 	ui[2];
 		unsigned short 	us[4];
 	} adata;
 	PSAL_ADC_HND p = &((&(obj->SalADCMngtAdpt))->pSalHndPriv->SalADCHndPriv);
-	RtkADCReceiveBuf(p, &adata.ui);
+	RtkADCReceiveBuf(p, (u32  *) &adata.ui);
     return (float)(adata.us[p->DevNum]) / (float)(0xCE80);
 /*
     uint32_t AnaloginTmp[2]      = {0,0};
@@ -161,7 +161,7 @@ uint16_t analogin_read_u16(analogin_t *obj){
 		unsigned short 	us[4];
 	} adata;
 	PSAL_ADC_HND p = &((&(obj->SalADCMngtAdpt))->pSalHndPriv->SalADCHndPriv);
-	RtkADCRxManualRotate(p, &adata.ui);
+	RtkADCRxManualRotate(p, (u32  *) &adata.ui);
 	return adata.us[p->DevNum];
 /*
     uint32_t AnaloginTmp[2]      = {0,0};

@@ -19,16 +19,16 @@
  * $Id: synth.c,v 1.25 2004/01/23 09:41:33 rob Exp $
  */
 
-# ifdef HAVE_CONFIG_H
-#  include "config.h"
-# endif
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-# include "global.h"
+#include "global.h"
 
-# include "fixed.h"
-# include "frame.h"
-# include "synth.h"
-# include "string.h"
+#include "fixed.h"
+#include "frame.h"
+#include "synth.h"
+#include "string.h"
 
 // #define SAVED_SAMPLE_BUFF_LEN   240000
 // unsigned int saved_idx = 0;
@@ -582,6 +582,7 @@ void synth_full(struct mad_synth *, struct mad_frame const *,
  * NAME:	synth->full()
  * DESCRIPTION:	perform full frequency PCM synthesis
  */
+extern void render_sample_block(short int *short_sample_buff, int no_samples);
 static
 void synth_full(struct mad_synth *synth, struct mad_frame const *frame,
 		unsigned int nch, unsigned int ns)
@@ -608,7 +609,7 @@ void synth_full(struct mad_synth *synth, struct mad_frame const *frame,
 
     for (ch = 0; ch < nch; ++ch)
     {
-      sbsample = &frame->sbsample[ch];
+      sbsample = (void *)&frame->sbsample[ch];
       filter   = &synth->filter[ch];
       pcm1     = short_sample_buff[ch];
 
@@ -732,7 +733,7 @@ void synth_full(struct mad_synth *synth, struct mad_frame const *frame,
 
     /* Render di un blocco */    
     if(nch < 2) memcpy(short_sample_buff[1], short_sample_buff[0], sizeof(short_sample_buff[0]));
-    render_sample_block(short_sample_buff, sizeof(short_sample_buff[0])/sizeof(short int));
+    render_sample_block((short int *) short_sample_buff, sizeof(short_sample_buff[0])/sizeof(short int));
     
     phase = (phase + 1) % 16;
 
@@ -745,11 +746,12 @@ void synth_full(struct mad_synth *synth, struct mad_frame const *frame,
  * DESCRIPTION:	perform half frequency PCM synthesis
  */
 static
-void synth_half(struct mad_synth *synth, struct mad_frame const *frame,
+void synth_half(struct mad_synth *synth, struct mad_frame *frame,
 		unsigned int nch, unsigned int ns)
 {
   unsigned int phase, ch, s, sb, pe, po;
-  short int *pcm1, *pcm1v, *pcm2v;
+//  short int *pcm1;
+  short int *pcm1v, *pcm2v;
   mad_fixed_t (*filter)[2][2][16][8];
   mad_fixed_t (*sbsample)[36][32];
   register mad_fixed_t (*fe)[8], (*fx)[8], (*fo)[8];
@@ -772,7 +774,8 @@ void synth_half(struct mad_synth *synth, struct mad_frame const *frame,
     {
       sbsample = &frame->sbsample[ch];
       filter   = &synth->filter[ch];
-      pcm1 = pcm1v = short_sample_buff;
+//      pcm1 =
+    		  pcm1v = (short int *)short_sample_buff;
 
       dct32((*sbsample)[s], phase >> 1,
 	    (*filter)[0][phase & 1], (*filter)[1][phase & 1]);
@@ -894,14 +897,15 @@ void synth_half(struct mad_synth *synth, struct mad_frame const *frame,
 
     /* Render di un blocco */
     if(nch < 2) memcpy(short_sample_buff[1], short_sample_buff[0], sizeof(short_sample_buff[0]));
-    render_sample_block(short_sample_buff, sizeof(short_sample_buff[0])/sizeof(short int));
+    render_sample_block((short int *)short_sample_buff, sizeof(short_sample_buff[0])/sizeof(short int));
 
-    pcm1 = pcm1v + 8;
+//    pcm1 = pcm1v + 8;
     phase = (phase + 1) % 16;
 
   }	/* for di blocco */
 }
 
+extern void set_dac_sample_rate(int rate, int chls);
 /*
  * NAME:	synth->frame()
  * DESCRIPTION:	perform PCM synthesis of frame subband samples
@@ -925,7 +929,7 @@ void mad_synth_frame(struct mad_synth *synth, struct mad_frame const *frame)
   if (frame->options & MAD_OPTION_HALFSAMPLERATE) {
     synth->pcm.samplerate /= 2;
     synth->pcm.length     /= 2;
-    synth_frame = synth_half;
+    synth_frame = (void *)synth_half;
   }
   set_dac_sample_rate(synth->pcm.samplerate, nch);
 

@@ -133,13 +133,13 @@ void rltk_wlan_recv(int idx, struct eth_drv_sg *sg_list, int sg_len)
 
 	DBG_TRACE("%s is called", __FUNCTION__);
 	
-    if (!rltk_wlan_check_isup(idx))
-        return;
-	
 	if(idx == -1){
 		DBG_ERR("skb is NULL");
 		return;
 	}
+
+	if (!rltk_wlan_check_isup(idx))
+        return;
 	
     skb = rltk_wlan_get_recv_skb(idx);
 	DBG_ASSERT(skb, "No pending rx skb");

@@ -74,9 +74,9 @@ typedef struct _LOG_UART_ADAPTER_ {
 typedef struct _COMMAND_TABLE_ {
     const   u8* cmd;
     u16     ArgvCnt;
-    u32     (*func)(u16 argc, u8* argv[]);
+    void     (*func)(int argc, char * argv[]); // u32     (*func)(u16 argc, u8* argv[]);
     const   u8* msg;
-}COMMAND_TABLE, *PCOMMAND_TABLE;
+} COMMAND_TABLE, *PCOMMAND_TABLE;
 
 //VOID
 //HalLogUartHandle(void);

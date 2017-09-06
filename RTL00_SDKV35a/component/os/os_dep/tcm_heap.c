@@ -57,10 +57,9 @@ void tcm_heap_dump(void)
 {
 #if CONFIG_DEBUG_LOG > 1
 	if(!g_heap_inited) tcm_heap_init();
-	MemChunk *chunk, *prev;
+	MemChunk *chunk;
 	struct Heap* h = &g_tcm_heap;
 	int count = 0;
-	int free_mem;
 
 	DBG_8195A("TCM Free Heap Memory List:\n");
 	for (chunk = h->FreeList; chunk; chunk = chunk->next) {
@@ -68,6 +67,7 @@ void tcm_heap_dump(void)
 	}
 
 /*
+	MemChunk *prev;
 	for (prev = (MemChunk *)&h->FreeList, chunk = h->FreeList;
 		chunk;
 		prev = chunk, chunk = chunk->next)

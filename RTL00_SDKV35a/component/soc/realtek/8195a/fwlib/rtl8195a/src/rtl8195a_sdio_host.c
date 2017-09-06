@@ -1,6 +1,7 @@
 /*
  */
 #include "rtl8195a.h"
+#include "hal_sdio_host.h"
 #include "rtl8195a_sdio_host.h"
 //-------------------------------------------------------------------------
 // Function declarations
@@ -11,7 +12,7 @@
  void  SdioHostSdBusPwrCtrl(uint8_t En, int a2);
  int  SdioHostSdClkCtrl(void *Data, int En, int Divisor);
  int  SdioHostChkDataLineActive(uint32_t Timeout);
- int  SdioHostChkCmdInhibitCMD(uint32_t Timeout);
+ int  SdioHostChkCmdInhibitCMD(void); //uint32_t Timeout);
  int  SdioHostChkCmdInhibitDAT(uint32_t Timeout);
  uint32_t  SdioHostIsrHandle(void *Data);
  int  HalSdioHostDeInitRtl8195a(void *Data);
@@ -46,6 +47,11 @@
 //-------------------------------------------------------------------------
 // Data declarations
 //-------------------------------------------------------------------------
+#define HAL_SDIOH_REG32(a) (*(volatile unsigned int *)(SDIO_HOST_REG_BASE+a))
+#define HAL_SDIOH_REG16(a) (*(volatile unsigned short *)(SDIO_HOST_REG_BASE+a))
+#define HAL_SDIOH_REG8(a) (*(volatile unsigned char *)(SDIO_HOST_REG_BASE+a))
+
+
 //-----SdioHostIsTimeout(StartCount, TimeoutCnt)
 HAL_Status SdioHostIsTimeout(u32 StartCount, u32 TimeoutCnt) {
 	u32 t1, t2;
@@ -64,22 +70,21 @@ HAL_Status SdioHostIsTimeout(u32 StartCount, u32 TimeoutCnt) {
 
 //----- SdioHostSendCmd(PSDIO_HOST_CMD)
 void SdioHostSendCmd(PSDIO_HOST_CMD Cmd) {
-	u16 reg_cmd = ((*(u8 *) &Cmd->CmdFmt & 0x3B) | (*(u8 *) &Cmd->CmdFmt & 0xC0)
-			| ((*((u8 *) &Cmd->CmdFmt + 1) & 0x3F) << 8));
-	HAL_SDIO_HOST_WRITE32(REG_SDIO_HOST_ARG, Cmd->Arg); // 40058008 = Cmd->Arg
-	HAL_SDIO_HOST_WRITE16(REG_SDIO_HOST_CMD, reg_cmd); //  4005800E = reg_cmd
+	HAL_SDIOH_REG32(REG_SDIO_HOST_ARG) = Cmd->Arg; // 40058008 = Cmd->Arg
+	HAL_SDIOH_REG16(REG_SDIO_HOST_CMD) = *(u16 *) &Cmd->CmdFmt; // & 0x3FFB;
 }
 
 //-----
 HAL_Status SdioHostGetResponse(void *Data, int RspType) {
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
 	HAL_Status result;
 
-	if (Data) {
-		*((u32 *) Data + 5) = HAL_SDIO_HOST_READ32(REG_SDIO_HOST_RSP0); // 40058010;
-		*((u32 *) Data + 6) = HAL_SDIO_HOST_READ32(REG_SDIO_HOST_RSP2);
+	if (psha) {
+		psha->Response[0] = HAL_SDIOH_REG32(REG_SDIO_HOST_RSP0); // 40058010;
+		psha->Response[1] = HAL_SDIOH_REG32(REG_SDIO_HOST_RSP2);
 		if (RspType == 1) {
-			*((u32 *) Data + 7) = HAL_SDIO_HOST_READ32(REG_SDIO_HOST_RSP4);
-			*((u32 *) Data + 8) = HAL_SDIO_HOST_READ32(REG_SDIO_HOST_RSP6);
+			psha->Response[2] = HAL_SDIOH_REG32(REG_SDIO_HOST_RSP4);
+			psha->Response[3] = HAL_SDIOH_REG32(REG_SDIO_HOST_RSP6);
 		}
 		result = HAL_OK;
 	} else
@@ -88,236 +93,161 @@ HAL_Status SdioHostGetResponse(void *Data, int RspType) {
 }
 
 //-----
-void SdioHostSdBusPwrCtrl(uint8_t En) {
-	u8 reg_pwr;
-
-	HAL_SDIO_HOST_WRITE8(REG_SDIO_HOST_PWR_CTRL,
-			HAL_SDIO_HOST_READ8(REG_SDIO_HOST_PWR_CTRL) & (~ PWR_CTRL_SD_BUS_PWR));
-	if (HAL_SDIO_HOST_READ32(REG_SDIO_HOST_CAPABILITIES) & CAPA_VOLT_SUPPORT_33V) {
-		DBG_SDIO_WARN("Supply SD bus voltage: 3.3V\n");
-		reg_pwr = VOLT_30V << 1;
-		goto set_pwr;
-	}
-	if (HAL_SDIO_HOST_READ32(REG_SDIO_HOST_CAPABILITIES) & CAPA_VOLT_SUPPORT_30V) {
-		DBG_SDIO_WARN("Supply SD bus voltage: 3.0V\n");
-		reg_pwr = VOLT_30V << 1;
-		goto set_pwr;
-	}
-	if (HAL_SDIO_HOST_READ32(REG_SDIO_HOST_CAPABILITIES) & CAPA_VOLT_SUPPORT_18V) {
+//void SdioHostSdBusPwrCtrl(uint8_t En) {
+void SdioHostSdBusPwrCtrl(void) {
+	HAL_SDIOH_REG8(REG_SDIO_HOST_PWR_CTRL) &= ~ PWR_CTRL_SD_BUS_PWR;
+	if (HAL_SDIOH_REG32(REG_SDIO_HOST_CAPABILITIES) & CAPA_VOLT_SUPPORT_18V) {
 		DBG_SDIO_WARN("Supply SD bus voltage: 1.8V\n");
-		reg_pwr = VOLT_18V << 1;
-		goto set_pwr;
+		HAL_SDIOH_REG8(REG_SDIO_HOST_PWR_CTRL) = VOLT_18V << 1;
 	}
-	DBG_SDIO_ERR("No supported voltage\n");
-	goto exit_;
-	set_pwr:
-	HAL_SDIO_HOST_WRITE8(REG_SDIO_HOST_PWR_CTRL, reg_pwr);
-	exit_:
-	HAL_SDIO_HOST_WRITE8(REG_SDIO_HOST_PWR_CTRL,
-			HAL_SDIO_HOST_READ8(REG_SDIO_HOST_PWR_CTRL) | PWR_CTRL_SD_BUS_PWR);
+	else if (HAL_SDIOH_REG32(REG_SDIO_HOST_CAPABILITIES) & CAPA_VOLT_SUPPORT_30V) {
+		DBG_SDIO_WARN("Supply SD bus voltage: 3.0V\n");
+		HAL_SDIOH_REG8(REG_SDIO_HOST_PWR_CTRL) = VOLT_30V << 1;
+	}
+	else if (HAL_SDIOH_REG32(REG_SDIO_HOST_CAPABILITIES) & CAPA_VOLT_SUPPORT_33V) {
+		DBG_SDIO_WARN("Supply SD bus voltage: 3.3V\n");
+		HAL_SDIOH_REG8(REG_SDIO_HOST_PWR_CTRL) = VOLT_33V << 1;
+	}
+	else DBG_SDIO_ERR("No supported voltage\n");
+	HAL_SDIOH_REG8(REG_SDIO_HOST_PWR_CTRL) |= PWR_CTRL_SD_BUS_PWR;
 }
 
 //-----
-HAL_Status SdioHostSdClkCtrl(void *Data, int En, int Divisor) { // SD_CLK_DIVISOR
-	u8 *v3; // r3@1
-	HAL_Status result;
-	char v5; // r2@7
-
-	v3 = Data;
-	result = HAL_SDIO_HOST_READ32(REG_SDIO_HOST_PRESENT_STATE)
-			& (PRES_STATE_CMD_INHIBIT_CMD | PRES_STATE_CMD_INHIBIT_DAT); // v40058024 & 3;
-	if (HAL_SDIO_HOST_READ32(REG_SDIO_HOST_PRESENT_STATE)
-			& (PRES_STATE_CMD_INHIBIT_CMD | PRES_STATE_CMD_INHIBIT_DAT) != 0) {
-		result = HAL_BUSY;
+HAL_Status SdioHostSdClkCtrl(void *Data, int En, u8 Divisor) { // SD_CLK_DIVISOR
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	if (HAL_SDIOH_REG32(REG_SDIO_HOST_PRESENT_STATE)
+			& (PRES_STATE_CMD_INHIBIT_CMD | PRES_STATE_CMD_INHIBIT_DAT)) {
+		return HAL_BUSY;
 	} else {
 		if (!En) {
-			v4005802C &= 0xFFFBu;
-			return 0;
+			HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL) &= ~CLK_CTRL_SD_CLK_EN;
 		}
-		v4005802C &= 0xFFFBu;
-		v4005802C = v4005802C | (u16) ((u16) Divisor << 8);
-		v4005802C |= 4u;
-		if (Divisor == 8) { // BASE_CLK_DIVIDED_BY_16
-			v5 = 4;
-			goto LABEL_23;
-		}
-		if ((unsigned int) Divisor > 8) {
-			if (Divisor == 32) { // BASE_CLK_DIVIDED_BY_64
-				v5 = 2;
-				goto LABEL_23;
-			}
-			if ((unsigned int) Divisor > 0x20) { // BASE_CLK_DIVIDED_BY_64
-				if (Divisor == 64) { // BASE_CLK_DIVIDED_BY_128
-					v5 = 1;
-					goto LABEL_23;
-				}
-				if (Divisor == 128) { // BASE_CLK_DIVIDED_BY_256
-					v3[133] = 0;
-					return result;
-				}
-			} else if (Divisor == 16) {
-				v5 = 3;
-				goto LABEL_23;
-			}
-		} else {
-			if (Divisor == 1) { // BASE_CLK_DIVIDED_BY_2
-				v5 = 7;
-				goto LABEL_23;
-			}
-			if ((unsigned int) Divisor < 1) { // BASE_CLK < BASE_CLK_DIVIDED_BY_2
-				v5 = 8;
-				LABEL_23: v3[133] = v5;
-				return result;
-			}
-			if (Divisor == 2) { // BASE_CLK_DIVIDED_BY_4
-				v5 = 6;
-				goto LABEL_23;
-			}
-			if (Divisor == 4) { // BASE_CLK_DIVIDED_BY_8
-				v5 = 5;
-				goto LABEL_23;
+		else {
+			switch(Divisor) {
+			case BASE_CLK:
+				psha->CurrSdClk = SD_CLK_41_6MHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_2:
+				psha->CurrSdClk = SD_CLK_20_8MHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_4:
+				psha->CurrSdClk = SD_CLK_10_4MHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_8:
+				psha->CurrSdClk = SD_CLK_5_2MHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_16:
+				psha->CurrSdClk = SD_CLK_2_6MHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_32:
+				psha->CurrSdClk = SD_CLK_1_3MHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_64:
+				psha->CurrSdClk = SD_CLK_650KHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_128:
+				psha->CurrSdClk = SD_CLK_325KHZ;
+				break;
+			case BASE_CLK_DIVIDED_BY_256:
+				psha->CurrSdClk = SD_CLK_162KHZ;
+				break;
+			default:
+				DBG_SDIO_ERR("Unsupported SDCLK divisor!\n");
+				Divisor = 0;
+				psha->CurrSdClk = SD_CLK_41_6MHZ;
 			}
 		}
-
-		DBG_SDIO_ERR("Unsupported SDCLK divisor!\n");
-		return 0;
+		HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL) = (Divisor << 8) | CLK_CTRL_SD_CLK_EN | CLK_CTRL_INTERAL_CLK_EN;
 	}
-	return result;
+	return HAL_OK;
 }
 
-//----- SdioHostChkDataLineActive(uint32_t Timeout)
-HAL_Status SdioHostChkDataLineActive(uint32_t Timeout) {
+#define SD_CHK_TIMEOUT 3225
+
+//----- SdioHostChkDataLineActive
+HAL_Status SdioHostChkDataLineActive(void) {
 	HAL_Status result;
 	u32 t1 = HalTimerOp.HalTimerReadCount(1);
 	do {
-		if ((HAL_SDIO_HOST_READ32(REG_SDIO_HOST_PRESENT_STATE)
+		if ((HAL_SDIOH_REG32(REG_SDIO_HOST_PRESENT_STATE)
 				& PRES_STATE_DAT_LINE_ACTIVE) == 0)
 			break;
-		result = SdioHostIsTimeout(t1, 3225);
+		result = SdioHostIsTimeout(t1, SD_CHK_TIMEOUT);
 	} while (result != HAL_TIMEOUT);
 	return result;
 }
 
-//----- SdioHostChkCmdInhibitCMD(uint32_t Timeout)
-HAL_Status SdioHostChkCmdInhibitCMD(uint32_t Timeout) {
+//----- SdioHostChkCmdInhibitCMD
+HAL_Status SdioHostChkCmdInhibitCMD(void) {
 	HAL_Status result;
 	u32 t1 = HalTimerOp.HalTimerReadCount(1);
 	do {
-		if ((HAL_SDIO_HOST_READ32(REG_SDIO_HOST_PRESENT_STATE)
+		if ((HAL_SDIOH_REG32(REG_SDIO_HOST_PRESENT_STATE)
 				& PRES_STATE_CMD_INHIBIT_CMD) == 0)
 			break;
-		result = SdioHostIsTimeout(t1, 3225);
+		result = SdioHostIsTimeout(t1, SD_CHK_TIMEOUT);
 	} while (result != HAL_TIMEOUT);
 	return result;
 }
 
-//----- SdioHostChkCmdInhibitDAT(uint32_t Timeout)
-int SdioHostChkCmdInhibitDAT(uint32_t Timeout) {
+//----- SdioHostChkCmdInhibitDAT
+int SdioHostChkCmdInhibitDAT(void) {
 	HAL_Status result;
 	u32 t1 = HalTimerOp.HalTimerReadCount(1);
 	do {
-		if ((HAL_SDIO_HOST_READ32(REG_SDIO_HOST_PRESENT_STATE)
+		if ((HAL_SDIOH_REG32(REG_SDIO_HOST_PRESENT_STATE)
 				& PRES_STATE_CMD_INHIBIT_DAT) == 0)
 			break;
-		result = SdioHostIsTimeout(t1, 3225);
+		result = SdioHostIsTimeout(t1, SD_CHK_TIMEOUT);
 	} while (result != HAL_TIMEOUT);
 	return result;
 }
 
-//----- (0000028C) --------------------------------------------------------
-void SdioHostIsrHandle(void *Data) {
-	int v1; // r5@1
-	u32 *v2; // r4@1
-	uint8_t v3; // r0@7
-	int v4; // r1@7
-	void (*v5)(u32); // r3@7
-	void (*v6)(u32); // r3@10
-//	uint32_t result; // r0@14
-
-	v1 = v40058030;
-	v40058038 = 0;
-	v2 = Data;
-	if (v1) {
-		if (v1 << 31 < 0)
-			*((u8 *) Data + 128) = 1;
-		if (v1 << 30 < 0)
-			*((u8 *) Data + 129) = 1;
-		if (v1 & NOR_INT_STAT_CARD_INSERT) // 0x40
-		{
-			v3 = SdioHostSdClkCtrl(Data, 1, BASE_CLK_DIVIDED_BY_128); // BASE_CLK_DIVIDED_BY_128
-			SdioHostSdBusPwrCtrl(v3, v4);
-			v5 = (void (*)(u32)) v2[35];
-			if (v5)
-				v5(v2[37]);
-		}
-		if (v1 & NOR_INT_STAT_CARD_REMOVAL) // 0x80
-		{
-			v40058029 &= 0xFEu;
-			SdioHostSdClkCtrl(v2, 0, BASE_CLK); // BASE_CLK
-			v6 = (void (*)(u32)) v2[36];
-			if (v6)
-				v6(v2[38]);
-		}
-		if (v1 & NOR_INT_STAT_ERR_INT) // 0x8000 )
-		{
-			v4005803A = 0;
-			*((u8 *) v2 + 130) = 1;
-		}
-	}
-	v40058034 = 195;
-//	result = 0;
-	v40058038 = 195;
-//	return 0;
-}
-
-//----- (00000328) --------------------------------------------------------
+//----- HalSdioHostDeInitRtl8195a
 HAL_Status HalSdioHostDeInitRtl8195a(IN VOID *Data) {
-	void *v1; // r5@1
-	int v2; // r4@1
+	HAL_Status ret; // r4@1
 
-	PHAL_SDIO_HOST_ADAPTER v1 = Data;
-	v40058029 &= 0xFEu;
-	v2 = SdioHostSdClkCtrl(Data, 0, BASE_CLK);
-	if (!v2) {
-		if (v1) {
-			VectorIrqDisRtl8195A(v1);
-			VectorIrqUnRegisterRtl8195A(v1);
-			v4005802C &= 0xFFFEu;
-			v40059000 &= 0xFFFFFBFF;
-			v40000214 &= 0xFFFFFFFB;
-			HalPinCtrlRtl8195A(65, 0, 0);
-			v40000240 &= 0xFFFFFFF7;
-			v40000240 &= 0xFFFFFFFB;
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	HAL_SDIOH_REG8(REG_SDIO_HOST_PWR_CTRL) &= ~PWR_CTRL_SD_BUS_PWR;
+	ret = SdioHostSdClkCtrl(psha, 0, BASE_CLK);
+	if (ret == HAL_OK) {
+		if (psha) {
+			VectorIrqDisRtl8195A(&psha->IrqHandle);
+			VectorIrqUnRegisterRtl8195A(psha);
+			HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL) &= ~CLK_CTRL_INTERAL_CLK_EN;
+			HAL_SDIOH_REG32(0x1000)  &= 0xFFFFFBFF; // v40059000
+			HAL_WRITE32(PERI_ON_BASE, REG_SOC_HCI_COM_FUNC_EN,
+					HAL_READ32(PERI_ON_BASE, REG_SOC_HCI_COM_FUNC_EN) & (~BIT_SOC_HCI_SDIOH_EN));
+			HalPinCtrlRtl8195A(SDIOH, 0, 0);
+			ACTCK_SDIOH_CCTRL(OFF);
+			SLPCK_SDIOH_CCTRL(OFF);
 		} else {
-			v2 = 3;
+			ret = HAL_ERR_PARA;
 		}
 	}
-	return v2;
+	return ret;
 }
-// 23DC: using guessed type int  VectorIrqDisRtl8195A(u32);
-// 23E0: using guessed type int  VectorIrqUnRegisterRtl8195A(u32);
-// 23E4: using guessed type int  HalPinCtrlRtl8195A(u32, u32, u32);
 
-//----- (000003C0) --------------------------------------------------------
+//----- HalSdioHostEnableRtl8195a
 HAL_Status HalSdioHostEnableRtl8195a(IN VOID *Data) // // PHAL_SDIO_HOST_ADAPTER Data
 {
-	v40000240 |= 4u;
-	v40000240 |= 8u;
-	v4005802C |= 1u;
-	while (!(v4005802C & 2))
-		;
+//	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	ACTCK_SDIOH_CCTRL(ON);
+	SLPCK_SDIOH_CCTRL(ON);
+	HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL) |= CLK_CTRL_INTERAL_CLK_EN;
+	while (!(HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL) & CLK_CTRL_INTERAL_CLK_STABLE));
 	return SdioHostSdClkCtrl(Data, 1, BASE_CLK_DIVIDED_BY_2);
 }
 
-//----- (000003F8) --------------------------------------------------------
+//----- HalSdioHostDisableRtl8195a
 HAL_Status HalSdioHostDisableRtl8195a(IN VOID *Data) {
 	int result; // r0@1
 
 	result = SdioHostSdClkCtrl(Data, 0, BASE_CLK);
-	if (!result) {
-		v4005802C &= 0xFFFEu;
-		v40000240 &= 0xFFFFFFF7;
-		v40000240 &= 0xFFFFFFFB;
+	if (result == HAL_OK) {
+		HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL) &= ~CLK_CTRL_INTERAL_CLK_EN;
+		ACTCK_SDIOH_CCTRL(OFF);
+		SLPCK_SDIOH_CCTRL(OFF);
 	}
 	return result;
 }
@@ -326,14 +256,14 @@ HAL_Status HalSdioHostDisableRtl8195a(IN VOID *Data) {
 HAL_Status HalSdioHostIrqInitRtl8195a(IN VOID *Data) // PIRQ_HANDLE Data
 {
 	HAL_Status result;
-	PIRQ_HANDLE v1 = Data;
-	if (v1) {
-		v1->Data = Data;
-		v1->IrqNum = SDIO_HOST_IRQ;
-		v1->IrqFun = SdioHostIsrHandle;
-		v1->Priority = 6;
-		VectorIrqRegisterRtl8195A((PIRQ_HANDLE) v1);
-		VectorIrqEnRtl8195A((PIRQ_HANDLE) v1);
+	PIRQ_HANDLE pih = Data;
+	if (pih) {
+		pih->Data = Data;
+		pih->IrqNum = SDIO_HOST_IRQ;
+		pih->IrqFun = SdioHostIsrHandle;
+		pih->Priority = 6;
+		VectorIrqRegisterRtl8195A((PIRQ_HANDLE) pih);
+		VectorIrqEnRtl8195A((PIRQ_HANDLE) pih);
 		result = HAL_OK;
 	} else
 		result = HAL_ERR_PARA;
@@ -342,6 +272,8 @@ HAL_Status HalSdioHostIrqInitRtl8195a(IN VOID *Data) // PIRQ_HANDLE Data
 
 //----- HalSdioHostInitHostRtl8195a
 HAL_Status HalSdioHostInitHostRtl8195a(IN VOID *Data) {
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+
 	HAL_WRITE32(PERI_ON_BASE, REG_PESOC_HCI_CLK_CTRL0,
 			HAL_READ32(PERI_ON_BASE, REG_PESOC_HCI_CLK_CTRL0) & (~BIT_SOC_ACTCK_SDIO_DEV_EN));
 	HAL_WRITE32(PERI_ON_BASE, REG_SOC_HCI_COM_FUNC_EN,
@@ -360,360 +292,507 @@ HAL_Status HalSdioHostInitHostRtl8195a(IN VOID *Data) {
 	HalPinCtrlRtl8195A(SDIOH, 0, 1);
 	HAL_WRITE32(PERI_ON_BASE, REG_SOC_HCI_COM_FUNC_EN,
 			HAL_READ32(PERI_ON_BASE, REG_SOC_HCI_COM_FUNC_EN) | BIT_SOC_HCI_SDIOH_EN);
-	HAL_SDIO_HOST_WRITE8(REG_SDIO_HOST_SW_RESET,
-			HAL_SDIO_HOST_READ8(REG_SDIO_HOST_SW_RESET) | 1); //4005802F |= 1;
+	HAL_SDIOH_REG8(REG_SDIO_HOST_SW_RESET) |= SW_RESET_FOR_ALL; //4005802F |= 1;
 	int x = 1000;
-	while (HAL_SDIO_HOST_READ8(REG_SDIO_HOST_SW_RESET) & 1) {
+	while (HAL_SDIOH_REG8(REG_SDIO_HOST_SW_RESET) & SW_RESET_FOR_ALL) {
 		if (x-- == 0) {
 			DBG_SDIO_ERR("SD host initialization FAIL!\n");
 			return HAL_TIMEOUT;
 		}
 	}
-	HalSdioHostIrqInitRtl8195a(Data);
-	HAL_SDIO_HOST_WRITE16(REG_SDIO_HOST_ERROR_INT_STATUS_EN, 195); //  40058034 = 195;
-	HAL_SDIO_HOST_WRITE16(REG_SDIO_HOST_NORMAL_INT_SIG_EN, 195); // 40058038 = 195;
-	HAL_SDIO_HOST_WRITE16(REG_SDIO_HOST_ERROR_INT_STATUS_EN, 127); // 40058036 = 127;
-	HAL_SDIO_HOST_WRITE16(REG_SDIO_HOST_ERROR_INT_SIG_EN, 127); // 4005803A = 127;
-	HAL_SDIO_HOST_WRITE16(REG_SDIO_HOST_CLK_CTRL,
-			HAL_SDIO_HOST_READ16(REG_SDIO_HOST_CLK_CTRL) | CLK_CTRL_INTERAL_CLK_EN); // 4005802C |= 1;
+	HalSdioHostIrqInitRtl8195a(&psha->IrqHandle);
+	HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_STATUS_EN)
+			= NOR_INT_STAT_EN_CMD_COMP
+			| NOR_INT_STAT_EN_XFER_COMP
+			| NOR_INT_STAT_EN_CARD_REMOVAL
+			| NOR_INT_STAT_EN_CARD_INT; // 0xC3;
+	HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_SIG_EN)
+			= NOR_INT_SIG_EN_CMD_COMP
+			| NOR_INT_SIG_EN_XFER_COMP
+			| NOR_INT_SIG_EN_CARD_REMOVAL
+			| NOR_INT_SIG_EN_CARD_INT;	// 195;
+
+
+	HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS_EN) = 0x17F;
+	HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_SIG_EN) = 0x17F;
+	HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL) |= CLK_CTRL_INTERAL_CLK_EN;
 	x = 1000;
-	while (!(HAL_SDIO_HOST_READ16(REG_SDIO_HOST_CLK_CTRL)
+	while (!(HAL_SDIOH_REG16(REG_SDIO_HOST_CLK_CTRL)
 			& CLK_CTRL_INTERAL_CLK_STABLE)) {
 		if (x-- == 0) {
 			DBG_SDIO_ERR("SD host initialization FAIL!\n");
 			return HAL_TIMEOUT;
 		}
 	}
-	HAL_WRITE32(SYSTEM_CTRL_BASE, 0x59000,
-			HAL_READ32(SYSTEM_CTRL_BASE, 0x59000) | 0x400); // 40059000 |= 0x400;
-	if (HAL_SDIO_HOST_READ32(REG_SDIO_HOST_CAPABILITIES) & 0x80000)
-		HAL_SDIO_HOST_WRITE16(REG_SDIO_HOST_HOST_CTRL, 16); //40058028 = 16;
-	HAL_SDIO_HOST_WRITE8(REG_SDIO_HOST_TIMEOUT_CTRL, 14); //4005802E = 14;
-	return 0;
+	HAL_SDIOH_REG32(0x1000) |= 0x400; // 40059000 |= 0x400;
+	if (HAL_SDIOH_REG32(REG_SDIO_HOST_CAPABILITIES) & CAPA_ADMA2_SUPPORT)
+		HAL_SDIOH_REG16(REG_SDIO_HOST_HOST_CTRL) = 0x10; // 32-bit Address ADMA2 is selected
+	HAL_SDIOH_REG8(REG_SDIO_HOST_TIMEOUT_CTRL) = 0x0E; // TMCLK x 2^27
+	return HAL_OK;
 }
 
-//----- (00000578) --------------------------------------------------------
+//----- HalSdioHostStopTransferRtl8195a
 HAL_Status HalSdioHostStopTransferRtl8195a(IN VOID *Data) {
-	u8 *v2; // r4@1
-	int result; // r0@2
-	char v4; // r2@4
-	uint32_t v5; // r1@4
-	signed int v6; // r2@4
-	SDIO_HOST_CMD Cmd; // [sp+0h] [bp-10h]@1
+	HAL_Status result;
+	SDIO_HOST_CMD Cmd;
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
 
-	*(u32 *) &Cmd.CmdFmt = Data;
-	Cmd.Arg = a2;
-	v2 = Data;
-	if (Data) {
-		result = SdioHostChkCmdInhibitCMD((uint32_t) Data);
-		if (!result) {
-			result = SdioHostChkCmdInhibitDAT(0);
-			if (!result) {
-				Cmd.CmdFmt = (SDIO_HOST_CMD_FMT) ((*(u8 *) &Cmd.CmdFmt | 0x1B)
-						& 0xDF | 0xC0);
-				v4 = *((u8 *) &Cmd.CmdFmt + 1);
-				v2[128] = 0;
-				v2[129] = 0;
+	if (psha) {
+		result = SdioHostChkCmdInhibitCMD(); //(uint32_t) Data);
+		if (result == HAL_OK) {
+			result = SdioHostChkCmdInhibitDAT();
+			if (result == HAL_OK) {
+
+				psha->CmdCompleteFlg = 0;
+				psha->XferType = SDIO_XFER_NOR;
+				psha->XferCompleteFlg = 0;
+
+				Cmd.CmdFmt.RespType = RSP_LEN_48_CHK_BUSY;
+				Cmd.CmdFmt.Rsvd0 = 0;
+				Cmd.CmdFmt.CmdCrcChkEn = 1;
+				Cmd.CmdFmt.CmdIdxChkEn = 0;
+				Cmd.CmdFmt.DataPresent = NO_DATA;
+				Cmd.CmdFmt.CmdType = ABORT;
+				Cmd.CmdFmt.CmdIdx = CMD_STOP_TRANSMISSION;
+				Cmd.CmdFmt.Rsvd1 = 0;
 				Cmd.Arg = 0;
-				*((u8 *) &Cmd.CmdFmt + 1) = v4 & 0xC0 | 0xC;
+
 				SdioHostSendCmd(&Cmd);
-				result = SdioHostChkCmdComplete(v2, v5);
-				if (!result)
-					result = SdioHostChkXferComplete(v2, 0x1388u, v6);
 			}
 		}
 	} else {
-		result = 3;
+		result = HAL_ERR_PARA;
 	}
 	return result;
 }
 
-//----- (000005D8) --------------------------------------------------------
-signed int SdioHostErrIntRecovery(void *Data, int a2, signed int a3) {
-	u8 *v3; // r6@1
-	__int16 v4; // r5@4
-	int v5; // r3@5
-	const char *v6; // r0@11
-	signed int result; // r0@13
-	int v8; // r3@15
-	int v9; // r0@24
-	const char *v10; // r0@32
+//----- SdioHostErrIntRecovery
+HAL_Status SdioHostErrIntRecovery(void *Data) {
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	int t;
 
-	v3 = Data;
-	if (!Data)
-		return 3;
-	DBG_SDIO_ERR("Recovering error interrupt...\n", a2, a3);
-	v4 = v40058032;
-	if (v40058032 << 28) {
-		v4005802F |= 2u;
-		v5 = 0;
-		while (1) {
-			++v5;
-			a2 = v4005802F << 30;
-			if (!(v4005802F & 2))
-				break;
-			a2 = 1001;
-			if (v5 == 1001)
-				goto LABEL_14;
-		}
-		if (v5 == 1000) {
-			DBG_SDIO_ERR("CMD line reset timeout!\n");
-			return 2;
+	if (!psha)	return HAL_ERR_PARA;
+	DBG_SDIO_ERR("Recovering error interrupt...\n");
+	u16 ierr = HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS); // v40058032;
+
+	if (HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS)
+			& (   ERR_INT_STAT_CMD_TIMEOUT
+				| ERR_INT_STAT_CMD_CRC
+				| ERR_INT_STAT_CMD_END_BIT
+				| ERR_INT_STAT_CMD_IDX)) {
+		HAL_SDIOH_REG8(REG_SDIO_HOST_SW_RESET) |= SW_RESET_FOR_CMD;
+		int t = 0;
+		while((HAL_SDIOH_REG8(REG_SDIO_HOST_SW_RESET) & SW_RESET_FOR_CMD)) {
+			if(++t > 1000) {
+				DBG_SDIO_ERR("CMD line reset timeout!\n");
+				return HAL_TIMEOUT;
+			}
 		}
 	}
-	LABEL_14: if (v40058032 & 0x70) {
-		v4005802F |= 4u;
-		v8 = 0;
-		while (1) {
-			++v8;
-			a2 = v4005802F << 29;
-			if (!(v4005802F & 4))
-				break;
-			a2 = 1001;
-			if (v8 == 1001)
-				goto LABEL_22;
-		}
-		if (v8 == 1000) {
-			DBG_SDIO_ERR("DAT line reset timeout!\n");
-			return 2;
+	if (HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS)
+			& (	  ERR_INT_STAT_DATA_TIMEOUT
+				| ERR_INT_STAT_DATA_CRC
+				| ERR_INT_STAT_DATA_END_BIT)) {
+		HAL_SDIOH_REG8(REG_SDIO_HOST_SW_RESET) |= SW_RESET_FOR_DAT;
+		t = 0;
+		while((HAL_SDIOH_REG8(REG_SDIO_HOST_SW_RESET) & SW_RESET_FOR_DAT)) {
+			if(++t > 1000) {
+				DBG_SDIO_ERR("DAT line reset timeout!\n");
+				return HAL_TIMEOUT;
+			}
 		}
 	}
-	LABEL_22:
-	DBG_SDIO_ERR("Error interrupt status: 0x%04X\n", v40058032);
-	v40058032 = v4;
-	v3[130] = 0;
-	v9 = HalSdioHostStopTransferRtl8195a(v3, a2);
-	if (!v9) {
-		while (1) {
-			++v9;
-			if (!(v40058024 & 3))
-				break;
-			if (v9 == 1001)
-				goto LABEL_30;
+
+	DBG_SDIO_ERR("Error interrupt status: 0x%04X\n", HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS));
+
+	HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS) = ierr;
+	psha->ErrIntFlg = 0;
+	int result = HalSdioHostStopTransferRtl8195a(psha);
+	if (result == HAL_OK) {
+		t = 0;
+		while(HAL_SDIOH_REG32(REG_SDIO_HOST_PRESENT_STATE)
+				& (PRES_STATE_CMD_INHIBIT_CMD | PRES_STATE_CMD_INHIBIT_DAT)) {
+			if(++t > 1000) break;
 		}
-		if (v9 == 1000)
-			return 2;
-		LABEL_30: if (v40058032 << 28) {
+		if(HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS)
+				& (   ERR_INT_STAT_CMD_TIMEOUT
+					| ERR_INT_STAT_CMD_CRC
+					| ERR_INT_STAT_CMD_END_BIT
+					| ERR_INT_STAT_CMD_IDX)) {
 			DBG_SDIO_ERR("Non-recoverable error(1)!\n");
-			LABEL_33: DiagPrintf(v10);
-			goto LABEL_34;
+			return HAL_ERR_UNKNOWN;
 		}
-	} else {
-		if (v40058032 & 0x10) {
+		if(HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS)
+				&  ERR_INT_STAT_DATA_TIMEOUT) {
 			DBG_SDIO_ERR("Non-recoverable error(2)!\n");
-			goto LABEL_34;
+			return HAL_ERR_UNKNOWN;
 		}
-		HalDelayUs(50);
-		if ((v40058024 & 0xF00000) == 15728640) {
-			DBG_SDIO_ERR("Recoverable error...\n");
-			result = 16;
-			goto LABEL_44;
-		}
-		DBG_SDIO_ERR("Non-recoverable error(3)!\n");
-		goto LABEL_34;
+	    HalDelayUs(50);
+	    if((HAL_SDIOH_REG32(REG_SDIO_HOST_PRESENT_STATE) & 0xF00000) != 0xF00000) {
+			DBG_SDIO_ERR("Non-recoverable error(3)!\n");
+			return HAL_ERR_UNKNOWN;
+	    }
+		DBG_SDIO_ERR("Recoverable error...\n");
+		HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_SIG_EN) = 0x17F;
+		return 16;
 	}
-
-	LABEL_34: result = 238;
-	LABEL_44: v4005803A = 127;
-	return result;
-
 	DBG_SDIO_ERR("Stop transmission error!\n");
-	return 238;
+	return HAL_ERR_UNKNOWN;
 }
-// 23D4: using guessed type int DiagPrintf(const char *, ...);
-// 23F0: using guessed type int  HalDelayUs(u32);
 
-//----- (00000748) --------------------------------------------------------
-signed int SdioHostChkXferComplete(void *Data, uint32_t Timeout, signed int a3) {
-	uint32_t v3; // r6@1
-	u8 *v4; // r4@1
-	uint32_t v5; // r5@3
-	uint32_t v6; // r7@3
-	signed int result; // r0@9
+//----- (0000028C) --------------------------------------------------------
+void SdioHostIsrHandle(void *Data) {
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	u16 status = HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_STATUS);// v40058030;
 
-	v3 = Timeout;
-	v4 = Data;
-	if (Data) {
-		if (Timeout - 1 > 0xFFFFFFFD) {
-			v6 = 0;
-			v5 = 0;
-		} else {
-			v5 = 1000 * Timeout / 0x1F;
-			v6 = (*((int (**)(u32)) &HalTimerOp + 2))(1);
-		}
-		do {
-			while (1) {
-				if (v4[129] && v40058024 & 0x100000)
-					return 0;
-				if (v4[130])
-					return SdioHostErrIntRecovery(v4, Timeout, a3);
-				if (!v5)
-					break;
-				result = SdioHostIsTimeout(v6, v5);
-				if (result == 2)
-					return result;
+	HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_SIG_EN) = 0;
+	if (status) {
+		if (status & NOR_INT_STAT_CMD_COMP)
+			psha->CmdCompleteFlg = 1;
+		if (status & NOR_INT_STAT_XFER_COMP) {
+			psha->XferCompleteFlg = 1;
+			if ((status & NOR_INT_STAT_ERR_INT) == 0) {
+				if (psha->XferCompCallback)
+					psha->XferCompCallback(psha->XferCompCbPara);
+
+			} else if (HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS) &
+					( ERR_INT_STAT_DATA_TIMEOUT
+					| ERR_INT_STAT_DATA_CRC
+					| ERR_INT_STAT_DATA_END_BIT)) {
+				DBG_SDIO_ERR("\r[SDIO Err]XFER CP with ErrIntVal: 0x%04X /0x%04X -- TYPE 0x%02X\n",
+					status,
+					HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS),
+					psha->XferType);
+				psha->errType = SDIO_ERR_DAT_CRC;
+				if (psha->ErrorCallback)
+					psha->ErrorCallback(psha->ErrorCbPara);
 			}
-		} while (v3);
-		result = 1;
-	} else {
-		result = 3;
+
+		}
+		if (status & NOR_INT_STAT_CARD_INSERT) // 0x40
+		{
+			SdioHostSdClkCtrl(psha, 1, BASE_CLK_DIVIDED_BY_128); // BASE_CLK_DIVIDED_BY_128
+			SdioHostSdBusPwrCtrl();
+			if (psha->CardInsertCallBack)
+				psha->CardInsertCallBack(psha->CardInsertCbPara);
+		}
+		if (status & NOR_INT_STAT_CARD_REMOVAL) // 0x80
+		{
+			HAL_SDIOH_REG8(REG_SDIO_HOST_PWR_CTRL) &= ~PWR_CTRL_SD_BUS_PWR;
+			SdioHostSdClkCtrl(psha, 0, BASE_CLK); // BASE_CLK
+			if (psha->CardRemoveCallBack)
+				psha->CardRemoveCallBack(psha->CardRemoveCbPara);
+		}
+		if (status & NOR_INT_STAT_CARD_INT) // 0x100 )
+		{
+			u16 val = HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_STATUS_EN);
+			HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_STATUS_EN) = val & (~NOR_INT_STAT_EN_CARD_INT);
+			DBG_SDIO_ERR("CARD INT: 0x%04X\n", status);
+			HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_STATUS_EN) = val;
+
+		}
+		if (status & NOR_INT_STAT_ERR_INT) // 0x8000 )
+		{
+			HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_SIG_EN) = 0;
+			u16 err = HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS);
+
+			DBG_SDIO_ERR("\r[SDIO Err]XFER CP with ErrIntVal: 0x%04X /0x%04X -- TYPE 0x%02X\n",
+				status,
+				err,
+				psha->CmdCompleteFlg);
+
+			if (psha->CmdCompleteFlg) {
+				SdioHostErrIntRecovery(psha);
+				goto ir_end;
+			}
+	        DiagPrintf("\r[SDIO Err]Read/Write command Error\n");
+
+			psha->ErrIntFlg = 1;
+		}
 	}
+ir_end:
+	HAL_SDIOH_REG16(REG_SDIO_HOST_NORMAL_INT_SIG_EN)
+			= NOR_INT_SIG_EN_CMD_COMP
+			| NOR_INT_SIG_EN_XFER_COMP
+			| NOR_INT_SIG_EN_CARD_REMOVAL
+			| NOR_INT_SIG_EN_CARD_INT;	// 195;
+}
+
+//----- SdioHostChkCmdComplete
+HAL_Status SdioHostChkCmdComplete(void *Data, uint32_t Timeout) {
+{
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	uint32_t TimeoutCnt;
+	uint32_t StartCount;
+	HAL_Status result;
+
+
+	if (psha) {
+		if (Timeout == SDIO_HOST_WAIT_FOREVER) {
+			StartCount = 0;
+			TimeoutCnt = 0;
+		} else {
+			TimeoutCnt = 1000 * Timeout / 31;
+			StartCount = HalTimerOp.HalTimerReadCount(1); //	v6 = (*((int (**)(u32)) &HalTimerOp + 2))(1);
+		}
+		while(psha->CmdCompleteFlg == 0) {
+			if(psha->ErrIntFlg)
+				return SdioHostErrIntRecovery(psha);
+			if(TimeoutCnt) {
+				result = SdioHostIsTimeout(StartCount, TimeoutCnt);
+				if (result == HAL_TIMEOUT)
+					return result;
+			} else if(Timeout == 0) {
+				result = HAL_BUSY;
+				return result;
+			}
+		}
+		result = HAL_OK;
+	} else
+		result = HAL_ERR_PARA;
 	return result;
 }
 
-//----- (000007C4) --------------------------------------------------------
-signed int SdioHostChkCmdComplete(void *Data, uint32_t Timeout) {
-	void *v2; // r4@1
-	int v3; // r1@2
-	signed int v4; // r2@2
-	uint32_t v5; // r5@2
-	signed int result; // r0@5
+//----- SdioHostGetCSD
+HAL_Status SdioHostGetCSD(void *Data)
+{
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	HAL_Status result;
+	SDIO_HOST_CMD Cmd;
 
-	v2 = Data;
-	if (Data) {
-		v5 = (*((int (**)(u32, u32)) &HalTimerOp + 2))(1, Timeout);
-		while (!*((u8 *) v2 + 128)) {
-			if (*((u8 *) v2 + 130))
-				return SdioHostErrIntRecovery(v2, v3, v4);
-			result = SdioHostIsTimeout(v5, 1612);
-			if (result == 2)
+	if (psha) {
+		result = SdioHostChkCmdInhibitCMD();
+		if (result == HAL_OK) {
+
+			Cmd.CmdFmt.RespType = RSP_LEN_136;
+			Cmd.CmdFmt.Rsvd0 = 0;
+			Cmd.CmdFmt.CmdCrcChkEn = 1;
+			Cmd.CmdFmt.CmdIdxChkEn = 0;
+			Cmd.CmdFmt.DataPresent = NO_DATA;
+			Cmd.CmdFmt.CmdType = NORMAL;
+			Cmd.CmdFmt.CmdIdx = CMD_SEND_CSD;
+			Cmd.CmdFmt.Rsvd1 = 0;
+			Cmd.Arg = psha->RCA << 16;
+
+			psha->CmdCompleteFlg = 0;
+			psha->XferType = 0;
+
+			SdioHostSendCmd(&Cmd);
+			result = SdioHostChkCmdComplete(psha, 50);
+			if(result == HAL_OK) {
+				SdioHostGetResponse(psha, Cmd.CmdFmt.RespType);
+				psha->Csd[15] = 1;
+				uint32 x = psha->Response[3];
+				psha->Csd[0] = x >> 16;
+				psha->Csd[1] = x >> 8;
+				psha->Csd[2] = x;
+				x = psha->Response[2];
+				psha->Csd[3] = x >> 24;
+				psha->Csd[4] = x >> 16;
+				psha->Csd[5] = x >> 8;
+				psha->Csd[6] = x;
+				x = psha->Response[1];
+				psha->Csd[7] = x >> 24;
+				psha->Csd[8] = x >> 16;
+				psha->Csd[9] = x >> 8;
+				psha->Csd[10] = x;
+				x = psha->Response[0];
+				psha->Csd[11] = x >> 24;
+				psha->Csd[12] = x >> 16;
+				psha->Csd[13] = x >> 8;
+				psha->Csd[14] = x;
+			}
+		}
+	} else
+		result = HAL_ERR_PARA;
+	return result;
+}
+
+//----- SdioHostChkXferComplete
+HAL_Status SdioHostChkXferComplete(void *Data)
+{
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	uint32_t StartCount;
+	HAL_Status result;
+	if (psha) {
+		StartCount = HalTimerOp.HalTimerReadCount(1);
+		while(psha->XferCompleteFlg == 0
+				&& (HAL_SDIOH_REG32(REG_SDIO_HOST_PRESENT_STATE)
+						& PRES_STATE_DAT0_SIGNAL_LEVEL) == 0) {
+			if(psha->ErrIntFlg)
+				return SdioHostErrIntRecovery(psha);
+			result = SdioHostIsTimeout(StartCount, 161290);
+			if (result == HAL_TIMEOUT)
 				return result;
 		}
-		result = 0;
-	} else
-		result = 3;
-
+		result = HAL_OK;
+	} else {
+		result = HAL_ERR_PARA;
+	}
 	return result;
 }
 
-//----- (0000080C) --------------------------------------------------------
-int SdioHostCardSelection(void *Data, int Select, int a3) {
-	u8 *v3; // r4@1
-	int result; // r0@3
-	char v5; // r3@5
-	int v6; // r3@5
-	uint32_t v7; // r1@5
-	signed int v8; // r2@5
-	signed int v9; // r5@6
-	char v10; // r3@11
-	uint32_t v11; // r1@11
+//----- SdioHostCardSelection
+HAL_Status SdioHostCardSelection(void *Data, int Select) {
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	HAL_Status result;
 	SDIO_HOST_CMD Cmd; // [sp+0h] [bp-18h]@1
-	int v13; // [sp+8h] [bp-10h]@1
 
-	*(u32 *) &Cmd.CmdFmt = Data;
-	Cmd.Arg = Select;
-	v13 = a3;
-	v3 = Data;
-	if (Data) {
-		if (Select == 1) {
-			result = SdioHostChkCmdInhibitCMD((uint32_t) Data);
-			if (!result) {
+	if (psha) {
+		result = SdioHostChkCmdInhibitCMD();
+		if (result == HAL_OK) {
+			psha->CmdCompleteFlg = 0;
+			psha->XferType = SDIO_XFER_NOR;
+			psha->XferCompleteFlg = 0;
+
+			if (Select == 1) {
 				result = SdioHostChkCmdInhibitDAT(0);
-				if (!result) {
-					Cmd.CmdFmt = (SDIO_HOST_CMD_FMT) ((*(u8 *) &Cmd.CmdFmt
-							| 0x1B) & 0x1F);
-					v5 = *((u8 *) &Cmd.CmdFmt + 1);
-					v3[128] = 0;
-					*((u8 *) &Cmd.CmdFmt + 1) = v5 & 0xC0 | 7;
-					v6 = *((u16 *) v3 + 67);
-					v3[129] = 0;
-					Cmd.Arg = v6 << 16;
+				if (result == HAL_OK) {
+
+					Cmd.CmdFmt.RespType = RSP_LEN_48_CHK_BUSY;
+					Cmd.CmdFmt.Rsvd0 = 0;
+					Cmd.CmdFmt.CmdCrcChkEn = 1;
+					Cmd.CmdFmt.CmdIdxChkEn = 1;
+					Cmd.CmdFmt.DataPresent = NO_DATA;
+					Cmd.CmdFmt.CmdType = NORMAL;
+					Cmd.CmdFmt.CmdIdx = CMD_SELECT_DESELECT_CARD;
+					Cmd.CmdFmt.Rsvd1 = 0;
+					Cmd.Arg = psha->RCA << 16;
+
+
 					SdioHostSendCmd(&Cmd);
-					result = SdioHostChkCmdComplete(v3, v7);
-					if (!result) {
-						v9 = SdioHostChkXferComplete(v3, 0x1388u, v8);
-						if (v9
-								|| (SdioHostGetResponse(v3,
-										*(u8 *) &Cmd.CmdFmt & 3), v3[24] == 7)) {
-							result = v9;
-						} else {
+					result = SdioHostChkCmdComplete(psha, 50);
+					if(result == HAL_OK) {
+						result = SdioHostChkXferComplete(psha);
+						if(result != HAL_OK) return result;
+						result = SdioHostGetResponse(psha, Cmd.CmdFmt.RespType);
+						if(result != HAL_OK) return result;
+						if((uint8)psha->Response[1] != 7) return result;
+						else {
 							DBG_SDIO_ERR("Command index error!\n");
-							result = 238;
+							result = HAL_ERR_UNKNOWN;
 						}
 					}
 				}
-			}
-		} else {
-			result = SdioHostChkCmdInhibitCMD((uint32_t) Data);
-			if (!result) {
-				*(u8 *) &Cmd.CmdFmt &= 4u;
-				v10 = *((u8 *) &Cmd.CmdFmt + 1);
-				v3[128] = 0;
-				Cmd.Arg = 0;
-				*((u8 *) &Cmd.CmdFmt + 1) = v10 & 0xC0 | 7;
+			} else {
+
+				Cmd.CmdFmt.RespType = NO_RSP;
+				Cmd.CmdFmt.Rsvd0 = 0;
+				Cmd.CmdFmt.CmdCrcChkEn = 0;
+				Cmd.CmdFmt.CmdIdxChkEn = 0;
+				Cmd.CmdFmt.DataPresent = NO_DATA;
+				Cmd.CmdFmt.CmdType = NORMAL;
+				Cmd.CmdFmt.CmdIdx = CMD_SELECT_DESELECT_CARD;
+				Cmd.CmdFmt.Rsvd1 = 0;
+				Cmd.Arg = psha->RCA << 16;
+
+
 				SdioHostSendCmd(&Cmd);
-				result = SdioHostChkCmdComplete(v3, v11);
+				result = SdioHostChkCmdComplete(psha, 50);
 			}
 		}
-	} else {
+	} else result = HAL_ERR_PARA;
+	return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----- (00000D34) --------------------------------------------------------
+HAL_Status SdioHostSwitchFunction(void *Data, int Mode, int Fn2Sel, int Fn1Sel,
+		uint8_t *StatusBuf)
+{
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	HAL_Status result; // r0@3
+	SDIO_HOST_CMD Cmd; // [sp+0h] [bp-20h]@1
+
+	u8 *v5; // r4@1
+	uint32_t v6; // r0@1
+	int v7; // r5@1
+	int v8; // r6@1
+	char v9; // r7@3
+	char v11; // r3@5
+	uint32_t v12; // r1@5
+	signed int v13; // r2@6
+	uint32_t v14; // r1@6
+
+
+	int v16; // [sp+8h] [bp-18h]@1
+
+	*(u32 *) &Cmd.CmdFmt = Data;
+	Cmd.Arg = Mode;
+	v16 = Fn2Sel;
+	v5 = Data;
+	v6 = *((u32 *) Data + 4);
+	v7 = Mode;
+	v8 = Fn2Sel;
+	if (!v6 || ((u8) Fn1Sel | (u8) v6) & 3) {
 		result = 3;
+	} else {
+		HAL_SDIOH_REG32(REG_SDIO_HOST_ADMA_SYS_ADDR) = (uint32)psha->AdmaDescTbl; // v40058058 = v6;
+		HAL_SDIOH_REG16(REG_SDIO_HOST_BLK_SIZE) = 64; // v40058004 = 64;
+		HAL_SDIOH_REG32(REG_SDIO_HOST_XFER_MODE) = XFER_MODE_DATA_XFER_DIR | XFER_MODE_DMA_EN; //	v4005800C = 17;
+
+		v9 = *(u8 *) v6;
+		*(u16 *) (v6 + 2) = 64;
+		*(u8 *) v6 = ((v9 | 3) & 0xFB | 4 * ((Fn1Sel | v6) & 1)) & 0xEF
+				| 16 * ((Fn1Sel | v6) & 1) | 0x20;
+		*(u32 *) (v6 + 4) = Fn1Sel;
+		result = SdioHostChkCmdInhibitCMD();//v6);
+		if (!result) {
+			result = SdioHostChkDataLineActive();
+			if (result == HAL_OK) {
+				Cmd.CmdFmt = (SDIO_HOST_CMD_FMT) ((*(u8 *) &Cmd.CmdFmt & 0xF4
+						| 0x3A) & 0x3F);
+				v11 = *((u8 *) &Cmd.CmdFmt + 1);
+				v5[128] = 0;
+				*((u8 *) &Cmd.CmdFmt + 1) = v11 & 0xC0 | 6;
+				v5[129] = 0;
+				Cmd.Arg = v8 | 0xFFFFF0 | (v7 << 31);
+				SdioHostSendCmd(&Cmd);
+				result = SdioHostChkCmdComplete(v5);//, v12);
+				if (!result) {
+					SdioHostGetResponse(v5, *(u8 *) &Cmd.CmdFmt & 3);
+					result = SdioHostChkXferComplete(v5, 0x1388u, v13);
+					if (result) {
+						if (result != 16) {
+							if (HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS) & ERR_INT_STAT_ADMA) {
+								HAL_SDIOH_REG16(REG_SDIO_HOST_ERROR_INT_STATUS) = ERR_INT_STAT_ADMA;
+								if (HalSdioHostStopTransferRtl8195a(psha)) {
+									DBG_SDIO_ERR("Stop transmission error!\n");
+								}
+							}
+						}
+						result = 238;
+					}
+				}
+			}
+		}
 	}
 	return result;
 }
-// 23D4: using guessed type int DiagPrintf(const char *, ...);
 
-//----- (000008FC) --------------------------------------------------------
-int SdioHostGetCSD(void *Data, uint32_t a2) {
-	void *v2; // r4@1
-	int result; // r0@2
-	int v4; // r3@3
-	uint32_t v5; // r1@3
-	signed int v6; // r6@3
-	unsigned int v7; // r3@4
-	unsigned int v8; // r2@4
-	unsigned int v9; // r3@4
-	unsigned int v10; // r2@4
-	unsigned int v11; // r3@4
-	unsigned int v12; // r2@4
-	unsigned int v13; // r3@4
-	SDIO_HOST_CMD Cmd; // [sp+0h] [bp-18h]@1
 
-	*(u32 *) &Cmd.CmdFmt = Data;
-	Cmd.Arg = a2;
-	v2 = Data;
-	if (Data) {
-		result = SdioHostChkCmdInhibitCMD((uint32_t) Data);
-		if (!result) {
-			Cmd.CmdFmt = (SDIO_HOST_CMD_FMT) ((*(u8 *) &Cmd.CmdFmt & 0xFC | 9)
-					& 0xF);
-			*((u8 *) &Cmd.CmdFmt + 1) = *((u8 *) &Cmd.CmdFmt + 1) & 0xC0 | 9;
-			v4 = *((u16 *) v2 + 67);
-			*((u8 *) v2 + 128) = 0;
-			Cmd.Arg = v4 << 16;
-			SdioHostSendCmd(&Cmd);
-			v6 = SdioHostChkCmdComplete(v2, v5);
-			if (!v6) {
-				SdioHostGetResponse(v2, *(u8 *) &Cmd.CmdFmt & 3);
-				v7 = *((u32 *) v2 + 8);
-				*((u8 *) v2 + 127) = 1;
-				*((u8 *) v2 + 112) = v7 >> 16;
-				*((u8 *) v2 + 114) = v7;
-				v8 = v7 >> 8;
-				v9 = *((u32 *) v2 + 7);
-				*((u8 *) v2 + 113) = v8;
-				*((u8 *) v2 + 115) = BYTE3(v9);
-				*((u8 *) v2 + 116) = v9 >> 16;
-				*((u8 *) v2 + 118) = v9;
-				v10 = v9 >> 8;
-				v11 = *((u32 *) v2 + 6);
-				*((u8 *) v2 + 117) = v10;
-				*((u8 *) v2 + 119) = BYTE3(v11);
-				*((u8 *) v2 + 120) = v11 >> 16;
-				*((u8 *) v2 + 122) = v11;
-				v12 = v11 >> 8;
-				v13 = *((u32 *) v2 + 5);
-				*((u8 *) v2 + 121) = v12;
-				*((u8 *) v2 + 123) = BYTE3(v13);
-				*((u8 *) v2 + 124) = v13 >> 16;
-				*((u8 *) v2 + 125) = BYTE1(v13);
-				*((u8 *) v2 + 126) = v13;
-			}
-			result = v6;
-		} else
-			result = 3;
-		return result;
-	}
-}
+
+
+
 //----- (000009CC) --------------------------------------------------------
 HAL_Status HalSdioHostReadBlocksDmaRtl8195a(IN VOID *Data, IN u64 ReadAddr,
 IN u32 BlockCnt) {
@@ -753,7 +832,7 @@ IN u32 BlockCnt) {
 			if (BlockCnt != 1)
 				break;
 			v4005800C = 17;
-			LABEL_18: result = SdioHostChkCmdInhibitCMD(result);
+			LABEL_18: result = SdioHostChkCmdInhibitCMD();//result);
 			if (result)
 				return result;
 			result = SdioHostChkDataLineActive(0);
@@ -768,7 +847,7 @@ IN u32 BlockCnt) {
 			*((u8 *) &Cmd.CmdFmt + 1) = v12 & 0xC0 | 0x11;
 			Cmd.Arg = v4;
 			SdioHostSendCmd(&Cmd);
-			result = SdioHostChkCmdComplete((void *) v5, v13);
+			result = SdioHostChkCmdComplete((void *) v5);//, v13);
 			if (result)
 				goto LABEL_21;
 			SdioHostGetResponse((void *) v5, *(u8 *) &Cmd.CmdFmt & 3);
@@ -792,7 +871,7 @@ IN u32 BlockCnt) {
 		v4005800C = 55;
 		if (BlockCnta <= 1)
 			goto LABEL_18;
-		result = SdioHostChkCmdInhibitCMD(result);
+		result = SdioHostChkCmdInhibitCMD();//result);
 		if (result)
 			return result;
 		result = SdioHostChkDataLineActive(0);
@@ -807,7 +886,7 @@ IN u32 BlockCnt) {
 		*((u8 *) &Cmd.CmdFmt + 1) = v7 & 0xC0 | 0x12;
 		Cmd.Arg = v4;
 		SdioHostSendCmd(&Cmd);
-		result = SdioHostChkCmdComplete((void *) v5, v8);
+		result = SdioHostChkCmdComplete((void *) v5);//, v8);
 		if (!result) {
 			SdioHostGetResponse((void *) v5, *(u8 *) &Cmd.CmdFmt & 3);
 			result = SdioHostChkXferComplete((void *) v5, 0x1388u, v9);
@@ -832,7 +911,7 @@ IN u32 BlockCnt) {
 HAL_Status HalSdioHostWriteBlocksDmaRtl8195a(IN VOID *Data,
 IN u64 WriteAddr,
 IN u32 BlockCnt) {
-
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
 	PHAL_SDIO_HOST_ADAPTER pSdioHostAdapter = (PHAL_SDIO_HOST_ADAPTER) Data; //int v5; // r6@1
 	uint32_t sec_count; // v4; // r4@1
 
@@ -884,7 +963,7 @@ IN u32 BlockCnt) {
 			if (BlockCnt > 1)
 				break;
 
-			LABEL_23: result = SdioHostChkCmdInhibitCMD(result);
+			LABEL_23: result = SdioHostChkCmdInhibitCMD();//result);
 			if (result != HAL_OK)
 				return result;
 			result = SdioHostChkDataLineActive(0);
@@ -899,7 +978,7 @@ IN u32 BlockCnt) {
 			*((u8 *) &Cmd.CmdFmt + 1) = v10 & 0xC0 | 0x18;
 			Cmd.Arg = sec_count;
 			SdioHostSendCmd(&Cmd);
-			result = SdioHostChkCmdComplete((void *) v5, v11);
+			result = SdioHostChkCmdComplete((void *) v5);//, v11);
 			if (result)
 				goto LABEL_26;
 			SdioHostGetResponse((void *) pSdioHostAdapter,
@@ -926,7 +1005,7 @@ IN u32 BlockCnt) {
 				return 238;
 			}
 		}
-		result = SdioHostChkCmdInhibitCMD(result);
+		result = SdioHostChkCmdInhibitCMD();//result);
 		if (result != HAL_OK)
 			return result;
 		result = SdioHostChkDataLineActive(0);
@@ -941,7 +1020,7 @@ IN u32 BlockCnt) {
 		*((u8 *) &Cmd.CmdFmt + 1) = v7 & 0xC0 | 0x19;
 		Cmd.Arg = sec_count;
 		SdioHostSendCmd(&Cmd);
-		result = SdioHostChkCmdComplete((void *) v5, v8);
+		result = SdioHostChkCmdComplete((void *) v5);//, v8);
 		if (!result) {
 			SdioHostGetResponse((void *) pSdioHostAdapter,
 					*(u8 *) &Cmd.CmdFmt & 3);
@@ -967,73 +1046,6 @@ IN u32 BlockCnt) {
 }
 // 23D4: using guessed type int DiagPrintf(const char *, ...);
 
-//----- (00000D34) --------------------------------------------------------
-int SdioHostSwitchFunction(void *Data, int Mode, int Fn2Sel, int Fn1Sel,
-		uint8_t *StatusBuf) {
-	u8 *v5; // r4@1
-	uint32_t v6; // r0@1
-	int v7; // r5@1
-	int v8; // r6@1
-	char v9; // r7@3
-	int result; // r0@3
-	char v11; // r3@5
-	uint32_t v12; // r1@5
-	signed int v13; // r2@6
-	uint32_t v14; // r1@6
-	SDIO_HOST_CMD Cmd; // [sp+0h] [bp-20h]@1
-	int v16; // [sp+8h] [bp-18h]@1
-
-	*(u32 *) &Cmd.CmdFmt = Data;
-	Cmd.Arg = Mode;
-	v16 = Fn2Sel;
-	v5 = Data;
-	v6 = *((u32 *) Data + 4);
-	v7 = Mode;
-	v8 = Fn2Sel;
-	if (!v6 || ((u8) Fn1Sel | (u8) v6) & 3) {
-		result = 3;
-	} else {
-		v40058058 = v6;
-		v40058004 = 64;
-		v4005800C = 17;
-		v9 = *(u8 *) v6;
-		*(u16 *) (v6 + 2) = 64;
-		*(u8 *) v6 = ((v9 | 3) & 0xFB | 4 * ((Fn1Sel | v6) & 1)) & 0xEF
-				| 16 * ((Fn1Sel | v6) & 1) | 0x20;
-		*(u32 *) (v6 + 4) = Fn1Sel;
-		result = SdioHostChkCmdInhibitCMD(v6);
-		if (!result) {
-			result = SdioHostChkDataLineActive(0);
-			if (!result) {
-				Cmd.CmdFmt = (SDIO_HOST_CMD_FMT) ((*(u8 *) &Cmd.CmdFmt & 0xF4
-						| 0x3A) & 0x3F);
-				v11 = *((u8 *) &Cmd.CmdFmt + 1);
-				v5[128] = 0;
-				*((u8 *) &Cmd.CmdFmt + 1) = v11 & 0xC0 | 6;
-				v5[129] = 0;
-				Cmd.Arg = v8 | 0xFFFFF0 | (v7 << 31);
-				SdioHostSendCmd(&Cmd);
-				result = SdioHostChkCmdComplete(v5, v12);
-				if (!result) {
-					SdioHostGetResponse(v5, *(u8 *) &Cmd.CmdFmt & 3);
-					result = SdioHostChkXferComplete(v5, 0x1388u, v13);
-					if (result) {
-						if (result != 16) {
-							if (v40058032 & 0x200) {
-								v40058032 = 512;
-								if (HalSdioHostStopTransferRtl8195a(v5, v14)) {
-									DBG_SDIO_ERR("Stop transmission error!\n");
-								}
-							}
-						}
-						result = 238;
-					}
-				}
-			}
-		}
-	}
-	return result;
-}
 // 23D4: using guessed type int DiagPrintf(const char *, ...);
 
 //----- (00000E34) --------------------------------------------------------
@@ -1053,7 +1065,7 @@ HAL_Status HalSdioHostGetCardStatusRtl8195a(IN VOID *Data) {
 	v3 = Data;
 	if (!Data)
 		return 3;
-	result = SdioHostChkCmdInhibitCMD((uint32_t) Data);
+	result = SdioHostChkCmdInhibitCMD();//(uint32_t) Data);
 	if (result)
 		return result;
 	Cmd.CmdFmt =
@@ -1063,7 +1075,7 @@ HAL_Status HalSdioHostGetCardStatusRtl8195a(IN VOID *Data) {
 	*((u8 *) &Cmd.CmdFmt + 1) = v5 & 0xC0 | 0xD;
 	Cmd.Arg = *((u16 *) v3 + 67) << 16;
 	SdioHostSendCmd(&Cmd);
-	v7 = SdioHostChkCmdComplete(v3, v6);
+	v7 = SdioHostChkCmdComplete(v3);//, v6);
 	if (v7)
 		return v7;
 	SdioHostGetResponse(v3, *(u8 *) &Cmd.CmdFmt & 3);
@@ -1140,7 +1152,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		v7 = 3;
 		goto LABEL_115;
 	};
-	v4 = SdioHostChkCmdInhibitCMD((uint32_t) Data);
+	v4 = SdioHostChkCmdInhibitCMD();//(uint32_t) Data);
 	if (!v4) {
 		v5 = (char) v52;
 		v3[128] = 0;
@@ -1148,7 +1160,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		v53 = 0;
 		BYTE1(v52) &= 0xC0u;
 		SdioHostSendCmd((SDIO_HOST_CMD *) &v52);
-		v4 = SdioHostChkCmdComplete(v3, v6);
+		v4 = SdioHostChkCmdComplete(v3);//, v6);
 	};
 	v7 = v4;
 	if (v4) {
@@ -1157,12 +1169,12 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	};
 	goto LABEL_115;
 
-	v9 = SdioHostChkCmdInhibitCMD(0);
+	v9 = SdioHostChkCmdInhibitCMD();//0);
 	if (v9
 			|| (LOBYTE(v52) = (((u8) v52 & 0xF4 | 0x1A) & 0xDF | 32 * (v7 & 1))
 					& 0x3F | ((v7 & 3) << 6), BYTE1(v52) = BYTE1(v52) & 0xC0
 					| 8, v3[128] = v7, v53 = 426, SdioHostSendCmd(
-					(SDIO_HOST_CMD *) &v52), (v9 = SdioHostChkCmdComplete(v3,
+					(SDIO_HOST_CMD *) &v52), (v9 = SdioHostChkCmdComplete(v3);//,
 					v10)) != 0)) {
 		v7 = v9;
 		if (v9)
@@ -1197,7 +1209,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 			goto LABEL_115;
 		}
 	}
-	v13 = SdioHostChkCmdInhibitCMD(v9);
+	v13 = SdioHostChkCmdInhibitCMD();//v9);
 	if (v13)
 		goto LABEL_63;
 	LOBYTE (v52) = ((u8) v52 & 0xFC | 0x1A) & 0x1F;
@@ -1206,7 +1218,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	BYTE1 (v52) = v14;
 	v53 = v7;
 	SdioHostSendCmd((SDIO_HOST_CMD *) &v52);
-	v13 = SdioHostChkCmdComplete(v3, v15);
+	v13 = SdioHostChkCmdComplete(v3);//, v15);
 	if (v13)
 		goto LABEL_63;
 	v16 = SdioHostGetResponse(v3, (u8) v52 & 3);
@@ -1227,12 +1239,11 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		LABEL_57: v7 = 238;
 		goto LABEL_60;
 	};
-	v13 = SdioHostChkCmdInhibitCMD(v16);
+	v13 = SdioHostChkCmdInhibitCMD();//v16);
 	if (v13
 			|| (LOBYTE(v52) = ((u8) v52 & 0xFC | 2) & 7, v18 = BYTE1(v52) & 0xC0
 					| 0x29, v3[128] = v7, BYTE1(v52) = v18, v53 = v7, SdioHostSendCmd(
-					(SDIO_HOST_CMD *) &v52), (v13 = SdioHostChkCmdComplete(v3,
-					v19)) != 0)) {
+					(SDIO_HOST_CMD *) &v52), (v13 = SdioHostChkCmdComplete(v3)) != 0)) {
 		LABEL_63: v7 = v13;
 		if (!v13)
 			goto LABEL_64;
@@ -1249,7 +1260,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		v22 = __CFADD__(v21--, -1);
 		if (!v22)
 			goto LABEL_51;
-		v13 = SdioHostChkCmdInhibitCMD(v20);
+		v13 = SdioHostChkCmdInhibitCMD();//v20);
 		if (v13)
 			goto LABEL_63;
 		LOBYTE (v52) = ((u8) v52 & 0xFC | 0x1A) & 0x1F;
@@ -1258,7 +1269,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		v53 = 0;
 		BYTE1 (v52) = v23 & 0xC0 | 0x37;
 		SdioHostSendCmd((SDIO_HOST_CMD *) &v52);
-		v13 = SdioHostChkCmdComplete(v3, v24);
+		v13 = SdioHostChkCmdComplete(v3);//, v24);
 		if (v13)
 			goto LABEL_63;
 		v25 = SdioHostGetResponse(v3, (u8) v52 & 3);
@@ -1278,7 +1289,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 			LABEL_62: v13 = 238;
 			goto LABEL_63;
 		}
-		v13 = SdioHostChkCmdInhibitCMD(v25);
+		v13 = SdioHostChkCmdInhibitCMD();//v25);
 		if (v13)
 			goto LABEL_63;
 		LOBYTE (v52) = ((u8) v52 & 0xFC | 2) & 7;
@@ -1287,7 +1298,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		BYTE1 (v52) = v27 & 0xC0 | 0x29;
 		v53 = 1077673984;
 		SdioHostSendCmd((SDIO_HOST_CMD *) &v52);
-		v13 = SdioHostChkCmdComplete(v3, v28);
+		v13 = SdioHostChkCmdComplete(v3);//, v28);
 		if (v13)
 			goto LABEL_63;
 		SdioHostGetResponse(v3, (u8) v52 & 3);
@@ -1312,12 +1323,11 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	}
 	DiagPrintf(v29);
 	LABEL_64: v30 = HalDelayUs(20);
-	v31 = SdioHostChkCmdInhibitCMD(v30);
+	v31 = SdioHostChkCmdInhibitCMD();//v30);
 	if (v31
 			|| (LOBYTE(v52) = ((u8) v52 & 0xF4 | 9) & 0xF, v32 = BYTE1(v52)
 					& 0xC0 | 2, v3[128] = v7, BYTE1(v52) = v32, v53 = v7, SdioHostSendCmd(
-					(SDIO_HOST_CMD *) &v52), (v31 = SdioHostChkCmdComplete(v3,
-					v33)) != 0)) {
+					(SDIO_HOST_CMD *) &v52), (v31 = SdioHostChkCmdComplete(v3)) != 0)) {
 		v7 = v31;
 		if (!v31)
 			goto LABEL_70;
@@ -1328,12 +1338,11 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		goto LABEL_115;
 	}
 	v31 = SdioHostGetResponse(v3, (u8) v52 & 3);
-	LABEL_70: v34 = SdioHostChkCmdInhibitCMD(v31);
+	LABEL_70: v34 = SdioHostChkCmdInhibitCMD();//v31);
 	if (v34
 			|| (LOBYTE(v52) = ((u8) v52 & 0xF4 | 0x1A) & 0x1F, v35 = BYTE1(v52)
 					& 0xC0 | 3, v3[128] = v7, BYTE1(v52) = v35, v53 = v7, SdioHostSendCmd(
-					(SDIO_HOST_CMD *) &v52), (v34 = SdioHostChkCmdComplete(v3,
-					v36)) != 0)) {
+					(SDIO_HOST_CMD *) &v52), (v34 = SdioHostChkCmdComplete(v3)) != 0)) {
 		v7 = v34;
 		if (v34)
 			goto LABEL_79;
@@ -1370,7 +1379,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		LABEL_108: DiagPrintf(v41, v40);
 		goto LABEL_113;
 	}
-	v42 = SdioHostChkCmdInhibitCMD(0);
+	v42 = SdioHostChkCmdInhibitCMD();//0);
 	if (v42)
 		goto LABEL_120;
 	LOBYTE (v52) = ((u8) v52 & 0xFC | 0x1A) & 0x1F;
@@ -1379,7 +1388,7 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 	v3[128] = v7;
 	v53 = v45;
 	SdioHostSendCmd((SDIO_HOST_CMD *) &v52);
-	v42 = SdioHostChkCmdComplete(v3, v46);
+	v42 = SdioHostChkCmdComplete(v3);//, v46);
 	if (v42)
 		goto LABEL_120;
 	v47 = SdioHostGetResponse(v3, (u8) v52 & 3);
@@ -1392,12 +1401,11 @@ HAL_Status HalSdioHostInitCardRtl8195a(IN VOID *Data) {
 		}
 		goto LABEL_96;
 	}
-	v42 = SdioHostChkCmdInhibitCMD(v47);
+	v42 = SdioHostChkCmdInhibitCMD();//v47);
 	if (v42
 			|| (LOBYTE(v52) = ((u8) v52 & 0xFC | 0x1A) & 0x1F, v49 = BYTE1(v52)
 					& 0xC0 | 6, v3[128] = v7, BYTE1(v52) = v49, v53 = 2, SdioHostSendCmd(
-					(SDIO_HOST_CMD *) &v52), (v42 = SdioHostChkCmdComplete(v3,
-					v50)) != 0)) {
+					(SDIO_HOST_CMD *) &v52), (v42 = SdioHostChkCmdComplete(v3)) != 0)) {
 		LABEL_120: v7 = v42;
 		if (v42)
 			goto LABEL_102;
@@ -1475,7 +1483,7 @@ HAL_Status HalSdioHostGetSdStatusRtl8195a(IN VOID *Data) {
 		v6 = (u8) ((v5 | 3) & 0xEB) | 0x20;
 		*(u8 *) v3 = v6;
 		*(u32 *) (v3 + 4) = v4 + 48;
-		result = SdioHostChkCmdInhibitCMD(v6);
+		result = SdioHostChkCmdInhibitCMD();//v6);
 		if (!result) {
 			Cmd.CmdFmt =
 					(SDIO_HOST_CMD_FMT) ((*(u8 *) &Cmd.CmdFmt & 0xFC | 0x1A)
@@ -1485,7 +1493,7 @@ HAL_Status HalSdioHostGetSdStatusRtl8195a(IN VOID *Data) {
 			v4[128] = 0;
 			Cmd.Arg = v8 << 16;
 			SdioHostSendCmd(&Cmd);
-			result = SdioHostChkCmdComplete(v4, v9);
+			result = SdioHostChkCmdComplete(v4);
 			if (!result) {
 				SdioHostGetResponse(v4, *(u8 *) &Cmd.CmdFmt & 3);
 				if (v4[24] != 55) {
@@ -1504,7 +1512,7 @@ HAL_Status HalSdioHostGetSdStatusRtl8195a(IN VOID *Data) {
 					}
 					return 238;
 				}
-				result = SdioHostChkCmdInhibitCMD(*((u32 *) v4 + 5) << 26);
+				result = SdioHostChkCmdInhibitCMD();//*((u32 *) v4 + 5) << 26);
 				if (!result) {
 					result = SdioHostChkDataLineActive(0);
 					if (!result) {
@@ -1516,7 +1524,7 @@ HAL_Status HalSdioHostGetSdStatusRtl8195a(IN VOID *Data) {
 						Cmd.Arg = 0;
 						*((u8 *) &Cmd.CmdFmt + 1) = v12 & 0xC0 | 0xD;
 						SdioHostSendCmd(&Cmd);
-						result = SdioHostChkCmdComplete(v4, v13);
+						result = SdioHostChkCmdComplete(v4);//, v13);
 						if (!result) {
 							SdioHostGetResponse(v4, *(u8 *) &Cmd.CmdFmt & 3);
 							v15 = SdioHostChkXferComplete(v4, 0x1388u, v14);
@@ -1544,11 +1552,11 @@ HAL_Status HalSdioHostGetSdStatusRtl8195a(IN VOID *Data) {
 // 23D4: using guessed type int DiagPrintf(const char *, ...);
 
 //----- (00001668) --------------------------------------------------------
+// SD_CLK_FREQUENCY Frequency
 HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
-	PHAL_SDIO_HOST_ADAPTER v2 /*pSdioHostAdapter*/=
-			(PHAL_SDIO_HOST_ADAPTER) Data;
-	u8 * v2; // r5@1
-	int v3; // r4@6
+	PHAL_SDIO_HOST_ADAPTER pSdioHostAdapter = (PHAL_SDIO_HOST_ADAPTER) Data; //	v2 = Data; u8 * v2; // r5@1
+	PHAL_SDIO_HOST_ADAPTER psha = (PHAL_SDIO_HOST_ADAPTER)Data;
+	HAL_Status ret = HAL_ERR_PARA; // int v3; // r4@6
 	int v4; // r2@8
 	int v5; // r0@10
 	int v6; // r0@10
@@ -1565,65 +1573,65 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 	int v17; // r0@34
 	int v18; // r0@36
 	const char *v19; // r0@40
-	int v20; // r2@52
-	char v22; // [sp+0h] [bp-58h]@11
+	u8 Divisor; // int v20; // r2@52
+	char v22; // SDIO_HOST_CMD [sp+0h] [bp-58h]@11
 	char v23; // [sp+1h] [bp-57h]@11
 	int v24; // [sp+4h] [bp-54h]@11
+
 	uint8_t StatusData[64]; // [sp+8h] [bp-50h]@8
 
-	v2 = Data;
-	if (!Data || (unsigned int) (Frequency - 5) > 3)
-		return 3;
-	if (v2.CurrSdClk == Frequency) {
-		DBG_SDIO_WARN(
-				"Current SDCLK frequency is already the specified value...\n");
-		return 0;
+
+	if (!psha || Frequency > SD_CLK_41_6MHZ)
+		return ret;
+	if (psha->CurrSdClk == Frequency) {
+		DBG_SDIO_WARN("Current SDCLK frequency is already the specified value...\n");
+		ret = HAL_OK;
+		return ret;
 	}
-	if (Frequency != SD_CLK_41_6MHZ) { // SD_CLK_41_6MHZ
-		if (Frequency == SD_CLK_10_4MHZ) // SD_CLK_10_4MHZ
-			v20 = BASE_CLK_DIVIDED_BY_4;
-		else if (Frequency == SD_CLK_20_8MHZ) // SD_CLK_20_8MHZ
-			v20 = BASE_CLK_DIVIDED_BY_2;
-		else if (Frequency != SD_CLK_5_2MHZ) { // SD_CLK_5_2MHZ
+	if (Frequency != SD_CLK_41_6MHZ) {
+		if (Frequency == SD_CLK_10_4MHZ)
+			Divisor = BASE_CLK_DIVIDED_BY_4;	// 10.4 MHz
+		else if (Frequency == SD_CLK_20_8MHZ)
+			Divisor = BASE_CLK_DIVIDED_BY_2;	// 20.8 MHz
+		else if (Frequency != SD_CLK_5_2MHZ) {
 			DBG_SDIO_ERR("Unsupported SDCLK frequency!\n");
-			v3 = 3;
-			goto LABEL_60;
+			return ret;
 		}
-		v20 = BASE_CLK_DIVIDED_BY_8;
+		Divisor = BASE_CLK_DIVIDED_BY_8; // 5.2 MHZ
 	}
-	v3 = SdioHostSdClkCtrl(Data, 1, v20);
-	if (!v3)
-		return 0;
-	LABEL_60: if (!(ConfigDebugErr & 0x400)) {
-		return v3;
-		v19 = "\r[SDIO Err]Host changes clock fail!\n"; // DBG_SDIO_ERR("
-		goto LABEL_62;
-	}
-	v4 = *((u32 *) Data + 4);
+	ret = SdioHostSdClkCtrl(psha, 1, Divisor);
+	if (ret == HAL_OK) return ret;
+	DBG_SDIO_ERR("Host changes clock fail!\n");
+	return ret;
+
 	*(u32 *) StatusData = 0;
 	*(u32 *) &StatusData[4] = 0;
-	if (!v4 || v4 & 3)
-		return 3;
-	v40058058 = v4;
-	v40058004 = 8;
-	v4005800C = 17;
-	v5 = (u8) ((*(u8 *) v4 | 3) & 0xEB) | 0x20;
-	*(u8 *) v4 = v5;
-	*(u16 *) (v4 + 2) = 8;
-	*(u32 *) (v4 + 4) = StatusData;
-	v6 = SdioHostChkCmdInhibitCMD(v5);
-	if (v6)
-		goto LABEL_70;
-	v22 = (v22 & 0xF4 | 0x1A) & 0x1F;
-	v7 = v23;
-	v2[128] = 0;
-	v23 = v7 & 0xC0 | 0x37;
-	v24 = *((u16 *) v2 + 67) << 16;
-	SdioHostSendCmd((SDIO_HOST_CMD *) &v22);
-	v6 = SdioHostChkCmdComplete(v2, v8);
-	if (v6)
-		goto LABEL_70;
-	v9 = SdioHostGetResponse(v2, v22 & 3);
+
+	PADMA2_DESC_FMT	pAdmaDescTbl = psha->AdmaDescTbl;
+	if (pAdmaDescTbl == NULL || ((uint32)(pAdmaDescTbl) & 3)) {
+		ret = HAL_ERR_PARA;
+		return ret;
+	}
+	HAL_SDIOH_REG32(REG_SDIO_HOST_ADMA_SYS_ADDR) = psha->AdmaDescTbl; // v40058058 = v4;
+	HAL_SDIOH_REG16(REG_SDIO_HOST_BLK_SIZE) = 8; //	v40058004 = 8;
+	HAL_SDIOH_REG16(REG_SDIO_HOST_XFER_MODE) = XFER_MODE_DMA_EN | XFER_MODE_DATA_XFER_DIR; //	v4005800C = 17;
+	//	v5 = (u8) ((*(u8 *) v4 | 3) & 0xEB) | 0x20;
+	//	*(u8 *) v4 = v5;
+	pAdmaDescTbl->Attrib1.Int = 0;
+	pAdmaDescTbl->Attrib1.Act1 = 1;
+	pAdmaDescTbl->Len1 = 8; // *(u16 *) (v4 + 2) = 8;
+	pAdmaDescTbl->Addr2 = &StatusData; // *(u32 *) (v4 + 4) = StatusData;
+	ret = SdioHostChkCmdInhibitCMD();//v5);
+	if (ret != HAL_OK) return ret;
+	SDIO_HOST_CMD sdhcmd;
+	sdhcmd.CmdFmt.CmdCrcChkEn = 1; //	v22 = (v22 & 0xF4 | 0x1A) & 0x1F;
+	sdhcmd.CmdFmt.CmdIdx = 0x37; //	v23 = v7 & 0xC0 | 0x37;
+	pSdioHostAdapter->CmdCompleteFlg = 0; //	v2[128] = 0;
+	sdhcmd.Arg = pSdioHostAdapter->Csd[?] << 16; //	v24 = *((u16 *) v2 + 67) << 16;
+	SdioHostSendCmd((SDIO_HOST_CMD *) &sdhcmd);
+	ret = SdioHostChkCmdComplete(psha);//, v8);
+	if (ret != HAL_OK) return ret;
+	v9 = SdioHostGetResponse(psha, v22 & 3);
 	if (v2[24] != 55) {
 		if (!(ConfigDebugErr & 0x400))
 			return 238;
@@ -1637,18 +1645,17 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 		v10 = "\r[SDIO Err]ACMD isn't expected!\n";
 		goto LABEL_15;
 	}
-	v6 = SdioHostChkCmdInhibitCMD(v9);
+	v6 = SdioHostChkCmdInhibitCMD();//v9);
 	if (v6 || (v6 = SdioHostChkDataLineActive(0)) != 0
-			|| (v22 = (v22 & 0xF4 | 0x3A) & 0x3F, v11 = v23, v2[128] = 0, v2[129] =
+			|| (v22 = (v22 & 0xF4 | 0x3A) & 0x3F, v11 = v23, psha v2[128] = 0, v2[129] =
 					0, v24 = 0, v23 = v11 & 0xC0 | 0x33, SdioHostSendCmd(
-					(SDIO_HOST_CMD *) &v22), (v6 = SdioHostChkCmdComplete(v2,
-					v12)) != 0)) {
+					(SDIO_HOST_CMD *) &v22), (v6 = SdioHostChkCmdComplete(psha)) != 0)) {
 		LABEL_70: v3 = v6;
 		if (v6)
 			return v3;
 	} else {
 		SdioHostGetResponse(v2, v22 & 3);
-		v14 = SdioHostChkXferComplete(v2, 0x1388u, v13);
+		v14 = SdioHostChkXferComplete(psha, 0x1388u, v13);
 		if (v14) {
 			if (v14 == 16)
 				return 238;
@@ -1656,7 +1663,7 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 			if (!(v40058032 & 0x200))
 				return 238;
 			v40058032 = 512;
-			if (!HalSdioHostStopTransferRtl8195a(v2, v15)
+			if (!HalSdioHostStopTransferRtl8195a(psha, v15)
 					|| !(ConfigDebugErr & 0x400))
 				return 238;
 			v10 = "\r[SDIO Err]Stop transmission error!\n";
@@ -1666,12 +1673,12 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 		*((u16 *) v2 + 68) = StatusData[0] & 0xF;
 	}
 	if (*((u16 *) v2 + 68)) {
-		v16 = SdioHostSwitchFunction(v2, 0, 15, (int) StatusData,
+		v16 = SdioHostSwitchFunction(psha, 0, 15, (int) StatusData,
 				*(uint8_t **) &v22);
 		if (v16)
 			return v16;
 		if (StatusData[13] & 2) {
-			v17 = SdioHostSwitchFunction(v2, v16, 1, (int) StatusData,
+			v17 = SdioHostSwitchFunction(psha, v16, 1, (int) StatusData,
 					*(uint8_t **) &v22);
 			if (v17)
 				return v17;
@@ -1691,7 +1698,7 @@ HAL_Status HalSdioHostChangeSdClockRtl8195a(IN VOID *Data, IN u8 Frequency) {
 				v10 = "\r[SDIO Err]Card changes to High-Speed fail!\n";
 				goto LABEL_15;
 			}
-			v3 = SdioHostSdClkCtrl(v2, 1, v18);
+			v3 = SdioHostSdClkCtrl(psha, 1, v18);
 			if (v3) {
 				if (!(ConfigDebugErr & 0x400))
 					return v3;
@@ -1742,7 +1749,7 @@ IN u64 EndAddr) {
 		v4 = a2 >> 9;
 		v3 = EndAddra >> 9;
 	}
-	result = SdioHostChkCmdInhibitCMD(EndAddr);
+	result = SdioHostChkCmdInhibitCMD();//EndAddr);
 	if (!result) {
 		v16.CmdFmt = (SDIO_HOST_CMD_FMT) ((*(u8 *) &v16.CmdFmt & 0xFC | 0x1A)
 				& 0x1F);
@@ -1751,12 +1758,12 @@ IN u64 EndAddr) {
 		*((u8 *) &v16.CmdFmt + 1) = v7 & 0xC0 | 0x20;
 		v16.Arg = v4;
 		SdioHostSendCmd(&v16);
-		result = SdioHostChkCmdComplete((void *) v5, v8);
+		result = SdioHostChkCmdComplete((void *) v5);
 		if (!result) {
 			v9 = SdioHostGetResponse((void *) v5, *(u8 *) &v16.CmdFmt & 3);
 			if (*(u8 *) (v5 + 24) != 32)
 				goto LABEL_20;
-			result = SdioHostChkCmdInhibitCMD(v9);
+			result = SdioHostChkCmdInhibitCMD();//v9);
 			if (result)
 				return result;
 			v16.CmdFmt =
@@ -1767,7 +1774,7 @@ IN u64 EndAddr) {
 			*((u8 *) &v16.CmdFmt + 1) = v10 & 0xC0 | 0x21;
 			v16.Arg = v3;
 			SdioHostSendCmd(&v16);
-			result = SdioHostChkCmdComplete((void *) v5, v11);
+			result = SdioHostChkCmdComplete((void *) v5);
 			if (result)
 				return result;
 			v12 = SdioHostGetResponse((void *) v5, *(u8 *) &v16.CmdFmt & 3);
@@ -1776,7 +1783,7 @@ IN u64 EndAddr) {
 				DBG_SDIO_ERR("Command index error!\n");
 				result = 238;
 			} else {
-				result = SdioHostChkCmdInhibitCMD(v12);
+				result = SdioHostChkCmdInhibitCMD();//v12);
 				if (!result) {
 					result = SdioHostChkCmdInhibitDAT(0);
 					if (!result) {
@@ -1788,7 +1795,7 @@ IN u64 EndAddr) {
 						v16.Arg = 0;
 						*((u8 *) &v16.CmdFmt + 1) = v13 & 0xC0 | 0x26;
 						SdioHostSendCmd(&v16);
-						result = SdioHostChkCmdComplete((void *) v5, v14);
+						result = SdioHostChkCmdComplete((void *) v5);
 						if (!result)
 							result = SdioHostChkXferComplete((void *) v5,
 									0x1388u, v15);
@@ -1902,7 +1909,7 @@ HAL_Status HalSdioHostSetWriteProtectRtl8195a(IN VOID *Data, IN u8 Setting) {
 	*(u16 *) (v2 + 2) = 16;
 	*(u8 *) v2 = v10 & 0xC8 | 0x23;
 	*(u32 *) (v2 + 4) = tmp;
-	result = SdioHostChkCmdInhibitCMD(1u);
+	result = SdioHostChkCmdInhibitCMD();//1u);
 	if (!result) {
 		result = SdioHostChkDataLineActive(0);
 		if (!result) {
@@ -1913,7 +1920,7 @@ HAL_Status HalSdioHostSetWriteProtectRtl8195a(IN VOID *Data, IN u8 Setting) {
 			ret = 0;
 			v17 = v12 & 0xC0 | 0x1B;
 			SdioHostSendCmd((SDIO_HOST_CMD *) &v16);
-			result = SdioHostChkCmdComplete(v3, v13);
+			result = SdioHostChkCmdComplete(v3);
 			if (!result) {
 				SdioHostGetResponse(v3, v16 & 3);
 				if (*((u32 *) v3 + 5) & 0x4000000) {

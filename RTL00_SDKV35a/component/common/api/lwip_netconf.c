@@ -184,7 +184,9 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 	struct ip_addr netmask;
 	struct ip_addr gw;
 	uint32_t IPaddress;
+#if CONFIG_DEBUG_LOG > 2
 	uint8_t iptab[4];
+#endif
 	uint8_t DHCP_state;
 	int mscnt = 0;
 	struct netif *pnetif = NULL;
@@ -228,12 +230,14 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 
 				/* Stop DHCP */
 				// dhcp_stop(pnetif);  /* can not stop, need to renew, Robbie*/
+#if CONFIG_DEBUG_LOG > 2
 				iptab[0] = (uint8_t) (IPaddress >> 24);
 				iptab[1] = (uint8_t) (IPaddress >> 16);
 				iptab[2] = (uint8_t) (IPaddress >> 8);
 				iptab[3] = (uint8_t) (IPaddress);
 				info_printf("Interface %d IP address: %d.%d.%d.%d\n", idx, iptab[3],
 						iptab[2], iptab[1], iptab[0]);
+#endif
 #if CONFIG_WLAN
 				error_flag = RTW_NO_ERROR;
 #endif
@@ -251,6 +255,7 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 					IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1, NETMASK_ADDR2, NETMASK_ADDR3);
 					IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 					netif_set_addr(pnetif, &ipaddr, &netmask, &gw);
+#if CONFIG_DEBUG_LOG > 2
 
 					iptab[0] = IP_ADDR3;
 					iptab[1] = IP_ADDR2;
@@ -258,6 +263,7 @@ uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state) {
 					iptab[3] = IP_ADDR0;
 					info_printf("Interface %d DHCP timeout\n", idx);
 					info_printf("Static IP address: %d.%d.%d.%d\n", iptab[3], iptab[2], iptab[1], iptab[0]);
+#endif
 #if CONFIG_WLAN
 					error_flag = RTW_DHCP_FAIL;
 #endif

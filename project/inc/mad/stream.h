@@ -83,7 +83,7 @@ struct mad_stream {
   enum mad_error error;			/* error code (see above) */
 };
 
-enum {
+enum e_MAD_OPTION_{
   MAD_OPTION_IGNORECRC      = 0x0001,	/* ignore CRC errors */
   MAD_OPTION_HALFSAMPLERATE = 0x0002	/* generate PCM at 1/2 sample rate */
 # if 0  /* not yet implemented */

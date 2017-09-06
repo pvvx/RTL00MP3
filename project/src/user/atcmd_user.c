@@ -41,7 +41,7 @@ LOCAL void fATST(int argc, char *argv[]) {
 #if 0 //CONFIG_DEBUG_LOG > 1
 		dump_mem_block_list();
 		tcm_heap_dump();
-#endif;
+#endif
 		printf("\n");
 #if (configGENERATE_RUN_TIME_STATS == 1)
 		char *cBuffer = pvPortMalloc(512);
@@ -132,7 +132,7 @@ void dump_bytes(uint32 addr, int size)
 	while (size) {
 		if (symbs_line > size) symbs_line = size;
 		printf("%08X ", addr);
-		copy_align4_to_align1(buf, addr, symbs_line);
+		copy_align4_to_align1(buf, (void *)addr, symbs_line);
 		print_hex_dump(buf, symbs_line, ' ');
 		int i;
 		for(i = 0 ; i < symbs_line ; i++) {
@@ -151,6 +151,7 @@ void dump_bytes(uint32 addr, int size)
 //------------------------------------------------------------------------------
 // Dump byte register
 //------------------------------------------------------------------------------
+extern _LONG_CALL_ u32 Strtoul(IN  const u8 *nptr, IN  u8 **endptr, IN  u32 base);
 LOCAL void fATSB(int argc, char *argv[])
 {
 	int size = 16;

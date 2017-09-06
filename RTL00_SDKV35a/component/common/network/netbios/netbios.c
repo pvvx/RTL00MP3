@@ -163,8 +163,7 @@ PACK_STRUCT_END
 #  include "arch/epstruct.h"
 #endif
 
-//#define toupper(CH) \
-//  (((CH) >= 'a' && (CH) <= 'z') ? ((CH) - 'a' + 'A') : (CH))
+#define toupper(CH) (((CH) >= 'a' && (CH) <= 'z') ? ((CH) - 'a' + 'A') : (CH))
 
 
 /** NetBIOS decoding name */
@@ -226,7 +225,7 @@ netbios_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, ip_addr_t *addr,
 		if (current_netif != NULL && current_netif->num < NET_IF_NUM) {
 			uint32 ip = current_netif->ip_addr.addr;
 			char *curbiosname = netbios_name[current_netif->num];
-			if (curbiosname[0] != '\0' && ip != NULL
+			if (curbiosname[0] != '\0' && ip != 0
 			/* we only answer if we got a default interface */
 			&& (((ip ^ addr->addr) & current_netif->netmask.addr) == 0)) { // запрет ответа другой подсети
 #if DEBUGSOO > 3

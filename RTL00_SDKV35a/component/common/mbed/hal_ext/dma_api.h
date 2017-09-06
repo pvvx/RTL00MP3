@@ -34,8 +34,8 @@ typedef void (*dma_irq_handler)(uint32_t id);
 void dma_memcpy_init(gdma_t *dma_obj, dma_irq_handler handler, uint32_t id);
 void dma_memcpy_deinit(gdma_t *dma_obj);
 void dma_memcpy(gdma_t *dma_obj, void *dst, void* src, uint32_t len);
-void dma_memcpy_aggr_init(gdma_t * dma_obj, dma_irq_handler handler, uint32_t id);
-void dma_memcpy_aggr(gdma_t * dma_obj, PHAL_GDMA_BLOCK block_info);
+void dma_memcpy_aggr_init(gdma_t *dma_obj, dma_irq_handler handler, uint32_t id);
+void dma_memcpy_aggr(gdma_t *dma_obj, PHAL_GDMA_BLOCK block_info);
 
 #ifdef __cplusplus
 }

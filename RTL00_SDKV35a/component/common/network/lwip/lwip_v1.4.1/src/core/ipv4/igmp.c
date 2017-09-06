@@ -161,7 +161,7 @@ igmp_init(void)
   IP4_ADDR(&allrouters, 224, 0, 0, 2);
 }
 
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) && (LWIP_DEBUG != 0)
 /**
  * Dump global IGMP groups list
  */

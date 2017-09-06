@@ -39,8 +39,8 @@
 //	0x0000h ~ 0x00FFh	System Configuration
 //
 //-----------------------------------------------------
-#define REG_SYS_ISO_CTRL				0x0000
-#define REG_SYS_FUNC_EN				0x0002
+#define REG_SYS_ISO_CTRL_				0x0000
+#define REG_SYS_FUNC_EN_				0x0002
 #define REG_APS_FSMCO					0x0004
 #define REG_SYS_CLKR					0x0008
 #define REG_9346CR						0x000A
@@ -515,7 +515,7 @@
 #define REG_BSSID1						0x0708
 
 /* port0 & port1 enable */
-#define REG_PORT_CTRL					0x76D
+//#define REG_PORT_CTRL					0x76D
 
 //-----------------------------------------------------
 //
@@ -872,7 +872,7 @@ Default: 00b.
 #define IMR_PSTIMEOUT			BIT14		// Power save time out interrupt 
 #define IMR_BcnInt				BIT13		// Beacon DMA Interrupt 0
 #define IMR_RXFOVW				BIT12		// Receive FIFO Overflow
-#define IMR_RDU					BIT11		// Receive Descriptor Unavailable
+#define IMR_RDU_				BIT11		// Receive Descriptor Unavailable
 #define IMR_ATIMEND				BIT10		// For 92C,ATIM Window End Interrupt. For 8723 and later ICs, it also means P2P CTWin End interrupt.
 #define IMR_BDOK				BIT9		// Beacon Queue DMA OK Interrup
 #define IMR_HIGHDOK				BIT8		// High Queue DMA OK Interrupt

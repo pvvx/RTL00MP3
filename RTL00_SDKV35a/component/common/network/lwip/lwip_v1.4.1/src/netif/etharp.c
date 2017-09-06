@@ -187,7 +187,7 @@ etharp_free_entry(int i)
   }
   /* recycle entry for re-use */
   arp_table[i].state = ETHARP_STATE_EMPTY;
-#ifdef LWIP_DEBUG
+#if defined(LWIP_DEBUG) && (LWIP_DEBUG != 0)
   /* for debugging, clean out the complete entry */
   arp_table[i].ctime = 0;
   arp_table[i].netif = NULL;

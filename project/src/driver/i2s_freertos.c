@@ -32,6 +32,8 @@ speed.
 #include "osdep_api.h"
 #include "i2s_api.h"
 #include "driver/i2s_freertos.h"
+#include "rtl_lib.h"
+#include "rtl8195a/rtl_libc.h"
 
 #define USE_RTL_I2S_API  0 // speed
 
@@ -103,7 +105,7 @@ int i2sInit(int mask, int bufsize, int word_len) { // word_len = WL_16b or WL_24
 		        DBG_8195A("I2S%d: Not heap buffer %d bytes!\n", i, sizeof(i2s_t) + page_size * I2S_DMA_PAGE_NUM);
 				return 0;
 			}
-			rtl_memset(pi2s_new, 0, sizeof(i2s_t));
+			memset(pi2s_new, 0, sizeof(i2s_t));
 			u8 * i2s_tx_buf = (u8 *) pvPortMalloc(page_size * I2S_DMA_PAGE_NUM);
 		    if (i2s_tx_buf == NULL) {
 		    	vPortFree(pi2s_new);
@@ -135,12 +137,13 @@ int i2sInit(int mask, int bufsize, int word_len) { // word_len = WL_16b or WL_24
 			else i2s_init(pi2s_obj, I2S1_SCLK_PIN, I2S1_WS_PIN, I2S1_SD_PIN);
 			i2s_set_param(pi2s_obj, pi2s_obj->channel_num, pi2s_obj->sampling_rate, pi2s_obj->word_length);
 		    i2s_set_dma_buffer(pi2s_obj, i2s_tx_buf, NULL, I2S_DMA_PAGE_NUM, page_size);
-		    i2s_tx_irq_handler(pi2s_obj, i2s_test_tx_complete, (uint32_t)pi2s_obj);
+		    i2s_tx_irq_handler(pi2s_obj, (i2s_irq_handler)i2s_test_tx_complete, (uint32_t)pi2s_obj);
 	//    	i2s_rx_irq_handler(pi2s_obj, (i == 0)? (i2s_irq_handler)i2s1_test_rx_complete : (i2s_irq_handler)i2s2_test_rx_complete, i); // TX only!
 		    i2s_enable(pi2s_obj);
 		    DBG_8195A("I2S%d: Alloc DMA buf %d bytes (%d x %d samples %d bits)\n", i, page_size * I2S_DMA_PAGE_NUM, I2S_DMA_PAGE_NUM, bufsize, (word_len == WL_16b)? 32 : 96);
 		}
 	}
+	return 1;
 }
 
 //Set the I2S sample rate, in HZ
@@ -265,6 +268,7 @@ u32 i2sPushPWMSamples(u32 sample) {
 		}
 	}
 	portEXIT_CRITICAL();
+	return sample;
 }
 #endif
 
