@@ -608,7 +608,7 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 #endif // Test SDRAM
 #ifdef CONFIG_SDR_EN
 		// Тест и ожидание загрузки Jlink-ом sdram.bin (~7 sec)
-		if(*((uint32 *)0x1FFF0000) == 0x12345678) {
+		if(flg && *((uint32 *)0x1FFF0000) == 0x12345678) {
 			*((volatile uint32 *)0x1FFF0000) = 0x87654321;
 			uint32 tt = 0x03ffffff; // ~7 sec
 			DBG_8195A("Waiting for SDRAM to load...\n");
