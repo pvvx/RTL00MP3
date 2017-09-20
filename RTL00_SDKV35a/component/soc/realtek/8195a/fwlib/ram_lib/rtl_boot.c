@@ -257,12 +257,12 @@ LOCAL int BOOT_RAM_TEXT_SECTION SetSpicBitMode(uint8 BitMode) {
 }
 
 void BOOT_RAM_TEXT_SECTION InitSpicFlashType(struct spic_table_flash_type *ptable_flash) {
-	uint8 * ptrb = (uint8 *)&ptable_flash->cmd;
-	volatile uint32 * ptrreg = (volatile uint32 *)(SPI_FLASH_CTRL_BASE + REG_SPIC_READ_FAST_SINGLE);// 0x400060E0
+	u8 * ptrb = (u8 *) &ptable_flash->cmd;
+	volatile u32 * ptrreg = (volatile u32 *)(SPI_FLASH_CTRL_BASE + REG_SPIC_READ_FAST_SINGLE);// 0x400060E0
     HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0); // Disable SPI_FLASH User Mode
 	do	{
 		*ptrreg++ = *ptrb++;
-	} while(ptrb < (uint8 *)(&ptable_flash->fsize));
+	} while(ptrb < (u8 *)(&ptable_flash->fsize));
 	ptrreg[0] = ptable_flash->contrl;
 	ptrreg[1] = ptable_flash->validcmd[SpicOneBitMode];
 	ptrreg[2] = ptable_flash->fsize;
@@ -387,7 +387,6 @@ typedef enum {
 	SEG_ID_MAX
 } _SEG_ID;
 
-#if CONFIG_DEBUG_LOG > 1
 LOCAL const char * const txt_tab_seg[] = {
 		"UNK",		// 0
 		"SRAM",		// 1
@@ -398,7 +397,6 @@ LOCAL const char * const txt_tab_seg[] = {
 		"CPU",		// 6
 		"ROM"		// 7
 		};
-#endif
 
 LOCAL const uint32 tab_seg_def[] = { 0x10000000, 0x10070000, 0x1fff0000,
 		0x20000000, 0x30000000, 0x30200000, 0x40000000, 0x40800000, 0x98000000,
@@ -416,7 +414,7 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION get_seg_id(uint32 addr, int32 size) {
 			ptr += 2;
 		} while (ret < SEG_ID_MAX);
 	};
-	return 0;
+	return 0;	// UNK
 }
 
 LOCAL uint32 BOOT_RAM_TEXT_SECTION load_img2_head(uint32 faddr, PIMG2HEAD hdr) {
@@ -424,13 +422,13 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION load_img2_head(uint32 faddr, PIMG2HEAD hdr) {
 	uint32 ret = get_seg_id(hdr->seg.ldaddr, hdr->seg.size);
 	if (hdr->sign[1] == IMG_SIGN2_RUN) {
 		if (hdr->sign[0] == IMG_SIGN1_RUN) {
-			ret |= 1 << 9;
+			ret |= 1 << 9;	// есть сигнатура RUN
 		} else if (hdr->sign[0] == IMG_SIGN1_SWP) {
-			ret |= 1 << 8;
+			ret |= 1 << 8;  // есть сигнатура SWP
 		};
 	}
 	if (*(u32 *) (&hdr->rtkwin) == IMG2_SIGN_DW1_TXT) {
-		ret |= 1 << 10;
+		ret |= 1 << 10;	// есть подпись "RTKW"
 	};
 	return ret;
 }
@@ -459,7 +457,7 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION load_segs(uint32 faddr, PIMG2HEAD hdr,
 		} else {
 			break;
 		}
-		fnextaddr += flashcpy(fnextaddr, (void *) &hdr->seg, sizeof(IMGSEGHEAD));
+		fnextaddr += flashcpy(fnextaddr, &hdr->seg, sizeof(IMGSEGHEAD));
 		segnum++;
 	}
 	return fnextaddr;
@@ -477,8 +475,8 @@ LOCAL int BOOT_RAM_TEXT_SECTION loadUserImges(int imgnum) {
 	while (1) {
 		faddr = (faddr + FLASH_SECTOR_SIZE - 1) & (~(FLASH_SECTOR_SIZE - 1));
 		uint32 img_id = load_img2_head(faddr, &hdr);
-		if ((img_id >> 8) > 4 || (uint8) img_id != 0) {
-			faddr = load_segs(faddr + 0x10, &hdr, imagenum == imgnum);
+		if ((img_id >> 8) > 4 && (uint8) img_id != 0) { // есть подпись  "RTKW" + RUN или SWP, сегмент != unknown
+			faddr = load_segs(faddr + 0x10, (PIMG2HEAD) &hdr.seg, imagenum == imgnum);
 			if (imagenum == imgnum) {
 //				DBG_8195A("Image%d: %s\n", imgnum, hdr.name);
 				break;
@@ -537,6 +535,8 @@ LOCAL uint8 BOOT_RAM_TEXT_SECTION IsForceLoadDefaultImg2(void) {
 	return result;
 }
 
+extern _LONG_CALL_ void RtlConsolTaskRom(void *Data);
+
 /* RTL Console ROM */
 LOCAL void BOOT_RAM_TEXT_SECTION RtlConsolRam(void) {
 //	DiagPrintf("\r\nRTL Console ROM\r\n");
@@ -546,7 +546,7 @@ LOCAL void BOOT_RAM_TEXT_SECTION RtlConsolRam(void) {
 	pUartLogCtl->pTmpLogBuf->UARTLogBuf[0] = '?';
 	pUartLogCtl->pTmpLogBuf->BufCount = 1;
 	pUartLogCtl->ExecuteCmd = 1;
-	RtlConsolTaskRom((void *)pUartLogCtl);
+	RtlConsolTaskRom((void *) pUartLogCtl);
 }
 
 /* Enter Image 1.5 */
@@ -570,7 +570,7 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 		//----- SDRAM Off
 		SDR_PIN_FCTRL(OFF);
 		LDO25M_CTRL(OFF);
-		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Off
+		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Init
 	} else {
 		//----- SDRAM On
 		LDO25M_CTRL(ON);
@@ -582,7 +582,7 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 		DBG_8195A("Spic Init Error!\n");
 		RtlConsolRam();
 	};
-	if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // уже загружена?
+	if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // Flag SDRAM Init?
 //		extern DRAM_DEVICE_INFO SdrDramInfo_rom;  // 50 MHz
 		if (!SdrControllerInit_rom(&SdrDramInfo)) { // 100 MHz
 			DBG_8195A("SDR Controller Init fail!\n");
@@ -605,8 +605,17 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 			};
 			DBG_8195A("SDR tst end\n");
 		};
+#endif // Test SDRAM
+#ifdef CONFIG_SDR_EN
+		// Тест и ожидание загрузки Jlink-ом sdram.bin (~7 sec)
+		if(*((uint32 *)0x1FFF0000) == 0x12345678) {
+			*((volatile uint32 *)0x1FFF0000) = 0x87654321;
+			uint32 tt = 0x03ffffff; // ~7 sec
+			DBG_8195A("Waiting for SDRAM to load...\n");
+			while(*((volatile uint32 *)0x1FFF0000) == 0x87654321 && tt--);
+		}
 #endif // test
-		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21));
+		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Init
 	};
 
 	if (!flg)
