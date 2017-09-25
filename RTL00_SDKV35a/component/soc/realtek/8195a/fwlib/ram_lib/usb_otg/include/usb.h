@@ -1358,7 +1358,7 @@ struct usb_hcd {
     unsigned long hcd_priv[0];
 #elif defined (__GNUC__)
 	unsigned long hcd_priv[0];
-	__attribute__ ((aligned(sizeof(s64))));
+//?	__attribute__ ((aligned(sizeof(s64))));
 #endif
 };
 
@@ -2067,7 +2067,7 @@ struct usb_device_id {
         kernel_ulong_t	driver_info;
 #elif defined (__GNUC__)
 	kernel_ulong_t	driver_info;
-	__attribute__((aligned(sizeof(kernel_ulong_t))));
+//?	__attribute__((aligned(sizeof(kernel_ulong_t))));
 #endif
 };
 

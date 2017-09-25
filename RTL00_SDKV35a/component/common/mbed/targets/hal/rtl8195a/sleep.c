@@ -178,9 +178,9 @@ void standby_wakeup_event_add(uint32_t wakeup_event, uint32_t sleep_duration_ms,
                 DStandbyWakeupEvent.gpio_option &= ~gpio_act;
             }
         }
-        gpio_event = gpio_event << 1;
-        gpio_en = gpio_en << 1;
-        gpio_act = gpio_act << 1;
+        gpio_event <<= 1;
+        gpio_en <<= 1;
+        gpio_act <<= 1;
     }
 }
 

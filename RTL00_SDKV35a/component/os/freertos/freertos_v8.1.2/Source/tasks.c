@@ -78,6 +78,7 @@ task.h is included from an application file. */
 #include "task.h"
 #include "timers.h"
 #include "StackMacros.h"
+#include "tcm_heap.h"
 
 /* Lint e961 and e750 are suppressed as a MISRA exception justified because the
 MPU ports require MPU_WRAPPERS_INCLUDED_FROM_API_FILE to be defined for the
@@ -3570,7 +3571,7 @@ char * sprintf_pcTaskName(char * buf, char * name)
 									cStatus = 0x00;
 									break;
 				}
-				pcWriteBuffer = sprintf_pcTaskName( pcWriteBuffer,	pxTaskStatusArray[ x ].pcTaskName);
+				pcWriteBuffer = sprintf_pcTaskName( pcWriteBuffer,	(char *)pxTaskStatusArray[ x ].pcTaskName);
 
 				sprintf( pcWriteBuffer, "\t%c\t%u\t%u\t%u\r\n", cStatus, ( unsigned int ) pxTaskStatusArray[ x ].uxCurrentPriority, ( unsigned int ) pxTaskStatusArray[ x ].usStackHighWaterMark, ( unsigned int ) pxTaskStatusArray[ x ].xTaskNumber );
 				pcWriteBuffer += strlen( pcWriteBuffer );
@@ -3657,6 +3658,7 @@ char * sprintf_pcTaskName(char * buf, char * name)
 					This will always be rounded down to the nearest integer.
 					ulTotalRunTimeDiv100 has already been divided by 100. */
 #if 1
+					(void)ulDeltaRunTimeCounter;
 					ulStatsAsPercentage = pxTaskStatusArray[ x ].ulRunTimeCounter / ulTotalTime;
 #else
 					ulStatsAsPercentage = (100*pxTaskStatusArray[ x ].ulDelataRunTimeCounterOfPeroid) / ulDeltaTotalRunTime;
@@ -3666,7 +3668,7 @@ char * sprintf_pcTaskName(char * buf, char * name)
 					else
 						ulDeltaRunTimeCounter = portCONFIGURE_STATS_PEROID_VALUE*ulStatsAsPercentage/100;
 #endif
-					pcWriteBuffer = sprintf_pcTaskName( pcWriteBuffer, pxTaskStatusArray[ x ].pcTaskName);
+					pcWriteBuffer = sprintf_pcTaskName( pcWriteBuffer, (char *)pxTaskStatusArray[ x ].pcTaskName);
 					if( ulStatsAsPercentage > 0UL )
 					{
 						#ifdef portLU_PRINTF_SPECIFIER_REQUIRED

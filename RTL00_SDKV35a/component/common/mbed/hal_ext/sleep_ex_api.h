@@ -62,6 +62,14 @@ typedef struct _SLEEP_WKUP_EVENT_ {
  *
  * The processor can be woken up by any internal peripheral interrupt or external pin interrupt.
  *
+ * Процессор настроен для сна и отправлен спать с помощью __WFI().
+ * В этом режиме системные часы ядра останавливаются до тех пор, пока не произойдет сброс или прерывание.
+ * Это снижает динамическую мощность используемую процессором, системами памяти и шинами.
+ * Процессор, периферийное устройство и состояние памяти поддерживаются,
+ * а периферийные устройства продолжают работать и могут генерировать прерывания.
+ *
+ * Процессор может быть разбужен любым внутренним периферийным прерыванием или внешним прерыванием.
+ *
  * @note
  *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
@@ -72,6 +80,8 @@ void sleep_ex_selective(uint32_t wakeup_event,  uint32_t sleep_duration, uint32_
 
 void standby_wakeup_event_add(uint32_t wakeup_event, uint32_t sleep_duration_ms, uint32_t gpio_active);
 void standby_wakeup_event_del(uint32_t wakeup_event);
+
+
 void deepstandby_ex(void);
 
 /** Send the microcontroller to deep sleep
@@ -79,13 +89,18 @@ void deepstandby_ex(void);
  * This processor is setup ready for deep sleep, and sent to sleep using __WFI(). This mode
  * has the same sleep features as sleep plus it powers down peripherals and clocks. All state
  * is still maintained.
+ * Этот процесc настроен на глубокий сон и отправлен спать с помощью __WFI().
+ * Этот режим имеет те же функции сна, что и sleep, но отключает периферийные устройства и часы.
+ * Все состояния сохраняются.
  *
  * The processor can only be woken up by an external interrupt on a pin or a timer.
+ * Процессор может быть разбужен только внешним прерыванием на штыре или таймере.
  *
  * @note
  *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
  * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
  * able to access the LocalFileSystem
+ *
  */
 void deepsleep_ex(uint32_t wakeup_event, uint32_t sleep_duration);
 

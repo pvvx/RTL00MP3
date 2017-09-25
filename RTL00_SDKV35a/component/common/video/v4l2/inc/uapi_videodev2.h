@@ -2016,9 +2016,9 @@ struct v4l2_create_buffers {
  *	I O C T L   C O D E S   F O R   V I D E O   D E V I C E S
  *
  */
-#define VIDIOC_QUERYCAP		 _IOR('V',  0, struct v4l2_capability)
-#define VIDIOC_RESERVED		  _IO('V',  1)
-#define VIDIOC_ENUM_FMT         _IOWR('V',  2, struct v4l2_fmtdesc)
+#define VIDIOC_QUERYCAP		_IOR('V',  0, struct v4l2_capability)
+#define VIDIOC_RESERVED		_IO('V',  1)
+#define VIDIOC_ENUM_FMT     _IOWR('V',  2, struct v4l2_fmtdesc)
 #define VIDIOC_G_FMT		_IOWR('V',  4, struct v4l2_format)
 #define VIDIOC_S_FMT		_IOWR('V',  5, struct v4l2_format)
 #define VIDIOC_REQBUFS		_IOWR('V',  8, struct v4l2_requestbuffers)

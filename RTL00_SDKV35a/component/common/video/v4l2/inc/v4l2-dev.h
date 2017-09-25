@@ -56,14 +56,14 @@ struct v4l2_prio_state {
 
 /* 
 enum v4l2_priority { 
-    V4L2_PRIORITY_UNSET       = 0,  // ¤£ªì©l¤Æ 
-    V4L2_PRIORITY_BACKGROUND  = 1,  // ­I´º 
-    V4L2_PRIORITY_INTERACTIVE = 2,  // ¤¬°Ê 
-    V4L2_PRIORITY_RECORD      = 3,  // ¬ö¿ý
+    V4L2_PRIORITY_UNSET       = 0,  // ï¿½ï¿½ï¿½ï¿½lï¿½ï¿½
+    V4L2_PRIORITY_BACKGROUND  = 1,  // ï¿½Iï¿½ï¿½
+    V4L2_PRIORITY_INTERACTIVE = 2,  // ï¿½ï¿½ï¿½ï¿½
+    V4L2_PRIORITY_RECORD      = 3,  // ï¿½ï¿½ï¿½ï¿½
     V4L2_PRIORITY_DEFAULT     = V4L2_PRIORITY_INTERACTIVE, 
 }; 
-É¬¥ýÅv¬O¬°¤FMultiple Opens¾Þ§@¡A·í¥i¥H¤ä«ùdevice¦P®É³Q¦h­Óthread ¥´¶}(i.e open())
-»Ý­n¥Î³oÀu¥ýÅv¥h°Ï¤À­þ­Ó¾Þ§@§ó­«­n¡A¨Ï¥Îªº¨º­ÓÀu¥ý¯Å§O¡Aªºprios[4]´N¥[¤@¡C
+É¬ï¿½ï¿½ï¿½vï¿½Oï¿½ï¿½ï¿½FMultiple Opensï¿½Þ§@ï¿½Aï¿½ï¿½iï¿½Hï¿½ï¿½ï¿½deviceï¿½Pï¿½É³Qï¿½hï¿½ï¿½thread ï¿½ï¿½ï¿½}(i.e open())
+ï¿½Ý­nï¿½Î³oï¿½uï¿½ï¿½ï¿½vï¿½hï¿½Ï¤ï¿½ï¿½ï¿½ï¿½Ó¾Þ§@ï¿½ó­«­nï¿½Aï¿½Ï¥Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½uï¿½ï¿½ï¿½Å§Oï¿½Aï¿½ï¿½prios[4]ï¿½Nï¿½[ï¿½@ï¿½C
 */ 
 
 void v4l2_prio_init(struct v4l2_prio_state *global);
@@ -80,10 +80,10 @@ struct v4l2_file_operations {
 	   //ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
 	   //ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
 	   //unsigned int (*poll) (struct file *, struct poll_table_struct *);
-	   long (*ioctl) (unsigned int, unsigned long);
-	   long (*unlocked_ioctl) (unsigned int, unsigned long);
+	   long (*ioctl) (unsigned int, void *); //pvvx unsigned long);
+	   long (*unlocked_ioctl) (unsigned int, void *); //pvvx  unsigned long);
 #ifdef CONFIG_COMPAT
-	   long (*compat_ioctl32) (unsigned int, unsigned long);
+	   long (*compat_ioctl32) (unsigned int, void *); //pvvx unsigned long);
 #endif
 	   //unsigned long (*get_unmapped_area) (struct file *, unsigned long,
 	   //					   unsigned long, unsigned long, unsigned long);

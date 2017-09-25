@@ -218,22 +218,12 @@
 #endif
 
 /* Atomic integer operations */
-#ifndef atomic_set
+#if 0
 	#define atomic_set(v, i)		RTL_ATOMIC_SET((v), (i))
-#endif
-#ifndef atomic_read
 	#define atomic_read(v)			RTL_ATOMIC_READ((v))
-#endif
-#ifndef atomic_add
 	#define atomic_add(v, i)		RTL_ATOMIC_ADD((v), (i))
-#endif
-#ifndef atomic_sub
 	#define atomic_sub(v, i)		RTL_ATOMIC_SUB((v), (i))
-#endif
-#ifndef atomic_inc
 	#define atomic_inc(v)			RTL_ATOMIC_INC((v))
-#endif
-#ifndef atomic_dec
 	#define atomic_dec(v)			RTL_ATOMIC_DEC((v))
 #endif
 
@@ -291,7 +281,7 @@
 
 
 /*
- * combine the four dir¡Atype¡Anr¡Asize parameters to one cmd parameter
+ * combine the four dirï¿½Atypeï¿½Anrï¿½Asize parameters to one cmd parameter
  *
  */
 #ifndef _IOC
@@ -511,40 +501,40 @@ found:
 static inline unsigned long find_next_zero_bit(
 	const unsigned long *addr,unsigned long size, unsigned long offset)
 {
-    const unsigned long *p = addr + BIT_WORD(offset); // offset¦ì¤_p«ü¦Vªºlong¦a§}32¦ìªÅ?
-    unsigned long result = offset & ~(BITS_PER_LONG-1); // offset¬O²Äresult?4¦r?
+    const unsigned long *p = addr + BIT_WORD(offset); // offsetï¿½ï¿½_pï¿½ï¿½ï¿½Vï¿½ï¿½longï¿½aï¿½}32ï¿½ï¿½ï¿½?
+    unsigned long result = offset & ~(BITS_PER_LONG-1); // offsetï¿½Oï¿½ï¿½result?4ï¿½r?
     unsigned long tmp;
 
     if (offset >= size)
         return size;
-    size -= result;                                     // ?¾ã32¦ì¾ã­¿?¤W
-    offset %= BITS_PER_LONG;                            // offset¦ì¤_32¦ìªº²Ä¤L¦ì
-    if (offset) {                                       // offset¤£¦b¤@?long?Õuªº²Ä0¦ì¤W,¦b1-31¦ì¤¤[luther.gliethttp]
+    size -= result;                                     // ?ï¿½ï¿½32ï¿½ï¿½ã­¿?ï¿½W
+    offset %= BITS_PER_LONG;                            // offsetï¿½ï¿½_32ï¿½ìªºï¿½Ä¤Lï¿½ï¿½
+    if (offset) {                                       // offsetï¿½ï¿½ï¿½bï¿½@?long?ï¿½uï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½W,ï¿½b1-31ï¿½ì¤¤[luther.gliethttp]
         tmp = *(p++);
-        tmp |= ~0UL >> (BITS_PER_LONG - offset);        // ?0-offset?Õu¶ñ¥R¤W1.
-        if (size < BITS_PER_LONG)                       // ¤£¨¬32bits
+        tmp |= ~0UL >> (BITS_PER_LONG - offset);        // ?0-offset?ï¿½uï¿½ï¿½Rï¿½W1.
+        if (size < BITS_PER_LONG)                       // ï¿½ï¿½ï¿½ï¿½32bits
             goto found_first;
-        if (~tmp)                                       // ¨ú«D«D0?©ú§t¦³0­È
+        if (~tmp)                                       // ï¿½ï¿½ï¿½Dï¿½D0?ï¿½ï¿½ï¿½tï¿½ï¿½0ï¿½ï¿½
             goto found_middle;
-        size -= BITS_PER_LONG;                          // ¦pªG¤W­±~tmpµ¥¤_0,¨º¤\?©ú?*p?Õu?32¦ì¥þ1.[luther.gliethttp]
+        size -= BITS_PER_LONG;                          // ï¿½pï¿½Gï¿½Wï¿½ï¿½~tmpï¿½ï¿½ï¿½_0,ï¿½ï¿½ï¿½\?ï¿½ï¿½?*p?ï¿½u?32ï¿½ï¿½ï¿½1.[luther.gliethttp]
         result += BITS_PER_LONG;
     }
-    while (size & ~(BITS_PER_LONG-1)) {                 // ¦n¤F,?¦æ¨ì?¨½,§Ú?ªºoffset¤w??¦b4¦r?ªº²Ä0¦ì¤W,¤U­±?¦æ
-        if (~(tmp = *(p++)))                            // 4¦r?§Ö³t¬d?.¦pªG~tmp«D0,?©ú?32¦ì?Õu¤¤§t¦³0?Õu,§ä¨ì.[luther.gliethttp]
+    while (size & ~(BITS_PER_LONG-1)) {                 // ï¿½nï¿½F,?ï¿½ï¿½ï¿½?ï¿½ï¿½,ï¿½ï¿½?ï¿½ï¿½offsetï¿½w??ï¿½b4ï¿½r?ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½W,ï¿½Uï¿½ï¿½?ï¿½ï¿½
+        if (~(tmp = *(p++)))                            // 4ï¿½r?ï¿½Ö³tï¿½d?.ï¿½pï¿½G~tmpï¿½D0,?ï¿½ï¿½?32ï¿½ï¿½?ï¿½uï¿½ï¿½ï¿½tï¿½ï¿½0?ï¿½u,ï¿½ï¿½ï¿½.[luther.gliethttp]
             goto found_middle;
-        result += BITS_PER_LONG;                        // ¨ì¤U¤@?4¦r?ªÅ?
-        size -= BITS_PER_LONG;                          // ?¤Ö4¦r??Õu
+        result += BITS_PER_LONG;                        // ï¿½ï¿½Uï¿½@?4ï¿½r?ï¿½ï¿½?
+        size -= BITS_PER_LONG;                          // ?ï¿½ï¿½4ï¿½r??ï¿½u
     }
-    if (!size)                                          // sizeµ¥¤_0,?©ú­º¥ýsizeµ¥¤_4¦r?¾ã­¿?,¨ä¦¸©Ò¦³?Õu¤w?¬d§¹,
-        return result;                                  // ©Ò¦³?Õu¥þ³¡?1,?¦³??0¦ì,resultµ¥¤_size.[luther.gliethttp]
-    tmp = *p;                                           // size¤£¬O32¦ì¾ã­¿?,?³Ñ¤L?bit?¦³?¬d,???¦æ¤U­±?¬d¤u§@.[luther.gliethtp]
+    if (!size)                                          // sizeï¿½ï¿½ï¿½_0,?ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sizeï¿½ï¿½ï¿½_4ï¿½r?ï¿½ã­¿?,ï¿½ä¦¸ï¿½Ò¦ï¿½?ï¿½uï¿½w?ï¿½dï¿½ï¿½,
+        return result;                                  // ï¿½Ò¦ï¿½?ï¿½uï¿½ï¿½ï¿½ï¿½?1,?ï¿½ï¿½??0ï¿½ï¿½,resultï¿½ï¿½ï¿½_size.[luther.gliethttp]
+    tmp = *p;                                           // sizeï¿½ï¿½ï¿½O32ï¿½ï¿½ã­¿?,?ï¿½Ñ¤L?bit?ï¿½ï¿½?ï¿½d,???ï¿½ï¿½Uï¿½ï¿½?ï¿½dï¿½uï¿½@.[luther.gliethtp]
 
 found_first:
-    tmp |= ~0UL << size;                                // ?¦b0-size?¦³®Ä?Õu,size-31?¥¼¨Ï¥ÎªÅ?,©Ò¥H¥ý?size-31¸m¦¨¥þ1.
-    if (tmp == ~0UL)    /* Are any bits zero? */        // ¦pªGtmp¥þ1,¨º¤\?©ú´N?§ä§ä1?
-        return result + size;    /* Nope. */             // result+size´Nµ¥¤_¨ç??¤Jªº??size¤j¤p.[luther.gliethttp]
+    tmp |= ~0UL << size;                                // ?ï¿½b0-size?ï¿½ï¿½ï¿½ï¿½?ï¿½u,size-31?ï¿½ï¿½ï¿½Ï¥Îªï¿½?,ï¿½Ò¥Hï¿½ï¿½?size-31ï¿½mï¿½ï¿½ï¿½ï¿½1.
+    if (tmp == ~0UL)    /* Are any bits zero? */        // ï¿½pï¿½Gtmpï¿½ï¿½1,ï¿½ï¿½ï¿½\?ï¿½ï¿½ï¿½N?ï¿½ï¿½ï¿½1?
+        return result + size;    /* Nope. */             // result+sizeï¿½Nï¿½ï¿½ï¿½_ï¿½ï¿½??ï¿½Jï¿½ï¿½??sizeï¿½jï¿½p.[luther.gliethttp]
 found_middle:
-    return result + ffz(tmp);                           // §Ú?¦b32¦ì?Õuªº0-31¤¤??¥²©w¦s¦b0¦ì­È,?ºâ¥L¬O²Ä¤L¦ì.[luther.gliethttp]
+    return result + ffz(tmp);                           // ï¿½ï¿½?ï¿½b32ï¿½ï¿½?ï¿½uï¿½ï¿½0-31ï¿½ï¿½??ï¿½ï¿½ï¿½wï¿½sï¿½b0ï¿½ï¿½ï¿½,?ï¿½ï¿½Lï¿½Oï¿½Ä¤Lï¿½ï¿½.[luther.gliethttp]
 }
 
 //int find_next_zero_bit(const void * p, int size, int offset);
@@ -570,7 +560,7 @@ static inline void set_bit(int nr, volatile unsigned long *addr)
 	unsigned long mask = BIT_MASK(nr);
 	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
 	unsigned long flags;
-
+	(void)flags;
 	//taskENTER_CRITICAL();
 	_atomic_spin_lock_irqsave(p, flags);
 	*p  |= mask;
@@ -594,6 +584,7 @@ static inline void clear_bit(int nr, volatile unsigned long *addr)
 	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
 	unsigned long flags;
 
+	(void)flags;
 	_atomic_spin_lock_irqsave(p, flags);
 	//taskENTER_CRITICAL();
 	*p &= ~mask;
@@ -617,6 +608,7 @@ static inline void change_bit(int nr, volatile unsigned long *addr)
 	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
 	unsigned long flags;
 
+	(void)flags;
 	//taskENTER_CRITICAL();
 	_atomic_spin_lock_irqsave(p, flags);
 	*p ^= mask;
@@ -638,8 +630,8 @@ static inline int test_and_set_bit(int nr, volatile unsigned long *addr)
 	unsigned long mask = BIT_MASK(nr);
 	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
 	unsigned long old;
-	//unsigned long flags;
-
+	unsigned long flags;
+	(void)flags;
 	//taskENTER_CRITICAL();
 	
 	_atomic_spin_lock_irqsave(p, flags);
@@ -667,6 +659,7 @@ static inline int test_and_clear_bit(int nr, volatile unsigned long *addr)
 	unsigned long old;
 	unsigned long flags;
 
+	(void)flags;
 	//taskENTER_CRITICAL();
 	_atomic_spin_lock_irqsave(p, flags);
 	old = *p;
@@ -691,7 +684,7 @@ static inline int test_and_change_bit(int nr, volatile unsigned long *addr)
 	unsigned long old;
 	unsigned long flags;
 
-	
+	(void)flags;
 	_atomic_spin_lock_irqsave(p, flags);
 	old = *p;
 	*p = old ^ mask;
@@ -725,6 +718,7 @@ static inline int bitmap_andnot(unsigned long *dst, const unsigned long *src1,
 static inline int atomic_inc_return(volatile atomic_t *v)
 {
          unsigned long flags;
+     	(void)flags;
          int retval;
          cris_atomic_save(v, flags);
          retval = ++(v->counter);
@@ -741,6 +735,7 @@ typedef __u64 __be64;
 typedef __u16 __sum16;
 typedef __u32 __wsum;
 
+#if 0
 #ifndef __GFP_WAIT
 #define __GFP_WAIT             					(0x10u)
 #endif
@@ -768,6 +763,8 @@ typedef __u32 __wsum;
 #endif
 #ifndef copy_to_user
 #define copy_to_user(to, from, sz)   _memcpy((to), (from), (sz))
+#endif
+
 #endif
 
 #if 0 /*comment since we are not using polling*/

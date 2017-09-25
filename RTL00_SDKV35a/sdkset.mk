@@ -42,12 +42,13 @@ all: LIBS +=_platform_new _wlan _p2p _wps _websocket _sdcard _xmodem _mdns
 mp: LIBS +=_platform_new _wlan_mp _wps _p2p _websocket _sdcard _xmodem _mdns
 endif
 ifdef USE_UVC
-all: LIBS +=_rtsp _usbh
-mp: LIBS +=_rtsp _usbh
+all: LIBS +=_rtsp _usbh _usbd
+mp: LIBS +=_rtsp _usbh _usbd
 endif
+
 # m c nosys gcc
 PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
-LDFILE = rlx8195A-symbol-v04-img2.ld
+LDFILE ?= rlx8195A-symbol-v04-img2.ld
 BOOTS = sdk/component/soc/realtek/8195a/misc/bsp/image
 
 # Include folder list

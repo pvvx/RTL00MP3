@@ -3,7 +3,12 @@
 #include "cmsis_os.h"
 #include "diag.h"
 
+#if CONFIG_DEBUG_LOG > 2
 #define CMSIS_OS_ERR(fmt, args...)          DBG_8195A("\n\r%s: " fmt, __FUNCTION__, ## args)
+#else
+#define CMSIS_OS_ERR(fmt, args...)
+#endif
+
 
 extern void *_memset( void *s, int c, SIZE_T n );
 #define os_memset           _memset

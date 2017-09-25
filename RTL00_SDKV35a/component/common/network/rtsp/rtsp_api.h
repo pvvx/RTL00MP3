@@ -98,7 +98,7 @@ struct stream_context
 #define RTP_PT_H263     34
 #define RTP_PT_RTCP_BASE        72
 #define RTP_PT_DYN_BASE         96
-#define RTP_PT_UNKNOWN          -1
+//?#define RTP_PT_UNKNOWN          -1
 
 #include "section_config.h"
 SDRAM_DATA_SECTION

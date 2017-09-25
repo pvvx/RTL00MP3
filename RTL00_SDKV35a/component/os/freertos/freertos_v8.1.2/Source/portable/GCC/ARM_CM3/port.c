@@ -725,6 +725,7 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 
 /*-----------------------------------------------------------*/
 #if configUSE_IDLE_HOOK
+extern void	WDGRefresh(void);
 void vApplicationIdleHook( void )
 {
 	/* Use the idle task to place the CPU into a low power mode.  Greater power

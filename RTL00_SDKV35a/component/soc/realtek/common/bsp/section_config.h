@@ -287,6 +287,12 @@
 #define SDRAM_DATA_SECTION                        \
         SECTION(".sdram.data")
 
+#if defined(CONFIG_SDR_EN)
+#define SDRAM_CODE_SECTION SECTION(".sdram.text")
+#else
+#define SDRAM_CODE_SECTION
+#endif
+
 //3 Wlan  Section
 #define WLAN_ROM_TEXT_SECTION                      \
         SECTION(".wlan.rom.text")
