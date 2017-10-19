@@ -173,7 +173,7 @@ static size_t xMinimumEverFreeBytesRemaining = 0;
 #include "section_config.h"
 SRAM_HEAP_SECTION
 #endif
-unsigned char ucHeap[configTOTAL_HEAP_SIZE];
+unsigned char ucHeap[16384]; //configTOTAL_HEAP_SIZE
 
 //extern void * __sdram_bss_end__;
 //extern void * __ram_heap1_start__, __ram_heap1_end__, __ram_heap2_start__, __sdram_data_start__;

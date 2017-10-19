@@ -135,14 +135,14 @@ struct video_device
 	/* device info */
 	char name[32];
 	int vfl_type;	/* device type,usally assign the define VFL_TYPE_XXX value */
-	int vfl_dir;	/* receiver, transmitter or m2m,usally assign the define VFL_DIR_XXX value */
+	int vfl_dir;	/* +72(dec) receiver, transmitter or m2m,usally assign the define VFL_DIR_XXX value */
 	/* 'minor' is set to -1 if the registration failed */
 	int minor;
 	u16 num;	/* record the registered video device node number */
 	/* use bitops to set/clear/test flags,usally assign the define VFL_FL_XXX value */
 	unsigned long flags;
 	/* attribute to differentiate multiple indices on one physical device */
-	int index;
+	int index; // +88(dec)
 
 	/* V4L2 file handles */
 	//spinlock_t		fh_lock; /* Lock for all v4l2_fhs */

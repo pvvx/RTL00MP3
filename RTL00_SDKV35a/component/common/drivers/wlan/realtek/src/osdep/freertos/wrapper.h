@@ -32,6 +32,7 @@
 #include <skbuff.h>
 #ifdef PLATFORM_FREERTOS
 #include "freertos_service.h"
+#include "osdep_service.h"
 #elif defined(PLATFORM_CMSIS_RTOS)
 #include "rtx_service.h"
 #endif

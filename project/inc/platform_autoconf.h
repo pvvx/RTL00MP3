@@ -145,7 +145,7 @@
 #define CONFIG_EFUSE_NORMAL 1
 #undef  CONFIG_EFUSE_TEST
 #define CONFIG_EFUSE_MODULE 1
-#ifdef RTL8711AM
+#if defined(RTL8711AM) || defined(USE_SDRAM)
 #define CONFIG_SDR_EN 1
 #endif
 #define CONFIG_SDR_NORMAL 1

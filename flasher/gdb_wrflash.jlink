@@ -151,8 +151,13 @@ if $Image1Size != 0
  printf "Write Image1 size %d to Flash addr 0x00000000:\n", $Image1Size
  #FlasherWrite $wr_flile 0 $Image1Size
  call2
- if $Image2Size != 0 && $Image2Addr >= $Image1Size 
-  printf "Write Image2 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
+ if $Image2Size != 0 && $Image2Addr >= $Image1Size
+  if $Image3Size != 0 && $Image3Addr > $Image2Size
+   set $Image2Size = $Image2Size + $Image3Size
+   printf "Write Image2&3 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
+  else
+   printf "Write Image2 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
+  end
   #FlasherWrite $wr_flile $Image2Addr $Image2Size
   call3
  end

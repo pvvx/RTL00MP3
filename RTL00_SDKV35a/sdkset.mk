@@ -48,7 +48,12 @@ endif
 
 # m c nosys gcc
 PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
+ifdef USE_SDRAM
+CFLAGS += -DUSE_SDRAM=1
+LDFILE ?= rlx8195A-symbol-v04-img3.ld
+else
 LDFILE ?= rlx8195A-symbol-v04-img2.ld
+endif
 BOOTS = sdk/component/soc/realtek/8195a/misc/bsp/image
 
 # Include folder list
@@ -138,8 +143,8 @@ SRC_C += sdk/component/common/api/wifi/wifi_simple_config.c
 SRC_C += sdk/component/common/api/wifi/wifi_util.c
 SRC_C += sdk/component/common/api/lwip_netconf.c
 ifdef USE_WIFI_API
-SRC_C += sdk/component/common/api/wifi_api.c 
-SRC_C += sdk/component/common/api/wifi_api_scan.c 
+DRAM_C += sdk/component/common/api/wifi_api.c 
+DRAM_C += sdk/component/common/api/wifi_api_scan.c 
 endif
 
 #network - lwip
@@ -179,9 +184,9 @@ SRC_C += sdk/component/common/network/lwip/$(LWIPDIR)/src/netif/etharp.c
 SRC_C += sdk/component/common/network/lwip/$(LWIPDIR)/port/realtek/freertos/ethernetif.c
 SRC_C += sdk/component/common/drivers/wlan/realtek/src/osdep/lwip_intf.c
 SRC_C += sdk/component/common/network/lwip/$(LWIPDIR)/port/realtek/freertos/sys_arch.c
-SRC_C += sdk/component/common/network/dhcp/dhcps.c
-SRC_C += sdk/component/common/network/sntp/sntp.c
-SRC_C += sdk/component/common/network/netbios/netbios.c 
+DRAM_C += sdk/component/common/network/dhcp/dhcps.c
+DRAM_C += sdk/component/common/network/sntp/sntp.c
+DRAM_C += sdk/component/common/network/netbios/netbios.c 
 
 #network - mdns
 #SRC_C += sdk/component/common/network/mDNS/mDNSPlatform.c
@@ -406,18 +411,18 @@ ADD_SRC_C =
 # -------------------------------------------------------------------
 ifdef USE_AT
 INCLUDES += sdk/component/common/utilities
-ADD_SRC_C += sdk/component/common/api/network/src/wlan_network.c
-ADD_SRC_C += sdk/component/common/api/wifi_interactive_mode.c
-ADD_SRC_C += sdk/component/common/api/network/src/ping_test.c
-ADD_SRC_C += sdk/component/common/utilities/webserver.c
-ADD_SRC_C += sdk/component/common/utilities/tcptest.c
-ADD_SRC_C += sdk/component/common/utilities/update.c
+DRAM_C += sdk/component/common/api/network/src/wlan_network.c
+DRAM_C += sdk/component/common/api/wifi_interactive_mode.c
+DRAM_C += sdk/component/common/api/network/src/ping_test.c
+DRAM_C += sdk/component/common/utilities/webserver.c
+DRAM_C += sdk/component/common/utilities/tcptest.c
+DRAM_C += sdk/component/common/utilities/update.c
 INCLUDES += sdk/component/common/example
 INCLUDES += sdk/component/common/example/wlan_fast_connect
-ADD_SRC_C += sdk/component/common/example/wlan_fast_connect/example_wlan_fast_connect.c
-ADD_SRC_C += sdk/component/common/example/uart_atcmd/example_uart_atcmd.c
-ADD_SRC_C += sdk/component/common/example/example_entry.c
-ADD_SRC_C += sdk/component/common/application/xmodem/uart_fw_update.c
+DRAM_C += sdk/component/common/example/wlan_fast_connect/example_wlan_fast_connect.c
+DRAM_C += sdk/component/common/example/uart_atcmd/example_uart_atcmd.c
+DRAM_C += sdk/component/common/example/example_entry.c
+DRAM_C += sdk/component/common/application/xmodem/uart_fw_update.c
 endif
 #application
 #INCLUDES += sdk/component/common/application/apple/WACServer/External/Curve25519

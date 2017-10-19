@@ -121,6 +121,35 @@ SECTIONS
 		KEEP(*(.image2.validate.rodata*))
 		KEEP(*(.custom.validate.rodata*))
 	} > BD_RAM
+
+	.sdr_text :
+	{
+		__sdram_data_start__ = .;
+	INCLUDE "sdram_obj.txt"
+		*(.sdram.text*) 
+	} > SDRAM_RAM
+
+	.sdr_rodata :
+	{
+		*(.sdram.rodata*) 
+	} > SDRAM_RAM
+
+	.sdr_data : 
+	{
+		*(.sdram.data*) 
+		__sdram_data_end__ = .;
+	} > SDRAM_RAM
+
+	.sdr_bss :
+	{
+		__sdram_bss_start__ = .;
+		*(.uvc.ram.bss)
+		*(.sdram.bss*)
+	INCLUDE "sdram_bss.txt"
+		__sdram_bss_end__ = .;
+		. = ALIGN(8);
+		__sdram_heap_start__ = .;
+	} > SDRAM_RAM
 	
 	.ram_image2.text :
 	{
@@ -226,32 +255,6 @@ SECTIONS
 	} > BD_RAM
 	__ram_heap2_end__ = 0x10070000;
 	
-	.sdr_text :
-	{
-		__sdram_data_start__ = .;
-		*(.sdram.text*) 
-	} > SDRAM_RAM
-
-	.sdr_rodata :
-	{
-		*(.sdram.rodata*) 
-	} > SDRAM_RAM
-
-	.sdr_data : 
-	{
-		*(.sdram.data*) 
-		__sdram_data_end__ = .;
-	} > SDRAM_RAM
-
-	.sdr_bss :
-	{
-		__sdram_bss_start__ = .;
-		*(.uvc.ram.bss)
-		*(.sdram.bss*)
-		__sdram_bss_end__ = .;
-		. = ALIGN(8);
-		__sdram_heap_start__ = .;
-	} > SDRAM_RAM
 	__sdram_heap_end__ = 0x30200000;
 
 	.boot.head :

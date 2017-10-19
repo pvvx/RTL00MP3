@@ -7,7 +7,6 @@ set $rtl8710_flasher_auto_erase = 1
 set $rtl8710_flasher_auto_verify = 1
 set $rtl8710_flasher_firmware_ptr = 0x10001000
 set $rtl8710_flasher_buffer = 0x10008000
-#262144
 set $rtl8710_flasher_buffer_size = 421888
 set $rtl8710_flasher_sector_size = 4096
 set $rtl8710_flasher_auto_erase_sector = 0xFFFFFFFF
@@ -37,12 +36,11 @@ if $rtl8710_flasher_capacity == 0
  monitor go
  FlasherWait
  set $id = {int}($rtl8710_flasher_buffer + 0x0C)
+ set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
  if ($id == 0x1420c2) 
-  set $rtl8710_flasher_capacity = 1 << (($id >> 16) & 0x0ff)
   printf "Flash ID = 0x%08x : MX25L8006E (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
  else 
-  set $rtl8710_flasher_capacity = 1024*1024)
-  error "Flash ID = 0x%08x : ?\n", $id
+  printf "Flash ID = 0x%08x : (%d kbytes)\n", $id, $rtl8710_flasher_capacity>>10
  end
  printf "RTL8710 flasher initialized\n"
 else
@@ -108,9 +106,9 @@ while $offset < $size
  end
  set $flash_offset = $arg1 + $offset
  printf "write offset 0x%08x\n", $flash_offset
- set $parms1 = $rtl8710_flasher_buffer + 0x20 - $offset - $arg1
- set $parms2 = $offset + $arg1
- set $parms3 = $offset + $len + $arg1
+ set $parms1 = $rtl8710_flasher_buffer + 0x20 - $flash_offset
+ set $parms2 = $flash_offset
+ set $parms3 = $flash_offset + $len
  restore $arg0 binary $parms1 $parms2 $parms3
  if $rtl8710_flasher_auto_erase != 0
   set $count_i = $flash_offset
@@ -153,8 +151,13 @@ if $Image1Size != 0
  printf "Write Image1 size %d to Flash addr 0x00000000:\n", $Image1Size
  #FlasherWrite $wr_flile 0 $Image1Size
  call2
- if $Image2Size != 0 && $Image2Addr >= $Image1Size 
-  printf "Write Image2 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
+ if $Image2Size != 0 && $Image2Addr >= $Image1Size
+  if $Image3Size != 0 && $Image3Addr > $Image2Size
+   set $Image2Size = $Image2Size + $Image3Size
+   printf "Write Image2&3 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
+  else
+   printf "Write Image2 size %d to Flash addr 0x%08x:\n", $Image2Size, $Image2Addr
+  end
   #FlasherWrite $wr_flile $Image2Addr $Image2Size
   call3
  end

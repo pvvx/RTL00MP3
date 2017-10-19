@@ -1,5 +1,5 @@
 /* 
- *  StartUp SDK
+ *  StartUp USDK v0.2 (19/10/2017)
  *  Created on: 02/03/2017
  *      Author: pvvx
  */
@@ -41,6 +41,7 @@ void SDIO_Device_Off(void);
 //void VectorTableOverrideRtl8195A(u32 StackP);
 void SYSPlatformInit(void);
 
+#define FIX_SDR_CALIBRATION // for speed :)
 //-------------------------------------------------------------------------
 // Data declarations
 extern u8 __bss_start__, __bss_end__;
@@ -49,7 +50,63 @@ extern const unsigned char cus_sig[32]; // images name
 
 IMAGE2_START_RAM_FUN_SECTION RAM_START_FUNCTION gImage2EntryFun0 =
 	{ InfraStart + 1 };
-
+#ifdef CONFIG_SDR_EN
+#ifdef FIX_SDR_CALIBRATION // for speed :)
+#include "rtl8195a/rtl8195a_sdr.h"
+LOCAL void sdr_init(void) {
+	HAL_SYS_CTRL_WRITE32(REG_SYS_REGU_CTRL0,
+		((HAL_SYS_CTRL_READ32(REG_SYS_REGU_CTRL0) & 0xfffff) | BIT_SYS_REGU_LDO25M_ADJ(0x03))); // ROM: BIT_SYS_REGU_LDO25M_ADJ(0x0e)? HAL RAM BIT_SYS_REGU_LDO25M_ADJ(0x03)
+	LDO25M_CTRL(ON);
+	SRAM_MUX_CFG(0x2);
+	SDR_CLK_SEL(SDR_CLOCK_SEL_VALUE); //  REG_PESOC_CLK_SEL
+	HAL_PERI_ON_WRITE32(REG_GPIO_PULL_CTRL4, 0);
+	ACTCK_SDR_CCTRL(ON);
+	SLPCK_SDR_CCTRL(ON);
+	HalPinCtrlRtl8195A(SDR, 0, ON); //	SDR_PIN_FCTRL(ON);
+	MEM_CTRL_FCTRL(ON);
+//	HalDelayUs(1000);
+	// read calibration data from system data FLASH_SDRC_PARA_BASE
+	union { u8 b[8]; u16 s[4]; u32 l[2]; u64 d;} value;
+	u32 faddr = SPI_FLASH_BASE + FLASH_SDRC_PARA_BASE + CPU_CLOCK_SEL_VALUE*8 + CPU_CLOCK_SEL_DIV5_3*8*8; // step 8 in FLASH_SDRC_PARA_BASE[64 + 64 bytes]
+	value.d	= *((volatile u64 *)faddr);
+	if(value.s[0] == 0xFE01 && (value.b[4]^value.b[5]) == 0xFF && (value.b[6]^value.b[7]) == 0xFF) {
+		DBG_8195A("SDR flash calibration [%08x]: %02x-%02x ", faddr, value.b[4], value.b[6]);
+	} else {
+		value.b[4] = 0; // TapCnt
+#if CONFIG_CPU_CLK < 6
+		value.b[6] = 0x11; // RdPipe
+#elif CONFIG_CPU_CLK == 7
+		value.b[6] = 0x23; // RdPipe
+#else
+		value.b[6] = 0x19; // RdPipe
+#endif
+		DBG_8195A("Use fix SDR calibration: %02x-%02x ", value.b[4], value.b[6]);
+	}
+	// set all_mode _idle
+	HAL_SDR_WRITE32(REG_SDR_CSR, 0x700);
+	// WRAP_MISC setting
+	HAL_SDR_WRITE32(REG_SDR_MISC,	0x00000001);
+	// PCTL setting
+	HAL_SDR_WRITE32(REG_SDR_DCR,	0x00000008);
+	HAL_SDR_WRITE32(REG_SDR_IOCR,	(u32)value.b[4] << PCTL_IOCR_RD_PIPE_BFO);
+    HAL_SDR_WRITE32(REG_SDR_EMR2,	0x00000000);
+    HAL_SDR_WRITE32(REG_SDR_EMR1,	0x00000006);
+	HAL_SDR_WRITE32(REG_SDR_MR,		0x00000022);
+	HAL_SDR_WRITE32(REG_SDR_DRR,	0x09030e07);
+	HAL_SDR_WRITE32(REG_SDR_TPR0,	0x00002652);
+	HAL_SDR_WRITE32(REG_SDR_TPR1,	0x00068873);
+	HAL_SDR_WRITE32(REG_SDR_TPR2,	0x00000042);
+	// start to init
+	HAL_SDR_WRITE32(REG_SDR_CCR, 0x01);
+	while ((HAL_SDR_READ32(REG_SDR_CCR) & 0x1) == 0x0)
+		DBG_8195A(".");
+	// enter mem_mode
+	HAL_SDR_WRITE32(REG_SDR_CSR, 0x600);
+	SDR_DDL_FCTRL((u32)value.b[6]);
+	DBG_8195A(" ok\n");
+}
+#endif // FIX_SDR_CALIBRATION
+#endif // CONFIG_SDR_EN
 /*
 //----- HalNMIHandler_Patch
 void HalNMIHandler_Patch(void) {
@@ -167,30 +224,36 @@ extern HAL_GPIO_ADAPTER gBoot_Gpio_Adapter;
 	};
 */
 //	SpicFlashInitRtl8195A(SpicDualBitMode); //	SpicReadIDRtl8195A(); SpicDualBitMode
+#ifdef CONFIG_SDR_EN
 	//---- SDRAM
 	uint8 ChipId = HalGetChipId();
 	if (ChipId >= CHIP_ID_8195AM) {
-#ifdef CONFIG_SDR_EN
-		if((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // уже загружена?
+		if((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // SDR not init?
+ #ifdef FIX_SDR_CALIBRATION // for speed :)
+			sdr_init();
+ #else	// not FIX_SDR_CALIBRATION
 			SdrCtrlInit();
-			if(SdrControllerInit()) {
+			if(!SdrControllerInit()) {
 				DBG_8195A("SDR Controller Init fail!\n");
 			};
+ #endif // FIX_SDR_CALIBRATION
 		};
-#endif
 		// clear SDRAM bss
 		extern uint8 __sdram_bss_start__[];
 		extern uint8 __sdram_bss_end__[];
 		if((uint32)__sdram_bss_end__-(uint32)__sdram_bss_start__ > 0)
 			memset(__sdram_bss_start__, 0, (uint32)__sdram_bss_end__-(uint32)__sdram_bss_start__);
 	}
-	else
+	else // if (ChipId < CHIP_ID_8195AM)
 	{
 		//----- SDRAM Off
 		SDR_PIN_FCTRL(OFF);
 		LDO25M_CTRL(OFF);
-		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Off
 	};
+	HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Init or None
+#else
+	HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & (~BIT(21))); // Flag SDRAM Not Init
+#endif // CONFIG_SDR_EN
 	//----- Close Flash
 	SPI_FLASH_PIN_FCTRL(OFF);
 

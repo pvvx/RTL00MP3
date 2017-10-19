@@ -177,6 +177,7 @@ SECTIONS
 		LONG(0)
 		UartLogRamCmdTable = .;
 		KEEP(*(SORT(.mon.tab*)))
+		KEEP(*(SORT(.sdram.mon.tab*)))
 		UartLogRamCmdTable_end = .;
 		LONG(0)
 	} > BD_RAM

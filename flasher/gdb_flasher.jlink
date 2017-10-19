@@ -38,37 +38,38 @@ set mem inaccessible-by-default off
 # Setup GDB FOR FASTER DOWNLOADS
 set remote memory-write-packet-size 8192
 set remote memory-write-packet-size fixed
+set $SPI_FLASH_BASE = 0x98000000
 end
 #############
 # Boot_Flash
 define SetBootFlash
 printf "SetBoot = Flash:\n"
-monitor long 0x40000210 = 0x211157
+monitor long 0x40000210 = 0x00011113
 end
 # Boot RAM start_addr0() Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x80000000 ) 
 define SetBootCall0
 printf "SetBoot = Call0:\n"
-monitor long 0x40000210 = 0x80011117
+monitor long 0x40000210 = 0x80011113
 end
 # Boot RAM start_addr1() Run if ( v40000210 & 0x20000000 ) 
 define SetBootCall1
 printf "SetBoot = Call1:\n"
-monitor long 0x40000210 = 0x20011117
+monitor long 0x40000210 = 0x20011113
 end
 # Boot RAM start_addr2() Run if ( v40000210 & 0x10000000 )
 define SetBootCall2
 printf "SetBoot = Call2:\n"
-monitor long 0x40000210 = 0x10011117
+monitor long 0x40000210 = 0x10011113
 end
 # Boot RAM start_addr3() Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x8000000 )
 define SetBootCall3
 printf "SetBoot = Call3:\n"
-monitor long 0x40000210 = 0x8011117
+monitor long 0x40000210 = 0x8011113
 end
 # Boot RAM start_addr4() Init console, Run if ( v40000210 & 0x4000000 )
 define SetBootCall4
 printf "SetBoot = Call4:\n"
-monitor long 0x40000210 = 0x4011117
+monitor long 0x40000210 = 0x4011113
 end
 # CPU CLK 166 MHz?
 define SetClk166MHz
@@ -89,8 +90,7 @@ monitor long 0x40000304 = 0x1FC00002
 monitor long 0x40000250 = 0x400
 monitor long 0x40000340 = 0x0
 monitor long 0x40000230 = 0xdcc4
-monitor long 0x40000210 = 0x11117
-monitor long 0x40000210 = 0x11157
+monitor long 0x40000210 = 0x11113
 monitor long 0x400002c0 = 0x110011
 monitor long 0x40000320 = 0xffffffff
 end
@@ -125,7 +125,6 @@ monitor long 0x40006018 = 0
 monitor long 0x4000601C = 0
 #disable DMA
 monitor long 0x4000604C = 0
-set $SPI_FLASH_BASE = 0x98000000
 end
 ###################
 # SetFirwareSize #
@@ -154,7 +153,26 @@ if $Image1Size != 0 && $Image1Size < 0x1000000
   printf "Image2Size = %d\n", $Image2Size
   printf "Image2LoadAddr = 0x%08x\n", $Image2LoadAddr
   set $FirmwareSize = $Image2Addr + $Image2Size
-  printf "FirmwareSize = %d\n", $FirmwareSize
+  set $Image3Addr = $FirmwareSize 
+  set $parms1 = $rambuffer - $FirmwareSize
+  set $parms3 = $Image3Addr + 0x08
+  restore $arg0 binary $parms1 $Image3Addr $parms3
+  set $Image3Size = {int}($rambuffer)
+  set $Image3LoadAddr = {int}($rambuffer+0x4)
+  if $Image3Size != 0xFFFFFFFF && $Image3Size != 0
+   set $Image3Size = $Image3Size + 16
+   printf "Image3Size = %d\n", $Image3Size
+   printf "Image3LoadAddr = 0x%08x\n", $Image3LoadAddr
+   set $FirmwareSize = $Image3Addr + $Image3Size
+   printf "FirmwareSize = %d\n", $FirmwareSize
+  else
+   set $Image3Size = 0
+   if $Image3LoadAddr == 0x30000000
+    set $FirmwareSize = $FirmwareSize + 8
+   end
+   printf "Image3 - None\n"
+   printf "FirmwareSize = %d\n", $FirmwareSize
+  end
  else
   set $Image2Size = 0
   printf "Image2 - None\n"
@@ -164,7 +182,9 @@ if $Image1Size != 0 && $Image1Size < 0x1000000
 else
  set $Image1Size = 0
  set $Image2Size = 0
+ set $Image3Size = 0
  set $Image2Addr = 0
+ set $Image3Addr = 0
  set $FirmwareSize = 0
  printf "Image not format Firmware!\n"
 end 
@@ -173,6 +193,10 @@ end
 # Flash Images Info #
 #####################
 define FlashImagesInfo
+set $Image2Size = 0
+set $Image3Size = 0
+set $Image2Addr = 0
+set $Image3Addr = 0
 printf "Flash Info:\n"
 set $Image1Size = {int}($SPI_FLASH_BASE + 0x10) + 32
 set $Image1LoadAddr = {int}($SPI_FLASH_BASE + 0x14)
@@ -181,16 +205,26 @@ printf "Image1 - None\n"
 else
 set $Image2FlashAddr = {short}($SPI_FLASH_BASE + 0x18) * 1024
 if $Image2FlashAddr == 0 
-$Image2FlashAddr = $Image1Size 
+set $Image2FlashAddr = $Image1Size 
 end 
 set $Image2Size = {int}($Image2FlashAddr + $SPI_FLASH_BASE)
 set $Image2LoadAddr = {int}($Image2FlashAddr + $SPI_FLASH_BASE + 0x4)
 printf "Image1Size = %d\n", $Image1Size
 printf "Image1LoadAddr = 0x%08x\n", $Image1LoadAddr
 printf "Image2FlashAddr = 0x%08x\n", $Image2FlashAddr
-if $Image2Size != 0xFFFFFFFF
+if $Image2Size != 0xFFFFFFFF && $Image2Size != 0
 printf "Image2Size = %d\n", $Image2Size
 printf "Image2LoadAddr = 0x%08x\n", $Image2LoadAddr
+set $Image3FlashAddr = $Image2FlashAddr + $Image2Size + 0x10
+set $Image3Size = {int}($Image3FlashAddr + $SPI_FLASH_BASE)
+set $Image3LoadAddr = {int}($Image3FlashAddr + $SPI_FLASH_BASE + 0x4)
+if $Image3Size != 0xFFFFFFFF && $Image3Size !=0
+printf "Image3FlashAddr = 0x%08x\n", $Image3FlashAddr
+printf "Image3Size = %d\n", $Image3Size
+printf "Image3LoadAddr = 0x%08x\n", $Image3LoadAddr
+else
+printf "Image3 - None\n"
+end
 else
 printf "Image2 - None\n"
 end

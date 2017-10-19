@@ -1,5 +1,5 @@
 /* 
- *  BootLoader Ver 0.2
+ *  BootLoader Ver 0.3 (18/10/2017)
  *  Created on: 12/02/2017
  *      Author: pvvx
  */
@@ -8,6 +8,7 @@
 #include "rtl_bios_data.h"
 #include "diag.h"
 #include "rtl8195a/rtl8195a_sys_on.h"
+#include "rtl8195a/rtl8195a_sdr.h"
 
 #include "hal_spi_flash.h"
 
@@ -30,7 +31,7 @@
 #define DEFAULT_BOOT_CPU_CLOCK_SEL_VALUE (DEFAULT_BOOT_CLK_CPU-6)
 #endif
 #endif // DEFAULT_BOOT_CLK_CPU
-
+#define FIX_SDR_CALIBRATION // for speed and low used SRAM
 #define BOOT_RAM_TEXT_SECTION // __attribute__((section(".boot.text")))
 
 //-------------------------------------------------------------------------
@@ -65,7 +66,6 @@ extern _LONG_CALL_ VOID HalInitPlatformLogUartV02(VOID);
 extern _LONG_CALL_ VOID HalInitPlatformTimerV02(VOID);
 //extern _LONG_CALL_ VOID DramInit_rom(IN DRAM_DEVICE_INFO *DramInfo);
 //extern _LONG_CALL_ u32 SdrCalibration_rom(VOID);
-extern _LONG_CALL_ int SdrControllerInit_rom(PDRAM_DEVICE_INFO pDramInfo);
 extern _LONG_CALL_ u32 SpicCmpDataForCalibrationRtl8195A(void); // compare read_data and golden_data
 //extern _LONG_CALL_ VOID SpicWaitWipDoneRtl8195A(SPIC_INIT_PARA SpicInitPara);		// wait spi-flash status register[0] = 0
 //extern _LONG_CALL_ VOID SpicLoadInitParaFromClockRtl8195A(u8 CpuClkMode, u8 BaudRate, PSPIC_INIT_PARA pSpicInitPara);
@@ -100,14 +100,14 @@ LOCAL void BOOT_RAM_TEXT_SECTION SetDebugFlgs() {
 	CfgSysDebugErr = -1;
 	ConfigDebugWarn = -1;
 //	ConfigDebugInfo = 0;
-	ConfigDebugErr = -1;
+	ConfigDebugErr = -1; // ~_DBG_SDR_;
 #elif CONFIG_DEBUG_LOG > 0
 //	CfgSysDebugWarn = 0;
 //	CfgSysDebugInfo = 0;
 	CfgSysDebugErr = -1;
 //	ConfigDebugWarn = 0;
 //	ConfigDebugInfo = 0;
-	ConfigDebugErr = -1;
+	ConfigDebugErr = -1; // ~_DBG_SDR_;
 #else
 //	CfgSysDebugWarn = 0;
 //	CfgSysDebugInfo = 0;
@@ -123,15 +123,6 @@ LOCAL void BOOT_RAM_TEXT_SECTION JtagOn(void) {
 	ACTCK_VENDOR_CCTRL(ON);
 	SLPCK_VENDOR_CCTRL(ON);
 	HalPinCtrlRtl8195A(JTAG, 0, 1);
-}
-
-/* GetChipId() */
-LOCAL uint8 INFRA_START_SECTION _Get_ChipId() {
-	uint8 ChipId = CHIP_ID_8710AF;
-	if (HALEFUSEOneByteReadROM(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_CTRL), 0xF8,
-			&ChipId, L25EOUTVOLTAGE) != 1)
-		DBG_8195A("Get Chip ID Failed\r");
-	return ChipId;
 }
 
 /*
@@ -281,11 +272,130 @@ LOCAL int BOOT_RAM_TEXT_SECTION InitSpic(uint8 SpicBitMode) {
 	}
 	ACTCK_FLASH_CCTRL(1);
     SLPCK_FLASH_CCTRL(1);
-    HalPinCtrlRtl8195A(SPI_FLASH, 0, 1);
+    HalPinCtrlRtl8195A(SPI_FLASH, 0, ON);
     InitSpicFlashType(&spic_table_flash);
     return SetSpicBitMode(SpicBitMode);
 }
 
+#ifdef CONFIG_SDR_EN
+
+/* GetChipId() */
+LOCAL uint8 INFRA_START_SECTION _Get_ChipId() {
+	uint8 ChipId = CHIP_ID_8710AF;
+	if (HALEFUSEOneByteReadROM(HAL_SYS_CTRL_READ32(REG_SYS_EFUSE_CTRL), 0xF8,
+			&ChipId, L25EOUTVOLTAGE) != 1)
+		DBG_8195A("Get Chip ID Failed\r");
+	return ChipId;
+}
+
+LOCAL void INFRA_START_SECTION sdr_preinit(void) {
+
+	HAL_SYS_CTRL_WRITE32(REG_SYS_REGU_CTRL0,
+		((HAL_SYS_CTRL_READ32(REG_SYS_REGU_CTRL0) & 0xfffff) | BIT_SYS_REGU_LDO25M_ADJ(0x03))); // ROM: BIT_SYS_REGU_LDO25M_ADJ(0x0e)? HAL RAM BIT_SYS_REGU_LDO25M_ADJ(0x03)
+	LDO25M_CTRL(ON);
+	SRAM_MUX_CFG(0x2);
+	SDR_CLK_SEL(SDR_CLOCK_SEL_VALUE); //  REG_PESOC_CLK_SEL
+	HalPinCtrlRtl8195A(SDR, 0, ON); //	SDR_PIN_FCTRL(ON);
+	ACTCK_SDR_CCTRL(ON);
+	SLPCK_SDR_CCTRL(ON);
+	HAL_PERI_ON_WRITE32(REG_GPIO_PULL_CTRL4, 0);
+	MEM_CTRL_FCTRL(ON);
+//	HalDelayUs(1000);
+}
+
+#ifndef FIX_SDR_CALIBRATION
+extern _LONG_CALL_ int SdrCalibration_rom(void);
+extern _LONG_CALL_ unsigned int Rand(void);
+extern _LONG_CALL_ int SdrControllerInit_rom(PDRAM_DEVICE_INFO pDramInfo);
+
+LOCAL int INFRA_START_SECTION sdr_test(u32 LoopCnt) {
+    u32 LoopIndex = 0;
+    u32 Value32, Addr;
+    for (LoopIndex = 0; LoopIndex < LoopCnt; LoopIndex++) {
+        Value32 = Rand();
+        Addr = Rand();
+        Addr &= 0x1FFFFF;
+        Addr &= (~0x3);
+        HAL_SDRAM_WRITE32(Addr, Value32);
+        if (HAL_SDRAM_READ32(Addr) != Value32)
+            return 0;
+    }
+    return 1;
+}
+#endif
+
+LOCAL int INFRA_START_SECTION sdr_init_from_flash(void) {
+#define RdPipe 0
+#if DEFAULT_BOOT_CLK_CPU < 6
+#define TapCnt 0x11
+ #elif DEFAULT_BOOT_CLK_CPU == 7
+#define TapCnt 0x23
+ #else
+#define TapCnt 0x19
+ #endif
+	// set all_mode _idle
+	HAL_SDR_WRITE32(REG_SDR_CSR, 0x700);
+	// WRAP_MISC setting
+	HAL_SDR_WRITE32(REG_SDR_MISC,	0x00000001);
+	// PCTL setting
+	HAL_SDR_WRITE32(REG_SDR_DCR,	0x00000008);
+	HAL_SDR_WRITE32(REG_SDR_IOCR,	RdPipe << PCTL_IOCR_RD_PIPE_BFO);
+    HAL_SDR_WRITE32(REG_SDR_EMR2,	0x00000000);
+    HAL_SDR_WRITE32(REG_SDR_EMR1,	0x00000006);
+	HAL_SDR_WRITE32(REG_SDR_MR,		0x00000022);
+	HAL_SDR_WRITE32(REG_SDR_DRR,	0x09030e07);
+	HAL_SDR_WRITE32(REG_SDR_TPR0,	0x00002652);
+	HAL_SDR_WRITE32(REG_SDR_TPR1,	0x00068873);
+	HAL_SDR_WRITE32(REG_SDR_TPR2,	0x00000042);
+	// start to init
+	HAL_SDR_WRITE32(REG_SDR_CCR, 0x01);
+	DBG_8195A("SDR calibration: %02x-%02x\n", RdPipe, TapCnt);
+	while ((HAL_SDR_READ32(REG_SDR_CCR) & 0x1) == 0x0);
+	// enter mem_mode
+	HAL_SDR_WRITE32(REG_SDR_CSR, 0x600);
+#ifdef FIX_SDR_CALIBRATION
+	SDR_DDL_FCTRL(TapCnt); //	SDR_DDL_FCTRL(0x11);
+	return 1;
+#else
+	union { u8 b[8]; u16 s[4]; u32 l[2]; u64 d;} value;
+	// read calibration data from system data FLASH_SDRC_PARA_BASE
+	u32 reg = HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_SYSPLL_CTRL1);
+	u32 faddr = SPI_FLASH_BASE + FLASH_SDRC_PARA_BASE + ((reg & 0x70) >> 1) +  ((reg & BIT17) >> 11) ; // step 8 in FLASH_SDRC_PARA_BASE[64 + 64 bytes]
+	value.d	= *((volatile u64 *)faddr);
+	DBG_8195A("SDR flash calibration [%08x] %02x-%02x-%02x\n", faddr, value.b[0], value.b[4], value.b[6]);
+	if(value.s[0] == 0xFE01 && (value.b[4]^value.b[5]) == 0xFF && (value.b[6]^value.b[7]) == 0xFF) {
+		HAL_SDR_WRITE32(REG_SDR_IOCR, (HAL_SDR_READ32(REG_SDR_IOCR) & 0xff) | ((u32)value.b[4] << PCTL_IOCR_RD_PIPE_BFO));
+		SDR_DDL_FCTRL((u32)value.b[6]);
+		if(sdr_test(7))
+			return 1;	// ok
+		else
+			DBG_8195A("Not valid SDR calibration in flash!\n");
+	} else
+		DBG_8195A("Error SDR calibration in flash!\n");
+	if(SdrCalibration_rom()) { // Внимание: дает завышенный TapCnt !
+//				DBG_8195A("SDR calibration: %02x-%02x-%02x\n", value.b[0], value.b[4], value.b[6]);
+		value.s[0] = 0xFE01;
+		value.b[4] = HAL_SDR_READ32(REG_SDR_IOCR) >> PCTL_IOCR_RD_PIPE_BFO;
+		value.b[5] = value.b[4] ^ 0xFF;
+		value.b[6] = HAL_PERI_ON_READ32(REG_PESOC_MEM_CTRL) >> BIT_SHIFT_PESOC_SDR_DDL_CTRL;
+		value.b[7] = value.b[6] ^ 0xFF;
+		//		DBG_8195A("%08x: %02x-%02x-%02x)\n", faddr, value.b[0], value.b[4], value.b[6]);
+		if((*((volatile u16 *)(faddr)) & value.s[0]) == value.s[0]
+			&& (*((volatile u32 *)(faddr + 4)) & value.l[1]) == value.l[1]) {
+			*((volatile u32 *)(faddr + 4)) = value.l[1];
+			DBG_8195A("Write new calibration [%08x] %02x-%02x-%02x\n", faddr, value.b[0], value.b[4], value.b[6]);
+		    HalDelayUs(1000);
+			*((volatile u16 *)(faddr)) = value.s[0];
+		} else {
+			DBG_8195A("Work recalibration: %02x-%02x-%02x!\n", value.b[0], value.b[4], value.b[6]);
+		}
+		return 2; // recalibration - ok
+	} else
+		DBG_8195A("SDR recalibration fail!\n");
+	return 0;
+#endif // FIX_SDR_CALIBRATION
+}
+#endif // CONFIG_SDR_EN
 
 /* SYSPlatformInit */
 LOCAL void INFRA_START_SECTION SYSPlatformInit(void) {
@@ -562,35 +672,36 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 	else
 		DBG_8195A("\r===== Enter SRAM-Boot %d ====\n", flg);
 #if CONFIG_DEBUG_LOG > 1
-	DBG_8195A("CPU CLK: %d Hz, SOC FUNC EN: %p\r\n", HalGetCpuClk(),
+	DBG_8195A("CPU CLK: %d Hz, SOC FUNC EN: %p\n", HalGetCpuClk(),
 			HAL_PERI_ON_READ32(REG_SOC_FUNC_EN));
 #endif
+#ifdef CONFIG_SDR_EN
 	uint8 ChipId = _Get_ChipId();
 	if (ChipId < CHIP_ID_8195AM) {
+#endif
 		//----- SDRAM Off
 		SDR_PIN_FCTRL(OFF);
 		LDO25M_CTRL(OFF);
-		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Init
+#ifdef CONFIG_SDR_EN
+		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Init or None
 	} else {
 		//----- SDRAM On
-		LDO25M_CTRL(ON);
-		HAL_SYS_CTRL_WRITE32(REG_SYS_REGU_CTRL0,
-				(HAL_SYS_CTRL_READ32(REG_SYS_REGU_CTRL0) & 0xfffff) | BIT_SYS_REGU_LDO25M_ADJ(0x0e));
-		SDR_PIN_FCTRL(ON);
+		sdr_preinit();
 	};
+#endif
 	if (!InitSpic(SpicDualBitMode)) {
-		DBG_8195A("Spic Init Error!\n");
+		DBG_8195A("Spic Init fail!\n");
 		RtlConsolRam();
 	};
-	if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // Flag SDRAM Init?
-//		extern DRAM_DEVICE_INFO SdrDramInfo_rom;  // 50 MHz
-		if (!SdrControllerInit_rom(&SdrDramInfo)) { // 100 MHz
-			DBG_8195A("SDR Controller Init fail!\n");
+#ifdef CONFIG_SDR_EN
+	if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT(21)) == 0) { // Flag SDRAM No ReInit?
+		if(!sdr_init_from_flash()) {
+			DBG_8195A("SDR Init fail!\n");
 			RtlConsolRam();
 		}
-#if 0 // Test SDRAM
+#ifdef USE_SDRAM_TEST // Test SDRAM
 		else {
-			uint32 *ptr = SDR_SDRAM_BASE;
+			uint32 *ptr = (uint32 *)SDR_SDRAM_BASE;
 			uint32 tt = 0x55AA55AA;
 			for (int i = 0; i < 512 * 1024; i++) {
 				ptr[i] = tt++;
@@ -601,23 +712,26 @@ LOCAL void BOOT_RAM_TEXT_SECTION EnterImage15(int flg) {
 					DBG_8195A("SDR err %p %p != %p!\n", &ptr[i], ptr[i], tt);
 					RtlConsolRam();
 				}
+//				ptr[i] = 0;
 				tt++;
 			};
-			DBG_8195A("SDR tst end\n");
+			DBG_8195A("SDR test ok\n");
 		};
 #endif // Test SDRAM
-#ifdef CONFIG_SDR_EN
 		// Тест и ожидание загрузки Jlink-ом sdram.bin (~7 sec)
 		if(flg && *((uint32 *)0x1FFF0000) == 0x12345678) {
 			*((volatile uint32 *)0x1FFF0000) = 0x87654321;
 			uint32 tt = 0x03ffffff; // ~7 sec
 			DBG_8195A("Waiting for SDRAM to load...\n");
+//			__asm__ __volatile__ ("cpsid f\n");
 			while(*((volatile uint32 *)0x1FFF0000) == 0x87654321 && tt--);
+//			__asm__ __volatile__ ("cpsie f\n");
+			if(*((volatile uint32 *)0x1FFF0000) == 1)
+				DBG_8195A("SDRAM load ok\n");
 		}
-#endif // test
-		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM Init
+		HAL_PERI_ON_WRITE32(REG_SOC_FUNC_EN, HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) | BIT(21)); // Flag SDRAM No ReInit
 	};
-
+#endif // CONFIG_SDR_EN
 	if (!flg)
 		loadUserImges(IsForceLoadDefaultImg2() + 1);
 

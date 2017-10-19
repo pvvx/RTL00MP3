@@ -432,6 +432,7 @@ VOID
     else {
         return 1;
     }
+    return 1;
 }
 
 
@@ -1056,19 +1057,19 @@ MemTest(
 {
     u32 LoopIndex = 0;
     u32 Value32, Addr;
-    for (LoopIndex = 0; LoopIndex<LoopCnt; LoopIndex++) {
+    for (LoopIndex = 0; LoopIndex < LoopCnt; LoopIndex++) {
 //        Value32 = Sdr_Rand2();
 //        Addr = Sdr_Rand2();
         Value32 = Rand();
-        Addr = Rand();
-        Addr &= 0x1FFFFF;
-        Addr &= (~0x3);
-        
-        HAL_SDRAM_WRITE32(Addr, Value32);
+        Addr = Rand() & 0x1FFFFC;
 
-        if (HAL_SDRAM_READ32(Addr) != Value32) {
-            DBG_8195A("Test %d: No match addr 0x%x => 0x%x != 0x%x\n",LoopIndex,
-                Addr, Value32, HAL_SDRAM_READ32(Addr));
+        HAL_SDRAM_WRITE32(Addr, Value32);
+        u32 x = HAL_SDRAM_READ32(Addr);
+//        DBG_8195A("[%p] %p %p\n", Addr, Value32, x);
+
+        if (x != Value32) {
+            DBG_8195A("Test %d: No match addr 0x%x => 0x%x != 0x%x\n", LoopIndex,
+                Addr, Value32, x);
             return _FALSE;
         }
         else {
