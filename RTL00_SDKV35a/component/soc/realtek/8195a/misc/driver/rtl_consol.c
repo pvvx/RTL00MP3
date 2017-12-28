@@ -16,6 +16,7 @@
 #include "freertos_pmu.h"
 #endif
 #include "tcm_heap.h"
+//#include "log_service.h"
 
 //MON_RAM_BSS_SECTION   UART_LOG_CTL    UartLogCtl;
 //MON_RAM_BSS_SECTION   UART_LOG_CTL    *pUartLogCtl;
@@ -274,7 +275,7 @@ extern xSemaphoreHandle	log_rx_interrupt_sema;
 //======================================================
 void console_cmd_exec(PUART_LOG_CTL   pUartLogCtlExe)
 {
-    u8  CmdCnt = 0;
+//    u8  CmdCnt = 0;
     u8  argc = 0;
     u8  **argv;
     //u32  CmdNum;
@@ -311,6 +312,7 @@ RtlConsolTaskRam(
 )
 {
 #if SUPPORT_LOG_SERVICE
+	extern void log_service_init(void);
 	log_service_init();
 #else
 #ifdef CONFIG_AT_USR

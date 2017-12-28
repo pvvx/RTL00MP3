@@ -611,7 +611,7 @@ SpicReadIDRtl8195A(
                 SpicInitPara.flashtype = FLASH_MICRON;
             else if(SpicInitPara.id[0] == 0xC2)
                 SpicInitPara.flashtype = FLASH_MXIC;
-            else if(SpicInitPara.id[0] == 0xEF)
+            else if(SpicInitPara.id[0] == 0xEF || SpicInitPara.id[0] == 0xC8) // + GigaDevice
                 SpicInitPara.flashtype = FLASH_WINBOND;
             else
                 SpicInitPara.flashtype = FLASH_OTHERS;     

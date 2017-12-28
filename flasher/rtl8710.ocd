@@ -338,3 +338,18 @@ proc rtl8710_reboot {} {
 	mww 0xE000ED0C 0x05FA0007
 }
 
+proc boot_load_srdam {local_filename loc} {
+	echo "# Set flag WISDRAM"
+	mww 0x1FFF0000 0x12345678
+	mww 0x40000210 0x20011113
+	resume
+	echo "# Wait Init SDRAM..."
+#	sleep 1000
+	while {[rtl8710_flasher_mrw 0x1FFF0000] == 0x12345678 } { sleep 10 }
+	halt
+	echo "# Load SDRAM image..."
+	load_image $local_filename $loc
+	resume
+#	echo "# Go"
+	mww 0x1FFF0000 1
+}

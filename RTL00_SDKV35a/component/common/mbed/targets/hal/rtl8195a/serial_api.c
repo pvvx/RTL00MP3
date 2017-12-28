@@ -438,7 +438,7 @@ void serial_recv_comp_handler(serial_t *obj, void *handler, uint32_t id)
     pHalRuartAdapter->RxCompCbPara = (void*)id;
 }
 
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+void serial_set_flow_control(serial_t *obj, FlowControl type) // , PinName rxflow, PinName txflow)
 {
     PHAL_RUART_ADAPTER pHalRuartAdapter;
 

@@ -703,6 +703,8 @@ int wifi_disable_packet_filter(unsigned char filter_id);
 int wifi_remove_packet_filter(unsigned char filter_id);
 #endif
 
+int mactostr(char * s, unsigned char *mac, bool fmt);
+
 #ifdef __cplusplus
   }
 #endif

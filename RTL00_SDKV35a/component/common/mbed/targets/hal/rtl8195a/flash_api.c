@@ -589,6 +589,27 @@ unsigned int flash_get_size(flash_t *obj) {
 	return flashchip_size;
 }
 
+unsigned int flash_read_id(flash_t *obj)
+{
+	flash_turnon();
+	/* Disable SPI_FLASH User Mode */
+	HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0);
+
+	/* Set Ctrlr1; 1 byte data frames */
+	HAL_SPI_WRITE32(REG_SPIC_CTRLR1, BIT_NDF(3));
+
+	/* Send flash RX command and read the data */
+	SpicRxCmdRefinedRtl8195A(FLASH_CMD_RDID, obj->SpicInitPara);
+	unsigned int ret = HAL_SPI_READ32(REG_SPIC_DR0);
+
+	/* Disable SPI_FLASH User Mode */
+	HAL_SPI_WRITE32(REG_SPIC_SSIENR, 0);
+
+	SpicDisableRtl8195A();
+	return ret;
+}
+
+
 /*
  * Read Flash OTP data
  */
@@ -604,6 +625,7 @@ int flash_otp_read(flash_t *obj, uint32_t address, uint32_t Length,
 	switch (flashobj.SpicInitPara.flashtype) {
 	case FLASH_MXIC_4IO:
 	case FLASH_MXIC: // Only 512 bits
+	case FLASH_OTHERS:
 #if	CONFIG_DEBUG_LOG > 4
 		DBG_SPIF_INFO("MXIC: Only 512 bits!\n");
 #endif
@@ -629,9 +651,10 @@ int flash_otp_read(flash_t *obj, uint32_t address, uint32_t Length,
 		ret = 0;
 		break;
 	default:
-		DBG_8195A("Flash type?");
+		DBG_8195A("Flash type [%06x]?\n", flash_read_id(&flashobj));
 		ret = 0;
 	}
 	SpicDisableRtl8195A();
 	return ret;
 }
+

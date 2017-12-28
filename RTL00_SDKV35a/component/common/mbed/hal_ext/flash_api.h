@@ -47,6 +47,7 @@ int flash_set_extend_addr		(flash_t * obj, uint32_t data);
 int flash_get_extend_addr		(flash_t * obj);
 unsigned int flash_get_size		(flash_t *obj);
 int  flash_otp_read				(flash_t *obj, uint32_t address, uint32_t Length, uint8_t * data);
+unsigned int flash_read_id		(flash_t *obj);
 
 #ifdef __cplusplus
 }

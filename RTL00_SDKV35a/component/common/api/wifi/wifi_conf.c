@@ -634,12 +634,39 @@ int wifi_is_ready_to_transceive(rtw_interface_t interface) {
 	}
 	return RTW_ERROR;
 }
-
 //----------------------------------------------------------------------------//
-int wifi_set_mac_address(char * mac) {
-	char buf[13 + 17 + 1];
-	rtw_memset(buf, 0, sizeof(buf));
-	snprintf(buf, 13 + 17, "write_mac %s", mac);
+int mactostr(char * s, unsigned char *mac, bool fmt)
+{
+	char *ptrb = s;
+	unsigned char *ptrm = mac;
+	int i = 6;
+	while(i--) {
+		unsigned char x = ptrm[0] >> 4;
+	    if (x <= 9)	ptrb[0] = x + '0';
+	    else ptrb[0] = x - 10 + 'a';
+	    ptrb++;
+	    x = ptrm[0] & 0x0f;
+   	    if (x <= 9)	ptrb[0] = x + '0';
+   	    else ptrb[0] = x - 10 + 'a';
+   	    ptrb++;
+   	    ptrm++;
+   	    if(fmt && i) {
+   	    	ptrb[0] = ':';
+   	    	ptrb++;
+   	    }
+	};
+	*ptrb = '\0';
+	if (fmt) return 12+5;
+	return 12;
+}
+//----------------------------------------------------------------------------//
+int wifi_set_mac_address(char * new_mac) {
+//	char buf[13 + 17 + 1];
+	char buf[10 + 12 + 1];
+	memcpy(buf,"write_mac ", 10);
+//	snprintf(buf, 13 + 17, "write_mac %s", mac);
+//BAG NotWork!	rtl_sprintf(buf, "write_mac %02x%02x%02x%02x%02x%02x", new_mac[0], new_mac[1], new_mac[2], new_mac[3], new_mac[4], new_mac[5]);
+	mactostr(&buf[10], new_mac, false);
 	return wext_private_command(WLAN0_NAME, buf, SHOW_PRIVATE_OUT);
 }
 
@@ -655,6 +682,7 @@ int wifi_get_mac_address(char * mac) {
 	strcpy(mac, buf);
 	return ret;
 }
+
 
 //----------------------------------------------------------------------------//
 int wifi_enable_powersave(void) {

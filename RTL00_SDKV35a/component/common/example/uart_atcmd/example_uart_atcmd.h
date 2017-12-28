@@ -12,20 +12,48 @@
 #include "semphr.h"
 
 /*UART Pinmux*/
-#define CONFIG_AMEBA1 1
-#if CONFIG_AMEBA1
-#define UART_TX			PA_4
-#define UART_RX			PA_0
-#define UART_RTS			PA_2
-#define UART_CTS			PA_1
-#else
-#define UART_TX			PA_23
-#define UART_RX			PA_18
-#define UART_RTS			PA_22
-#define UART_CTS			PA_19
+#if defined(RTL8710AF) && defined(RTL8711AM)
+#if 1
+// RTL8711AM + RTL8710AF + RTL8195AM
+#define UART_TX   		PE_0
+#define UART_RX   		PE_3
+#define UART_AT_RX_WAKE		PE_3
+#define UART_RTS		PE_1
+#define UART_CTS		PE_2
+#elif 0
+// RTL8711AM + RTL8710AF
+#define UART_TX   		PC_3
+#define UART_RX   		PC_0 // no Interrupt!
+//#define UART_AT_RX_WAKE		PE_3
+#define UART_RTS		PC_2
+#define UART_CTS		PC_1
+#elif 0
+// RTL8711AM - RAK473
+#define UART_TX   		PA_7
+#define UART_RX   		PA_6 // no Interrupt!
+//#define UART_RX_INT		PE_3
+#define UART_RTS		PA_3
+#define UART_CTS		PA_5
 #endif
 
-#define ATCMD_RX_GPIO_WAKEUP 0
+#elif defined(RTL8710AF)
+// RTL8710AF
+#define UART_TX   		PA_4
+#define UART_RX   		PA_0
+#define UART_AT_RX_WAKE		PA_0
+#define UART_RTS		PA_2
+#define UART_CTS		PA_1
+
+#elif defined(RTL8711AM)
+// RTL8711AM - RAK473
+#define UART_TX   		PA_7
+#define UART_RX   		PA_6 // no Interrupt!
+//#define UART_AT_RX_WAKE		PE_3
+#define UART_RTS		PA_3
+#define UART_CTS		PA_5
+
+#endif
+
 #define KEY_NL			0xa // '\n'
 #define KEY_ENTER		0xd // '\r'
 #define KEY_BS			0x8

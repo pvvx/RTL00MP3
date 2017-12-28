@@ -280,8 +280,9 @@ int SC_send_simple_config_ack(u8 round)
 #endif
 		}
 	}
-
+#if LEAVE_ACK_EARLY
 leave_ack:
+#endif
 	close(ack_socket);
 #endif
 
@@ -296,7 +297,6 @@ leave_ack:
 
 static int  SC_check_and_show_connection_info(void)
 {
-	rtw_wifi_setting_t setting;	
 	int ret = -1;
 
 #if CONFIG_LWIP_LAYER
@@ -308,6 +308,7 @@ static int  SC_check_and_show_connection_info(void)
 #endif	
 	
 #if CONFIG_EXAMPLE_UART_ATCMD == 0
+	rtw_wifi_setting_t setting;
 	wifi_get_setting(WLAN0_NAME, &setting);
 	wifi_show_setting(WLAN0_NAME, &setting);
 #endif
@@ -614,7 +615,7 @@ int  SC_connect_to_candidate_AP (rtw_network_info_t *wifi){
 	}
 
 	/* call wifi scan to scan */
-	if(scan_cnt = (wifi_scan(RTW_SCAN_TYPE_ACTIVE, RTW_BSS_TYPE_ANY, &scan_buf)) < 0){
+	if((scan_cnt = (wifi_scan(RTW_SCAN_TYPE_ACTIVE, RTW_BSS_TYPE_ANY, &scan_buf))) < 0){
 		printf("ERROR: wifi scan failed\n");
 		ret = RTW_ERROR;
 	}else{
@@ -696,7 +697,7 @@ enum sc_result SC_connect_to_AP(void)
 			goto wifi_connect_fail;
 		}
         rtw_join_status = 0;//clear simple config status
-		ret = wifi_connect(g_bssid,  
+		ret = wifi_connect(g_bssid,
 				1,
 				(char*)wifi.ssid.val,  
 				wifi.security_type,  
@@ -704,7 +705,7 @@ enum sc_result SC_connect_to_AP(void)
 				wifi.key_id,  
 				NULL);
 
-		if (ret == RTW_SUCCESS)
+		if (ret == 0)
 			goto wifi_connect_success;
 
 		if (retry == max_retry) {
@@ -718,7 +719,7 @@ enum sc_result SC_connect_to_AP(void)
 #if 1
 	/* when optimization fail: if connect with bssid fail because of we have connect to the wrong AP */
 	ret = SC_connect_to_candidate_AP(&wifi);
-	if (RTW_SUCCESS == ret) {
+	if (ret == 0) {
 		goto wifi_connect_success;
 	} else {
 		ret = SC_JOIN_BSS_FAIL;
@@ -769,15 +770,15 @@ extern void rtk_sc_deinit(void);
 
 void init_simple_config_lib_config(struct simple_config_lib_config* config)
 {
-	config->free = rtw_mfree;
-	config->malloc = rtw_malloc;
+	config->free = (simple_config_free_fn) rtw_mfree;
+	config->malloc = (simple_config_malloc_fn) rtw_malloc;
 	config->memcmp = memcmp;
 	config->memcpy = memcpy;
-	config->memset = memset;
+	config->memset = (simple_config_memset_fn) memset;
 	config->printf = printf;
 	config->strcpy = strcpy;
 	config->strlen = strlen;
-	config->zmalloc = rtw_zmalloc;
+	config->zmalloc = (simple_config_zmalloc_fn) rtw_zmalloc;
 #if CONFIG_LWIP_LAYER
 	config->_ntohl = lwip_ntohl;
 #else

@@ -269,10 +269,9 @@ int reset_uart_atcmd_setting(){
 	return 0;
 }
 
-#if ATCMD_RX_GPIO_WAKEUP
+#ifdef UART_AT_RX_WAKE // 	UART_RX
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
 #include "gpio_irq_api.h"
-#define UART_AT_RX_WAKE 	UART_RX
 void gpio_uart_at_rx_irq_callback (uint32_t id, gpio_irq_event event)
 {
 	/*  PMU_LOGUART_DEVICE is also handled in log service.
@@ -289,7 +288,6 @@ void uart_at_rx_wakeup()
 	gpio_irq_enable(&gpio_rx_wake);
 }
 #endif
-#endif
 
 void uart_atcmd_reinit(UART_LOG_CONF* uartconf){
 	serial_baud(&at_cmd_sobj,uartconf->BaudRate);
@@ -297,14 +295,12 @@ void uart_atcmd_reinit(UART_LOG_CONF* uartconf){
 
 	// set flow control, only support RTS and CTS concurrent mode
 	// rxflow and tx flow is fixed by hardware
-#define rxflow	UART_RTS
-#define txflow	UART_CTS
 	if(uartconf->FlowControl){
 		pin_mode(txflow, PullDown); //init CTS in low
-		serial_set_flow_control(&at_cmd_sobj, FlowControlRTSCTS, rxflow, txflow);
+		serial_set_flow_control(&at_cmd_sobj, FlowControlRTSCTS); // , rxflow, txflow);
 	}
 	else
-		serial_set_flow_control(&at_cmd_sobj, FlowControlNone, rxflow, txflow);
+		serial_set_flow_control(&at_cmd_sobj, FlowControlNone); // , rxflow, txflow);
 }
 
 void uart_at_send_string(char *str)
@@ -532,10 +528,10 @@ void uart_atcmd_main(void)
 	#define txflow	UART_CTS
 	if(uartconf.FlowControl){
 		pin_mode(txflow, PullDown); //init CTS in low
-		serial_set_flow_control(&at_cmd_sobj, FlowControlRTSCTS, rxflow, txflow);
+		serial_set_flow_control(&at_cmd_sobj, FlowControlRTSCTS); //, rxflow, txflow);
 	}
 	else
-		serial_set_flow_control(&at_cmd_sobj, FlowControlNone, rxflow, txflow);
+		serial_set_flow_control(&at_cmd_sobj, FlowControlNone); //, rxflow, txflow);
 
 	/*uart_at_lock_init();*/
 
@@ -550,7 +546,7 @@ void uart_atcmd_main(void)
 	serial_irq_handler(&at_cmd_sobj, uart_irq, (uint32_t)&at_cmd_sobj);
 	serial_irq_set(&at_cmd_sobj, RxIrq, 1);
 
-#if ATCMD_RX_GPIO_WAKEUP
+#ifdef UART_AT_RX_WAKE
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
 	uart_at_rx_wakeup();
 #endif

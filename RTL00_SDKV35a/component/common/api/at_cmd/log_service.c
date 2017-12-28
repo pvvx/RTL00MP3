@@ -415,6 +415,7 @@ void log_service(void *param)
 #if CONFIG_INIC_EN
 		inic_cmd_ioctl = 0;
 #endif
+		extern int tcm_heap_freeSpace(void);
 		_AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS, "\n\r[MEM] After do cmd, available heap %d+%d\n\r", xPortGetFreeHeapSize(), tcm_heap_freeSpace());
 		_AT_DBG_MSG(AT_FLAG_COMMON, AT_DBG_ALWAYS, "\r\n\n# "); //"#" is needed for mp tool
 #if CONFIG_EXAMPLE_UART_ATCMD
@@ -493,5 +494,5 @@ void at_log_init(void)
 {
 	log_service_add_table(at_log_items, sizeof(at_log_items)/sizeof(at_log_items[0]));
 }
-log_module_init(at_log_init);
+//log_module_init(at_log_init);
 #endif
