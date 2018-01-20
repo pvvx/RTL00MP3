@@ -4,7 +4,7 @@
 #define AUTOCONF_INCLUDED
 
 #define RTL8710AF
-//#define RTL8711AM
+#define RTL8711AM
 /* Image1 on project */
 #define PRESENT_IMAGE1
 /* Image2 on project */

@@ -621,6 +621,7 @@ void sys_assert( const char *msg )
     ;
 }
 
+/*
 u32_t sys_now(void)
 {
 	return xTaskGetTickCount();
@@ -630,3 +631,5 @@ u32_t sys_jiffies(void)
 {
 	return xTaskGetTickCount();
 }
+*/
+

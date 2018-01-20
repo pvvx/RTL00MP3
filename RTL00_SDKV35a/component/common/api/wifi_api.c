@@ -665,7 +665,7 @@ int wifi_run(rtw_mode_t mode) {
 #ifdef USE_NETBIOS
     		netbios_set_name(WLAN_ST_NETIF_NUM, lwip_host_name[0]);
 #endif
-#endif
+#endif // WIP_NETIF_HOSTNAME
 			netif_set_addr(&xnetif[WLAN_ST_NETIF_NUM], (ip_addr_t *) &wifi_st_dhcp.ip,
 					(ip_addr_t *) &wifi_st_dhcp.mask, (ip_addr_t *) &wifi_st_dhcp.gw);
 			pnif = &xnetif[WLAN_AP_NETIF_NUM];
@@ -675,7 +675,7 @@ int wifi_run(rtw_mode_t mode) {
 #ifdef USE_NETBIOS
     		netbios_set_name(WLAN_AP_NETIF_NUM, lwip_host_name[1]);
 #endif
-#endif
+#endif // WIP_NETIF_HOSTNAME
 			netif_set_addr(&xnetif[WLAN_AP_NETIF_NUM], (ip_addr_t *) &wifi_ap_dhcp.ip,
 					(ip_addr_t *) &wifi_ap_dhcp.mask, (ip_addr_t *) &wifi_ap_dhcp.gw);
 

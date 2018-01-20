@@ -32,7 +32,12 @@ HAL_Status HalLogUartRstFIFO(HAL_LOG_UART_ADAPTER *pUartAdapter, u8 RstCtrl);
 VOID HalLogUartEnable(HAL_LOG_UART_ADAPTER *pUartAdapter);
 VOID HalLogUartDisable(HAL_LOG_UART_ADAPTER *pUartAdapter);
  */
-extern VOID UartLogIrqHandleRam(VOID * Data);
+//extern VOID UartLogIrqHandleRam(VOID * Data);
+__attribute__ ((weak)) void UartLogIrqHandleRam(void * data)
+{
+	HAL_UART_READ32(UART_REV_BUF_OFF);
+}
+
 // extern DiagPrintf();
 // extern HalGetCpuClk(void);
 // extern VectorIrqUnRegisterRtl8195A();
@@ -55,8 +60,10 @@ extern VOID UartLogIrqHandleRam(VOID * Data);
  *  (0.005/5)*166666666 = 166666.666
  */
 VOID HalLogUartWaitTxFifoEmpty(VOID) {
-	int x = 16384;
-	while((!(HAL_READ8(LOG_UART_REG_BASE, 0x14) & BIT6)) && x--);
+	if (HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT_SOC_LOG_UART_EN) {
+			int x = 16384;
+			while ((!(HAL_UART_READ32(UART_LINE_STATUS_REG_OFF) & LSR_TEMT)) && x--);
+	}
 }
 
 //----- HalLogUartIrqRxRdyHandle

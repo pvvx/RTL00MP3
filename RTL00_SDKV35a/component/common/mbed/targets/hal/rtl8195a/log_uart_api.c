@@ -41,7 +41,7 @@ int32_t log_uart_init (log_uart_t *obj, int baudrate, int data_bits, SerialParit
 {
     HAL_LOG_UART_ADAPTER *pUartAdapter;
     int i;
-
+    HalLogUartWaitTxFifoEmpty();
     _memset((void*)obj, 0, sizeof(log_uart_t));
     pUartAdapter = &obj->log_hal_uart;
     // Check Baud rate

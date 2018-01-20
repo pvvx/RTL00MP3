@@ -93,8 +93,7 @@ void UartLogIrqHandleRam(void * Data) {
 				// prvStrCpy(pUartLogCtl->pTmpLogBuf->UARTLogBuf, pUartLogCtl->pHistoryBuf[pUartLogCtl->SeeIdx]);
 				// pUartLogCtl->pTmpLogBuf->BufCount = prvStrLen(pUartLogCtl->pTmpLogBuf->UARTLogBuf);
 				// if(EchoFlag) pUartLogCtl->pfINPUT(pUartLogCtl->pTmpLogBuf->UARTLogBuf);
-				UartLogHistoryCmd(UartReceiveData, (UART_LOG_CTL *) pUartLogCtl,
-						1);
+				UartLogHistoryCmd(UartReceiveData, (UART_LOG_CTL *) pUartLogCtl, 1);
 			}
 		} else {
 			if (UartLogCmdChk(UartReceiveData, (UART_LOG_CTL *) pUartLogCtl, 1)
@@ -242,11 +241,13 @@ MON_RAM_TEXT_SECTION void RtlConsolTaskRam(void *Data) {
 				}
 				if(flg) DiagPrintf("cmd: %s - nothing!\n", ArgvArray[0]);
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
-				release_wakelock(WAKELOCK_LOGUART);
+ 				release_wakelock(WAKELOCK_LOGUART);
+//sdk4.0:		pmu_release_wakelock(PMU_LOGUART_DEVICE);
 #endif
 			}
 #if defined(configUSE_WAKELOCK_PMU) && (configUSE_WAKELOCK_PMU == 1)
 			else acquire_wakelock(WAKELOCK_LOGUART);
+//sdk4.0:	else pmu_acquire_wakelock(PMU_LOGUART_DEVICE);
 #endif
 			p->pTmpLogBuf->BufCount = 0;
 			p->pTmpLogBuf->UARTLogBuf[0] = 0;

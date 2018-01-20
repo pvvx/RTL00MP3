@@ -229,14 +229,16 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
 /* sys_init() must be called before anthing else. */
 void sys_init(void);
 
-#ifndef sys_jiffies
 /** Ticks/jiffies since power up. */
-u32_t sys_jiffies(void);
+#ifndef sys_jiffies
+#define sys_jiffies() xTaskGetTickCount()
+//u32_t sys_jiffies(void);
 #endif
 
 /** Returns the current time in milliseconds,
  * may be the same as sys_jiffies or at least based on it. */
-u32_t sys_now(void);
+#define sys_now() xTaskGetTickCount()
+//u32_t sys_now(void);
 
 /* Critical Region Protection */
 /* These functions must be implemented in the sys_arch.c file.

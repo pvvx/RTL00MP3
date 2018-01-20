@@ -6,7 +6,7 @@ mp: ram_all_mp
 .PHONY: ram_all
 ram_all:
 	@$(MAKE) -f $(SDK_PATH)sdkbuild.mk
-	@$(MAKE) -f $(SDK_PATH)flasher.mk genbin1 genbin23
+	@$(MAKE) -f $(SDK_PATH)flasher.mk genbin
 
 .PHONY: ram_all_mp
 ram_all_mp:
