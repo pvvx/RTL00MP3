@@ -1,5 +1,6 @@
 /* 
  *  BootLoader Ver 0.3 (18/10/2017)
+ *  + Ver 0.4 (20/01/2018)
  *  Created on: 12/02/2017
  *      Author: pvvx
  */
@@ -508,9 +509,14 @@ LOCAL const char * const txt_tab_seg[] = {
 		"ROM"		// 7
 		};
 
-LOCAL const uint32 tab_seg_def[] = { 0x10000000, 0x10070000, 0x1fff0000,
-		0x20000000, 0x30000000, 0x30200000, 0x40000000, 0x40800000, 0x98000000,
-		0xA0000000, 0xE0000000, 0xE0010000, 0x00000000, 0x00050000 };
+LOCAL const uint32 tab_seg_def[] = {
+		0x10000000, 0x10070000,
+		0x1fff0000,	0x20000000,
+		0x30000000, 0x30200000,
+		0x40000000, 0x40800000,
+		0x98000000, 0xA0000000,
+		0xE0000000, 0xE0010000,
+		0x00000000, 0x00050000 };
 
 LOCAL uint32 BOOT_RAM_TEXT_SECTION get_seg_id(uint32 addr, int32 size) {
 	uint32 ret = SEG_ID_ERR;
@@ -518,7 +524,7 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION get_seg_id(uint32 addr, int32 size) {
 	if (size > 0) {
 		do {
 			ret++;
-			if (addr >= ptr[0] && addr + size <= ptr[1]) {
+			if (addr >= ptr[0] && addr + size <= ptr[1] && size <= ptr[1] - ptr[0]) {
 				return ret;
 			};
 			ptr += 2;
