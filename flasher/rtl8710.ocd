@@ -353,3 +353,4 @@ proc boot_load_srdam {local_filename loc} {
 #	echo "# Go"
 	mww 0x1FFF0000 1
 }
+

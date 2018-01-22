@@ -10,7 +10,7 @@ import os
 import struct
 import sys
 
-__version__ = "20.01.18"
+__version__ = "22.01.18"
 
 PYTHON2 = sys.version_info[0] < 3  # True if on pre-Python 3
 
@@ -295,7 +295,7 @@ def elf2image(args):
 				for s in image:
 					if s.hm & HM_IS_OTA:
 						chks = s.save_ota(f, fn, chks)
-				f.write(struct.pack('<L', chks))
+				f.write(struct.pack(b'<LLL', 0, 0, chks))
 				f.close()
 				
 		except:
@@ -311,6 +311,7 @@ def elf2image(args):
 			with open(fn, "wb") as f:
 				for s in image:
 					s.save_sram(f, fn)
+				f.write(struct.pack(b'<LL', 0, 0))
 				f.close()
 				
 		except:

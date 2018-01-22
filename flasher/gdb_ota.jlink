@@ -43,32 +43,32 @@ end
 # Boot_Flash
 define SetBootFlash
 printf "SetBoot = Flash:\n"
-monitor long 0x40000210 = 0x211157
+monitor long 0x40000210 = 0x011113
 end
 # Boot RAM start_addr0() Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x80000000 ) 
 define SetBootCall0
 printf "SetBoot = Call0:\n"
-monitor long 0x40000210 = 0x80011117
+monitor long 0x40000210 = 0x80011113
 end
 # Boot RAM start_addr1() Run if ( v40000210 & 0x20000000 ) 
 define SetBootCall1
 printf "SetBoot = Call1:\n"
-monitor long 0x40000210 = 0x20011117
+monitor long 0x40000210 = 0x20011113
 end
 # Boot RAM start_addr2() Run if ( v40000210 & 0x10000000 )
 define SetBootCall2
 printf "SetBoot = Call2:\n"
-monitor long 0x40000210 = 0x10011117
+monitor long 0x40000210 = 0x10011113
 end
 # Boot RAM start_addr3() Run if ( v400001F4 & 0x8000000 ) && ( v40000210 & 0x8000000 )
 define SetBootCall3
 printf "SetBoot = Call3:\n"
-monitor long 0x40000210 = 0x8011117
+monitor long 0x40000210 = 0x8011113
 end
 # Boot RAM start_addr4() Init console, Run if ( v40000210 & 0x4000000 )
 define SetBootCall4
 printf "SetBoot = Call4:\n"
-monitor long 0x40000210 = 0x4011117
+monitor long 0x40000210 = 0x4011113
 end
 # CPU CLK 166 MHz?
 define SetClk166MHz
@@ -89,8 +89,7 @@ monitor long 0x40000304 = 0x1FC00002
 monitor long 0x40000250 = 0x400
 monitor long 0x40000340 = 0x0
 monitor long 0x40000230 = 0xdcc4
-monitor long 0x40000210 = 0x11117
-monitor long 0x40000210 = 0x11157
+monitor long 0x40000210 = 0x11113
 monitor long 0x400002c0 = 0x110011
 monitor long 0x40000320 = 0xffffffff
 end

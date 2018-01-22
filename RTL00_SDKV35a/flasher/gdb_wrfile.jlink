@@ -134,12 +134,10 @@ end
 end
 #########################################
 source -v flasher/gdb_flasher.jlink
-
 source -v flasher/file_info.jlink
-
 InitJlink
 SystemInit
-SetClk166MHz
+SetClk83MHz
 SPI_Init
 FlasherInit
 FlasherLoad flasher/rtl8710_flasher.bin
@@ -155,8 +153,4 @@ end
 else
  printf "Error: Image size is zero!\n"
 end
-FlashImagesInfo
-monitor reset
-SetBootFlash
-monitor go
 quit

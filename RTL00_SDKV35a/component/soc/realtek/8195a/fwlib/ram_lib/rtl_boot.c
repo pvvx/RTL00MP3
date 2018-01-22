@@ -39,11 +39,11 @@
 typedef struct _seg_header {
 	uint32 size;
 	uint32 ldaddr;
+	uint32 sign[2];
 } IMGSEGHEAD, *PIMGSEGHEAD;
 
 typedef struct _img2_header {
 	IMGSEGHEAD seg;
-	uint32 sign[2];
 	void (*startfunc)(void);
 	uint8 rtkwin[7];
 	uint8 ver[13];
@@ -536,10 +536,10 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION get_seg_id(uint32 addr, int32 size) {
 LOCAL uint32 BOOT_RAM_TEXT_SECTION load_img2_head(uint32 faddr, PIMG2HEAD hdr) {
 	flashcpy(faddr, hdr, sizeof(IMG2HEAD));
 	uint32 ret = get_seg_id(hdr->seg.ldaddr, hdr->seg.size);
-	if (hdr->sign[1] == IMG_SIGN2_RUN) {
-		if (hdr->sign[0] == IMG_SIGN1_RUN) {
+	if (hdr->seg.sign[1] == IMG_SIGN2_RUN) {
+		if (hdr->seg.sign[0] == IMG_SIGN1_RUN) {
 			ret |= 1 << 9;	// есть сигнатура RUN
-		} else if (hdr->sign[0] == IMG_SIGN1_SWP) {
+		} else if (hdr->seg.sign[0] == IMG_SIGN1_SWP) {
 			ret |= 1 << 8;  // есть сигнатура SWP
 		};
 	}
@@ -566,7 +566,7 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION load_segs(uint32 faddr, PIMG2HEAD hdr, uint8 
 		} else if (seg_id) {
 #if CONFIG_DEBUG_LOG > 2
 			DBG_8195A("Skip Flash seg%d: 0x%08x -> %s: 0x%08x, size: %d\n", segnum,
-					faddr, txt_tab_seg[seg_id], hdr->seg.ldaddr, hdr->seg.size);
+					fnextaddr, txt_tab_seg[seg_id], hdr->seg.ldaddr, hdr->seg.size);
 #endif
 			fnextaddr += hdr->seg.size;
 		} else {
@@ -574,7 +574,7 @@ LOCAL uint32 BOOT_RAM_TEXT_SECTION load_segs(uint32 faddr, PIMG2HEAD hdr, uint8 
 			fnextaddr -= 8;
 			break;
 		}
-		fnextaddr += flashcpy(fnextaddr, hdr, sizeof(IMGSEGHEAD)) + 8;
+		fnextaddr += flashcpy(fnextaddr, hdr, sizeof(IMGSEGHEAD));
 		segnum++;
 	}
 	return fnextaddr;

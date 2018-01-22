@@ -97,3 +97,4 @@ proc load_ram_binary { local_filename address } {
 	boot_from_ram
 	resume
 }
+
