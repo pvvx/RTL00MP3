@@ -30,14 +30,13 @@ OBJCOPY ?= $(CROSS_COMPILE)objcopy
 OBJDUMP ?= $(CROSS_COMPILE)objdump
 
 # Make bunary tools
-TOOLS_PATH ?= component/soc/realtek/8195a/misc/iar_utility/common/tools/
+TOOLS_PATH ?= $(SDK_PATH)../tools/
 ifneq ($(shell uname), Linux)
 EXE = .exe
+IMAGETOOL ?= $(TOOLS_PATH)rtlaimage/rtlaimage$(EXE)
+else
+IMAGETOOL ?= $(TOOLS_PATH)rtlaimage/rtlaimage.py
 endif
-PICK = $(TOOLS_PATH)pick$(EXE)
-PADDING = $(TOOLS_PATH)padding$(EXE)
-CHCKSUM = $(TOOLS_PATH)checksum$(EXE)
-IMAGETOOL = $(TOOLS_PATH)rtlaimage$(EXE)
 
 # openocd tools
 OPENOCD = $(OPENOCD_PATH)openocd.exe
@@ -90,7 +89,7 @@ mp: OTA_IMAGE = $(BIN_DIR)/ota_mp.bin
 
 
 .PHONY: genbin flashburn reset test readfullflash flashboot flashwebfs flash_OTA runram runsdram
-.NOTPARALLEL: all mp genbin1 genbin23 flashburn reset test readfullflash _endgenbin flashwebfs flash_OTA
+.NOTPARALLEL: all mp genbin flashburn reset test readfullflash _endgenbin flashwebfs flash_OTA
 
 all: $(ELFFILE) $(FLASH_IMAGE) _endgenbin
 mp: $(ELFFILE) $(FLASH_IMAGE) _endgenbin

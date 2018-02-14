@@ -47,7 +47,7 @@ mp: LIBS +=_rtsp _usbh _usbd
 endif
 
 # m c nosys gcc
-PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/gcc
+PATHLIBS = sdk/component/soc/realtek/8195a/misc/bsp/lib/common/GCC
 ifdef USE_SDRAM
 CFLAGS += -DUSE_SDRAM=1
 LDFILE ?= rlx8195A-symbol-v04-img3.ld

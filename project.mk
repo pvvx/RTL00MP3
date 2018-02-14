@@ -51,5 +51,3 @@ ADD_SRC_C += project/src/driver/i2s_freertos.c
 
 #include
 INCLUDES += project/inc/mad
-
-

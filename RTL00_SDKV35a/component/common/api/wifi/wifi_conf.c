@@ -519,7 +519,7 @@ int wifi_connect(
 			struct {
 				u8 bssid[ETH_ALEN + 2];
 				void * p;
-			} bs = { 0 };
+			} bs;
 			memcpy(bs.bssid, pWifi->bssid.octet, ETH_ALEN);
 			for(int i = 0; i < ETH_ALEN; i++) {
 				flg += bs.bssid[i];
