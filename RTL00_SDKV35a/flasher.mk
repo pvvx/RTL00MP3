@@ -33,10 +33,9 @@ OBJDUMP ?= $(CROSS_COMPILE)objdump
 TOOLS_PATH ?= $(SDK_PATH)../tools/
 ifneq ($(shell uname), Linux)
 EXE = .exe
-IMAGETOOL ?= $(TOOLS_PATH)rtlaimage/rtlaimage$(EXE)
-else
-IMAGETOOL ?= $(TOOLS_PATH)rtlaimage/rtlaimage.py
 endif
+
+IMAGETOOL ?= $(PYTHON) $(TOOLS_PATH)rtlaimage/rtlaimage.py
 
 # openocd tools
 OPENOCD = $(OPENOCD_PATH)openocd.exe

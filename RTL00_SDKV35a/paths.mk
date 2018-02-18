@@ -8,6 +8,7 @@ FLASHER_TYPE ?= Jlink
 FLASHER_PATH ?= $(SDK_PATH)flasher/
 JLINK_PATH ?= D:/MCU/SEGGER/JLink_V612i/
 JLINK_GDBSRV ?= JLinkGDBServer.exe
+PYTHON ?= C:/Python27/python
 #---------------------------
 # Default
 #---------------------------
